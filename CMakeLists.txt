@@ -9,7 +9,7 @@ ADD_EXECUTABLE(maxcurvature maxcurvature.cxx)
 ADD_EXECUTABLE(fiberprocess fiberprocess.cxx)
 
 TARGET_LINK_LIBRARIES(dtiestim ITKCommon ITKNumerics ITKNrrdIO ITKIO
-ITKStatistics itkvnl ${BOOST_LIBRARIES} bessel gfortran)
+ITKStatistics itkvnl ${BOOST_LIBRARIES})
 TARGET_LINK_LIBRARIES(fiberprocess ITKCommon ITKNumerics ITKNrrdIO ITKIO
 ITKStatistics ${BOOST_LIBRARIES})
 TARGET_LINK_LIBRARIES(dtiprocess ITKCommon ITKNumerics ITKNrrdIO ITKIO
