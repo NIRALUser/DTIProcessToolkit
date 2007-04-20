@@ -58,7 +58,7 @@ HFieldToDeformationFieldImageFilter<TInputImage,TOutputImage>::ComputeDisplaceme
     }
 
   input->TransformIndexToPhysicalPoint(ind,ipt);
-//  input->TransformContinuousIndexToPhysicalPoint(hind,hpt);
+  input->TransformContinuousIndexToPhysicalPoint(hind,hpt);
 
   return hpt - ipt;
 }
