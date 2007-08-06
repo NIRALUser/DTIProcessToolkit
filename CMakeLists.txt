@@ -7,6 +7,7 @@ ADD_EXECUTABLE(nrrdvtk nrrdvtk.cxx)
 ADD_EXECUTABLE(dtiaverage dtiaverage.cxx)
 ADD_EXECUTABLE(maxcurvature maxcurvature.cxx)
 ADD_EXECUTABLE(fiberprocess fiberprocess.cxx)
+ADD_EXECUTABLE(labeltable labeltable.cxx)
 
 TARGET_LINK_LIBRARIES(dtiestim ITKCommon ITKNumerics ITKNrrdIO ITKIO
 ITKStatistics itkvnl ${BOOST_LIBRARIES})
@@ -20,4 +21,4 @@ TARGET_LINK_LIBRARIES(dtiaverage ITKCommon ITKNumerics ITKNrrdIO ITKIO
 ITKStatistics)
 TARGET_LINK_LIBRARIES(maxcurvature ITKCommon ITKNumerics ITKNrrdIO ITKIO
 ITKStatistics)
-
+TARGET_LINK_LIBRARIES(labeltable  ITKCommon ITKNumerics ITKNrrdIO ITKIO)
