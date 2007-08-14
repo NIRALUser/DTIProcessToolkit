@@ -8,6 +8,12 @@
 
 int main(int argc, char* argv[])
 {
+  if(argc != 4)
+    {
+    std::cerr << "Usage <infile> <outfile> <textfile>" << std::endl;
+    return EXIT_FAILURE;
+    }
+  
   const char* infile = argv[1];
   const char* outfile = argv[2];
   const char* tablename = argv[3];
