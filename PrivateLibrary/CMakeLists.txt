@@ -1,0 +1,18 @@
+IF(CMAKE_SYSTEM MATCHES "Linux*")
+  EXEC_PROGRAM(gcc ARGS --version OUTPUT_VARIABLE CMAKE_C_COMPILER_VERSION)
+  IF(CMAKE_C_COMPILER_VERSION MATCHES ".*4\\.[0-9]\\.[0-9].*")
+    SET(GCC_FORTRAN_LIBRARY gfortran)
+  ELSE(CMAKE_C_COMPILER_VERSION MATCHES ".*4\\.[0-9]\\.[0-9].*")
+    SET(GCC_FORTRAN_LIBRARY g2c)
+  ENDIF(CMAKE_C_COMPILER_VERSION MATCHES ".*4\\.[0-9]\\.[0-9].*")
+ELSE(CMAKE_SYSTEM MATCHES "Linux*")
+  ERROR("Don't know how to support fortran on non-linux")
+ENDIF(CMAKE_SYSTEM MATCHES "Linux*")
+
+ADD_LIBRARY(DWIPrivateLibrary wrapper.cxx)
+
+TARGET_LINK_LIBRARIES(DWIPrivateLibrary bessel ${GCC_FORTRAN_LIBRARY})
+
+ADD_LIBRARY(TensorOperations tensorscalars.cxx tensordeformation.cxx
+tensorio.cxx deformationfieldoperations.cxx fiberio.cxx)
+TARGET_LINK_LIBRARIES(TensorOperations vtkIO)

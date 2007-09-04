@@ -1,24 +1,19 @@
+PROJECT(DTIProcess)
+
 NeuroLib_USE_ITK()
-NeuroLib_USE_BOOST()
+NeuroLib_USE_VTK()
+NeuroLiB_USE_BOOST()
 
-ADD_EXECUTABLE(dtiestim dtiestim.cxx) # wrapper.cxx)
-ADD_EXECUTABLE(dtiprocess dtiprocess.cxx)
-ADD_EXECUTABLE(nrrdvtk nrrdvtk.cxx)
-ADD_EXECUTABLE(dtiaverage dtiaverage.cxx)
-ADD_EXECUTABLE(maxcurvature maxcurvature.cxx)
-ADD_EXECUTABLE(fiberprocess fiberprocess.cxx)
-ADD_EXECUTABLE(labeltable labeltable.cxx)
+INCLUDE_DIRECTORIES(
+${DTIProcess_SOURCE_DIR}/Library
+${DTIProcess_SOURCE_DIR}/PrivateLibrary
+)
 
-TARGET_LINK_LIBRARIES(dtiestim ITKCommon ITKNumerics ITKNrrdIO ITKIO
-ITKStatistics itkvnl ${BOOST_LIBRARIES})
-TARGET_LINK_LIBRARIES(fiberprocess ITKCommon ITKNumerics ITKNrrdIO ITKIO
-ITKStatistics ${BOOST_LIBRARIES})
-TARGET_LINK_LIBRARIES(dtiprocess ITKCommon ITKNumerics ITKNrrdIO ITKIO
-ITKStatistics ${BOOST_LIBRARIES})
-TARGET_LINK_LIBRARIES(nrrdvtk ITKCommon ITKNumerics ITKNrrdIO ITKIO
-ITKStatistics)
-TARGET_LINK_LIBRARIES(dtiaverage ITKCommon ITKNumerics ITKNrrdIO ITKIO
-ITKStatistics)
-TARGET_LINK_LIBRARIES(maxcurvature ITKCommon ITKNumerics ITKNrrdIO ITKIO
-ITKStatistics)
-TARGET_LINK_LIBRARIES(labeltable  ITKCommon ITKNumerics ITKNrrdIO ITKIO)
+# Workaround problems with cmake and fortran
+ADD_SUBDIRECTORY(bessel)
+
+ADD_SUBDIRECTORY(Library)
+ADD_SUBDIRECTORY(PrivateLibrary)
+ADD_SUBDIRECTORY(Applications)
+
+ADD_SUBDIRECTORY(Testing)
