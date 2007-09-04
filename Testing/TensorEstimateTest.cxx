@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: TensorEstimateTest.cxx,v $
   Language:  C++
-  Date:      $Date: 2007-09-04 20:12:29 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2007-09-04 21:58:29 $
+  Version:   $Revision: 1.2 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -17,6 +17,7 @@
 #include "itkNewDiffusionTensor3DReconstructionImageFilter.h"
 #include "itkDiffusionTensor3DReconstructionNonlinearImageFilter.h"
 #include "itkDiffusionTensor3DReconstructionWeightedImageFilter.h"
+#include "itkTensorApparentDiffusionCoefficientImageFilter.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include <iostream>
 
@@ -112,16 +113,18 @@ int TensorEstimateTest(int, char*[])
   itk::ImageRegionIteratorWithIndex< DWIImageType > git( 
     dwimage, regionGradientImage );
   git.GoToBegin();
+
+  typedef itk::Functor::TensorApparentDiffusionCoefficient<itk::DiffusionTensor3D<double>, vnl_vector_fixed<double, 3>, double> ADC;
   while( !git.IsAtEnd() )
     {
     VectorDWIPixelType dwiVector = git.Get();
     dwiVector[0] = 100; // Reference intensity of 100
     for(unsigned int i = 1; i < numberOfGradientImages; ++i)
       {
-      std::cout << "ADC[" << i << "]: " << truetensor.GetApparentDiffusionCoefficient(gradientDirections->ElementAt(i)) << std::endl;
-      std::cout << -bvalue*truetensor.GetApparentDiffusionCoefficient(gradientDirections->ElementAt(i)) << std::endl;
-      std::cout << dwiVector[0]*exp(-bvalue*truetensor.GetApparentDiffusionCoefficient(gradientDirections->ElementAt(i))) << std::endl;
-      dwiVector[i] = static_cast<short int>(dwiVector[0]*exp(-bvalue*truetensor.GetApparentDiffusionCoefficient(gradientDirections->ElementAt(i))));
+      std::cout << "ADC[" << i << "]: " << ADC()(truetensor, gradientDirections->ElementAt(i)) << std::endl;
+      std::cout << -bvalue*ADC()(truetensor, gradientDirections->ElementAt(i)) << std::endl;
+      std::cout << dwiVector[0]*exp(-bvalue*ADC()(truetensor, gradientDirections->ElementAt(i))) << std::endl;
+      dwiVector[i] = static_cast<short int>(dwiVector[0]*exp(-bvalue*ADC()(truetensor, gradientDirections->ElementAt(i))));
       }
     git.Set( dwiVector );
     ++git;
