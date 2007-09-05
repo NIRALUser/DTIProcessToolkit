@@ -1,3 +1,20 @@
+/*=========================================================================
+
+  Program:   NeuroLib (DTI command line tools)
+  Language:  C++
+  Date:      $Date: 2007-09-05 19:35:36 $
+  Version:   $Revision: 1.2 $
+  Author:    Casey Goodlett (gcasey@sci.utah.edu)
+             Pierre Fillard (Pierre.Fillard@sophia.inria.fr)
+
+  Copyright (c)  Casey Goodlett. All rights reserved.
+  See NeuroLibCopyright.txt or http://www.ia.unc.edu/dev/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notices for more information.
+
+=========================================================================*/
 #include <iostream>
 #include <vector>
 

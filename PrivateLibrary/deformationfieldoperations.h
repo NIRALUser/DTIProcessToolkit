@@ -6,7 +6,7 @@
 
 enum DeformationFieldType {HField, Displacement};
 
-DeformationImageType::Pointer readDeformationField(std::string warpfile, DeformationFieldType dft = HField);
+DeformationImageType::Pointer readDeformationField(std::string warpfile, DeformationFieldType dft);
 
 
 #endif

@@ -1,3 +1,19 @@
+/*=========================================================================
+
+  Program:   NeuroLib (DTI command line tools)
+  Language:  C++
+  Date:      $Date: 2007-09-05 19:35:36 $
+  Version:   $Revision: 1.2 $
+  Author:    Casey Goodlett (gcasey@sci.utah.edu)
+
+  Copyright (c)  Casey Goodlett. All rights reserved.
+  See NeuroLibCopyright.txt or http://www.ia.unc.edu/dev/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notices for more information.
+
+=========================================================================*/
 // STL includes
 #include <string>
 #include <iostream>
@@ -21,6 +37,9 @@ namespace po = boost::program_options;
 // Bad global variables.  TODO: remove these
 bool VERBOSE=false;
 
+// Validates the interpolation type option string to the the allowed
+// values for interpolation methods.  Currently nearestneighbor,
+// linear, or cubic.
 void validate(boost::any& v,
               const std::vector<std::string>& values,
               InterpolationType* target_type,
@@ -92,19 +111,19 @@ int main(int argc, char* argv[])
     ("verbose,v","produces verbose output")
 
     // Derived outputs
-    ("fa-output,f", po::value<std::string>(),"FA output file")
-    ("fa-gradient-output", po::value<std::string>(),"FA gradient")
+    ("fa-output,f", po::value<std::string>(), "FA output file")
+    ("fa-gradient-output", po::value<std::string>(), "FA gradient")
     ("sigma,s", po::value<double>()->default_value(2.0), "Scale of gradients")
-    ("fa-gradmag-output", po::value<std::string>(),"FA gradient magnitude")
-    ("color-fa-output,c", po::value<std::string>(),"Color FA output file")
-    ("principal-eigenvector-output,V", po::value<std::string>(),"Principal Eigenvector of tensor field")
-    ("closest-dotproduct-output,D", po::value<std::string>(), "Closes dot product of principal eigenvector to all gradient directions")
-    ("md-output,m", po::value<std::string>(),"MD output file")
-    ("negative-eig-output,n", po::value<std::string>(),"Negative eigenvalue detected output file")
+    ("fa-gradmag-output", po::value<std::string>(), "FA gradient magnitude")
+    ("color-fa-output,c", po::value<std::string>(), "Color FA output file")
+    ("principal-eigenvector-output,V", po::value<std::string>(), "Principal Eigenvector of tensor field")
+    ("closest-dotproduct-output,D", po::value<std::string>(),  "Closes dot product of principal eigenvector to all gradient directions")
+    ("md-output,m", po::value<std::string>(), "MD output file")
+    ("negative-eig-output,n", po::value<std::string>(), "Negative eigenvalue binary image output file")
 
     // derived output options
-    ("scalar-float","Write scalar [FA,MD] as unscaled float.  Also causes FA to be unscaled [0..1].")
-    ("double", "Writes output in double precisision")
+    ("scalar-float", "Write scalar [FA,MD] as unscaled float.  Also causes FA to be unscaled [0..1].")
+    // ("double", "Writes output in double precisision") // *Currently Default *
 
     // tensor transformations
     // affine
@@ -117,8 +136,8 @@ int main(int argc, char* argv[])
     ("inv-h-field,I", po::value<std::string>(), "Inverse HField for warp")
 
     // transformation options
-    ("interpolation,i", po::value<InterpolationType>()->default_value(Linear,"linear"), "Interpolation type")
-    ("reorientation", po::value<TensorReorientationType>()->default_value(FiniteStrain,"finite strain"), "Reorientation type")
+    ("interpolation,i", po::value<InterpolationType>()->default_value(Linear,"linear"), "Interpolation type (nearestneighbor, linear, cubic)")
+    ("reorientation", po::value<TensorReorientationType>()->default_value(FiniteStrain,"fs (Finite Strain)"), "Reorientation type (fs, ppd)")
     ;
 
   po::options_description hidden("Hidden options");
@@ -158,6 +177,8 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
     }
 
+  // If the value scale is true (default) we scal FA and MD values to
+  // integer ranges.
   bool scale = true;
   if(vm.count("scalar-float"))
     {
@@ -169,6 +190,7 @@ int main(int argc, char* argv[])
     VERBOSE = true;
     }
 
+  // Read tensor image
   typedef itk::ImageFileReader<TensorImageType> FileReaderType;
   FileReaderType::Pointer dtireader = FileReaderType::New();
   dtireader->SetFileName(vm["dti-image"].as<std::string>().c_str());
@@ -186,6 +208,8 @@ int main(int argc, char* argv[])
   bool readb0 = false;
   double b0 = 0;
 
+  // Parse gradient directions from image header as specified by the
+  // namic conventions defined at http://wiki.na-mic.org/Wiki/index.php/NAMIC_Wiki:DTI:Nrrd_format
   GradientListType::Pointer gradientContainer = GradientListType::New();
 
   itk::MetaDataDictionary & dict = dtireader->GetOutput()->GetMetaDataDictionary();

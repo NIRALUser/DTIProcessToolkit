@@ -1,4 +1,21 @@
-// This program calculates
+/*=========================================================================
+
+  Program:   NeuroLib (DTI command line tools)
+  Language:  C++
+  Date:      $Date: 2007-09-05 19:35:36 $
+  Version:   $Revision: 1.2 $
+  Author:    Casey Goodlett (gcasey@sci.utah.edu)
+
+  Copyright (c)  Casey Goodlett. All rights reserved.
+  See NeuroLibCopyright.txt or http://www.ia.unc.edu/dev/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notices for more information.
+
+=========================================================================*/
+// This program estimates a single diffusion tensor model at every
+// voxel in an image.
 
 // STL includes
 #include <string>
@@ -100,23 +117,24 @@ int main(int argc, char* argv[])
   po::options_description config("Usage: dtiestim dwi-image tensor-output [options]");
   config.add_options()
     ("help,h", "produce this help message")
-    ("brain-mask,M", po::value<std::string>(), "sets brain mask")
-    ("bad-region-mask,B", po::value<std::string>(), "sets bad region mask")
-    ("threshold-mask,T", po::value<std::string>(), "File to write mask estimated from b0 and threshold")
+    ("brain-mask,M", po::value<std::string>(), "Brain mask.  Image where for every voxel == 0 the tensors are not estimated.")
+    ("bad-region-mask,B", po::value<std::string>(), "Bad region mask.  Image where for every voxel > 0 the tensors are not estimated.")
+    ("threshold-mask,T", po::value<std::string>(), "File to write image mask estimated from b0 and threshold.")
     
      //("double,d", "Writes tensors in double precision -- currently default")
-    ("threshold,t", po::value<DWIPixelType>(),"Baseline threshold for estimation")
-    ("method,m", po::value<EstimationType>()->default_value(Linear,"Linear Method"),"Estimation method")
-    ("step,s", po::value<double>()->default_value(1.0e-8),"Gradient descent step size")
-    ("sigma", po::value<double>(),"Sigma for Rician ML estimation")
+    
+    ("threshold,t", po::value<DWIPixelType>(),"Baseline threshold for estimation.  If not specified calculated using an OTSU threshold on the baseline image.")
+    ("method,m", po::value<EstimationType>()->default_value(Linear,"lls (Linear Least Squares)"),"Estimation method (lls,wls,nls,ml)")
+    ("step,s", po::value<double>()->default_value(1.0e-8), "Gradient descent step size (for nls and ml methods)")
+    ("sigma", po::value<double>(),"Sigma parameter for Rician ML estimation (Std deviation of Gaussian noise in k-space).")
     ("verbose,v", "Verbose output")
   ;
 //    ("fa-scale,s", po::value<unsigned int>(&scale)->default_value(10000),"FA scale factor.  If set the FA value is scaled by this factor and written out in an integer image format.")
 
   po::options_description hidden("Hidden options");
   hidden.add_options()
-    ("dwi-image", po::value<std::string>(), "DWI image volume")
-    ("tensor-output", po::value<std::string>(), "Tensor output")
+    ("dwi-image", po::value<std::string>(), "DWI image volume.")
+    ("tensor-output", po::value<std::string>(), "Tensor output.")
   ;
 
   po::options_description all;

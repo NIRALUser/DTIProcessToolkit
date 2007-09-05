@@ -1,3 +1,19 @@
+/*=========================================================================
+
+  Program:   NeuroLib (DTI command line tools)
+  Language:  C++
+  Date:      $Date: 2007-09-05 19:35:36 $
+  Version:   $Revision: 1.2 $
+  Author:    Casey Goodlett (gcasey@sci.utah.edu)
+
+  Copyright (c)  Casey Goodlett. All rights reserved.
+  See NeuroLibCopyright.txt or http://www.ia.unc.edu/dev/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notices for more information.
+
+=========================================================================*/
 // STL includes
 #include <string>
 #include <iostream>
@@ -33,9 +49,9 @@ int main(int argc, char* argv[])
   config.add_options()
     ("help,h", "produce this help message")
     ("verbose,v", "produces verbose output")
-    ("fiber-output,o", po::value<std::string>(), "Warped fiber file based on a deformation field.  Must input h as \"h-field\" of transform")
+    ("fiber-output,o", po::value<std::string>(), "Output fiber file.  May be warped or updated with new data depending on other options used.")
 
-    ("h-field,H", po::value<std::string>(), "HField for warp")
+    ("h-field,H", po::value<std::string>(), "HField for warp and statistics lookup.  If this option is used tensor-volume must also be specified.")
     ("no-warp,n", "Do not warp the geometry of the tensors only obtain the new statistics")
     ("tensor-volume,T", po::value<std::string>(), "Interpolate tensor values from the given field")
 
@@ -78,10 +94,10 @@ int main(int argc, char* argv[])
   // End option reading configuration
 
   // Display help if asked or program improperly called
-  if(vm.count("help") || !vm.count("fiber-file") ||
-    !vm.count("fiber-output") || !vm.count("h-field"))
+  if(vm.count("help") || !vm.count("fiber-file"))
     {
     std::cout << config << std::endl;
+    
     if(vm.count("help"))
       return EXIT_SUCCESS;
     else
@@ -93,14 +109,21 @@ int main(int argc, char* argv[])
   // Reader fiber bundle
   GroupType::Pointer group = readFiberFile(vm["fiber-file"].as<std::string>());
 
-  // Only if we need deformation field
-  std::string warpfile(vm["h-field"].as<std::string>());
-
-  DeformationImageType::Pointer deformationfield = readDeformationField(warpfile, HField);
+  DeformationImageType::Pointer deformationfield(NULL);
+  if(vm.count("h-field"))
+    deformationfield = readDeformationField(vm["h-field"].as<std::string>(), HField);
+//  else if(vm.count("displacement-field"))
+//    deformationfield = readDeformationField(vm["displacement-field"].as<std::string>(), Displacement);
+  else
+    deformationfield = NULL;
 
   typedef itk::VectorLinearInterpolateImageFunction<DeformationImageType, double> DeformationInterpolateType;
-  DeformationInterpolateType::Pointer definterp = DeformationInterpolateType::New();
-  definterp->SetInputImage(deformationfield);
+  DeformationInterpolateType::Pointer definterp(NULL);
+  if(deformationfield)
+    {
+    definterp = DeformationInterpolateType::New();
+    definterp->SetInputImage(deformationfield);
+    }
 
   // Setup new fiber bundle group
   GroupType::Pointer newgroup = GroupType::New();
@@ -112,16 +135,10 @@ int main(int argc, char* argv[])
     std::cout << "Getting spacing" << std::endl;
 
   // Iterate over all tubes in the group
-  const double* sospacing = dynamic_cast<DTITubeType*>(children->front().GetPointer())->GetSpacing();
-  double spacing[3];
-  spacing[0] = sospacing[0];
-  spacing[1] = sospacing[1];
-  spacing[2] = sospacing[2];
-
+  const double* spacing = dynamic_cast<DTITubeType*>(children->front().GetPointer())->GetSpacing();
   newgroup->SetSpacing(spacing);
 
   const itk::Vector<double, 3> sooffset = group->GetObjectToParentTransform()->GetOffset();
-
   newgroup->GetObjectToParentTransform()->SetOffset(sooffset.GetDataPointer());
 
   // Setup tensor file if available
@@ -178,12 +195,16 @@ int main(int argc, char* argv[])
       for(unsigned int i =0; i < 3; i++)
         ci[i] = p[i];
 
-      DeformationPixelType warp(definterp->EvaluateAtContinuousIndex(ci).GetDataPointer());
-      
-      if(!vm.count("no-warp"))
+      if(deformationfield)
         {
-        for(unsigned int i =0; i < 3; i++)
-          p[i] = p[i] + warp[i] / spacing[i];
+        
+        DeformationPixelType warp(definterp->EvaluateAtContinuousIndex(ci).GetDataPointer());
+        
+        if(!vm.count("no-warp"))
+          {
+          for(unsigned int i =0; i < 3; i++)
+            p[i] = p[i] + warp[i] / spacing[i];
+          }
         }
       
       newpoint.SetPosition(p);
@@ -213,6 +234,10 @@ int main(int argc, char* argv[])
         newpoint.AddField("l1", eigenvalues[0]);
         newpoint.AddField("l2", eigenvalues[1]);
         newpoint.AddField("l3", eigenvalues[2]);
+        }
+      else
+        {
+        newpoint.SetTensorMatrix(pit->GetTensorMatrix());
         }
 
       newpoints.push_back(newpoint);

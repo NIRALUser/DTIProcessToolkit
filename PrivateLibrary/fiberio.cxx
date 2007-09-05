@@ -65,10 +65,16 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup)
 
       for (unsigned int k = 0; k < nPointsOnFiber; k++)
         {
-        itk::Point<double, 3> v = tube->GetPoint(k)->GetPosition();
+        itk::Point<double, 3> v(tube->GetPoint(k)->GetPosition());
+        itk::Vector<double, 3> spacing(tube->GetSpacing());
+        itk::Vector<double, 3> origin(tube->GetObjectToWorldTransform()->GetOffset());
+
         vtkIdType id;
         // Need to multiply v by spacing and origin
-        id = pts->InsertNextPoint(v[0], v[1], v[2]);
+        id = pts->InsertNextPoint(v[0] * spacing[0] + origin[0],
+                                  v[1] * spacing[1] + origin[1],
+                                  v[2] * spacing[2] + origin[2]);
+
         ids->InsertNextId(id);
         
         itk::DTITubeSpatialObjectPoint<3>* sopt = dynamic_cast<itk::DTITubeSpatialObjectPoint<3>* >(tube->GetPoint(k));
