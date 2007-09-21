@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2007-09-05 19:35:36 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2007-09-21 17:41:23 $
+  Version:   $Revision: 1.3 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -196,8 +196,6 @@ int main(int argc, char* argv[])
     }
   catch( ... )
     {
-    if(VERBOSE)
-      std::cout << "Sigma not set" << std::endl;
     if(vm["method"].as<EstimationType>() == MaximumLikelihood)
       {
       std::cerr << "Noise level not set for optimization method" << std::endl;
@@ -214,6 +212,8 @@ int main(int argc, char* argv[])
 
   try
     {
+    if(VERBOSE)
+      std::cout << "Reading Data" << std::endl;
     dwireader->Update();
     }
   catch (itk::ExceptionObject & e)
@@ -248,6 +248,64 @@ int main(int argc, char* argv[])
   typedef DiffusionEstimationFilterType::GradientDirectionType GradientType;
 
   itk::MetaDataDictionary & dict = dwi->GetMetaDataDictionary();
+
+  vnl_matrix<double> transform(3,3);
+  transform.set_identity();
+
+  // Apply measurement frame if it exists
+  if(dict.HasKey(NRRD_MEASUREMENT_KEY))
+    {
+    if(VERBOSE)
+      std::cout << "Reorienting gradient directions to image coordinate frame" << std::endl;
+
+    // measurement frame
+    vnl_matrix<double> mf(3,3);
+    // imaging frame
+    vnl_matrix<double> imgf(3,3);
+    std::vector<std::vector<double> > nrrdmf;
+    itk::ExposeMetaData<std::vector<std::vector<double> > >(dict,NRRD_MEASUREMENT_KEY,nrrdmf);
+
+    imgf = dwi->GetDirection().GetVnlMatrix();
+    if(VERBOSE)
+      {
+      std::cout << "Image frame: " << std::endl;
+      std::cout << imgf << std::endl;
+      }
+
+    for(unsigned int i = 0; i < 3; ++i)
+      {
+      for(unsigned int j = 0; j < 3; ++j)
+        {
+        mf(i,j) = nrrdmf[j][i];
+
+        nrrdmf[j][i] = imgf(i,j);
+        }
+      }
+
+    if(VERBOSE)
+      {
+      std::cout << "Meausurement frame: " << std::endl;
+      std::cout << mf << std::endl;
+      }
+
+    itk::EncapsulateMetaData<std::vector<std::vector<double> > >(dict,NRRD_MEASUREMENT_KEY,nrrdmf);
+    // prevent slicer error
+
+    transform = vnl_svd<double>(imgf).inverse()*mf;
+
+    if(VERBOSE)
+      {
+      std::cout << "Transform: " << std::endl;
+      std::cout << transform << std::endl;
+      }
+
+    }
+
+  if(dict.HasKey("modality"))
+    {
+    itk::EncapsulateMetaData<std::string>(dict,"modality","DTMRI");
+    }
+
   std::vector<std::string> keys = dict.GetKeys();
   for(std::vector<std::string>::const_iterator it = keys.begin();
       it != keys.end(); ++it)
@@ -269,7 +327,7 @@ int main(int argc, char* argv[])
       GradientType g;
       iss >> g[0] >> g[1] >> g[2];
 
-//      g = g/ sqrt(2.0);
+      g = transform * g;
 
       unsigned int ind;
       std::string temp = it->substr(it->find_last_of('_')+1);
@@ -304,12 +362,6 @@ int main(int argc, char* argv[])
   if(VERBOSE)
     std::cout << "BValue: " << b0 << std::endl;
 
- //  if(vm.count("brain-mask") && vm.count("bad-region-mask"))
-//     {
-//     std::cerr << "--brain-mask and --bad-region-mask are mutually exclusive" << std::endl;
-//     return EXIT_FAILURE;
-//     }
-
   // Read brain mask if it is specified.  
   if(vm.count("brain-mask"))
     {
@@ -321,8 +373,12 @@ int main(int argc, char* argv[])
       {
       maskreader->Update();
       
+      if(VERBOSE)
+        std::cout << "Masking Data" << std::endl;
+
       typedef itk::VectorMaskImageFilter<VectorImageType,MaskImageType,VectorImageType> MaskFilterType;
       MaskFilterType::Pointer mask = MaskFilterType::New();
+//      mask->ReleaseDataFlagOn();
       mask->SetInput1(dwireader->GetOutput());
       mask->SetInput2(maskreader->GetOutput());
       mask->Update();
@@ -342,15 +398,19 @@ int main(int argc, char* argv[])
     {
     typedef itk::ImageFileReader<MaskImageType> MaskFileReaderType;
     MaskFileReaderType::Pointer maskreader = MaskFileReaderType::New();
-    maskreader->SetFileName(vm["bad-region-mask"].as<std::string>().c_str());
+
     
     //  Go ahead and read data so we can use adaptors as necessary
     try
       {
+      if(VERBOSE)
+        std::cout << "Masking Bad Regions" << std::endl;
+
       maskreader->Update();
       
       typedef itk::VectorMaskNegatedImageFilter<VectorImageType,MaskImageType,VectorImageType> MaskFilterType;
       MaskFilterType::Pointer mask = MaskFilterType::New();
+//      mask->ReleaseDataFlagOn();
       mask->SetInput1(dwi);
       mask->SetInput2(maskreader->GetOutput());
       mask->Update();
@@ -439,11 +499,10 @@ int main(int argc, char* argv[])
     }
 
   DiffusionEstimationFilterType::Pointer llsestimator = DiffusionEstimationFilterType::New();
-  
+  llsestimator->ReleaseDataFlagOn();
   llsestimator->SetGradientImage(gradientContainer,dwi);
   llsestimator->SetBValue(b0);
   llsestimator->SetThreshold(threshold);
-  llsestimator->SetNumberOfThreads(1);
   llsestimator->Update();
   tensors = llsestimator->GetOutput();
 
@@ -453,7 +512,8 @@ int main(int argc, char* argv[])
   else if(vm["method"].as<EstimationType>() == Nonlinear)
     {
     NLDiffusionEstimationFilterType::Pointer estimator = NLDiffusionEstimationFilterType::New();
-
+    estimator->ReleaseDataFlagOn();
+    
     TensorImageType::Pointer llstensors = tensors;
 
     estimator->SetGradientImage(gradientContainer,dwi);
@@ -468,6 +528,7 @@ int main(int argc, char* argv[])
   else if(vm["method"].as<EstimationType>() == Weighted)
     {
     WLDiffusionEstimationFilterType::Pointer estimator = WLDiffusionEstimationFilterType::New();
+    estimator->ReleaseDataFlagOn();
 
     TensorImageType::Pointer llstensors = tensors;
 
@@ -476,13 +537,14 @@ int main(int argc, char* argv[])
     estimator->SetThreshold(threshold);
     estimator->SetInitialTensor(llstensors);
     estimator->SetNumberOfIterations(3);
-    estimator->SetNumberOfThreads(1);
     estimator->Update();
     tensors = estimator->GetOutput();
     }
   else if(vm["method"].as<EstimationType>() == MaximumLikelihood)
     {
     MLDiffusionEstimationFilterType::Pointer estimator = MLDiffusionEstimationFilterType::New();
+    estimator->ReleaseDataFlagOn();
+
     TensorImageType::Pointer llstensors = tensors;
 
     estimator->SetGradientImage(gradientContainer,dwi);
@@ -498,56 +560,13 @@ int main(int argc, char* argv[])
     }
   else
     {
-    std::cerr << "Invalid estimation method\n"  << std::endl;
+    std::cerr << "Invalid estimation method"  << std::endl;
     return EXIT_FAILURE;
     }
       
   // wp = D*x
   // wv = M*x
   // wv' = D'M*x
-
-  // Apply measurement frame if it exists
-  if(dict.HasKey(NRRD_MEASUREMENT_KEY))
-    {
-    // measurement frame
-    vnl_matrix<double> mf(3,3);
-    // imaging frame
-    vnl_matrix<double> imgf(3,3);
-    
-    std::vector<std::vector<double> > nrrdmf;
-    itk::ExposeMetaData<std::vector<std::vector<double> > >(dict,NRRD_MEASUREMENT_KEY,nrrdmf);
-
-    imgf = tensors->GetDirection().GetVnlMatrix();
-    for(unsigned int i = 0; i < 3; ++i)
-      {
-      for(unsigned int j = 0; j < 3; ++j)
-        {
-        mf(i,j) = nrrdmf[i][j];
-
-        if(i == j)
-          nrrdmf[i][j] = 1.0;
-        else
-          nrrdmf[i][j] = 0.0;
-        }
-      }
-
-    itk::EncapsulateMetaData<std::vector<std::vector<double> > >(dict,NRRD_MEASUREMENT_KEY,nrrdmf);
-
-    // prevent slicer error
-    if(dict.HasKey("modality"))
-      {
-      itk::EncapsulateMetaData<std::string>(dict,"modality","DTMRI");
-      }
-
-
-    typedef itk::TensorRotateImageFilter<TensorImageType, TensorImageType, double> TensorRotateFilterType;
-    TensorRotateFilterType::Pointer trotate = TensorRotateFilterType::New();
-    trotate->SetInput(tensors);
-    trotate->SetRotation(vnl_svd<double>(imgf).inverse()*mf);
-    trotate->Update();
-    tensors = trotate->GetOutput();
-    
-    }
 
   // Write tensor file if requested
   try
