@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2007-09-05 19:35:36 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2007-11-30 18:44:14 $
+  Version:   $Revision: 1.3 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -31,6 +31,7 @@
 // dtiprocess headers
 #include "transforms.h"
 #include "tensoroperations.h"
+#include "imageio.h"
 
 namespace po = boost::program_options;
 
@@ -274,25 +275,34 @@ int main(int argc, char* argv[])
   // Compute FA image
   if(vm.count("fa-output"))
     {
-    createFA(dtireader->GetOutput(),vm["fa-output"].as<std::string>(),scale);
+    if(scale)
+      writeImage(vm["fa-output"].as<std::string>(), 
+                 createFA<unsigned short>(dtireader->GetOutput()));
+    else
+      writeImage(vm["fa-output"].as<std::string>(), 
+                 createFA<double>(dtireader->GetOutput()));
     }
 
   if(vm.count("fa-gradient-output"))
     {
-    createFAGradient(dtireader->GetOutput(),vm["fa-gradient-output"].as<std::string>(),sigma);
+    writeImage(vm["fa-gradient-output"].as<std::string>(), 
+               createFAGradient(dtireader->GetOutput(), sigma));
     }
 
   if(vm.count("fa-gradmag-output"))
     {
-    createFAGradMag(dtireader->GetOutput(),vm["fa-gradmag-output"].as<std::string>(),sigma);
+    writeImage(vm["fa-gradmag-output"].as<std::string>(), 
+               createFAGradMag(dtireader->GetOutput(), sigma));
     }
 
   if(vm.count("color-fa-output"))
     {
-    createColorFA(dtireader->GetOutput(),vm["color-fa-output"].as<std::string>());
+    writeImage(vm["color-fa-output"].as<std::string>(), 
+               createColorFA(dtireader->GetOutput()));
     }
 
-  if(vm.count("principal-eigenvector-output") || vm.count("closest-dotproduct-output"))
+  if(vm.count("principal-eigenvector-output") || 
+     vm.count("closest-dotproduct-output"))
     {
     const std::string peo(vm.count("principal-eigenvector-output") ?
                           vm["principal-eigenvector-output"].as<std::string>() :
@@ -307,12 +317,18 @@ int main(int argc, char* argv[])
 
   if(vm.count("md-output"))
     {
-    createMD(dtireader->GetOutput(),vm["md-output"].as<std::string>(),scale);
+    if(scale)
+      writeImage(vm["md-output"].as<std::string>(), 
+                 createMD<unsigned short>(dtireader->GetOutput()));
+    else
+      writeImage(vm["md-output"].as<std::string>(), 
+                 createMD<double>(dtireader->GetOutput()));
     }
 
   if(vm.count("negative-eig-output"))
     {
-    createNegativeEigenValueLabel(dtireader->GetOutput(),vm["negative-eig-output"].as<std::string>());
+    writeImage(vm["negative-eig-output"].as<std::string>(), 
+               createNegativeEigenValueLabel(dtireader->GetOutput()));
     }
 
 
@@ -323,9 +339,9 @@ int main(int argc, char* argv[])
       std::cerr << "Tensor rotation requested, but dof file not specified" << std::endl;
       return EXIT_FAILURE;
       }
-    createROT(dtireader->GetOutput(),
-              vm["rot-output"].as<std::string>(),
-              vm["dof-file"].as<std::string>());
+    writeImage(vm["rot-output"].as<std::string>(),
+               createROT(dtireader->GetOutput(),
+                         vm["dof-file"].as<std::string>()));
     }
    
 
@@ -336,12 +352,12 @@ int main(int argc, char* argv[])
       std::cerr << "Deformation field info not fully specified" << std::endl;
       return EXIT_FAILURE;
       }
-    createWarp(dtireader->GetOutput(),
-               vm["deformation-output"].as<std::string>(),
-               vm["h-field"].as<std::string>(),
-               vm["inv-h-field"].as<std::string>(),
-               vm["reorientation"].as<TensorReorientationType>(),
-               vm["interpolation"].as<InterpolationType>());
+    writeImage(vm["deformation-output"].as<std::string>(),
+               createWarp(dtireader->GetOutput(),
+                          vm["h-field"].as<std::string>(),
+                          vm["inv-h-field"].as<std::string>(),
+                          vm["reorientation"].as<TensorReorientationType>(),
+                          vm["interpolation"].as<InterpolationType>()));
     }
 
   return EXIT_SUCCESS;

@@ -13,6 +13,6 @@ ADD_LIBRARY(DWIPrivateLibrary wrapper.cxx)
 
 TARGET_LINK_LIBRARIES(DWIPrivateLibrary bessel ${GCC_FORTRAN_LIBRARY})
 
-ADD_LIBRARY(TensorOperations tensorscalars.cxx tensordeformation.cxx
-tensorio.cxx deformationfieldoperations.cxx fiberio.cxx)
-TARGET_LINK_LIBRARIES(TensorOperations vtkIO)
+ADD_LIBRARY(TensorOperations SHARED tensorscalars.cxx tensordeformation.cxx)
+ADD_LIBRARY(DTIIO SHARED tensorio.cxx fiberio.cxx deformationfieldio.cxx)
+TARGET_LINK_LIBRARIES(DTIIO vtkIO ITKIO)

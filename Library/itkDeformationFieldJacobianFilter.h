@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkDeformationFieldJacobianFilter.h,v $
   Language:  C++
-  Date:      $Date: 2007-09-04 20:12:29 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2007-11-30 18:44:14 $
+  Version:   $Revision: 1.2 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -30,19 +30,12 @@ namespace itk
 {
 /** \class DeformationFieldJacobianFilter
  *
- * \brief Computes a scalar image from a vector image (e.g., deformation field)
- * input, where each output scalar at each pixel is the Jacobian determinant
- * of the vector field at that location.
+ * \brief Computes a matrix image from a vector image (e.g., deformation field)
+ * input, where each output the Jacobian of the vector field at that location.
  * 
  * \par Overview
  * This filter is based on itkVectorGradientMagnitudeImageFilter and supports
  * the m_DerivativeWeights weights for partial derivatives.
- *
- * Note that the determinant of a zero vector field is also zero, whereas
- * the Jacobian determinant of the corresponding identity warp transformation
- * should be 1.0. In general, in order to obtain the effective deformation
- * Jacobian determinant, 1.0 must be added to each Jacobian value in the 
- * output.
  *
  * \par Template Parameters (Input and Output)
  * This filter has one required template parameter which defines the input
@@ -79,16 +72,6 @@ namespace itk
  * (ON), then these weights will be overridden by weights derived from the
  * image spacing when the filter is updated.  The argument to this method is a
  * C array of TRealValue type.
- *
- * \par Constraints
- * We use vnl_det for determinent computation, which only supports square
- * matrices. So the vector dimension of the input image values must be equal 
- * to the image dimensions, which is trivially true for a deformation field
- * that maps an n-dimensional space onto itself. 
-
- * Currently, dimensions up to and including 4 are supported. This
- * limitation comes from the presence of vnl_det() functions for matrices of
- * dimension up to 4x4.
  *
  * The template parameter TRealType must be floating point (float or double) or
  * a user-defined "real" numerical type with arithmetic operations defined

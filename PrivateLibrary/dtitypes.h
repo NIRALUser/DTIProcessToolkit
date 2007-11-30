@@ -10,6 +10,7 @@
 #include <itkAffineTransform.h>
 #include <itkDTITubeSpatialObject.h>
 #include <itkGroupSpatialObject.h>
+#include <itkRGBPixel.h>
 
 // VNL Includes
 #include <vnl/vnl_matrix.h>
@@ -34,6 +35,7 @@ typedef itk::Image<GradientPixelTyep, DIM> GradientImageType;
 typedef itk::Image<RealType, DIM> RealImageType;
 typedef itk::Image<ScalarPixelType, DIM> IntImageType;
 typedef itk::Image<LabelType, DIM> LabelImageType;
+typedef itk::Image<itk::RGBPixel<unsigned char>,3> RGBImageType;
 
 typedef TensorImageType::SizeType ImageSizeType;
 typedef TensorImageType::SpacingType ImageSpacingType;

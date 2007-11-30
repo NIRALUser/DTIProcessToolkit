@@ -17,15 +17,15 @@
 #include "itkTensorRotateFromDeformationFieldImageFilter.h"
 #include "itkTensorRotateFromDeformationFieldPPDImageFilter.h"
 
-void createROT(TensorImageType::Pointer timg, 
-               const std::string &ofile,
-               const std::string &doffile)
+TensorImageType::Pointer createROT(TensorImageType::Pointer timg, 
+                                   const std::string &doffile)
 {
   RViewTransform<TransformRealType> dof(readDOFFile<TransformRealType>(doffile));
   AffineTransformType::Pointer transform = 
     createITKAffine(dof,
                     timg->GetLargestPossibleRegion().GetSize(),
-                    timg->GetSpacing());
+                    timg->GetSpacing(),
+                    timg->GetOrigin());
   vnl_matrix<TransformRealType> R = 
     getInverseRotation(transform);
 
@@ -74,21 +74,15 @@ void createROT(TensorImageType::Pointer timg,
   expf->SetInput(resampler->GetOutput());
   expf->Update();
 
-  typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;
-  TensorFileWriterType::Pointer twrit = TensorFileWriterType::New();
-  twrit->SetUseCompression(true);
-  twrit->SetInput(expf->GetOutput());
-  twrit->SetFileName(ofile.c_str());
-  twrit->Update();
+  return expf->GetOutput();
     
 }
 
-void createWarp(TensorImageType::Pointer timg,
-                const std::string &ofile,
-                const std::string &warpfile,
-                const std::string &invwarpfile,
-                TensorReorientationType reorientationtype,
-                InterpolationType interpolationtype)
+TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
+                                    const std::string &warpfile,
+                                    const std::string &invwarpfile,
+                                    TensorReorientationType reorientationtype,
+                                    InterpolationType interpolationtype)
 {
   // Read deformation field
   typedef itk::ImageFileReader<DeformationImageType> DeformationImageReader;
@@ -204,12 +198,7 @@ void createWarp(TensorImageType::Pointer timg,
   expf->SetInput(warp->GetOutput());
   expf->Update();
 
-  typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;
-  TensorFileWriterType::Pointer twrit = TensorFileWriterType::New();
-  twrit->SetUseCompression(true);
-  twrit->SetInput(expf->GetOutput());
-  twrit->SetFileName(ofile.c_str());
-  twrit->Update();
+  return expf->GetOutput();
   
 }
 

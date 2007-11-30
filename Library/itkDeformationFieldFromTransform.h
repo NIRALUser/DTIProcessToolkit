@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkDeformationFieldFromTransform.h,v $
   Language:  C++
-  Date:      $Date: 2007-09-04 20:12:29 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2007-11-30 18:44:14 $
+  Version:   $Revision: 1.2 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -18,29 +18,16 @@
 #define __itkDeformationFieldFromTransform_h
 
 #include "itkImageSource.h"
-#include "itkImageRegionIteratorWithIndex.h"
 #include "itkTransform.h"
 
 namespace itk
 {
 
 /** \class DeformationFieldFromTransform
- * \brief Computes a deformation field from two sets of landmarks.
+ * \brief Computes a deformation field from a transform object
  *
- * DeformationFieldFromTransform produces a deformation field from two set of input
- * landmarks.  One set of landmarks are associated to the input space while the
- * second set of landmarks is associated with the output space.
- *
- * A KernelBase spline is used to interpolate the deformations and produce
- * deformation values for all the nodes of the image grid that will be produced
- * as output.
- * 
- * The number of landmarks in the KernelBased spline will have a dramatic
- * effect on both the precision of output deformation field and the
- * computational time required for the filter to complete the estimation. 
- *
- * 
- * This source object expects the image to be of pixel type Vector.
+ * This source object expects the image to be of pixel type Vector
+ * with the same dimension as the transform. 
  *
  * \ingroup ImageSource
  */
@@ -133,10 +120,11 @@ protected:
   void PrintSelf(std::ostream& os, Indent indent) const;
 
   /** 
-   * GenerateData() computes the internal KernelBase spline and resamples
-   * the deformation field.
+   * ThreadedGenerateData() iterates over all pixels and computes the 
+   * local deformation vector from the transform.
    */
-  void GenerateData();
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegion,
+                       int threadId);
 
 private:
   DeformationFieldFromTransform(const Self&); //purposely not implemented

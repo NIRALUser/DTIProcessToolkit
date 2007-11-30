@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Insight Segmentation & Registration Toolkit
-  Module:    $RCSfile: itkLinearInterpolateTensorImageFunction.txx,v $
+  Module:    $RCSfile: itkTensorLinearInterpolateImageFunction.txx,v $
   Language:  C++
   Date:      $Date: 2007-11-30 18:44:14 $
-  Version:   $Revision: 1.2 $
+  Version:   $Revision: 1.1 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -14,9 +14,10 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef _itkLinearInterpolateTensorImageFunction_txx
-#define _itkLinearInterpolateTensorImageFunction_txx
-#include "itkLinearInterpolateTensorImageFunction.h"
+#ifndef __itkTensorLinearInterpolateImageFunction_txx
+#define __itkTensorLinearInterpolateImageFunction_txx
+
+#include "itkTensorLinearInterpolateImageFunction.h"
 
 #include "vnl/vnl_math.h"
 
@@ -28,7 +29,7 @@ namespace itk
  */
 template<class TInputImage, class TCoordRep>
 const unsigned long
-LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
+TensorLinearInterpolateImageFunction< TInputImage, TCoordRep >
 ::m_Neighbors = 1 << TInputImage::ImageDimension;
 
 
@@ -36,8 +37,8 @@ LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
  * Constructor
  */
 template<class TInputImage, class TCoordRep>
-LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
-::LinearInterpolateTensorImageFunction()
+TensorLinearInterpolateImageFunction< TInputImage, TCoordRep >
+::TensorLinearInterpolateImageFunction()
 {
 
 }
@@ -48,7 +49,7 @@ LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
  */
 template<class TInputImage, class TCoordRep>
 void
-LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
+TensorLinearInterpolateImageFunction< TInputImage, TCoordRep >
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
   this->Superclass::PrintSelf(os,indent);
@@ -59,9 +60,9 @@ LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
  * Evaluate at image index position
  */
 template<class TInputImage, class TCoordRep>
-typename LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
+typename TensorLinearInterpolateImageFunction< TInputImage, TCoordRep >
 ::OutputType
-LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
+TensorLinearInterpolateImageFunction< TInputImage, TCoordRep >
 ::EvaluateAtContinuousIndex(
   const ContinuousIndexType& index) const
 {
@@ -73,36 +74,22 @@ LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
    */
   signed long baseIndex[ImageDimension];
   double distance[ImageDimension];
-  long tIndex;
 
   for( dim = 0; dim < ImageDimension; dim++ )
     {
-    // The following "if" block is equivalent to the following line without
-    // having to call floor.
-    //    baseIndex[dim] = (long) floor( index[dim] );
-    if (index[dim] >= 0.0)
-      {
-      baseIndex[dim] = (long) index[dim];
-      }
-    else
-      {
-      tIndex = (long) index[dim];
-      if (double(tIndex) != index[dim])
-        {
-        tIndex--;
-        }
-      baseIndex[dim] = tIndex;
-      }
+    baseIndex[dim] = (long) vcl_floor(index[dim] );
     distance[dim] = index[dim] - double( baseIndex[dim] );
     }
   
   /**
-   * Interpolated value is the weighted sum of each of the surrounding
-   * neighbors. The weight for each neighbor is the fraction overlap
+   * Interpolated value is the weight some of each of the surrounding
+   * neighbors. The weight for each neighbour is the fraction overlap
    * of the neighbor pixel with respect to a pixel centered on point.
    */
-  itk::VectorContainer<unsigned int, double> weights;
-  itk::VectorContainer<unsigned int, PixelType> pixels;
+  OutputType output;
+  output.Fill( 0.0 );
+
+  RealType totalOverlap = 0.0;
 
   for( unsigned int counter = 0; counter < m_Neighbors; counter++ )
     {
@@ -133,8 +120,11 @@ LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
     // get neighbor value only if overlap is not zero
     if( overlap )
       {
-      weights.push_back(overlap);
-      pixels.push_back(this->GetInputImage()->GetPixel(neighIndex));
+      const PixelType input = this->GetInputImage()->GetPixel( neighIndex );
+      for(unsigned int k = 0; k < Dimension; k++ )
+        {
+        output[k] += overlap * static_cast<RealType>( input[k] );
+        }
       totalOverlap += overlap;
       }
 
@@ -146,15 +136,9 @@ LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
 
     }
 
-  PixelType mean;
-  SymmetricSpaceGeometry<double> ssg;
-  TensorStatistics<double> ts(ssg);
-  
-  ts.ComputeWeightedAve(weights,pixels,mean);
-
-  return mean;
+  return ( output );
 }
 
-} // namespace itk
+} // end namespace itk
 
 #endif

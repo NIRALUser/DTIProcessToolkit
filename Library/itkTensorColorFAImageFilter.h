@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkTensorColorFAImageFilter.h,v $
   Language:  C++
-  Date:      $Date: 2007-09-04 20:12:29 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2007-11-30 18:44:14 $
+  Version:   $Revision: 1.2 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -50,6 +50,7 @@ public:
   PixelType operator()( const TInput & x )
     {
       RealValueType fa = x.GetFractionalAnisotropy();
+      if(fa > 1.0) fa = 1.0;
       PixelType color;
       EigenVectorsType mat;
       EigenValuesType e;

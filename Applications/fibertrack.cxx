@@ -1,0 +1,151 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+
+// boost includes
+#include <boost/program_options/option.hpp>
+#include <boost/program_options/positional_options.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/variables_map.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/cmdline.hpp>
+
+#include <itkDiffusionTensor3D.h>
+#include <itkImage.h>
+#include <itkImageFileReader.h>
+#include <itkImageFileWriter.h>
+#include <itkGroupSpatialObject.h>
+#include <itkSpatialObjectWriter.h>
+
+#include "itkImageToDTIStreamlineTractographyFilter.h"
+#include "fiberio.h"
+
+enum IntegrationType {Euler, Midpoint, RK4};
+void validate(boost::any& v,
+              const std::vector<std::string>& values,
+              IntegrationType* target_type,
+              int)
+{
+  using namespace boost::program_options;
+  using boost::any;
+
+  // Make sure no previous assignment to 'a' was made.
+  validators::check_first_occurrence(v);
+  // Extract the first string from 'values'. If there is more than
+  // one string, it's an error, and exception will be thrown.
+  const std::string& s = validators::get_single_string(values);
+
+  if(s == "euler")
+  {
+    v = any(Euler);
+  }
+  else if(s == "modpoint")
+  {
+    v = any(Midpoint);
+  }
+  else if(s == "rk4")
+  {
+    v = any(RK4);
+  }
+  else
+  {
+    throw validation_error("Estimation type invalid.  Only \"lls\", \"nls\", \"wls\", and \"ml\" allowed.");
+  }
+}
+
+
+int main(int argc, char* argv[])
+{
+  namespace po = boost::program_options;
+
+  po::options_description config("Usage: fibertrack [options]");
+  config.add_options()
+    ("help,h", "produce this help message")
+    ("input-tensor-file,i", po::value<std::string>(), "Tensor image")
+    ("input-roi-file,r", po::value<std::string>(), "ROI Image")
+    ("output-fiber-file,o", po::value<std::string>(), "Fiber file")
+    ("source-label,s", po::value<unsigned int>()->default_value(2), "Source label")
+    ("target-label,t", po::value<unsigned int>()->default_value(1), "Target label")
+    ("max-deviation", po::value<double>()->default_value(1/M_SQRT2), "Maximum deviation as cos of the angle between vectors")
+    ("step-size", po::value<double>()->default_value(0.5), "Step size in mm")
+    ("min-fa", po::value<double>()->default_value(0.2), "Minimum anisotropy")
+//    ("integration-method", po::value<RK4>(), "Integration method (euler, midpoint, rk4)")
+    ("verbose,v", "Verbose output")
+    ;
+
+  typedef itk::DiffusionTensor3D<double> DiffusionTensor;
+  typedef itk::Image<DiffusionTensor, 3> TensorImage;
+  typedef itk::Image<unsigned short, 3>  LabelImage;
+  typedef itk::GroupSpatialObject<3>     FiberBundle;
+
+  typedef itk::ImageFileReader<TensorImage> TensorImageReader;
+  typedef itk::ImageFileReader<LabelImage>  LabelImageReader;
+
+  typedef itk::ImageToDTIStreamlineTractographyFilter<TensorImage, LabelImage, FiberBundle> TractographyFilter;
+
+  po::variables_map vm;
+  try
+  {
+    po::store(po::command_line_parser(argc, argv).
+              options(config).run(), vm);
+    po::notify(vm);     
+  } 
+  catch (const po::error &e)
+  {
+    std::cout << e.what() << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  if(vm.count("help") || !vm.count("input-tensor-file") ||
+     !vm.count("input-roi-file") || !vm.count("output-fiber-file"))
+  {
+    std::cout << config << std::endl;
+    if(vm.count("help"))
+      return EXIT_SUCCESS;
+    else
+    {
+      std::cerr << "Tensor image and roi image needs to be specified." << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  TensorImageReader::Pointer tensorreader = TensorImageReader::New();
+  LabelImageReader::Pointer  labelreader  = LabelImageReader::New();
+  
+  tensorreader->SetFileName(vm["input-tensor-file"].as<std::string>());
+  labelreader->SetFileName(vm["input-roi-file"].as<std::string>());
+
+  try
+  {
+    tensorreader->Update();
+    labelreader->Update();
+  }
+  catch( itk::ExceptionObject & e)
+  {
+    std::cerr << e << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Sanity check the ROI and tensor image as they must be consistent
+  // for the filter to work correctly
+  assert(tensorreader->GetOutput()->GetSpacing() == labelreader->GetOutput()->GetSpacing());
+  assert(tensorreader->GetOutput()->GetLargestPossibleRegion() == labelreader->GetOutput()->GetLargestPossibleRegion());
+  assert(tensorreader->GetOutput()->GetOrigin() == labelreader->GetOutput()->GetOrigin());
+  assert(tensorreader->GetOutput()->GetDirection() == labelreader->GetOutput()->GetDirection());
+  
+  TractographyFilter::Pointer fibertracker = TractographyFilter::New();
+  if(vm.count("verbose"))
+    fibertracker->DebugOn();
+  fibertracker->SetTensorImage(tensorreader->GetOutput());
+  fibertracker->SetROIImage(labelreader->GetOutput());
+  fibertracker->SetSourceLabel(vm["source-label"].as<unsigned int>());
+  fibertracker->SetTargetLabel(vm["target-label"].as<unsigned int>());
+  fibertracker->SetMaximumDirectionDeviation(vm["max-deviation"].as<double>());
+  fibertracker->SetMinimumFractionalAnisotropy(vm["min-fa"].as<double>());
+  fibertracker->SetStepSize(vm["step-size"].as<double>());
+  fibertracker->Update();
+
+  writeFiberFile(vm["output-fiber-file"].as<std::string>(), fibertracker->GetOutput());
+
+  return EXIT_SUCCESS;
+}

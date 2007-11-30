@@ -38,12 +38,13 @@ RViewTransform<Precision> readDOFFile(const std::string &doffile)
 }
 
 
-template<class DOFType, class ImageSizeType, class ImageSpacingType>
+template<class DOFType, class ImageSizeType, class ImageSpacingType, class ImagePointType>
 typename itk::AffineTransform<typename DOFType::Precision,
                               ImageSpacingType::Dimension>::Pointer 
 createITKAffine(const DOFType & dof,
                 const ImageSizeType& size,
-                const ImageSpacingType& spacing)
+                const ImageSpacingType& spacing,
+                const ImagePointType& origin)
 {
   typedef typename DOFType::Precision Precision;
   typedef typename itk::AffineTransform<Precision,ImageSpacingType::Dimension> AffineTransformType;
@@ -135,9 +136,9 @@ createITKAffine(const DOFType & dof,
 
   // (Extent - 1)/2 * spacing
   CenterType itkcenter;
-  itkcenter[0] = (size[0]-1)*spacing[0]/2.0;
-  itkcenter[1] = (size[1]-1)*spacing[1]/2.0;
-  itkcenter[2] = (size[2]-1)*spacing[2]/2.0;
+  itkcenter[0] = (size[0]-1)/2.0 * spacing[0] + origin[0];
+  itkcenter[1] = (size[1]-1)/2.0 * spacing[1] + origin[1];
+  itkcenter[2] = (size[2]-1)/2.0 * spacing[2] + origin[2];
   itktransform->SetCenter(itkcenter);
 
   vnl_vector<Precision> tx(3);
@@ -154,28 +155,6 @@ createITKAffine(const DOFType & dof,
   itktranslation[1] = -rt[1];
   itktranslation[2] = -rt[2];
   itktransform->SetTranslation(itktranslation);  
-
-//   // (Extent - 1)/2 * spacing
-//   CenterType itkcenter;
-//   itkcenter[0] = -1.0*spacing[0]/2.0;
-//   itkcenter[1] = -1.0*spacing[1]/2.0;
-//   itkcenter[2] = -1.0*spacing[2]/2.0;
-
-//   itktransform->SetCenter(itkcenter);
-
-//   // the translation needs to be inverted as well
-//   TranslationType itktranslation;
-//   itktranslation[0] = -(size[0]*spacing[0]/2.0)-dof.tx[0];
-//   itktranslation[1] = -(size[1]*spacing[1]/2.0)-dof.tx[1];
-//   itktranslation[2] = -(size[2]*spacing[2]/2.0)-dof.tx[2];
-
-//   itktransform->SetTranslation(itktranslation);  
-
-//   OffsetType itkoffset;
-//   itkoffset[0] = -((size[0]-1.0)*spacing[0]/2.0) - (dof.tx[0]);
-//   itkoffset[1] = -((size[1]-1.0)*spacing[1]/2.0) - (dof.tx[1]);
-//   itkoffset[2] = -((size[2]-1.0)*spacing[2]/2.0) - (dof.tx[2]);
-//   itktransform->SetOffset(itkoffset);
 
   return itktransform;
 }

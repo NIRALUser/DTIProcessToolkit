@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2007-09-05 19:35:36 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2007-11-30 18:44:14 $
+  Version:   $Revision: 1.3 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -79,7 +79,8 @@ int main(int argc, char* argv[])
     // image transform
     transform = createITKAffine(dof,
                                 dwimg->GetLargestPossibleRegion().GetSize(),
-                                dwimg->GetSpacing());
+                                dwimg->GetSpacing(),
+                                dwimg->GetOrigin());
 
     // gradient transform
     // g' = R g

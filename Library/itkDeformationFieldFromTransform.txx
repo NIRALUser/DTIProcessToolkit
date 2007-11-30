@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkDeformationFieldFromTransform.txx,v $
   Language:  C++
-  Date:      $Date: 2007-09-04 20:12:29 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2007-11-30 18:44:14 $
+  Version:   $Revision: 1.2 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -87,12 +87,13 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
 
 
 /**
- * GenerateData
+ * ThreadedGenerateData
  */
 template <class TOutputImage, class TPrecision>
 void 
 DeformationFieldFromTransform<TOutputImage, TPrecision>
-::GenerateData()
+::ThreadedGenerateData(const OutputImageRegionType& outputRegion,
+                       int threadId)
 {
 
   itkDebugMacro(<<"Actually executing");
@@ -100,16 +101,11 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
   // Get the output pointers
   OutputImageType *  outputPtr = this->GetOutput();
 
-  outputPtr->SetBufferedRegion( outputPtr->GetRequestedRegion() );
-  outputPtr->Allocate();
-
   // Create an iterator that will walk the output region for this thread.
   typedef ImageRegionIteratorWithIndex< 
                                   TOutputImage> OutputIterator;
 
-  OutputImageRegionType region = outputPtr->GetRequestedRegion();
-
-  OutputIterator outIt( outputPtr, region );
+  OutputIterator outIt( outputPtr, outputRegion );
 
   // Define a few indices that will be used to translate from an input pixel
   // to an output pixel
@@ -121,7 +117,7 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
   InputPointType outputPoint;    // Coordinates of current output pixel
 
   // Support for progress methods/callbacks
-  ProgressReporter progress(this, 0, region.GetNumberOfPixels(), 10);
+  ProgressReporter progress(this, 0, outputRegion.GetNumberOfPixels(), 10);
         
   outIt.GoToBegin();
 

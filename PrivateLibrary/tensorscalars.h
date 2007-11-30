@@ -2,14 +2,21 @@
 #define TENSORSCALARS_H
 
 #include "dtitypes.h"
+#include <itkImage.h>
 
 // derived output functions
-void createFA(TensorImageType::Pointer, const std::string &, bool);
-void createFAGradient(TensorImageType::Pointer, const std::string &,double);
-void createFAGradMag(TensorImageType::Pointer, const std::string &,double);
-void createColorFA(TensorImageType::Pointer, const std::string &);
+template<class T>
+typename itk::Image<T, 3>::Pointer createFA(TensorImageType::Pointer);
+
+template<class T>
+typename itk::Image<T, 3>::Pointer createMD(TensorImageType::Pointer);
+
+GradientImageType::Pointer createFAGradient(TensorImageType::Pointer, double);
+RealImageType::Pointer createFAGradMag(TensorImageType::Pointer, double);
+RGBImageType::Pointer createColorFA(TensorImageType::Pointer);
+LabelImageType::Pointer createNegativeEigenValueLabel(TensorImageType::Pointer);
+
+// TODO: remove filename
 void createPrincipalEigenvector(TensorImageType::Pointer, const std::string &, const std::string &, GradientListType::Pointer);
-void createMD(TensorImageType::Pointer, const std::string &, bool);
-void createNegativeEigenValueLabel(TensorImageType::Pointer, const std::string &);
 
 #endif
