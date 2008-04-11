@@ -62,14 +62,17 @@ public:
   itkGetMacro( MinimumFractionalAnisotropy, double );
   itkSetMacro( MinimumFractionalAnisotropy, double );
 
-  itkGetMacro( MaximumDirectionDeviation, double );
-  itkSetMacro( MaximumDirectionDeviation, double );
+  itkGetMacro( MaximumAngleChange, double );
+  itkSetMacro( MaximumAngleChange, double );
 
   itkGetMacro( SourceLabel, ROIPixelType );
   itkSetMacro( SourceLabel, ROIPixelType );
 
   itkGetMacro( TargetLabel, ROIPixelType );
   itkSetMacro( TargetLabel, ROIPixelType );
+
+  itkGetMacro( ForbiddenLabel, ROIPixelType );
+  itkSetMacro( ForbiddenLabel, ROIPixelType );
 
   virtual void SetTensorImage(const TTensorImage* timage);
   virtual void SetROIImage(const TROIImage* roiimage);
@@ -111,10 +114,11 @@ private:
 
   double                                 m_StepSize;
   double                                 m_MinimumFractionalAnisotropy;
-  double                                 m_MaximumDirectionDeviation;
+  double                                 m_MaximumAngleChange;
   
   ROIPixelType                           m_SourceLabel;
   ROIPixelType                           m_TargetLabel;
+  ROIPixelType                           m_ForbiddenLabel;
 
   TensorInterpolatePointer               m_TensorInterpolator;
   ROIInterpolatePointer                  m_ROIInterpolator;

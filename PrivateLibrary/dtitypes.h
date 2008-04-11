@@ -11,6 +11,7 @@
 #include <itkDTITubeSpatialObject.h>
 #include <itkGroupSpatialObject.h>
 #include <itkRGBPixel.h>
+#include <itkVectorImage.h>
 
 // VNL Includes
 #include <vnl/vnl_matrix.h>
@@ -25,12 +26,13 @@ const unsigned int DIM = 3;
 typedef unsigned short ScalarPixelType;
 typedef itk::DiffusionTensor3D<double> TensorPixelType;
 typedef itk::Vector<double,3> DeformationPixelType;
-typedef itk::CovariantVector<double,3> GradientPixelTyep;
+typedef itk::CovariantVector<double,3> GradientPixelType;
 
+typedef itk::VectorImage<ScalarPixelType, DIM> VectorImageType;
 typedef itk::Image<TensorPixelType, DIM> TensorImageType;
 
 typedef itk::Image<DeformationPixelType, DIM> DeformationImageType;
-typedef itk::Image<GradientPixelTyep, DIM> GradientImageType;
+typedef itk::Image<GradientPixelType, DIM> GradientImageType;
 
 typedef itk::Image<RealType, DIM> RealImageType;
 typedef itk::Image<ScalarPixelType, DIM> IntImageType;

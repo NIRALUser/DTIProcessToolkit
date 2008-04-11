@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2007-09-21 17:41:23 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2008-04-11 16:31:05 $
+  Version:   $Revision: 1.4 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -53,22 +53,23 @@
 #include "itkDiffusionTensor3DReconstructionNonlinearImageFilter.h"
 #include "itkDiffusionTensor3DReconstructionWeightedImageFilter.h"
 #include "itkDiffusionTensor3DReconstructionRicianImageFilter.h"
-#include "itkNewDiffusionTensor3DReconstructionImageFilter.h"
+#include "itkDiffusionTensor3DReconstructionLinearImageFilter.h"
 #include "itkTensorRotateImageFilter.h"
 
 #include <vnl/algo/vnl_svd.h>
 
+#include "dtitypes.h"
+
 const char* NRRD_MEASUREMENT_KEY = "NRRD_measurement frame";
 
-namespace po = boost::program_options;
+enum EstimationType {LinearEstimate, NonlinearEstimate, WeightedEstimate, MaximumLikelihoodEstimate};
 
-enum EstimationType {Linear, Nonlinear, Weighted, MaximumLikelihood};
 void validate(boost::any& v,
               const std::vector<std::string>& values,
               EstimationType* target_type,
               int)
 {
-  using namespace po;
+  using namespace boost::program_options;
   using boost::any;
 
   // Make sure no previous assignment to 'a' was made.
@@ -78,38 +79,31 @@ void validate(boost::any& v,
   const std::string& s = validators::get_single_string(values);
 
   if(s == "lls" || s == "linear")
-    {
-    v = any(Linear);
-    }
+  {
+    v = any(LinearEstimate);
+  }
   else if (s == "nls" || s == "nonlinear")
-    {
-    v = any(Nonlinear);
-    }
+  {
+    v = any(NonlinearEstimate);
+  }
   else if (s == "wls" || s == "weighted")
-    {
-    v = any(Weighted);
-    }
+  {
+    v = any(WeightedEstimate);
+  }
   else if (s == "ml")
-    {
-    v = any(MaximumLikelihood);
-    }
-    else
-    {
+  {
+    v = any(MaximumLikelihoodEstimate);
+  }
+  else
+  {
     throw validation_error("Estimation type invalid.  Only \"lls\", \"nls\", \"wls\", and \"ml\" allowed.");
-    }
+  }
 }
 
 int main(int argc, char* argv[])
 {
-  // Define necessary types for images
-  typedef double RealType;
-  const unsigned int DIM = 3;
-  typedef unsigned short DWIPixelType;
-  typedef itk::VectorImage<DWIPixelType, DIM> VectorImageType;
-  typedef itk::Image<unsigned char, DIM> MaskImageType;
-  typedef itk::Image<RealType, DIM> RealImageType;
-  typedef itk::Image<DWIPixelType, DIM> IntImageType;
-  typedef itk::Image<itk::DiffusionTensor3D<double>, DIM> TensorImageType;
+  namespace po = boost::program_options;
+
 
 //  unsigned int scale;
 
@@ -117,25 +111,36 @@ int main(int argc, char* argv[])
   po::options_description config("Usage: dtiestim dwi-image tensor-output [options]");
   config.add_options()
     ("help,h", "produce this help message")
-    ("brain-mask,M", po::value<std::string>(), "Brain mask.  Image where for every voxel == 0 the tensors are not estimated.")
-    ("bad-region-mask,B", po::value<std::string>(), "Bad region mask.  Image where for every voxel > 0 the tensors are not estimated.")
-    ("threshold-mask,T", po::value<std::string>(), "File to write image mask estimated from b0 and threshold.")
-    
-     //("double,d", "Writes tensors in double precision -- currently default")
-    
-    ("threshold,t", po::value<DWIPixelType>(),"Baseline threshold for estimation.  If not specified calculated using an OTSU threshold on the baseline image.")
-    ("method,m", po::value<EstimationType>()->default_value(Linear,"lls (Linear Least Squares)"),"Estimation method (lls,wls,nls,ml)")
-    ("step,s", po::value<double>()->default_value(1.0e-8), "Gradient descent step size (for nls and ml methods)")
-    ("sigma", po::value<double>(),"Sigma parameter for Rician ML estimation (Std deviation of Gaussian noise in k-space).")
-    ("verbose,v", "Verbose output")
-  ;
-//    ("fa-scale,s", po::value<unsigned int>(&scale)->default_value(10000),"FA scale factor.  If set the FA value is scaled by this factor and written out in an integer image format.")
+
+    ("brain-mask,M", po::value<std::string>(),
+     "Brain mask.  Image where for every voxel == 0 the tensors are not estimated.")
+    ("bad-region-mask,B", po::value<std::string>(),
+     "Bad region mask.  Image where for every voxel > 0 the tensors are not estimated.")
+    ("threshold,t", po::value<ScalarPixelType>(),
+     "Baseline threshold for estimation.  If not specified calculated using an OTSU threshold on the baseline image.")
+
+    ("method,m", po::value<EstimationType>()->default_value(LinearEstimate,"lls (Linear Least Squares)"),
+     "Estimation method (lls,wls,nls,ml)")
+
+    // WLS options
+    ("weight-iterations", po::value<unsigned int>()->default_value(1),
+     "Number of iterations to recaluate weightings from tensor estimate")
+
+    // Optimization options
+    ("step,s", po::value<double>()->default_value(1.0e-8),
+     "Gradient descent step size (for nls and ml methods)")
+    ("sigma", po::value<double>(),
+     "Sigma parameter for Rician ML estimation (Std deviation of Gaussian noise in k-space).")
+
+    ("verbose,v",
+     "Verbose output")
+    ;
 
   po::options_description hidden("Hidden options");
   hidden.add_options()
     ("dwi-image", po::value<std::string>(), "DWI image volume.")
     ("tensor-output", po::value<std::string>(), "Tensor output.")
-  ;
+    ;
 
   po::options_description all;
   all.add(config).add(hidden);
@@ -147,31 +152,31 @@ int main(int argc, char* argv[])
   po::variables_map vm;
 
   try
-    {
+  {
     po::store(po::command_line_parser(argc, argv).
-            options(all).positional(p).run(), vm);
+              options(all).positional(p).run(), vm);
     po::notify(vm);     
-    } 
+  } 
   catch (const po::error &e)
-    {
+  {
     std::cout << config << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // End option reading configuration
 
   // Display help if asked or program improperly called
   if(vm.count("help") || !vm.count("dwi-image") || !vm.count("tensor-output"))
-    {
+  {
     std::cout << config << std::endl;
     if(vm.count("help"))
       return EXIT_SUCCESS;
     else
-      {
+    {
       std::cerr << "DWI image and output tensor filename needs to be specified." << std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   bool VERBOSE = false;
   if(vm.count("verbose"))
@@ -179,30 +184,30 @@ int main(int argc, char* argv[])
 
   double step = 1.0e-8, sigma = 0.0;
   try
-    {
+  {
     step = vm["step"].as<double>();
-    }
+  }
   catch( ... )
+  {
+    if(vm["method"].as<EstimationType>() == NonlinearEstimate || vm["method"].as<EstimationType>() == MaximumLikelihoodEstimate)
     {
-    if(vm["method"].as<EstimationType>() == Nonlinear || vm["method"].as<EstimationType>() == MaximumLikelihood)
-      {
       std::cerr << "Step size not set for optimization method" << std::endl;
       return EXIT_FAILURE;
-      }    
-    }
+    }    
+  }
   try
-    {
+  {
     sigma = vm["sigma"].as<double>();
-    }
+  }
   catch( ... )
+  {
+    if(vm["method"].as<EstimationType>() == MaximumLikelihoodEstimate)
     {
-    if(vm["method"].as<EstimationType>() == MaximumLikelihood)
-      {
       std::cerr << "Noise level not set for optimization method" << std::endl;
       return EXIT_FAILURE;
-      }    
+    }    
     
-    }
+  }
 
   // Read diffusion weighted MR
 
@@ -211,16 +216,16 @@ int main(int argc, char* argv[])
   dwireader->SetFileName(vm["dwi-image"].as<std::string>().c_str());
 
   try
-    {
+  {
     if(VERBOSE)
       std::cout << "Reading Data" << std::endl;
     dwireader->Update();
-    }
+  }
   catch (itk::ExceptionObject & e)
-    {
+  {
     std::cerr << e <<std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   VectorImageType::Pointer dwi = dwireader->GetOutput();
 
@@ -229,16 +234,16 @@ int main(int argc, char* argv[])
   // read into b0 the DWMRI_b-value that is the b-value of
   // the experiment
   double b0 = 0;
-  bool readb0 = false;
+  bool readbvalue = false;
 
   // read into gradientContainer the gradients
-  typedef itk::NewDiffusionTensor3DReconstructionImageFilter<DWIPixelType,DWIPixelType, RealType>
+  typedef itk::DiffusionTensor3DReconstructionLinearImageFilter<ScalarPixelType, RealType>
     DiffusionEstimationFilterType;
-  typedef itk::DiffusionTensor3DReconstructionNonlinearImageFilter<DWIPixelType,DWIPixelType, RealType>
+  typedef itk::DiffusionTensor3DReconstructionNonlinearImageFilter<ScalarPixelType, RealType>
     NLDiffusionEstimationFilterType;
-  typedef itk::DiffusionTensor3DReconstructionRicianImageFilter<DWIPixelType,DWIPixelType, RealType>
+  typedef itk::DiffusionTensor3DReconstructionRicianImageFilter<ScalarPixelType,ScalarPixelType, RealType>
     MLDiffusionEstimationFilterType;
-  typedef itk::DiffusionTensor3DReconstructionWeightedImageFilter<DWIPixelType,DWIPixelType, RealType>
+  typedef itk::DiffusionTensor3DReconstructionWeightedImageFilter<ScalarPixelType, RealType>
     WLDiffusionEstimationFilterType;
 
 
@@ -254,7 +259,7 @@ int main(int argc, char* argv[])
 
   // Apply measurement frame if it exists
   if(dict.HasKey(NRRD_MEASUREMENT_KEY))
-    {
+  {
     if(VERBOSE)
       std::cout << "Reorienting gradient directions to image coordinate frame" << std::endl;
 
@@ -267,26 +272,26 @@ int main(int argc, char* argv[])
 
     imgf = dwi->GetDirection().GetVnlMatrix();
     if(VERBOSE)
-      {
+    {
       std::cout << "Image frame: " << std::endl;
       std::cout << imgf << std::endl;
-      }
+    }
 
     for(unsigned int i = 0; i < 3; ++i)
-      {
+    {
       for(unsigned int j = 0; j < 3; ++j)
-        {
+      {
         mf(i,j) = nrrdmf[j][i];
 
         nrrdmf[j][i] = imgf(i,j);
-        }
       }
+    }
 
     if(VERBOSE)
-      {
+    {
       std::cout << "Meausurement frame: " << std::endl;
       std::cout << mf << std::endl;
-      }
+    }
 
     itk::EncapsulateMetaData<std::vector<std::vector<double> > >(dict,NRRD_MEASUREMENT_KEY,nrrdmf);
     // prevent slicer error
@@ -294,32 +299,31 @@ int main(int argc, char* argv[])
     transform = vnl_svd<double>(imgf).inverse()*mf;
 
     if(VERBOSE)
-      {
+    {
       std::cout << "Transform: " << std::endl;
       std::cout << transform << std::endl;
-      }
-
     }
+
+  }
 
   if(dict.HasKey("modality"))
-    {
+  {
     itk::EncapsulateMetaData<std::string>(dict,"modality","DTMRI");
-    }
+  }
 
   std::vector<std::string> keys = dict.GetKeys();
   for(std::vector<std::string>::const_iterator it = keys.begin();
       it != keys.end(); ++it)
-    {
-    std::string value;
+  {
     if( it->find("DWMRI_b-value") != std::string::npos)
-      {
+    {
       std::string t;
       itk::ExposeMetaData<std::string>(dict, *it, t);
-      readb0 = true;
+      readbvalue = true;
       b0 = atof(t.c_str());
-      }
+    }
     else if( it->find("DWMRI_gradient") != std::string::npos)
-      {
+    {
       std::string value;
 
       itk::ExposeMetaData<std::string>(dict, *it, value);
@@ -334,49 +338,62 @@ int main(int argc, char* argv[])
       ind = atoi(temp.c_str());
       
       gradientContainer->InsertElement(ind,g);
-      }
-    else if( it->find("DWMRI_NEX") != std::string::npos)
-      {
+    }
+  }
+  for(std::vector<std::string>::const_iterator it = keys.begin();
+      it != keys.end(); ++it)
+  {
+    if( it->find("DWMRI_NEX") != std::string::npos)
+    {
       std::string numrepstr;
 
       itk::ExposeMetaData<std::string>(dict, *it, numrepstr);
-      unsigned int numreps = atoi(value.c_str());
+      unsigned int numreps = atoi(numrepstr.c_str());
 
       std::string indtorepstr = it->substr(it->find_last_of('_')+1);
       unsigned int indtorep =  atoi(indtorepstr.c_str());
 
       GradientType g = gradientContainer->GetElement(indtorep);
 
-      for(unsigned int i = indtorep+1; i < indtorep+numreps-1; i++)
+      for(unsigned int i = indtorep+1; i < indtorep+numreps; i++)
         gradientContainer->InsertElement(i,g);
-      }
-
     }
 
-  if(!readb0)
+  }
+
+  if(VERBOSE)
+  {
+    std::cout << "NGrads: " << gradientContainer->Size() << std::endl;
+    for(unsigned int i = 0; i < gradientContainer->Size(); ++i)
     {
+      std::cout << gradientContainer->GetElement(i) << std::endl;
+    }
+  }
+
+  if(!readbvalue)
+  {
     std::cerr << "BValue not specified in header file" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if(VERBOSE)
     std::cout << "BValue: " << b0 << std::endl;
 
   // Read brain mask if it is specified.  
   if(vm.count("brain-mask"))
-    {
-    typedef itk::ImageFileReader<MaskImageType> MaskFileReaderType;
+  {
+    typedef itk::ImageFileReader<LabelImageType> MaskFileReaderType;
     MaskFileReaderType::Pointer maskreader = MaskFileReaderType::New();
     maskreader->SetFileName(vm["brain-mask"].as<std::string>().c_str());
 
     try
-      {
+    {
       maskreader->Update();
       
       if(VERBOSE)
         std::cout << "Masking Data" << std::endl;
 
-      typedef itk::VectorMaskImageFilter<VectorImageType,MaskImageType,VectorImageType> MaskFilterType;
+      typedef itk::VectorMaskImageFilter<VectorImageType,LabelImageType,VectorImageType> MaskFilterType;
       MaskFilterType::Pointer mask = MaskFilterType::New();
 //      mask->ReleaseDataFlagOn();
       mask->SetInput1(dwireader->GetOutput());
@@ -384,31 +401,31 @@ int main(int argc, char* argv[])
       mask->Update();
 
       dwi = mask->GetOutput();
-      }
+    }
     catch (itk::ExceptionObject & e)
-      {
+    {
       std::cerr << e <<std::endl;
       return EXIT_FAILURE;
-      }
-
     }
+
+  }
   
   // Read negative mask
   if(vm.count("bad-region-mask"))
-    {
-    typedef itk::ImageFileReader<MaskImageType> MaskFileReaderType;
+  {
+    typedef itk::ImageFileReader<LabelImageType> MaskFileReaderType;
     MaskFileReaderType::Pointer maskreader = MaskFileReaderType::New();
 
     
     //  Go ahead and read data so we can use adaptors as necessary
     try
-      {
+    {
       if(VERBOSE)
         std::cout << "Masking Bad Regions" << std::endl;
 
       maskreader->Update();
       
-      typedef itk::VectorMaskNegatedImageFilter<VectorImageType,MaskImageType,VectorImageType> MaskFilterType;
+      typedef itk::VectorMaskNegatedImageFilter<VectorImageType,LabelImageType,VectorImageType> MaskFilterType;
       MaskFilterType::Pointer mask = MaskFilterType::New();
 //      mask->ReleaseDataFlagOn();
       mask->SetInput1(dwi);
@@ -416,25 +433,25 @@ int main(int argc, char* argv[])
       mask->Update();
 
       dwi = mask->GetOutput();
-      }
+    }
     catch (itk::ExceptionObject & e)
-      {
+    {
       std::cerr << e <<std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   // If we didnt specify a threshold compute it as the ostu threshold
   // of the baseline image
   
 
-  DWIPixelType threshold;
+  ScalarPixelType threshold;
   if(vm.count("threshold"))
-    {
-    threshold = vm["threshold"].as<DWIPixelType>();
-    }
+  {
+    threshold = vm["threshold"].as<ScalarPixelType>();
+  }
   else
-    {
+  {
     typedef itk::VectorIndexSelectionCastImageFilter<VectorImageType, IntImageType>
       BaselineExtractAdaptorType;
 
@@ -449,15 +466,15 @@ int main(int argc, char* argv[])
     OtsuThresholdCalculatorType::Pointer  otsucalculator = OtsuThresholdCalculatorType::New();
     otsucalculator->SetImage(baselineextract->GetOutput());
     otsucalculator->Compute();
-    threshold = static_cast<DWIPixelType>(.9 * otsucalculator->GetThreshold());
+    threshold = static_cast<ScalarPixelType>(.9 * otsucalculator->GetThreshold());
 
     if(VERBOSE)
       std::cout << "Otsu threshold: " << threshold << std::endl;
-    }
+  }
 
   // Output b0 threshold mask if requested
   if(vm.count("threshold-mask"))
-    {
+  {
     // TODO: this will not work if the baselin image is not uniquely
     // the first image in the stack
 
@@ -466,37 +483,37 @@ int main(int argc, char* argv[])
     b0extract->SetInput(dwi);
     b0extract->SetIndex(0);
 
-    typedef itk::BinaryThresholdImageFilter<IntImageType,MaskImageType> ThresholdFilterType;
+    typedef itk::BinaryThresholdImageFilter<IntImageType,LabelImageType> ThresholdFilterType;
     ThresholdFilterType::Pointer thresholdfilter = ThresholdFilterType::New();
     thresholdfilter->SetInput(b0extract->GetOutput());
     thresholdfilter->SetLowerThreshold(threshold);
-    thresholdfilter->SetUpperThreshold(itk::NumericTraits<DWIPixelType>::max());
+    thresholdfilter->SetUpperThreshold(itk::NumericTraits<ScalarPixelType>::max());
     thresholdfilter->Update();
 
     try 
-      {
-      typedef itk::ImageFileWriter<MaskImageType> MaskImageFileWriterType;
+    {
+      typedef itk::ImageFileWriter<LabelImageType> MaskImageFileWriterType;
       MaskImageFileWriterType::Pointer maskwriter = MaskImageFileWriterType::New();
       maskwriter->SetInput(thresholdfilter->GetOutput());
       maskwriter->SetFileName(vm["threshold-mask"].as<std::string>().c_str());
       maskwriter->Update();
-      }
+    }
     catch (itk::ExceptionObject & e)
-      {
+    {
       std::cerr << "Could not write threshold mask file" << std::endl;
       std::cerr << e << std::endl;
-      }
-
     }
+
+  }
   
   // Estimate tensors
   typedef itk::ImageToImageFilter<VectorImageType, TensorImageType> DiffusionEstimationBaseType;
   TensorImageType::Pointer tensors;
 
   if(VERBOSE)
-    {
+  {
     std::cout << "Estimation method: " << vm["method"].as<EstimationType>() << std::endl;
-    }
+  }
 
   DiffusionEstimationFilterType::Pointer llsestimator = DiffusionEstimationFilterType::New();
   llsestimator->ReleaseDataFlagOn();
@@ -506,11 +523,11 @@ int main(int argc, char* argv[])
   llsestimator->Update();
   tensors = llsestimator->GetOutput();
 
-  if(vm["method"].as<EstimationType>() == Linear)
-    {
-    }
-  else if(vm["method"].as<EstimationType>() == Nonlinear)
-    {
+  if(vm["method"].as<EstimationType>() == LinearEstimate)
+  {
+  }
+  else if(vm["method"].as<EstimationType>() == NonlinearEstimate)
+  {
     NLDiffusionEstimationFilterType::Pointer estimator = NLDiffusionEstimationFilterType::New();
     estimator->ReleaseDataFlagOn();
     
@@ -519,29 +536,30 @@ int main(int argc, char* argv[])
     estimator->SetGradientImage(gradientContainer,dwi);
     estimator->SetBValue(b0);
     estimator->SetThreshold(threshold);
-    estimator->SetInitialTensor(llstensors);
     estimator->SetStep(step);
     estimator->SetNumberOfThreads(1);
     estimator->Update();
     tensors = estimator->GetOutput();
-    }
-  else if(vm["method"].as<EstimationType>() == Weighted)
-    {
+  }
+  else if(vm["method"].as<EstimationType>() == WeightedEstimate)
+  {
     WLDiffusionEstimationFilterType::Pointer estimator = WLDiffusionEstimationFilterType::New();
     estimator->ReleaseDataFlagOn();
 
     TensorImageType::Pointer llstensors = tensors;
 
+    if(VERBOSE)
+      std::cout << "Weighting steps: " << vm["weight-iterations"].as<unsigned int>() << std::endl;
+
     estimator->SetGradientImage(gradientContainer,dwi);
     estimator->SetBValue(b0);
     estimator->SetThreshold(threshold);
-    estimator->SetInitialTensor(llstensors);
-    estimator->SetNumberOfIterations(3);
+    estimator->SetNumberOfIterations(vm["weight-iterations"].as<unsigned int>());
     estimator->Update();
     tensors = estimator->GetOutput();
-    }
-  else if(vm["method"].as<EstimationType>() == MaximumLikelihood)
-    {
+  }
+  else if(vm["method"].as<EstimationType>() == MaximumLikelihoodEstimate)
+  {
     MLDiffusionEstimationFilterType::Pointer estimator = MLDiffusionEstimationFilterType::New();
     estimator->ReleaseDataFlagOn();
 
@@ -557,12 +575,12 @@ int main(int argc, char* argv[])
     estimator->SetSigma(sigma);
     estimator->Update();
     tensors = estimator->GetOutput();
-    }
+  }
   else
-    {
+  {
     std::cerr << "Invalid estimation method"  << std::endl;
     return EXIT_FAILURE;
-    }
+  }
       
   // wp = D*x
   // wv = M*x
@@ -570,7 +588,7 @@ int main(int argc, char* argv[])
 
   // Write tensor file if requested
   try
-    {
+  {
     typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;
 
     TensorFileWriterType::Pointer tensorWriter = TensorFileWriterType::New();
@@ -580,12 +598,12 @@ int main(int argc, char* argv[])
     tensorWriter->SetUseCompression(true);
     tensorWriter->Update();
        
-    } 
+  } 
   catch (itk::ExceptionObject e) 
-    {
+  {
     std::cerr << e << std::endl;
     return EXIT_FAILURE;
-    }   
+  }   
        
   return EXIT_SUCCESS;
 }

@@ -30,16 +30,16 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup)
 
   // ITK Spatial Object
   if(filename.rfind(".fib") != std::string::npos)
-    {
+  {
     typedef itk::SpatialObjectWriter<3> WriterType;
     WriterType::Pointer writer  = WriterType::New();
     writer->SetInput(fibergroup);
     writer->SetFileName(filename);
     writer->Update();   
-    }
+  }
   // VTK Poly Data
   else if (filename.rfind(".vt") != std::string::npos)
-    {
+  {
     // Build VTK data structure
     vtkSmartPointer<vtkPolyData> polydata(vtkPolyData::New());
     vtkSmartPointer<vtkFloatArray> tensorsdata(vtkFloatArray::New());
@@ -47,24 +47,24 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup)
     vtkSmartPointer<vtkPoints> pts(vtkPoints::New());
 
     tensorsdata->SetNumberOfComponents(9);
-    polydata ->SetPoints (pts);
+    polydata->SetPoints (pts);
 
-    ids -> SetNumberOfIds(0);
-    pts -> SetNumberOfPoints(0);
+    ids->SetNumberOfIds(0);
+    pts->SetNumberOfPoints(0);
     polydata->Allocate();
 
     std::auto_ptr<ChildrenListType> children(fibergroup->GetChildren(0));
     typedef ChildrenListType::const_iterator IteratorType;
 
     for (IteratorType it = children->begin(); it != children->end(); it++)  
-      {
+    {
       itk::SpatialObject<3>* tmp = (*it).GetPointer();
       itk::DTITubeSpatialObject<3>* tube = dynamic_cast<itk::DTITubeSpatialObject<3>* >(tmp);
       unsigned int nPointsOnFiber = tube->GetNumberOfPoints();
       vtkIdType currentId = ids->GetNumberOfIds();
 
       for (unsigned int k = 0; k < nPointsOnFiber; k++)
-        {
+      {
         itk::Point<double, 3> v(tube->GetPoint(k)->GetPosition());
         itk::Vector<double, 3> spacing(tube->GetSpacing());
         itk::Vector<double, 3> origin(tube->GetObjectToWorldTransform()->GetOffset());
@@ -91,36 +91,34 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup)
         
         tensorsdata->InsertNextTupleValue(vtktensor);
         
-        }
-      polydata->InsertNextCell(VTK_POLY_LINE, nPointsOnFiber, ids->GetPointer(currentId));
       }
+      polydata->InsertNextCell(VTK_POLY_LINE, nPointsOnFiber, ids->GetPointer(currentId));
+    }
 
     polydata->GetPointData()->SetTensors(tensorsdata);
 
     // Legacy
     if (filename.rfind(".vtk") != std::string::npos)
-      {
-      vtkPolyDataWriter *fiberwriter = vtkPolyDataWriter::New();
+    {
+      vtkSmartPointer<vtkPolyDataWriter> fiberwriter = vtkPolyDataWriter::New();
+      fiberwriter->SetFileTypeToBinary();
       fiberwriter->SetFileName(filename.c_str());
       fiberwriter->SetInput(polydata);
       fiberwriter->Update();
-      fiberwriter->Delete();
-      
-      }
+    }
     // XML
     else if (filename.rfind(".vtp") != std::string::npos)
-      {
-      vtkXMLPolyDataWriter *fiberwriter = vtkXMLPolyDataWriter::New();
+    {
+      vtkSmartPointer<vtkXMLPolyDataWriter> fiberwriter = vtkXMLPolyDataWriter::New();
       fiberwriter->SetFileName(filename.c_str());
       fiberwriter->SetInput(polydata);
       fiberwriter->Update();
-      fiberwriter->Delete();
-      }
-    else
-      {
-      throw itk::ExceptionObject("Unknown file format for fibers");
-      }
     }
+    else
+    {
+      throw itk::ExceptionObject("Unknown file format for fibers");
+    }
+  }
 }
 
 GroupType::Pointer readFiberFile(const std::string & filename)
@@ -128,7 +126,7 @@ GroupType::Pointer readFiberFile(const std::string & filename)
 
   // ITK Spatial Object
   if(filename.rfind(".fib") != std::string::npos)
-    {
+  {
     typedef itk::SpatialObjectReader<3, unsigned char> SpatialObjectReaderType;
 
     // Reading spatial object
@@ -138,10 +136,10 @@ GroupType::Pointer readFiberFile(const std::string & filename)
     soreader->Update();
     
     return soreader->GetGroup();
-    }
+  }
   // VTK Poly Data
   else if (filename.rfind(".vt") != std::string::npos)
-    {
+  {
     // Build up the principal data structure for fiber tracts
     GroupType::Pointer fibergroup = GroupType::New();
 
@@ -149,24 +147,24 @@ GroupType::Pointer readFiberFile(const std::string & filename)
 
     // Legacy
     if (filename.rfind(".vtk") != std::string::npos)
-      {
+    {
       vtkSmartPointer<vtkPolyDataReader> reader(vtkPolyDataReader::New());
       reader->SetFileName(filename.c_str());
       reader->Update();
       fibdata = reader->GetOutput();
       
-      }
+    }
     else if (filename.rfind(".vtp") != std::string::npos)
-      {
+    {
       vtkSmartPointer<vtkXMLPolyDataReader> reader(vtkXMLPolyDataReader::New());
       reader->SetFileName(filename.c_str());
       reader->Update();
       fibdata = reader->GetOutput();
-      }
+    }
     else
-      {
+    {
       throw itk::ExceptionObject("Unknown file format for fibers");
-      }
+    }
 
     typedef  itk::SymmetricSecondRankTensor<double,3> ITKTensorType;
     typedef  ITKTensorType::EigenValuesArrayType LambdaArrayType;
@@ -175,26 +173,26 @@ GroupType::Pointer readFiberFile(const std::string & filename)
     const int nfib = fibdata->GetNumberOfCells();
     int pindex = -1;
     for(int i = 0; i < nfib; ++i)
-      {
+    {
       itk::DTITubeSpatialObject<3>::Pointer dtiTube = itk::DTITubeSpatialObject<3>::New();
-      vtkCell* fib = fibdata->GetCell(i);
+      vtkSmartPointer<vtkCell> fib = fibdata->GetCell(i);
 
-      vtkPoints* points = fib->GetPoints();
+      vtkSmartPointer<vtkPoints> points = fib->GetPoints();
 
       typedef itk::DTITubeSpatialObjectPoint<3> DTIPointType;
       std::vector<DTIPointType> pointsToAdd;
 
+      vtkSmartPointer<vtkDataArray> fibtensordata = fibdata->GetPointData()->GetTensors();
       for(int j = 0; j < points->GetNumberOfPoints(); ++j)
-        {
+      {
         ++pindex;
 
         vtkFloatingPointType* coordinates = points->GetPoint(j);
         DTIPointType pt;
-        pt.SetPosition(coordinates[0],coordinates[1],coordinates[2]);
+        pt.SetPosition(coordinates[0], coordinates[1], coordinates[2]);
         pt.SetRadius(0.5);
-        pt.SetColor(0.0,1.0,0.0);
+        pt.SetColor(0.0, 1.0, 0.0);
         
-        vtkDataArray* fibtensordata = fibdata->GetPointData()->GetTensors();
         vtkFloatingPointType* vtktensor = fibtensordata->GetTuple9(pindex);
         float floattensor[6];
         ITKTensorType itktensor;
@@ -238,16 +236,16 @@ GroupType::Pointer readFiberFile(const std::string & filename)
       
 
         pointsToAdd.push_back(pt);
-        }
+      }
 
       dtiTube->SetPoints(pointsToAdd);
       fibergroup->AddSpatialObject(dtiTube);
-      }
-    return fibergroup;
-    } // end process .vtk .vtp
-  else
-    {
-    throw itk::ExceptionObject("Unknown fiber file");
     }
+    return fibergroup;
+  } // end process .vtk .vtp
+  else
+  {
+    throw itk::ExceptionObject("Unknown fiber file");
+  }
 }
 

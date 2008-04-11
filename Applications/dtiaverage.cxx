@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2007-09-05 19:35:36 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2008-04-11 16:31:05 $
+  Version:   $Revision: 1.3 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -49,6 +49,7 @@ int main(int argc, char* argv[])
   if(argc < 3)
     {
     std::cout << "Usage: " << argv[0] << " outputfile inputfiles..." << std::endl;
+    return EXIT_FAILURE;
     }
 
   std::string ofile = argv[1];
@@ -75,7 +76,6 @@ int main(int argc, char* argv[])
   TensorFileReader::Pointer reader = TensorFileReader::New();
   AddImageFilter::Pointer adder = AddImageFilter::New();
   LogEuclideanFilter::Pointer logfilt = LogEuclideanFilter::New();
-  logfilt->SetNumberOfThreads(1);
 
   DuplicateImageFilter::Pointer dup = DuplicateImageFilter::New();
 
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
   typedef itk::ExpEuclideanTensorImageFilter<RealType> ExpEuclideanFilter;
   ExpEuclideanFilter::Pointer expf = ExpEuclideanFilter::New();
   expf->SetInput(divide->GetOutput());
-  expf->SetNumberOfThreads(1);
+//  expf->SetNumberOfThreads(1);
 //  expf->Update();
 
   typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;

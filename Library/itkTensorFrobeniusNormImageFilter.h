@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Insight Segmentation & Registration Toolkit
-  Module:    $RCSfile: itkTensorMeanDiffusivityImageFilter.h,v $
+  Module:    $RCSfile: itkTensorFrobeniusNormImageFilter.h,v $
   Language:  C++
   Date:      $Date: 2008-04-11 16:31:05 $
-  Version:   $Revision: 1.3 $
+  Version:   $Revision: 1.1 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -14,8 +14,8 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkTensorMeanDiffusivityImageFilter_h
-#define __itkTensorMeanDiffusivityImageFilter_h
+#ifndef __itkTensorFrobeniusNormImageFilter_h
+#define __itkTensorFrobeniusNormImageFilter_h
 
 #include "itkUnaryFunctorImageFilter.h"
 
@@ -27,33 +27,38 @@ namespace itk
 namespace Functor {  
  
 template< typename TInput >
-class TensorMeanDiffusivityFunction
+class TensorFrobeniusNormFunction
 {
 public:
   typedef typename TInput::RealValueType  RealValueType;
-  TensorMeanDiffusivityFunction() {}
-  ~TensorMeanDiffusivityFunction() {}
-  bool operator!=( const TensorMeanDiffusivityFunction & ) const
+  TensorFrobeniusNormFunction() {}
+  ~TensorFrobeniusNormFunction() {}
+  bool operator!=( const TensorFrobeniusNormFunction & ) const
   {
     return false;
   }
-  bool operator==( const TensorMeanDiffusivityFunction & other ) const
+  bool operator==( const TensorFrobeniusNormFunction & other ) const
   {
     return !(*this != other);
   }
   inline RealValueType operator()( const TInput & x )
     {
-      return x.GetTrace() / 3.0;
+      return sqrt(x[0]*x[0] +
+                  2*x[1]*x[1] +
+                  2*x[2]*x[2] +
+                  x[3]*x[3] + 
+                  2*x[4]*x[4] + 
+                  x[5]*x[5]);
     }
 }; 
 
 }  // end namespace functor
 
 
-/** \class TensorMeanDiffusivityImageFilter
+/** \class TensorFrobeniusNormImageFilter
  * \brief Computes the Mean Diffusivity for every pixel of a input tensor image.
  *
- * TensorMeanDiffusivityImageFilter applies pixel-wise the invokation for
+ * TensorFrobeniusNormImageFilter applies pixel-wise the invokation for
  * computing the mean diffusivity of every pixel. The pixel type of the
  * input image is expected to implement a method GetTrace(), and
  * to specify its return type as RealValueType.  The mean diffusivity
@@ -69,17 +74,17 @@ public:
 template <typename TInputImage,
           typename TOutputImage=itk::Image<ITK_TYPENAME TInputImage::PixelType::RealValueType,
                                            ::itk::GetImageDimension<TInputImage>::ImageDimension > >
-class ITK_EXPORT TensorMeanDiffusivityImageFilter :
+class ITK_EXPORT TensorFrobeniusNormImageFilter :
     public
 UnaryFunctorImageFilter<TInputImage,TOutputImage, 
-                        Functor::TensorMeanDiffusivityFunction< 
+                        Functor::TensorFrobeniusNormFunction< 
                                         typename TInputImage::PixelType> > 
 {
 public:
   /** Standard class typedefs. */
-  typedef TensorMeanDiffusivityImageFilter  Self;
+  typedef TensorFrobeniusNormImageFilter  Self;
   typedef UnaryFunctorImageFilter<TInputImage,TOutputImage, 
-                                  Functor::TensorMeanDiffusivityFunction< 
+                                  Functor::TensorFrobeniusNormFunction< 
                                     typename TInputImage::PixelType> >  Superclass;
 
   typedef SmartPointer<Self>   Pointer;
@@ -100,11 +105,11 @@ public:
   
 
 protected:
-  TensorMeanDiffusivityImageFilter() {};
-  virtual ~TensorMeanDiffusivityImageFilter() {};
+  TensorFrobeniusNormImageFilter() {};
+  virtual ~TensorFrobeniusNormImageFilter() {};
 
 private:
-  TensorMeanDiffusivityImageFilter(const Self&); //purposely not implemented
+  TensorFrobeniusNormImageFilter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
 
 };

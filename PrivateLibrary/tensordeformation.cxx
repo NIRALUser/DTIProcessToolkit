@@ -79,34 +79,16 @@ TensorImageType::Pointer createROT(TensorImageType::Pointer timg,
 }
 
 TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
-                                    const std::string &warpfile,
-                                    const std::string &invwarpfile,
+                                    DeformationImageType::Pointer forward,
+                                    DeformationImageType::Pointer inverse,
                                     TensorReorientationType reorientationtype,
                                     InterpolationType interpolationtype)
 {
-  // Read deformation field
-  typedef itk::ImageFileReader<DeformationImageType> DeformationImageReader;
-  DeformationImageReader::Pointer defreader = DeformationImageReader::New();
-  defreader->SetFileName(warpfile.c_str());
-
-  typedef itk::HFieldToDeformationFieldImageFilter<DeformationImageType> DeformationConvertType;
-  DeformationConvertType::Pointer defconv = DeformationConvertType::New();
-  defconv->SetInput(defreader->GetOutput());
-//  defconv->SetSpacing(timg->GetSpacing());
-  defconv->Update();
-
-  // Read inverse deformation field
-  DeformationImageReader::Pointer invreader = DeformationImageReader::New();
-  invreader->SetFileName(invwarpfile.c_str());
-
-  DeformationConvertType::Pointer invconv = DeformationConvertType::New();
-  invconv->SetInput(invreader->GetOutput());
-
   // Compute jacobian of inverse deformation field
   typedef itk::DeformationFieldJacobianFilter<DeformationImageType,float> JacobianFilterType;
   typedef JacobianFilterType::OutputImageType JacobianImageType;
   JacobianFilterType::Pointer jacobian = JacobianFilterType::New();
-  jacobian->SetInput(invconv->GetOutput());
+  jacobian->SetInput(inverse);
 
   // Rotate tensor based on inverse deformation field
   typedef itk::InPlaceImageFilter<
@@ -179,7 +161,7 @@ TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
     }
 
   warp->SetInput(logf->GetOutput());
-  warp->SetDeformationField(defconv->GetOutput());
+  warp->SetDeformationField(forward);
   warp->SetOutputSpacing(logf->GetOutput()->GetSpacing());
   warp->SetOutputOrigin(logf->GetOutput()->GetOrigin());
   warp->Update();

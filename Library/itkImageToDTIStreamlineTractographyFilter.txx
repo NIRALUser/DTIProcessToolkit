@@ -10,8 +10,8 @@ namespace itk
 template <class TTensorImage, class TROIImage, class TOutputSpatialObject>
 ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObject>
 ::ImageToDTIStreamlineTractographyFilter()
-  : m_StepSize(0.5), m_MinimumFractionalAnisotropy(0.2), m_MaximumDirectionDeviation(1.0/1.414213),
-    m_SourceLabel(2), m_TargetLabel(1)
+  : m_StepSize(0.5), m_MinimumFractionalAnisotropy(0.2), m_MaximumAngleChange(M_PI/4),
+    m_SourceLabel(2), m_TargetLabel(1), m_ForbiddenLabel(0)
 {
   this->SetNumberOfRequiredInputs(2);
 
@@ -154,6 +154,8 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
 ::TrackFromPoint(PointType pt,
                  EigenVectorType vec) const
 {
+  const double maxdotprod = cos(m_MaximumAngleChange);
+
   itkDebugMacro(<<"Tracking from " << pt << " in direction " << vec);
 
   std::vector<DTITubeSpatialObjectPointType> pointlist;
@@ -174,6 +176,11 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
   TensorType t = m_TensorInterpolator->Evaluate(pt);
   tubept.SetRadius(0.5);
   tubept.SetTensorMatrix(t);
+  tubept.AddField("fa", t.GetFractionalAnisotropy());
+  tubept.AddField("md", t.GetTrace() / 3.0);
+  tubept.AddField("fro", sqrt(t[0]*t[0] + 2*t[1]*t[1] + 
+                              2*t[2]*t[2] + t[3]*t[3] + 
+                              2*t[4]*t[4] + t[5]*t[5]));
   pointlist.push_back(tubept);
 
   do
@@ -194,8 +201,12 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
     typedef typename TensorInterpolateType::OutputType ArrayType;
     TensorType t = m_TensorInterpolator->Evaluate(nextpt);
     
+    // Anisotropy too low
     if(t.GetFractionalAnisotropy() < m_MinimumFractionalAnisotropy || 
-       dot_product(nextvec.GetVnlVector().normalize(), vec.GetVnlVector().normalize()) < m_MaximumDirectionDeviation) // extremely arbitrarty
+       // Angle changes too much
+       dot_product(nextvec.GetVnlVector().normalize(), vec.GetVnlVector().normalize()) < maxdotprod ||
+       // Forbidden label is not zero and point is in the forbidden region
+       (m_ForbiddenLabel && m_ROIInterpolator->Evaluate(nextpt) == m_ForbiddenLabel))
     {
       stoppingcond = true;
     }
@@ -205,6 +216,11 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
 
       tubept.SetPosition(nextpointind[0], nextpointind[1], nextpointind[2]);
       tubept.SetTensorMatrix(t);
+      tubept.SetField("fa", t.GetFractionalAnisotropy());
+      tubept.SetField("md", t.GetTrace() / 3.0);
+      tubept.SetField("fro", sqrt(t[0]*t[0] + 2*t[1]*t[1] + 
+                                  2*t[2]*t[2] + t[3]*t[3] + 
+                                  2*t[4]*t[4] + t[5]*t[5]));
       pointlist.push_back(tubept);
       pt = nextpt;
       vec = nextvec;
@@ -264,8 +280,8 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
   PointType geompoint;
   for(unsigned int i = 0; i < PointType::Dimension; ++i)
   {
-    geompoint[i] = pt[i] + k1[i]/6 + k2[i]/3 + k3[i]/3 + k4[i]/6;
-//    geompoint[i] = pt[i] + h*k1[i];
+  geompoint[i] = pt[i] + m_StepSize*(k1[i]/6 + k2[i]/3 + k3[i]/3 + k4[i]/6);
+//   geompoint[i] = pt[i] + m_StepSize*k1[i];
   }
 
   if(!m_TensorInterpolator->IsInsideBuffer(geompoint))

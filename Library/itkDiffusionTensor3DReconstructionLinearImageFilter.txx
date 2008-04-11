@@ -3,7 +3,7 @@
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
   Date:      $Date: 2008-04-11 16:31:05 $
-  Version:   $Revision: 1.2 $
+  Version:   $Revision: 1.1 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -14,19 +14,25 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-
-#include "imageio.h"
-#include <itkImageFileWriter.h>
-
-template<typename TImage>
-void writeImage(const std::string & filename, 
-                typename itk::SmartPointer<TImage> image)
+namespace itk
 {
-  typedef itk::ImageFileWriter<TImage> ImageWriterType;
-  typename ImageWriterType::Pointer writer = ImageWriterType::New();
-  writer->SetUseCompression(true);
-  writer->SetInput(image);
-  writer->SetFileName(filename.c_str());
-  writer->Update();
+
+template< class TGradientImagePixelType, class TTensorPrecision >
+vnl_vector<TTensorPrecision>
+DiffusionTensor3DReconstructionLinearImageFilter< TGradientImagePixelType, 
+                                                  TTensorPrecision >
+::EstimateTensor(const vnl_vector<TTensorPrecision>& S) const
+{
+  vnl_vector< TTensorPrecision > B(this->m_NumberOfGradientDirections);
+  for(unsigned int i = 0; i < S.size(); ++i)
+  {
+    if(S[i] == 0)
+      B[i] = 0;
+    else
+      B[i] = log(S[i]);
+  }
+
+  return this->m_TensorBasis * B;
+}
 
 }

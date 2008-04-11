@@ -19,6 +19,7 @@
 
 #include "itkImageToDTIStreamlineTractographyFilter.h"
 #include "fiberio.h"
+#include "pomacros.h"
 
 enum IntegrationType {Euler, Midpoint, RK4};
 void validate(boost::any& v,
@@ -66,11 +67,15 @@ int main(int argc, char* argv[])
     ("output-fiber-file,o", po::value<std::string>(), "Fiber file")
     ("source-label,s", po::value<unsigned int>()->default_value(2), "Source label")
     ("target-label,t", po::value<unsigned int>()->default_value(1), "Target label")
-    ("max-deviation", po::value<double>()->default_value(1/M_SQRT2), "Maximum deviation as cos of the angle between vectors")
+    ("forbidden-label,f", po::value<unsigned int>()->default_value(0), "Forbidden label")
+    ("max-angle", po::value<double>()->default_value(M_PI/4, "PI/4"), "Maximum angle of change in radians")
     ("step-size", po::value<double>()->default_value(0.5), "Step size in mm")
     ("min-fa", po::value<double>()->default_value(0.2), "Minimum anisotropy")
 //    ("integration-method", po::value<RK4>(), "Integration method (euler, midpoint, rk4)")
     ("verbose,v", "Verbose output")
+    ("really-verbose", "Follow detail of fiber tracking algorithm")
+    ("force",
+     "Ignore image sanity checks.")
     ;
 
   typedef itk::DiffusionTensor3D<double> DiffusionTensor;
@@ -125,27 +130,37 @@ int main(int argc, char* argv[])
     std::cerr << e << std::endl;
     return EXIT_FAILURE;
   }
+  
+  if(vm.count("verbose"))
+  {
+    tensorreader->GetOutput()->Print(std::cout);
+  }
 
   // Sanity check the ROI and tensor image as they must be consistent
   // for the filter to work correctly
-  assert(tensorreader->GetOutput()->GetSpacing() == labelreader->GetOutput()->GetSpacing());
-  assert(tensorreader->GetOutput()->GetLargestPossibleRegion() == labelreader->GetOutput()->GetLargestPossibleRegion());
-  assert(tensorreader->GetOutput()->GetOrigin() == labelreader->GetOutput()->GetOrigin());
-  assert(tensorreader->GetOutput()->GetDirection() == labelreader->GetOutput()->GetDirection());
-  
+  requireequal((tensorreader->GetOutput()->GetSpacing() == labelreader->GetOutput()->GetSpacing()),
+               "Image Spacings", vm.count("force"));
+  requireequal((tensorreader->GetOutput()->GetLargestPossibleRegion() == labelreader->GetOutput()->GetLargestPossibleRegion()),
+               "Image Sizes", vm.count("force"));
+  requireequal((tensorreader->GetOutput()->GetOrigin() == labelreader->GetOutput()->GetOrigin()),
+               "Image Origins", vm.count("force"));
+  requireequal((tensorreader->GetOutput()->GetDirection() == labelreader->GetOutput()->GetDirection()),
+               "Image Orientations", vm.count("force"));
+
   TractographyFilter::Pointer fibertracker = TractographyFilter::New();
-  if(vm.count("verbose"))
+  if(vm.count("really-verbose"))
     fibertracker->DebugOn();
   fibertracker->SetTensorImage(tensorreader->GetOutput());
   fibertracker->SetROIImage(labelreader->GetOutput());
   fibertracker->SetSourceLabel(vm["source-label"].as<unsigned int>());
   fibertracker->SetTargetLabel(vm["target-label"].as<unsigned int>());
-  fibertracker->SetMaximumDirectionDeviation(vm["max-deviation"].as<double>());
+  fibertracker->SetForbiddenLabel(vm["forbidden-label"].as<unsigned int>());
+  fibertracker->SetMaximumAngleChange(vm["max-angle"].as<double>());
   fibertracker->SetMinimumFractionalAnisotropy(vm["min-fa"].as<double>());
   fibertracker->SetStepSize(vm["step-size"].as<double>());
   fibertracker->Update();
-
+  
   writeFiberFile(vm["output-fiber-file"].as<std::string>(), fibertracker->GetOutput());
-
+  
   return EXIT_SUCCESS;
 }

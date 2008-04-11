@@ -19,6 +19,9 @@ ADD_EXECUTABLE(labeltable labeltable.cxx)
 ADD_EXECUTABLE(hfieldtodeformation  hfieldtodeformation.cxx)
 ADD_EXECUTABLE(tio tio.cxx)
 ADD_EXECUTABLE(fibertrack fibertrack.cxx)
+ADD_EXECUTABLE(morph morph.cxx)
+ADD_EXECUTABLE(fiberstats fiberstats.cxx)
+#ADD_EXECUTABLE(scalartransform scalartransform.cxx)
 
 # Win32 has automatic linking of boost libraries so only add boost
 # libaries on unix
@@ -39,6 +42,9 @@ TARGET_LINK_LIBRARIES(dwiprocess ITKIO)
 TARGET_LINK_LIBRARIES(labeltable ITKIO)
 TARGET_LINK_LIBRARIES(hfieldtodeformation TensorOperations DTIIO ITKIO)
 TARGET_LINK_LIBRARIES(tio ITKIO)
-TARGET_LINK_LIBRARIES(fibertrack DTIIO TensorOperations ITKIO ITKSpatialObject
- ${BOOST_LIBRARIES})
+TARGET_LINK_LIBRARIES(fibertrack DTIIO TensorOperations ITKIO
+ITKSpatialObject ${BOOST_LIBRARIES})
+TARGET_LINK_LIBRARIES(morph ITKIO)
+TARGET_LINK_LIBRARIES(fiberstats DTIIO ${BOOST_LIBRARIES})
+#TARGET_LINK_LIBRARIES(scalartransform DTIIO ITKIO ${BOOST_LIBRARIES})
 

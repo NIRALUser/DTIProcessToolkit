@@ -3,7 +3,7 @@
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
   Date:      $Date: 2008-04-11 16:31:05 $
-  Version:   $Revision: 1.3 $
+  Version:   $Revision: 1.1 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -15,19 +15,24 @@
 
 =========================================================================*/
 
-#ifndef __itkDiffusionTensor3DReconstructionNonlinearImageFilter_h_
-#define __itkDiffusionTensor3DReconstructionNonlinearImageFilter_h_
+#ifndef __itkDiffusionTensor3DReconstructionLinearImageFilter_h_
+#define __itkDiffusionTensor3DReconstructionLinearImageFilter_h_
 
 #include "itkDiffusionTensor3DReconstructionImageFilterBase.h"
-#include "vnl/vnl_least_squares_function.h"
 
 namespace itk{
-
-/** \class DiffusionTensor3DReconstructionNonlinearImageFilter
+/** \class DiffusionTensor3DReconstructionLinearImageFilter
  * \brief This class derives from the
  * DiffusionTensor3DReconstructionImageFilterBase to implement a
- * non-linear least-squares tensor estimation.  This requires an
- * optimization and this implementation uses levenberg-marquardt.
+ * least-squares tensor estimation.
+ * 
+ * \par References:
+ * \li<a href="http://lmi.bwh.harvard.edu/papers/pdfs/2002/westinMEDIA02.pdf">[1]</a> 
+ * <em>C.F.Westin, S.E.Maier, H.Mamata, A.Nabavi, F.A.Jolesz, R.Kikinis,
+ * "Processing and visualization for Diffusion tensor MRI", Medical image
+ * Analysis, 2002, pp 93-108.</em>
+ * \li<a href="splweb.bwh.harvard.edu:8000/pages/papers/westin/ISMRM2002.pdf">[2]</a>
+ * <em>A Dual Tensor Basis Solution to the Stejskal-Tanner Equations for DT-MRI</em>
  * 
  * \note
  * This work is part of the National Alliance for Medical image Computing 
@@ -39,25 +44,23 @@ namespace itk{
  * 
  * \sa DiffusionTensor3D SymmetricSecondRankTensor
  * DiffusionTensor3DReconstructionImageFilterBase
- * DiffusionTensor3DReconstructionLinearImageFilter
+ * DiffusionTensor3DReconstructionNonlinearImageFilter
  * DiffusionTensor3DReconstructionWeightedImageFilter
  * DiffusionTensor3DReconstructionRicianImageFilter
  * \ingroup Multithreaded  TensorObjects
  */
 template< class TGradientImagePixelType,
           class TTensorPrecision=double >
-class ITK_EXPORT DiffusionTensor3DReconstructionNonlinearImageFilter :
+class ITK_EXPORT DiffusionTensor3DReconstructionLinearImageFilter :
   public DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
                                                                 TTensorPrecision>
 {
 public:
-  typedef DiffusionTensor3DReconstructionNonlinearImageFilter       Self;
+  typedef DiffusionTensor3DReconstructionLinearImageFilter       Self;
   typedef SmartPointer<Self>                                     Pointer;
   typedef SmartPointer<const Self>                               ConstPointer;
   typedef DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
     TTensorPrecision >                                           Superclass;
-
-  typedef typename Superclass::GradientPixelType                 GradientPixelType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -65,26 +68,18 @@ public:
   /** Runtime information support. */
   itkTypeMacro(Self, Superclass);
 
-  /** Set step size for optimizer for non-linear fit.  A
-  levenburg-Marquadt optimizer is used.  The default is 1.0e-10. */
-  itkSetMacro( Step, double );
-  /** Get step size for optimizer for non-linear fit.  A
-  levenburg-Marquadt optimizer is used.  The default is 1.0e-10. */
-  itkGetMacro( Step, double );
-
 protected:
-  DiffusionTensor3DReconstructionNonlinearImageFilter() : m_Step(1.0e-10) {};
-  virtual ~DiffusionTensor3DReconstructionNonlinearImageFilter() {};
+  DiffusionTensor3DReconstructionLinearImageFilter() {};
+  virtual ~DiffusionTensor3DReconstructionLinearImageFilter() {};
   
   virtual vnl_vector< TTensorPrecision > 
     EstimateTensor(const vnl_vector<TTensorPrecision>& S) const;
-  
-  double                                                 m_Step;
+
 };
 
 }
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDiffusionTensor3DReconstructionNonlinearImageFilter.txx"
+#include "itkDiffusionTensor3DReconstructionLinearImageFilter.txx"
 #endif
 
 #endif

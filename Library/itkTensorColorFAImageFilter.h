@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkTensorColorFAImageFilter.h,v $
   Language:  C++
-  Date:      $Date: 2007-11-30 18:44:14 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2008-04-11 16:31:05 $
+  Version:   $Revision: 1.3 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -50,7 +50,9 @@ public:
   PixelType operator()( const TInput & x )
     {
       RealValueType fa = x.GetFractionalAnisotropy();
+      // Clamp FA
       if(fa > 1.0) fa = 1.0;
+
       PixelType color;
       EigenVectorsType mat;
       EigenValuesType e;
@@ -87,7 +89,8 @@ public:
  * TensorColorFAImageFilter applies pixel-wise the invokation for
  * computing the eigenvectors and fractional anisotropy of a tensor
  * pixel. The pixel type of the input image is expected to implement a
- * method GetFractionalAnisotropy() and ComputeEigenAnalysis().
+ * method GetFractionalAnisotropy() and ComputeEigenAnalysis().  The
+ * resulting color is the eigenvector times the FA value.
  * 
  * \sa TensorRelativeAnisotropyImageFilter
  * \sa TensorFractionalAnisotropyImageFilter

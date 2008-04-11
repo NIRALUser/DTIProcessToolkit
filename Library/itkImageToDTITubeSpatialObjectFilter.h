@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkImageToDTITubeSpatialObjectFilter.h,v $
   Language:  C++
-  Date:      $Date: 2007-11-30 18:44:14 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2008-04-11 16:31:05 $
+  Version:   $Revision: 1.2 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.

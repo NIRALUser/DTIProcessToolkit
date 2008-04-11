@@ -1,6 +1,6 @@
 //const double eps = 1e-16;
 template<typename T>
-void ExpEuclideanTensorImageFilter<T>::GenerateData()
+void ExpEuclideanTensorImageFilter<T>::ThreadedGenerateData()
 {
 //  Superclass::GenerateInputRequestedRegion();
 //  outputImage->SetRequrestedRegion(inputImage
