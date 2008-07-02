@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2008-04-11 16:31:05 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2008-07-02 15:54:54 $
+  Version:   $Revision: 1.5 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -24,6 +24,7 @@
 // ITK includes
 // datastructures
 #include <itkMetaDataObject.h>
+#include <itkVersion.h>
 
 // IO
 #include <itkImageFileReader.h>
@@ -138,7 +139,7 @@ int main(int argc, char* argv[])
     // deformation
     ("deformation-output,w", po::value<std::string>(), "Warped tensor field based on a deformation field.  Must input h as \"h-field\" of transform")
     ("forward,F", po::value<std::string>(), "HField for warp")
-    ("inverse,I", po::value<std::string>(), "Inverse HField for warp")
+    ("inverse,I", po::value<std::string>(), "Inverse of warp (DEPRECATED: NO LONGER REQUIRED)")
     ("h-field", "forward and inverse transformations are h-fields instead of displacement fields")
 
     // transformation options
@@ -181,7 +182,11 @@ int main(int argc, char* argv[])
   {
     std::cout << config << std::endl;
     if(vm.count("help"))
+    {
+      std::cout << "$Date: 2008-07-02 15:54:54 $ $Revision: 1.5 $" << std::endl;
+      std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
+    }
     else
       return EXIT_FAILURE;
   }
@@ -374,25 +379,22 @@ int main(int argc, char* argv[])
 
   if(vm.count("deformation-output"))
   {
-    if(!vm.count("forward") || !vm.count("inverse"))
+    if(!vm.count("forward"))
     {
       std::cerr << "Deformation field info not fully specified" << std::endl;
       return EXIT_FAILURE;
     }
     DeformationImageType::Pointer forward;
-    DeformationImageType::Pointer inverse;
     
     DeformationFieldType dftype = Displacement;
     if(vm.count("h-field"))
       dftype = HField;
     
     forward = readDeformationField(vm["forward"].as<std::string>(), dftype);
-    inverse = readDeformationField(vm["inverse"].as<std::string>(), dftype);
 
     writeImage(vm["deformation-output"].as<std::string>(),
                createWarp(tensors,
                           forward,
-                          inverse,
                           vm["reorientation"].as<TensorReorientationType>(),
                           vm["interpolation"].as<InterpolationType>()));
   }

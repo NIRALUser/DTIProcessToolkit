@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkProjectTensorImageFilter.h,v $
   Language:  C++
-  Date:      $Date: 2008-04-11 16:31:05 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2008-07-02 15:54:54 $
+  Version:   $Revision: 1.4 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.

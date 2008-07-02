@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkLogEuclideanTensorImageFilter.h,v $
   Language:  C++
-  Date:      $Date: 2008-04-11 16:31:05 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2008-07-02 15:54:54 $
+  Version:   $Revision: 1.4 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -17,7 +17,7 @@
 #ifndef __itkLogEuclideanTensorImageFilter_h
 #define __itkLogEuclideanTensorImageFilter_h
 
-#include <itkImageToImageFilter.h>
+#include <itkUnaryFunctorImageFilter.h>
 #include <vnl/vnl_double_3x3.h>
 #include <itkDiffusionTensor3D.h>
 
@@ -26,50 +26,51 @@ namespace itk
 
 // This functor class invokes the computation of fractional anisotropy from
 // every pixel.
-// namespace Functor {  
+namespace Functor {  
  
-// template< typename TInput >
-// class LogEuclideanTensorFunction
-// {
-// public:
-//   typedef typename TInput::RealValueType  RealValueType;
-//   typedef typename itk::Vector<RealValueType, 6> OutputType;
-//   typedef TInput TensorType;
-//   typedef typename TInput::EigenVectorsMatrixType EigenVectorType;
-//   typedef typename TInput::EigenValuesArrayType EigenValueType;
+template< typename TInput >
+class LogEuclideanTensorFunction
+{
+public:
+  typedef typename TInput::RealValueType  RealValueType;
+  typedef typename itk::Vector<RealValueType, 6> OutputType;
+  typedef TInput TensorType;
+  typedef typename TInput::EigenVectorsMatrixType EigenVectorType;
+  typedef typename TInput::EigenValuesArrayType EigenValueType;
 
-//   LogEuclideanTensorFunction() {}
-//   ~LogEuclideanTensorFunction() {}
-//   inline OutputType operator()( const TInput & x )
-//   {
-//     EigenValueType D;
-//     EigenVectorType U;
+  LogEuclideanTensorFunction() {}
+  ~LogEuclideanTensorFunction() {}
 
-//     x.ComputeEigenAnalysis(D,U);
+  OutputType operator()( const TInput & x )
+  {
+    EigenValueType D;
+    EigenVectorType U;
+
+    x.ComputeEigenAnalysis(D,U);
     
-//     itk::Matrix<RealValueType,3,3> diag;
-    
-//     diag(0,0) = log(D[0]);
-//     diag(1,1) = log(D[1]);
-//     diag(2,2) = log(D[2]);
+    vnl_matrix_fixed<RealValueType,3,3> m;
+    m.fill(0);
+    m(0,0) = D[0] > 0 ? log(D[0]) : -10;
+    m(1,1) = D[1] > 0 ? log(D[1]) : -10;
+    m(2,2) = D[2] > 0 ? log(D[2]) : -10;
 
-//     itk::Matrix<RealValueType,3,3> matlog;
-//     matlog = U * diag * U.GetTranspose();
+    vnl_matrix_fixed<RealValueType,3,3> matlog;
+    matlog = U.GetVnlMatrix().transpose() * m * U.GetVnlMatrix();
 
-//     OutputType result;
-//     result[0] = matlog(0,0);
-//     result[1] = matlog(0,1);
-//     result[2] = matlog(0,2);
-//     result[3] = matlog(1,1);
-//     result[4] = matlog(1,2);
-//     result[5] = matlog(2,2);
+    OutputType op;
+    op[0] = matlog(0,0);
+    op[1] = matlog(0,1) * sqrt(2.0);
+    op[2] = matlog(0,2) * sqrt(2.0);
+    op[3] = matlog(1,1);
+    op[4] = matlog(1,2) * sqrt(2.0);
+    op[5] = matlog(2,2);
 
-//     return result;
-//   }
-// }; 
+    return op;
+  }
+}; 
 
 
-// }  // end namespace functor
+}  // end namespace functor
 
 
 /** \class LogEuclideanTensorImageFilter
@@ -87,19 +88,13 @@ namespace itk
 template<typename T>
 class ITK_EXPORT LogEuclideanTensorImageFilter :
     public
-ImageToImageFilter<Image<DiffusionTensor3D<T>, 3>,
-                   Image<Vector<T,6>, 3> >
+UnaryFunctorImageFilter<Image<DiffusionTensor3D<T>, 3>,
+                        Image<Vector<T,6>, 3>,
+                        Functor::LogEuclideanTensorFunction<DiffusionTensor3D<T> > >
 {
 public:
-//  typedef Image<Vector<typename TInputImage::PixelType::RealValueType,6>,3 > TOutputImage;
   typedef Image<DiffusionTensor3D<T>, 3> InputImageType;
-  typedef Image<Vector<T,6>, 3> OutputImageType;
-  typedef typename InputImageType::PixelType InputPixelType;
-  typedef typename OutputImageType::PixelType OutputPixelType;
-  typedef typename InputPixelType::EigenVectorsMatrixType EigenVectorType;
-  typedef typename InputPixelType::EigenValuesArrayType EigenValueType;
-  typedef T RealType;
-
+  typedef Image<Vector<T, 6>, 3> OutputImageType;
 
   /** Standard class typedefs. */
   typedef LogEuclideanTensorImageFilter  Self;
@@ -114,9 +109,7 @@ public:
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
     { this->Superclass::PrintSelf( os, indent ); }
-  
-  virtual void ThreadedGenerateData();
-
+ 
 
 protected:
   LogEuclideanTensorImageFilter() {};
@@ -129,9 +122,6 @@ private:
 };
 
 
-#ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLogEuclideanTensorImageFilter.txx"
-#endif
 
 }
 

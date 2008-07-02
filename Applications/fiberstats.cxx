@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2008-04-11 16:31:05 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2008-07-02 15:54:54 $
+  Version:   $Revision: 1.2 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -29,6 +29,7 @@
 #include <boost/lambda/lambda.hpp>
 
 // ITK includes
+#include <itkVersion.h>
 #include <itkIndex.h>
 #include "fiberio.h"
 #include "dtitypes.h"
@@ -81,7 +82,11 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     
     if(vm.count("help"))
+    {
+      std::cout << "Version: $Date: 2008-07-02 15:54:54 $ $Revision: 1.2 $" << std::endl;
+      std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
+    }
     else
       return EXIT_FAILURE;
   }

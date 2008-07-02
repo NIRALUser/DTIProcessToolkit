@@ -80,7 +80,6 @@ TensorImageType::Pointer createROT(TensorImageType::Pointer timg,
 
 TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
                                     DeformationImageType::Pointer forward,
-                                    DeformationImageType::Pointer inverse,
                                     TensorReorientationType reorientationtype,
                                     InterpolationType interpolationtype)
 {
@@ -88,50 +87,13 @@ TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
   typedef itk::DeformationFieldJacobianFilter<DeformationImageType,float> JacobianFilterType;
   typedef JacobianFilterType::OutputImageType JacobianImageType;
   JacobianFilterType::Pointer jacobian = JacobianFilterType::New();
-  jacobian->SetInput(inverse);
-
-  // Rotate tensor based on inverse deformation field
-  typedef itk::InPlaceImageFilter<
-    TensorImageType,
-    TensorImageType> TensorRotateImageFilterBaseType;
-
-  typedef itk::TensorRotateFromDeformationFieldImageFilter<
-    TensorImageType,
-    JacobianImageType,
-    TensorImageType> TensorFSRotateImageFilterType;
-
-  typedef itk::TensorRotateFromDeformationFieldPPDImageFilter<
-    TensorImageType,
-    JacobianImageType,
-    TensorImageType> TensorPPDRotateImageFilterType;
-
-  TensorRotateImageFilterBaseType::Pointer rotate;
-  if(reorientationtype == FiniteStrain)
-    {
-    TensorFSRotateImageFilterType::Pointer fsrotate;
-    fsrotate = TensorFSRotateImageFilterType::New();
-
-    fsrotate->SetInput1(timg);
-    
-    fsrotate->SetInput2(jacobian->GetOutput());
-
-    rotate = fsrotate;
-    }
-  else if(reorientationtype == PreservationPrincipalDirection)
-    {
-    TensorPPDRotateImageFilterType::Pointer fsrotate;
-    fsrotate = TensorPPDRotateImageFilterType::New();
-
-    fsrotate->SetInput1(timg);
-    
-    fsrotate->SetInput2(jacobian->GetOutput());
-    rotate = fsrotate;
-    }
+  //jacobian->SetInput(inverse);
+  jacobian->SetInput(forward);
 
   typedef itk::LogEuclideanTensorImageFilter<RealType> LogEuclideanFilter;
   typedef LogEuclideanFilter::OutputImageType LogTensorImageType;
   LogEuclideanFilter::Pointer logf = LogEuclideanFilter::New();
-  logf->SetInput(rotate->GetOutput()); 
+  logf->SetInput(timg); 
   logf->Update();
 
   typedef itk::WarpVectorImageFilter<LogTensorImageType,LogTensorImageType,DeformationImageType>
@@ -180,7 +142,47 @@ TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
   expf->SetInput(warp->GetOutput());
   expf->Update();
 
-  return expf->GetOutput();
+  //return expf->GetOutput();
   
+
+  // Rotate tensor based on inverse deformation field
+  typedef itk::InPlaceImageFilter<
+    TensorImageType,
+    TensorImageType> TensorRotateImageFilterBaseType;
+
+  typedef itk::TensorRotateFromDeformationFieldImageFilter<
+    TensorImageType,
+    JacobianImageType,
+    TensorImageType> TensorFSRotateImageFilterType;
+
+  typedef itk::TensorRotateFromDeformationFieldPPDImageFilter<
+    TensorImageType,
+    JacobianImageType,
+    TensorImageType> TensorPPDRotateImageFilterType;
+
+  TensorRotateImageFilterBaseType::Pointer rotate;
+  if(reorientationtype == FiniteStrain)
+    {
+    TensorFSRotateImageFilterType::Pointer fsrotate;
+    fsrotate = TensorFSRotateImageFilterType::New();
+
+    fsrotate->SetInput1(expf->GetOutput());
+    
+    fsrotate->SetInput2(jacobian->GetOutput());
+
+    rotate = fsrotate;
+    }
+  else if(reorientationtype == PreservationPrincipalDirection)
+    {
+    TensorPPDRotateImageFilterType::Pointer fsrotate;
+    fsrotate = TensorPPDRotateImageFilterType::New();
+
+    fsrotate->SetInput1(timg);
+    
+    fsrotate->SetInput2(jacobian->GetOutput());
+    rotate = fsrotate;
+    }
+  rotate->Update();
+  return rotate->GetOutput();
 }
 

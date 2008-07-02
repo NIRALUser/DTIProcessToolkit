@@ -160,7 +160,15 @@ int main(int argc, char* argv[])
   fibertracker->SetStepSize(vm["step-size"].as<double>());
   fibertracker->Update();
   
-  writeFiberFile(vm["output-fiber-file"].as<std::string>(), fibertracker->GetOutput());
+  try
+  {
+    writeFiberFile(vm["output-fiber-file"].as<std::string>(), fibertracker->GetOutput());
+  }
+  catch(itk::ExceptionObject e)
+  {
+    std::cerr << e.what() << std::endl;
+    return EXIT_FAILURE;
+  }
   
   return EXIT_SUCCESS;
 }

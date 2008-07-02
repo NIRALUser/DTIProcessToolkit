@@ -119,6 +119,10 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup)
       throw itk::ExceptionObject("Unknown file format for fibers");
     }
   }
+  else
+  {
+    throw itk::ExceptionObject("Unknown file format for fibers");
+  }
 }
 
 GroupType::Pointer readFiberFile(const std::string & filename)
