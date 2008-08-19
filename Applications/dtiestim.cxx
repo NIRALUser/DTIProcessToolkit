@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2008-07-02 15:54:54 $
-  Version:   $Revision: 1.5 $
+  Date:      $Date: 2008-08-19 16:11:15 $
+  Version:   $Revision: 1.6 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -45,6 +45,10 @@
 #include <itkShiftScaleImageFilter.h>
 #include <itkVectorIndexSelectionCastImageFilter.h>
 #include <itkBinaryThresholdImageFilter.h>
+#include <itkLogImageFilter.h>
+#include <itkAddImageFilter.h>
+#include <itkExpImageFilter.h>
+#include <itkImageRegionIterator.h>
 
 #include <itkNthElementImageAdaptor.h>
 #include <itkOtsuThresholdImageCalculator.h>
@@ -119,6 +123,8 @@ int main(int argc, char* argv[])
      "Bad region mask.  Image where for every voxel > 0 the tensors are not estimated.")
     ("threshold,t", po::value<ScalarPixelType>(),
      "Baseline threshold for estimation.  If not specified calculated using an OTSU threshold on the baseline image.")
+    ("idwi", po::value<std::string>(),
+     "idwi output image.  Image with isotropic diffusion-weighted information = geometric mean of diffusion images.")
 
     ("method,m", po::value<EstimationType>()->default_value(LinearEstimate,"lls (Linear Least Squares)"),
      "Estimation method (lls,wls,nls,ml)")
@@ -172,7 +178,7 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     if(vm.count("help"))
     {
-      std::cout << "Version: $Date: 2008-07-02 15:54:54 $ $Revision: 1.5 $" << std::endl;
+      std::cout << "Version: $Date: 2008-08-19 16:11:15 $ $Revision: 1.6 $" << std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
     }
@@ -480,13 +486,20 @@ int main(int argc, char* argv[])
   // Output b0 threshold mask if requested
   if(vm.count("threshold-mask"))
   {
-    // TODO: this will not work if the baselin image is not uniquely
-    // the first image in the stack
+    // Will take last B0 image in sequence
 
     typedef itk::VectorIndexSelectionCastImageFilter<VectorImageType,IntImageType> VectorSelectionFilterType;
     VectorSelectionFilterType::Pointer b0extract = VectorSelectionFilterType::New();
     b0extract->SetInput(dwi);
-    b0extract->SetIndex(0);
+    for (unsigned int directionIndex = 0 ; directionIndex < gradientContainer->Size(); directionIndex++)
+    {
+      // information whether image is b0 or not
+      GradientType g = gradientContainer->GetElement(directionIndex);
+      if (g[0] == 0 && g[1] == 0 && g[2] == 0) 
+      {
+	b0extract->SetIndex(directionIndex);
+      }
+    }
 
     typedef itk::BinaryThresholdImageFilter<IntImageType,LabelImageType> ThresholdFilterType;
     ThresholdFilterType::Pointer thresholdfilter = ThresholdFilterType::New();
@@ -506,6 +519,104 @@ int main(int argc, char* argv[])
     catch (itk::ExceptionObject & e)
     {
       std::cerr << "Could not write threshold mask file" << std::endl;
+      std::cerr << e << std::endl;
+    }
+
+  }
+  
+  // Output idwi image if requested
+  if(vm.count("idwi"))
+  { 
+    typedef itk::VectorIndexSelectionCastImageFilter<VectorImageType,RealImageType> VectorSelectionFilterType;
+    VectorSelectionFilterType::Pointer biextract = VectorSelectionFilterType::New();
+    biextract->SetInput(dwi);
+    int numberNonB0Directions = 0;
+
+    RealImageType::Pointer idwiImage; 
+
+    typedef itk::LogImageFilter<RealImageType,RealImageType> LogImageFilterType;
+
+    for (unsigned int directionIndex = 0 ; directionIndex < gradientContainer->Size(); directionIndex++)
+    {
+      // get information whether image is b0 or not
+      GradientType g = gradientContainer->GetElement(directionIndex);
+      if ( g[0] != 0 || g[1] != 0 || g[2] != 0 ) 
+      {
+	// image is not b0 image
+	biextract->SetIndex(directionIndex);
+
+	if (numberNonB0Directions == 0) 
+	{
+	  // log of the first image and set it as current idwi image
+	  try 
+	  {
+	    LogImageFilterType::Pointer logfilter = LogImageFilterType::New();
+	    logfilter->SetInput(biextract->GetOutput());
+	    logfilter->Update();
+	    idwiImage = logfilter->GetOutput();
+	  }
+	  catch (itk::ExceptionObject & e)
+	  {
+	    std::cerr << "Error in log computation" << std::endl;
+	    std::cerr << e << std::endl;
+	  }
+
+	} 
+	else 
+	{
+	  // log of the image and add it to the current idwi image
+	  try 
+	  {
+	    LogImageFilterType::Pointer logfilter = LogImageFilterType::New();
+	    logfilter->SetInput(biextract->GetOutput());
+	    logfilter->Update();
+	    typedef itk::AddImageFilter<RealImageType> AddImageFilterType;
+	    AddImageFilterType::Pointer addfilter = AddImageFilterType::New();
+	    addfilter->SetInput1(logfilter->GetOutput());
+	    addfilter->SetInput2(idwiImage);
+	    addfilter->Update();
+	    idwiImage = addfilter->GetOutput();
+	  }
+	  catch (itk::ExceptionObject & e)
+	  {
+	    std::cerr << "Error in log computation" << std::endl;
+	    std::cerr << e << std::endl;
+	  }
+	  
+	}
+	
+	numberNonB0Directions++;
+      }
+    }
+
+    // idwiImage contains the sum of all log transformed directional images
+    // need to divide by numberNonB0Directions and compute exponential image
+
+    if(VERBOSE)
+      std::cout << "Number of non B0 images : " << numberNonB0Directions << std::endl;
+
+    typedef itk::ImageRegionIterator< RealImageType > RealIterator;
+    RealIterator iterImage (idwiImage, idwiImage->GetBufferedRegion());
+    while ( !iterImage.IsAtEnd() )  {
+      iterImage.Set(iterImage.Get() / numberNonB0Directions);
+      ++iterImage;
+    }
+
+    typedef itk::ExpImageFilter<RealImageType,RealImageType> ExpFilterType;
+    ExpFilterType::Pointer expfilter = ExpFilterType::New();
+    expfilter->SetInput(idwiImage);
+
+    try 
+    {
+      typedef itk::ImageFileWriter<RealImageType> RealImageFileWriterType;
+      RealImageFileWriterType::Pointer realwriter = RealImageFileWriterType::New();
+      realwriter->SetInput(expfilter->GetOutput());
+      realwriter->SetFileName(vm["idwi"].as<std::string>().c_str());
+      realwriter->Update();
+    }
+    catch (itk::ExceptionObject & e)
+    {
+      std::cerr << "Could not write idwi file" << std::endl;
       std::cerr << e << std::endl;
     }
 
