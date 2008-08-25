@@ -45,7 +45,8 @@ int ScalarDeformationApplyTest(int argc, char* argv[])
 
   AffineTransformType::Pointer transform = createITKAffine(dof,
                                                            image->GetLargestPossibleRegion().GetSize(),
-                                                           image->GetSpacing());
+                                                           image->GetSpacing(),
+                                                           image->GetOrigin());
   defgen->SetTransform(transform);
   defgen->SetOutputSpacing(image->GetSpacing());
   defgen->SetOutputOrigin(image->GetOrigin());
