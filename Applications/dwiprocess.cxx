@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2008-07-02 15:54:54 $
-  Version:   $Revision: 1.5 $
+  Date:      $Date: 2008-11-24 22:09:26 $
+  Version:   $Revision: 1.6 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
     resampler->SetSize(reader->GetOutput()->GetLargestPossibleRegion().GetSize());
     resampler->Update();
 
-    vcompose->SetNthInput(i,resampler->GetOutput());
+    vcompose->SetInput(i,resampler->GetOutput());
     }
   vcompose->Update();
 
