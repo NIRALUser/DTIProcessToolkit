@@ -69,10 +69,16 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup)
         itk::Vector<double, 3> spacing(tube->GetSpacing());
         itk::Vector<double, 3> origin(tube->GetObjectToWorldTransform()->GetOffset());
 
+        // convert origin from LPS -> RAS
+        origin[0] = -origin[0];
+        origin[1] = -origin[1];
+
         vtkIdType id;
         // Need to multiply v by spacing and origin
-        id = pts->InsertNextPoint(v[0] * spacing[0] + origin[0],
-                                  v[1] * spacing[1] + origin[1],
+        // Also negate the first to convert from LPS -> RAS
+        // for slicer 3
+        id = pts->InsertNextPoint(-v[0] * spacing[0] + origin[0],
+                                  -v[1] * spacing[1] + origin[1],
                                   v[2] * spacing[2] + origin[2]);
 
         ids->InsertNextId(id);
@@ -193,7 +199,8 @@ GroupType::Pointer readFiberFile(const std::string & filename)
 
         vtkFloatingPointType* coordinates = points->GetPoint(j);
         DTIPointType pt;
-        pt.SetPosition(coordinates[0], coordinates[1], coordinates[2]);
+        // Convert from RAS to LPS for vtk
+        pt.SetPosition(-coordinates[0], -coordinates[1], coordinates[2]);
         pt.SetRadius(0.5);
         pt.SetColor(0.0, 1.0, 0.0);
         

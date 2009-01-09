@@ -26,4 +26,6 @@ void RegisterTests()
   REGISTER_TEST(WLSTensorEstimateTest );
   REGISTER_TEST(NLSTensorEstimateTest );
   REGISTER_TEST(CommandLineTest );
+  REGISTER_TEST(PrincipalEigenvectorFunctionTest );
+  REGISTER_TEST(ReadITKAffineTest );
 }

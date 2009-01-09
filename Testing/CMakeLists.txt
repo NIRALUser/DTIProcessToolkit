@@ -11,6 +11,7 @@ ADD_TEST(BesselTest ${TEST_SUITE} BesselTest)
 ADD_TEST(LLSTensorEstimateTest ${TEST_SUITE} LLSTensorEstimateTest)
 ADD_TEST(WLSTensorEstimateTest ${TEST_SUITE} WLSTensorEstimateTest)
 ADD_TEST(NLSTensorEstimateTest ${TEST_SUITE} NLSTensorEstimateTest)
+ADD_TEST(PrincipalEigenvectorFunctionTest ${TEST_SUITE} PrincipalEigenvectorFunctionTest)
 #ADD_TEST(WarpFiberTest ${TEST_SUITE} WarpFiberTest)
 #ADD_TEST(WarpTensortest ${TEST_SUITE} WarpTensorTest)
 
@@ -25,8 +26,38 @@ ADD_TEST(ScalarDeformationApplyTest ${TEST_SUITE}
            ${TESTING_RESULTS_DIR}/warpfa.nrrd
            )
 
+ADD_TEST(ReadITKAffineTest ${TEST_SUITE} ReadITKAffineTest
+                           ${TESTING_DATA_DIR}/itkAffineTransformFloat.txt
+                           ${TESTING_DATA_DIR}/itkAffineTransformDouble.txt)
+
 # Application Command Line tests
-ADD_TEST(TransformDWITest ${CMAKE_BINARY_DIR}/bin/dwiprocess ${TESTING_DATA_DIR}/testdwi.nrrd ${TESTING_RESULTS_DIR}/testdwi-rot.nrrd ${TESTING_DATA_DIR}/test.dof)
+ADD_TEST(TransformDWITest ${CMAKE_BINARY_DIR}/bin/dwiprocess 
+                          ${TESTING_DATA_DIR}/testdwi.nrrd 
+                          ${TESTING_RESULTS_DIR}/testdwi-rot.nrrd
+                          ${TESTING_DATA_DIR}/test.dof)
+
+ADD_TEST(TensorEstimateVolumeTest
+         ${TEST_SUITE}
+         --compare 
+         ${TESTING_DATA_DIR}/tensors.nrrd
+         ${TESTING_RESULTS_DIR}/result-tensors.nrrd
+         CommandLineTest 
+         ${EXECUTABLE_OUTPUT_PATH}/dtiestim
+         ${TESTING_DATA_DIR}/testdwi.nrrd
+         ${TESTING_RESULTS_DIR}/result-tensors.nrrd -t 200)
+
+ADD_TEST(TensorEstimateNEXTest 
+         ${TEST_SUITE}
+         --compare 
+         ${TESTING_RESULTS_DIR}/result-tensors-rep.nrrd
+         ${TESTING_RESULTS_DIR}/result-tensors-nex.nrrd
+         CommandLineTest 
+         ${EXECUTABLE_OUTPUT_PATH}/dtiestim 
+         ${TESTING_DATA_DIR}/testdwirepbaseline.nrrd
+         ${TESTING_RESULTS_DIR}/result-tensors-rep.nrrd -t 200 &&      
+         ${EXECUTABLE_OUTPUT_PATH}/dtiestim
+         ${TESTING_DATA_DIR}/testdwirepbaselinenex.nrrd
+         ${TESTING_RESULTS_DIR}/result-tensors-nex.nrrd -t 200)
 
 ADD_TEST(TensorEstimateVolumeTest
          ${TEST_SUITE}
@@ -81,6 +112,24 @@ ADD_TEST(CompareMDTest
                    ${TESTING_RESULTS_DIR}/result-md.nrrd
          CommandLineTest ${EXECUTABLE_OUTPUT_PATH}/dtiprocess ${TESTING_DATA_DIR}/tensors.nrrd -m ${TESTING_RESULTS_DIR}/result-md.nrrd)
 
+ADD_TEST(CompareLbd1Test 
+         ${TEST_SUITE} 
+         --compare ${TESTING_DATA_DIR}/l1.nrrd
+                   ${TESTING_RESULTS_DIR}/result-l1.nrrd
+         CommandLineTest ${EXECUTABLE_OUTPUT_PATH}/dtiprocess ${TESTING_DATA_DIR}/tensors.nrrd --lambda1-output ${TESTING_RESULTS_DIR}/result-l1.nrrd)
+
+ADD_TEST(CompareLbd2Test 
+         ${TEST_SUITE} 
+         --compare ${TESTING_DATA_DIR}/l2.nrrd
+                   ${TESTING_RESULTS_DIR}/result-l2.nrrd
+         CommandLineTest ${EXECUTABLE_OUTPUT_PATH}/dtiprocess ${TESTING_DATA_DIR}/tensors.nrrd --lambda2-output ${TESTING_RESULTS_DIR}/result-l2.nrrd)
+
+ADD_TEST(CompareLbd3Test 
+         ${TEST_SUITE} 
+         --compare ${TESTING_DATA_DIR}/l3.nrrd
+                   ${TESTING_RESULTS_DIR}/result-l3.nrrd
+         CommandLineTest ${EXECUTABLE_OUTPUT_PATH}/dtiprocess ${TESTING_DATA_DIR}/tensors.nrrd --lambda3-output ${TESTING_RESULTS_DIR}/result-l3.nrrd)
+
 
 # Unit tests
 SET(TestSuite_SRCS
@@ -90,6 +139,8 @@ WarpFiberTest.cxx
 WarpTensorTest.cxx
 FiberIOTest.cxx
 TensorEstimateTest.cxx
+PrincipalEigenvectorFunctionTest.cxx
+ReadITKAffineTest.cxx
 )
 
 ADD_EXECUTABLE(TestSuite TestSuite.cxx ${TestSuite_SRCS})

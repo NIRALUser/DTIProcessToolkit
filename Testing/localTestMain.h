@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: localTestMain.h,v $
   Language:  C++
-  Date:      $Date: 2008-08-25 21:03:09 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2009-01-09 15:39:51 $
+  Version:   $Revision: 1.3 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.

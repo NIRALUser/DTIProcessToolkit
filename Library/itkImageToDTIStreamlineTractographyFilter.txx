@@ -11,7 +11,7 @@ template <class TTensorImage, class TROIImage, class TOutputSpatialObject>
 ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObject>
 ::ImageToDTIStreamlineTractographyFilter()
   : m_StepSize(0.5), m_MinimumFractionalAnisotropy(0.2), m_MaximumAngleChange(M_PI/4),
-    m_SourceLabel(2), m_TargetLabel(1), m_ForbiddenLabel(0)
+    m_SourceLabel(2), m_TargetLabel(1), m_ForbiddenLabel(0), m_WholeBrain(false)
 {
   this->SetNumberOfRequiredInputs(2);
 
@@ -76,7 +76,7 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
       ++tensorit, ++roiit)
   {
     // For each pixel which is a source region
-    if(roiit.Get() == m_SourceLabel)
+    if(m_WholeBrain || roiit.Get() == m_SourceLabel)
     {
       IndexType ind = tensorit.GetIndex();
       itkDebugMacro(<<"Initalizing fiber from "<< ind);
@@ -86,21 +86,35 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
 
       // Find two initial starting directions
       TensorType tens = tensorit.Get();
+      if(tens.GetFractionalAnisotropy() < m_MinimumFractionalAnisotropy)
+        continue;
       itkDebugMacro(<<"Pretensor: " << tens);
 
-      EigenVectorType veca = Functor::TensorPrincipalEigenvectorFunction<TensorType, double>()(tens);
-      EigenVectorType vecb = -veca;
+      EigenVectorType evec;
+      try
+      {        
+         evec = Functor::TensorPrincipalEigenvectorFunction<TensorType, double>()(tens);
+      }
+      catch( const ExceptionObject & e)
+      {
+        // Abort tracking fiber if we start in an elliptical region
+        continue;
+      }
       
       typename DTITubeSpatialObjectType::Pointer fiba, fibb, fib;
 
       // Track in first direction
-      fiba = this->TrackFromPoint(pt,veca);
+      fiba = this->TrackFromPoint(pt,  evec);
 
       // Track in second direction
-      fibb = this->TrackFromPoint(pt,vecb);
+      fibb = this->TrackFromPoint(pt, -evec);
 
+      // TODO ::: CHECK MEMORY ALLOCATION
       fib = DTITubeSpatialObjectType::New();
       typedef DTITubeSpatialObjectType::PointListType PointListType;
+
+      // new points is sum of two half minus one for the repeated
+      // start point
       PointListType newpoints(fiba->GetNumberOfPoints() + fibb->GetNumberOfPoints() - 1);
       std::copy(fiba->GetPoints().rbegin(), fiba->GetPoints().rend(),
                 newpoints.begin());
@@ -112,39 +126,37 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
       // Need to set spacing
       fib->SetSpacing(this->GetROIImage()->GetSpacing().GetDataPointer());
 
-      // TODO: iterate over fiber and test if passed through target
-      // region
-      bool keep = false;
-      if(!m_TargetLabel)
+      // Iterate over fiber and test if passed through target
+      // region.  If m_TargetLabel is zero accept all fibers.
+      bool sawtarget = !m_TargetLabel;
+      bool sawsource = false;
+
+      // Iterate over points in fiber
+      for(PointListType::const_iterator it = newpoints.begin();
+          it != newpoints.end(); ++it)
       {
-        keep = true;
+        ContinuousIndex<double, 3> cind;
+        cind[0] = it->GetPosition()[0];
+        cind[1] = it->GetPosition()[1];
+        cind[2] = it->GetPosition()[2];
+        PointType ptest;
+        this->GetTensorImage()->TransformContinuousIndexToPhysicalPoint(cind, ptest);
+        
+        sawtarget = sawtarget || (m_ROIInterpolator->Evaluate(ptest) == m_TargetLabel);
+        sawsource = sawsource || (m_ROIInterpolator->Evaluate(ptest) == m_SourceLabel);
       }
-      else
-      {
-        for(PointListType::const_iterator it = newpoints.begin();
-            it != newpoints.end(); ++it)
-        {
-          ContinuousIndex<double, 3> cind;
-          cind[0] = it->GetPosition()[0];
-          cind[1] = it->GetPosition()[1];
-          cind[2] = it->GetPosition()[2];
-          PointType ptest;
-          this->GetTensorImage()->TransformContinuousIndexToPhysicalPoint(cind, ptest);
-          
-          if(m_ROIInterpolator->Evaluate(ptest) == m_TargetLabel)
-          {
-            keep = true;
-            break;
-          }
-        }
-      }
-      if(keep)
+
+      // If not whole brain and we 've seen the target keep fiber
+      // If whole brain we need to see source and target
+      if((sawtarget && !m_WholeBrain) || (sawtarget && sawsource))
       {
         m_TubeGroup->AddSpatialObject(fib);
       }
     } // end if in source region
 
   } /// end loop over pixels
+
+  // Update spacing of tube group
   m_TubeGroup->ComputeObjectToWorldTransform();
 }
 
@@ -156,7 +168,7 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
 {
   const double maxdotprod = cos(m_MaximumAngleChange);
 
-  itkDebugMacro(<<"Tracking from " << pt << " in direction " << vec);
+   itkDebugMacro(<<"Tracking from " << pt << " in direction " << vec);
 
   std::vector<DTITubeSpatialObjectPointType> pointlist;
   DTITubeSpatialObjectTypePointer tube = DTITubeSpatialObjectType::New();
@@ -196,8 +208,6 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
       break;
     }
 
-    itkDebugMacro(<<"Next point: " << nextpt);
-
     typedef typename TensorInterpolateType::OutputType ArrayType;
     TensorType t = m_TensorInterpolator->Evaluate(nextpt);
     
@@ -225,6 +235,9 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
       pt = nextpt;
       vec = nextvec;
     }
+
+    if(pointlist.size() > 20000)
+      std::cerr << "*WARNING*: Creating fiber with a large number of points" << std::endl;
     
   }
   while(!stoppingcond);
@@ -299,8 +312,6 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
   TensorType tens = m_TensorInterpolator->Evaluate(pt);
   
   EigenVectorType pdd = Functor::TensorPrincipalEigenvectorFunction<TensorType, double>()(tens);
-
-  itkDebugMacro(<<"PDD: " << pdd);
 
   if(pdd[0]*vec[0] + pdd[1]*vec[1] + pdd[2]*vec[2] < 0)
   {

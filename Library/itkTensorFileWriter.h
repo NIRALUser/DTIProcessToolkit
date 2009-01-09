@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkTensorFileWriter.h,v $
   Language:  C++
-  Date:      $Date: 2008-07-02 15:54:54 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2009-01-09 15:39:51 $
+  Version:   $Revision: 1.5 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.

@@ -1,6 +1,31 @@
-#include <iostream>
-#include <string>
-#include <cmath>
+/*=========================================================================
+
+  Program:   NeuroLib (DTI command line tools)
+  Language:  C++
+  Date:      $Date: 2009-01-09 15:39:51 $
+  Version:   $Revision: 1.4 $
+  Author:    Casey Goodlett (gcasey@sci.utah.edu)
+
+  Copyright (c)  Casey Goodlett. All rights reserved.
+  See NeuroLibCopyright.txt or http://www.ia.unc.edu/dev/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notices for more information.
+
+=========================================================================*/
+
+#include "fiberio.h"
+#include "pomacros.h"
+#include "itkImageToDTIStreamlineTractographyFilter.h"
+
+#include <itkDiffusionTensor3D.h>
+#include <itkImage.h>
+#include <itkImageFileReader.h>
+#include <itkImageFileWriter.h>
+#include <itkGroupSpatialObject.h>
+#include <itkSpatialObjectWriter.h>
+#include <itkMetaDataObject.h>
 
 // boost includes
 #include <boost/program_options/option.hpp>
@@ -10,16 +35,9 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/cmdline.hpp>
 
-#include <itkDiffusionTensor3D.h>
-#include <itkImage.h>
-#include <itkImageFileReader.h>
-#include <itkImageFileWriter.h>
-#include <itkGroupSpatialObject.h>
-#include <itkSpatialObjectWriter.h>
-
-#include "itkImageToDTIStreamlineTractographyFilter.h"
-#include "fiberio.h"
-#include "pomacros.h"
+#include <iostream>
+#include <string>
+#include <cmath>
 
 enum IntegrationType {Euler, Midpoint, RK4};
 void validate(boost::any& v,
@@ -72,6 +90,7 @@ int main(int argc, char* argv[])
     ("step-size", po::value<double>()->default_value(0.5), "Step size in mm")
     ("min-fa", po::value<double>()->default_value(0.2), "Minimum anisotropy")
 //    ("integration-method", po::value<RK4>(), "Integration method (euler, midpoint, rk4)")
+    ("whole-brain", "Use every voxel in the brain as a potential seed point")
     ("verbose,v", "Verbose output")
     ("really-verbose", "Follow detail of fiber tracking algorithm")
     ("force",
@@ -150,6 +169,8 @@ int main(int argc, char* argv[])
   TractographyFilter::Pointer fibertracker = TractographyFilter::New();
   if(vm.count("really-verbose"))
     fibertracker->DebugOn();
+  if(vm.count("whole-brain"))
+    fibertracker->WholeBrainOn();
   fibertracker->SetTensorImage(tensorreader->GetOutput());
   fibertracker->SetROIImage(labelreader->GetOutput());
   fibertracker->SetSourceLabel(vm["source-label"].as<unsigned int>());

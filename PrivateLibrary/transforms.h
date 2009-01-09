@@ -21,15 +21,30 @@ public:
   unsigned int ndofs;
 };
 
-// template<class Precision>
-// boost::shared_ptr<RViewTransform<Precision> > readDOFFile(const std::string &doffile);
+// Reads the parameter's from RView's dof file
+template<class Precision>
+RViewTransform<Precision>
+readDOFFile(const std::string &doffile);
 
-// template <class ImageSizeType, class ImageSpacingType, class Precision>
-// typename itk::AffineTransform<Precision,ImageSizeType::Dimension>::Pointer 
-// createITKAffine(const boost::shared_ptr<RViewTransform>& dof,
-//                 const ImageSizeType& size,
-//                 const ImageSpacingType& spacing);
+template<class Precision, unsigned int ImageDimension>
+typename itk::AffineTransform<Precision,
+                              ImageDimension>::Pointer
+readITKAffine(const std::string &doffile);
 
+// Creates an ITK affine transform from the RView's dof file
+template <class DOFType, 
+          class ImageSizeType, 
+          class ImageSpacingType, 
+          class ImagePointType>
+typename itk::AffineTransform<typename DOFType::Precision, 
+                              ImageSizeType::Dimension>::Pointer 
+createITKAffine(const DOFType& dof,
+                const ImageSizeType& size,
+                const ImageSpacingType& spacing,
+                const ImagePointType& origin);
+
+// Returns the inverse of the rotational component
+// of an affine transformation
 template <class T>
 vnl_matrix<typename T::ObjectType::ScalarType>
 getInverseRotation(const T &transform);

@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2008-07-02 15:54:54 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2009-01-09 15:39:51 $
+  Version:   $Revision: 1.5 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
 
     ("fiber-output,o", po::value<std::string>(), "Output fiber file.  May be warped or updated with new data depending on other options used.")
     ("h-field,H", po::value<std::string>(), "HField for warp and statistics lookup.  If this option is used tensor-volume must also be specified.")
+    ("displacement-field", po::value<std::string>(), "Displacement field for warp and statistics lookup.  If this option is used tensor-volume must also be specified.")
     ("no-warp,n", "Do not warp the geometry of the tensors only obtain the new statistics")
     ("tensor-volume,T", po::value<std::string>(), "Interpolate tensor values from the given field")
 
@@ -99,7 +100,7 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     if(vm.count("help"))
     {
-      std::cout << "Version $Revision: 1.4 $ "<< std::endl;
+      std::cout << "Version $Revision: 1.5 $ "<< std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
     }
@@ -117,8 +118,8 @@ int main(int argc, char* argv[])
   DeformationImageType::Pointer deformationfield(NULL);
   if(vm.count("h-field"))
     deformationfield = readDeformationField(vm["h-field"].as<std::string>(), HField);
-//  else if(vm.count("displacement-field"))
-//    deformationfield = readDeformationField(vm["displacement-field"].as<std::string>(), Displacement);
+  else if(vm.count("displacement-field"))
+    deformationfield = readDeformationField(vm["displacement-field"].as<std::string>(), Displacement);
   else
     deformationfield = NULL;
 

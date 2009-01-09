@@ -10,6 +10,7 @@
 #include <itkVectorLinearInterpolateImageFunction.h>
 #include <itkLinearInterpolateImageFunction.h>
 #include <itkTensorLinearInterpolateImageFunction.h>
+#include <itkNearestNeighborInterpolateImageFunction.h>
 
 namespace itk
 {
@@ -74,6 +75,10 @@ public:
   itkGetMacro( ForbiddenLabel, ROIPixelType );
   itkSetMacro( ForbiddenLabel, ROIPixelType );
 
+  itkGetMacro( WholeBrain, bool );
+  itkSetMacro( WholeBrain, bool );
+  itkBooleanMacro( WholeBrain );
+
   virtual void SetTensorImage(const TTensorImage* timage);
   virtual void SetROIImage(const TROIImage* roiimage);
 
@@ -119,6 +124,7 @@ private:
   ROIPixelType                           m_SourceLabel;
   ROIPixelType                           m_TargetLabel;
   ROIPixelType                           m_ForbiddenLabel;
+  bool                                   m_WholeBrain;
 
   TensorInterpolatePointer               m_TensorInterpolator;
   ROIInterpolatePointer                  m_ROIInterpolator;

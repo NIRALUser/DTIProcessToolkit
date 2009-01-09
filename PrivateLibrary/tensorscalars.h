@@ -14,12 +14,14 @@ typename itk::Image<T, 3>::Pointer createMD(TensorImageType::Pointer);
 template<class T>
 typename itk::Image<T, 3>::Pointer createFro(TensorImageType::Pointer);
 
+template<class T>
+typename itk::Image<T, 3>::Pointer createLambda(TensorImageType::Pointer, EigenValueIndex lambdanum);
+
 GradientImageType::Pointer createFAGradient(TensorImageType::Pointer, double);
 RealImageType::Pointer createFAGradMag(TensorImageType::Pointer, double);
 RGBImageType::Pointer createColorFA(TensorImageType::Pointer);
 LabelImageType::Pointer createNegativeEigenValueLabel(TensorImageType::Pointer);
 
-// TODO: remove filename
 GradientImageType::Pointer createPrincipalEigenvector(TensorImageType::Pointer);
 
 #endif

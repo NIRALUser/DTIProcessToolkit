@@ -8,6 +8,8 @@
 #include <itkGradientMagnitudeRecursiveGaussianImageFilter.h>
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
+#include <itkFastSymmetricEigenAnalysisImageFilter.h>
+#include <itkVectorIndexSelectionCastImageFilter.h>
 
 // My ITK Filters
 #include "itkVectorMaskNegatedImageFilter.h"
@@ -76,6 +78,46 @@ itk::Image<unsigned short, 3>::Pointer createMD<unsigned short>(TensorImageType:
 }
 
 template<>
+itk::Image<double, 3>::Pointer createLambda<double>(TensorImageType::Pointer timg, // Tensor image
+                                                    EigenValueIndex lambdaind) // Lambda index
+{
+  // Not really a deformation image output jsut a 3-vector of doubles.
+  typedef itk::FastSymmetricEigenAnalysisImageFilter<TensorImageType,DeformationImageType> LambdaFilterType;
+  LambdaFilterType::Pointer lambdafilter = LambdaFilterType::New();
+  lambdafilter->SetInput(timg);
+  lambdafilter->OrderEigenValuesBy(LambdaFilterType::FunctorType::OrderByValue);
+  lambdafilter->Update();
+    
+  typedef itk::VectorIndexSelectionCastImageFilter<LambdaFilterType::OutputImageType, RealImageType> ElementSelectAdaptorType;
+  ElementSelectAdaptorType::Pointer elementSelect = ElementSelectAdaptorType::New();
+  elementSelect->SetInput(lambdafilter->GetOutput());
+  // Reverse semanatics of lambda_1 from ITK.  
+  // In our convention lambda_1 is the largest eigenvalue whereas in
+  // ITK its the smallest
+  elementSelect->SetIndex(2 - lambdaind); 
+  elementSelect->Update();
+
+  return elementSelect->GetOutput();
+}
+
+template<>
+itk::Image<unsigned short, 3>::Pointer createLambda<unsigned short>(TensorImageType::Pointer timg,      // Tensor image
+                                                                    EigenValueIndex lambdaind) // Lambda index
+{
+  RealImageType::Pointer reallambda = createLambda<double>(timg, lambdaind);
+    
+  typedef itk::ShiftScaleImageFilter<RealImageType,IntImageType> ShiftScaleFilterType;
+  ShiftScaleFilterType::Pointer scalefilter = ShiftScaleFilterType::New();
+  scalefilter->SetInput(reallambda);
+  scalefilter->SetShift(0);
+  scalefilter->SetScale(100000);
+  scalefilter->Update();
+
+  return scalefilter->GetOutput();
+}
+
+
+template<>
 itk::Image<double, 3>::Pointer createFro<double>(TensorImageType::Pointer timg) // Tensor image
 {
   typedef itk::TensorFrobeniusNormImageFilter<TensorImageType,RealImageType> MDFilterType;
@@ -89,11 +131,11 @@ itk::Image<double, 3>::Pointer createFro<double>(TensorImageType::Pointer timg) 
 template<>
 itk::Image<unsigned short, 3>::Pointer createFro<unsigned short>(TensorImageType::Pointer timg)      // Tensor image
 {
-  RealImageType::Pointer realmd = createMD<double>(timg);
+  RealImageType::Pointer realfro = createFro<double>(timg);
     
   typedef itk::ShiftScaleImageFilter<RealImageType,IntImageType> ShiftScaleFilterType;
   ShiftScaleFilterType::Pointer scalefilter = ShiftScaleFilterType::New();
-  scalefilter->SetInput(realmd);
+  scalefilter->SetInput(realfro);
   scalefilter->SetShift(0);
   scalefilter->SetScale(100000);
   scalefilter->Update();

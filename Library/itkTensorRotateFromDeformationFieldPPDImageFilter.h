@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkTensorRotateFromDeformationFieldPPDImageFilter.h,v $
   Language:  C++
-  Date:      $Date: 2008-07-02 15:54:54 $
-  Version:   $Revision: 1.4 $
+  Date:      $Date: 2009-01-09 15:39:51 $
+  Version:   $Revision: 1.5 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -22,6 +22,7 @@
 #include <vnl/vnl_quaternion.h>
 #include <vnl/vnl_vector.h>
 #include <vnl/vnl_cross.h>
+#include <vnl/vnl_inverse.h>
 
 namespace itk
 {
@@ -53,13 +54,12 @@ public:
     typedef typename TInput2::ComponentType TransformPrecision;
     VnlMatrixType iden;
     iden.set_identity();
-    VnlMatrixType A(y.GetVnlMatrix() + iden);
-//    vnl_svd<TransformPrecision> svd(y.GetVnlMatrix() + iden);
-//    vnl_qr<TransformPrecision> qr(y.GetVnlMatrix() + iden);
 
-//    VnlMatrixType R(qr.Q());
-//    VnlMatrixType R(svd.U() * svd.V().transpose());
-//    std:: cout << R << std::endl << std::endl;
+    // Add jacobian to identity and invert.  This requires that 
+    // the deformation field be invertible locally at every point
+    // otherwise A will not be invertible.
+    VnlMatrixType A(y.GetVnlMatrix() + iden);
+    A = vnl_inverse(A);
 
     typedef typename TInput1::RealValueType  RealValueType;
     typedef typename TInput1::EigenVectorsMatrixType EigenVectorsType;
@@ -81,16 +81,6 @@ public:
     ev2[0] = mat(1,0); ev2[1] = mat(1,1); ev2[2] = mat(1,2);
     ev3[0] = mat(0,0); ev3[1] = mat(0,1); ev3[2] = mat(0,2);
 
-//     ev1 = A * ev1;
-//     ev1 = ev1.normalize();
-//     ev2 = A * ev2;
-
-//     ev2 = ev2 - (dot_product(ev1,ev2)/ev1.magnitude())*ev1;
-//     ev2 = ev2.normalize();
-    
-//     ev3 = vnl_cross_3d(ev1,ev2);
-//     ev3 = ev3.normalize();
-
     n1 = (A * ev1).normalize();
     RotationType R1(vnl_cross_3d(ev1,n1).normalize(),angle(n1,ev1));
 
@@ -99,10 +89,6 @@ public:
     RotationType R2(R1.rotate(ev1),dot_product(R1.rotate(ev2),pn2.normalize()));
 
     VnlMatrixType R = (R2 * R1).rotation_matrix_transpose();
-
-//     if(e[1] != 0)
-//       std::cout << R << std::endl;
-    
 
     VnlMatrixType vnlx;
     for(int i = 0; i < 3; ++i)
@@ -114,17 +100,17 @@ public:
       }
 
      VnlMatrixType res = R * vnlx * R.transpose();
-
+     
      TOutput out;
-    for(int i = 0; i < 3; ++i)
-      {
-      for(int j = 0; j < 3; ++j)
-        {
-        out(i,j) = res(i,j);
-        }
-      }
-    
-    return out;
+     for(int i = 0; i < 3; ++i)
+     {
+       for(int j = 0; j < 3; ++j)
+       {
+         out(i,j) = res(i,j);
+       }
+     }
+     
+     return out;
   }
 }; 
 

@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2008-07-02 15:54:54 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2009-01-09 15:39:51 $
+  Version:   $Revision: 1.3 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -77,18 +77,18 @@ void validate(boost::any& v,
     }
 }
 
-typedef itk::InterpolateImageFunction<IntImageType, float> InterpolatorType;
+typedef itk::InterpolateImageFunction<IntImageType, double> InterpolatorType;
 
 InterpolatorType::Pointer createInterpolater(InterpolationType interp)
 {
   switch(interp)
     {
     case NearestNeighbor:
-      return itk::NearestNeighborInterpolateImageFunction<IntImageType, float>::New().GetPointer();
+      return itk::NearestNeighborInterpolateImageFunction<IntImageType, double>::New().GetPointer();
     case Linear:
-      return itk::LinearInterpolateImageFunction<IntImageType, float>::New().GetPointer();
+      return itk::LinearInterpolateImageFunction<IntImageType, double>::New().GetPointer();
     case Cubic:
-      return itk::BSplineInterpolateImageFunction<IntImageType, float>::New().GetPointer();
+      return itk::BSplineInterpolateImageFunction<IntImageType, double>::New().GetPointer();
     default:
       throw itk::ExceptionObject("Invalid interpolation type");
     }
@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
     }
 
-    typedef itk::ResampleImageFilter<IntImageType, IntImageType, float> ResampleFilter;
+    typedef itk::ResampleImageFilter<IntImageType, IntImageType, double> ResampleFilter;
     ResampleFilter::Pointer  resampler = ResampleFilter::New();
     resampler->SetSize( reader->GetOutput()->GetLargestPossibleRegion().GetSize() );
     resampler->SetOutputOrigin( reader->GetOutput()->GetOrigin() );
@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
 
     resampler->SetInput( reader->GetOutput() );
 
-    typedef itk::AffineTransform<float, 3> TransformType;
+    typedef itk::AffineTransform<double, 3> TransformType;
     TransformType::Pointer transform = dynamic_cast<TransformType*>( treader->GetTransformList()->front().GetPointer() );
     assert(!transform.IsNull());
     resampler->SetTransform( transform );
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
     defimage = readDeformationField(vm["deformation"].as<std::string>(), 
                                     vm.count("h-field") ? HField : Displacement);
 
-    typedef itk::WarpImageFilter<IntImageType, IntImageType, DeformationImageType, float> WarpFilter;
+    typedef itk::WarpImageFilter<IntImageType, IntImageType, DeformationImageType> WarpFilter;
     WarpFilter::Pointer warpresampler = WarpFilter::New();
     warpresampler->SetInterpolator(interp);
     warpresampler->SetEdgePaddingValue(0);

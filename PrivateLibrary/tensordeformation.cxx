@@ -144,7 +144,6 @@ TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
 
   //return expf->GetOutput();
   
-
   // Rotate tensor based on inverse deformation field
   typedef itk::InPlaceImageFilter<
     TensorImageType,
@@ -174,13 +173,13 @@ TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
     }
   else if(reorientationtype == PreservationPrincipalDirection)
     {
-    TensorPPDRotateImageFilterType::Pointer fsrotate;
-    fsrotate = TensorPPDRotateImageFilterType::New();
+    TensorPPDRotateImageFilterType::Pointer ppdrotate;
+    ppdrotate = TensorPPDRotateImageFilterType::New();
 
-    fsrotate->SetInput1(timg);
+    ppdrotate->SetInput1(expf->GetOutput());
     
-    fsrotate->SetInput2(jacobian->GetOutput());
-    rotate = fsrotate;
+    ppdrotate->SetInput2(jacobian->GetOutput());
+    rotate = ppdrotate;
     }
   rotate->Update();
   return rotate->GetOutput();

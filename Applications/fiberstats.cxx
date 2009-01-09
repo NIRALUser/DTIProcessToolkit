@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2008-07-02 15:54:54 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2009-01-09 15:39:51 $
+  Version:   $Revision: 1.3 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     
     if(vm.count("help"))
     {
-      std::cout << "Version: $Date: 2008-07-02 15:54:54 $ $Revision: 1.2 $" << std::endl;
+      std::cout << "Version: $Date: 2009-01-09 15:39:51 $ $Revision: 1.3 $" << std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
     }

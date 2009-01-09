@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2008-07-02 15:54:54 $
-  Version:   $Revision: 1.5 $
+  Date:      $Date: 2009-01-09 15:39:51 $
+  Version:   $Revision: 1.6 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -117,15 +117,20 @@ int main(int argc, char* argv[])
 
     // Derived outputs
     ("fa-output,f", po::value<std::string>(), "FA output file")
-    ("fa-gradient-output", po::value<std::string>(), "FA gradient")
-    ("sigma,s", po::value<double>()->default_value(2.0), "Scale of gradients")
-    ("fa-gradmag-output", po::value<std::string>(), "FA gradient magnitude")
+    ("md-output,m", po::value<std::string>(), "MD output file")
+    //("fa-gradient-output", po::value<std::string>(), "FA gradient")
+    //("sigma,s", po::value<double>()->default_value(2.0), "Scale of gradients.")
+    //("fa-gradmag-output", po::value<std::string>(), "FA gradient magnitude")
     ("color-fa-output,c", po::value<std::string>(), "Color FA output file")
     ("principal-eigenvector-output,V", po::value<std::string>(), "Principal Eigenvector of tensor field")
 //    ("closest-dotproduct-output,D", po::value<std::string>(),  "Closes dot product of principal eigenvector to all gradient directions")
-    ("md-output,m", po::value<std::string>(), "MD output file")
     ("negative-eig-output,n", po::value<std::string>(), "Negative eigenvalue binary image output file")
     ("frobenius-norm-output", po::value<std::string>(), "Frobenius norm output")
+
+    ("lambda1-output", po::value<std::string>(), "Lambda 1 (largest eigenvalue) output")
+    ("lambda2-output", po::value<std::string>(), "Lambda 2 (middle eigenvalue) output")
+    ("lambda3-output", po::value<std::string>(), "Lambda 3 (smallest eigenvalue) output")
+  
 
     // derived output options
     ("scalar-float", "Write scalar [FA,MD] as unscaled float.  Also causes FA to be unscaled [0..1].")
@@ -133,12 +138,12 @@ int main(int argc, char* argv[])
 
     // tensor transformations
     // affine
-    ("rot-output,r", po::value<std::string>(),"Rotated tensor output file.  Must also specify the dof file")
-    ("dof-file,d", po::value<std::string>(), "DOF for rotation")
+    ("rot-output,r", po::value<std::string>(),"Rotated tensor output file.  Must also specify the dof file.")
+    ("dof-file,d", po::value<std::string>(),"Transformation file for affine transformation.  This can be RView or ITK format.")
 
     // deformation
-    ("deformation-output,w", po::value<std::string>(), "Warped tensor field based on a deformation field.  Must input h as \"h-field\" of transform")
-    ("forward,F", po::value<std::string>(), "HField for warp")
+    ("deformation-output,w", po::value<std::string>(), "Warped tensor field based on a deformation field.  This option requires the --forward,-F transformation to be specified.")
+    ("forward,F", po::value<std::string>(), "Forward transformation.  Assumed to be a deformation field in world coordinates, unless the --h-field option is specified.")
     ("inverse,I", po::value<std::string>(), "Inverse of warp (DEPRECATED: NO LONGER REQUIRED)")
     ("h-field", "forward and inverse transformations are h-fields instead of displacement fields")
 
@@ -147,7 +152,7 @@ int main(int argc, char* argv[])
     ("reorientation", po::value<TensorReorientationType>()->default_value(FiniteStrain,"fs (Finite Strain)"), "Reorientation type (fs, ppd)")
 
     // statistics options
-    ("stats", po::value<std::string>(), "Compute statistics")
+    // ("stats", po::value<std::string>(), "Compute statistics")
     ;
 
   po::options_description hidden("Hidden options");
@@ -183,7 +188,7 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     if(vm.count("help"))
     {
-      std::cout << "$Date: 2008-07-02 15:54:54 $ $Revision: 1.5 $" << std::endl;
+      std::cout << "$Date: 2009-01-09 15:39:51 $ $Revision: 1.6 $" << std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
     }
@@ -312,6 +317,7 @@ int main(int argc, char* argv[])
                  createFA<double>(tensors));
   }
 
+
   if(vm.count("fa-gradient-output"))
   {
     writeImage(vm["fa-gradient-output"].as<std::string>(), 
@@ -345,6 +351,36 @@ int main(int argc, char* argv[])
     else
       writeImage(vm["md-output"].as<std::string>(), 
                  createMD<double>(tensors));
+  }
+
+  if(vm.count("lambda1-output"))
+  {
+    if(scale)
+      writeImage(vm["lambda1-output"].as<std::string>(), 
+                 createLambda<unsigned short>(tensors, Lambda1));
+    else
+      writeImage(vm["lambda1-output"].as<std::string>(), 
+                 createLambda<double>(tensors, Lambda1));
+  }
+
+  if(vm.count("lambda2-output"))
+  {
+    if(scale)
+      writeImage(vm["lambda2-output"].as<std::string>(), 
+                 createLambda<unsigned short>(tensors, Lambda2));
+    else
+      writeImage(vm["lambda2-output"].as<std::string>(), 
+                 createLambda<double>(tensors, Lambda2));
+  }
+
+  if(vm.count("lambda3-output"))
+  {
+    if(scale)
+      writeImage(vm["lambda3-output"].as<std::string>(), 
+                 createLambda<unsigned short>(tensors, Lambda3));
+    else
+      writeImage(vm["lambda3-output"].as<std::string>(), 
+                 createLambda<double>(tensors, Lambda3));
   }
 
   if(vm.count("frobenius-norm-output"))

@@ -50,6 +50,8 @@ typedef itk::VectorContainer<unsigned int, GradientType> GradientListType;
 enum InterpolationType {NearestNeighbor, Linear, Cubic};
 enum TensorReorientationType {FiniteStrain, PreservationPrincipalDirection};
 
+enum EigenValueIndex {Lambda1 = 0, Lambda2, Lambda3};
+
 typedef itk::DTITubeSpatialObject<3> DTITubeType;
 typedef DTITubeType::TubePointType DTIPointType;
 typedef DTITubeType::PointListType DTIPointListType;

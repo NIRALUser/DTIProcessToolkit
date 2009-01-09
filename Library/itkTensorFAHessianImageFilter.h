@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Insight Segmentation & Registration Toolkit
-  Module:    $RCSfile: itkTensorFAGradientImageFilter.h,v $
+  Module:    $RCSfile: itkTensorFAHessianImageFilter.h,v $
   Language:  C++
   Date:      $Date: 2009-01-09 15:39:51 $
-  Version:   $Revision: 1.5 $
+  Version:   $Revision: 1.1 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -14,17 +14,19 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkTensorFAGradientImageFilter_h
-#define __itkTensorFAGradientImageFilter_h
+#ifndef __itkTensorFAHessianImageFilter_h
+#define __itkTensorFAHessianImageFilter_h
 
 #include <itkImageToImageFilter.h>
 #include <itkDiffusionTensor3D.h>
+
+#include "tensorderivs.h"
 
 namespace itk
 {
 
 
-/** \class TensorFAGradientImageFilter
+/** \class TensorFAHessianImageFilter
  * \brief Computes the 6-element vector field that are the unique
  * elements of the matrix-logarithm of the tensor field.
  *
@@ -37,21 +39,24 @@ namespace itk
  *
  */
 template<typename T>
-class ITK_EXPORT TensorFAGradientImageFilter :
+class ITK_EXPORT TensorFAHessianImageFilter :
     public
 ImageToImageFilter<Image<DiffusionTensor3D<T>, 3>,
-                   Image<CovariantVector<T,3>, 3> >
+                   Image<SymmetricSecondRankTensor<3,T>, 3> >
 {
 public:
 //  typedef Image<Vector<typename TInputImage::PixelType::RealValueType,6>,3 > TOutputImage;
   typedef Image<DiffusionTensor3D<T>, 3> InputImageType;
-  typedef Image<CovariantVector<T,3>, 3> OutputImageType;
+  typedef Image<SymmetricSecondRankTensor<3,T>, 3> InputImageType;
   typedef typename InputImageType::PixelType InputPixelType;
   typedef typename OutputImageType::PixelType OutputPixelType;
+  typedef typename OutputPixelType::EigenVectorsMatrixType EigenVectorType;
+  typedef typename OutputPixelType::EigenValuesArrayType EigenValueType;
   typedef T RealType;
 
+
   /** Standard class typedefs. */
-  typedef TensorFAGradientImageFilter  Self;
+  typedef TensorFAHessianImageFilter  Self;
   typedef ImageToImageFilter<InputImageType,OutputImageType >  Superclass;
 
   typedef SmartPointer<Self>   Pointer;
@@ -60,8 +65,6 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
   
-  itkSetMacro(Sigma, double);
-
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
     { this->Superclass::PrintSelf( os, indent ); }
@@ -70,20 +73,20 @@ public:
 
 
 protected:
-  TensorFAGradientImageFilter() {};
-  virtual ~TensorFAGradientImageFilter() {};
+  TensorFAHessianImageFilter() {};
+  virtual ~TensorFAHessianImageFilter() {};
 
 private:
-  TensorFAGradientImageFilter(const Self&); //purposely not implemented
+  TensorFAHessianImageFilter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
 
-  double m_Sigma;
+  double m_Scale;
 
 };
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkTensorFAGradientImageFilter.txx"
+#include "itkTensorFAHessianImageFilter.txx"
 #endif
 
 }

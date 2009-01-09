@@ -1,9 +1,11 @@
+#include "transforms.h"
+
+#include <itkAffineTransform.h>
+#include <itkTransformFileReader.h>
+#include <vnl/algo/vnl_svd.h>
+
 #include <iostream>
 #include <fstream>
-
-#include "transforms.h"
-#include <itkAffineTransform.h>
-#include <vnl/algo/vnl_svd.h>
 
 template<class Precision>
 RViewTransform<Precision> readDOFFile(const std::string &doffile)
@@ -35,6 +37,48 @@ RViewTransform<Precision> readDOFFile(const std::string &doffile)
     }
 
   return dof;
+}
+
+template<class Precision, unsigned int ImageDimension>
+typename itk::AffineTransform<Precision,
+                              ImageDimension>::Pointer
+readITKAffine(const std::string &doffile)
+{
+  typedef itk::AffineTransform<Precision, ImageDimension> ReturnTransformType;
+
+  typedef itk::AffineTransform<float, ImageDimension> FloatTransformType;
+  typedef itk::AffineTransform<double, ImageDimension> DoubleTransformType;
+
+  typedef itk::TransformFileReader TransformReader;
+  TransformReader::Pointer treader = TransformReader::New();
+  treader->SetFileName(doffile);
+  treader->Update();
+   
+  typename ReturnTransformType::Pointer rttransform = ReturnTransformType::New();
+
+  // If we have a float transform
+  typename FloatTransformType::Pointer flttransform = 
+    dynamic_cast<FloatTransformType*>( treader->GetTransformList()->front().GetPointer() );
+  if(!flttransform.IsNull())
+  {
+    rttransform->SetParameters(flttransform->GetParameters());
+    rttransform->SetFixedParameters(flttransform->GetFixedParameters());
+
+    return rttransform;
+  }
+
+  // If we have a double transform
+  typename DoubleTransformType::Pointer dbltransform = 
+    dynamic_cast<DoubleTransformType*>( treader->GetTransformList()->front().GetPointer() );
+  if(!dbltransform.IsNull())
+  {
+    rttransform->SetParameters(dbltransform->GetParameters());
+    rttransform->SetFixedParameters(dbltransform->GetFixedParameters());
+
+    return rttransform;
+  }
+  
+  throw itk::ExceptionObject("Invalid transform type");
 }
 
 

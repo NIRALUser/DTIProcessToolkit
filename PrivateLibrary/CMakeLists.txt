@@ -16,3 +16,7 @@ TARGET_LINK_LIBRARIES(DWIPrivateLibrary bessel ${GCC_FORTRAN_LIBRARY})
 ADD_LIBRARY(TensorOperations SHARED tensorscalars.cxx tensordeformation.cxx)
 ADD_LIBRARY(DTIIO SHARED tensorio.cxx fiberio.cxx deformationfieldio.cxx)
 TARGET_LINK_LIBRARIES(DTIIO vtkIO ITKIO)
+
+INSTALL(TARGETS DWIPrivateLibrary TensorOperations DTIIO 
+LIBRARY DESTINATION lib
+ARCHIVE DESTINATION lib)
