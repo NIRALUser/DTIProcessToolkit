@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-01-14 15:36:36 $
-  Version:   $Revision: 1.8 $
+  Date:      $Date: 2009-01-15 12:52:21 $
+  Version:   $Revision: 1.9 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -124,6 +124,8 @@ int main(int argc, char* argv[])
      "Bad region mask.  Image where for every voxel > 0 the tensors are not estimated.")
     ("threshold,t", po::value<ScalarPixelType>(),
      "Baseline threshold for estimation.  If not specified calculated using an OTSU threshold on the baseline image.")
+    ("B0", po::value<std::string>(),
+     "Baseline image, average of all baseline images")
     ("idwi", po::value<std::string>(),
      "idwi output image.  Image with isotropic diffusion-weighted information = geometric mean of diffusion images.")
 
@@ -179,7 +181,7 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     if(vm.count("help"))
     {
-      std::cout << "Version: $Date: 2009-01-14 15:36:36 $ $Revision: 1.8 $" << std::endl;
+      std::cout << "Version: $Date: 2009-01-15 12:52:21 $ $Revision: 1.9 $" << std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
     }
@@ -464,9 +466,81 @@ int main(int argc, char* argv[])
     }
   }
 
+  // Compute average B0 image 
+  typedef itk::VectorIndexSelectionCastImageFilter<VectorImageType,RealImageType> VectorSelectionFilterType;
+  VectorSelectionFilterType::Pointer biextract = VectorSelectionFilterType::New();
+  biextract->SetInput(dwi);
+  int numberB0Directions = 0;
+  
+  RealImageType::Pointer B0Image; 
+  
+  for (unsigned int directionIndex = 0 ; directionIndex < gradientContainer->Size(); directionIndex++)
+    {
+    // get information whether image is b0 or not
+    GradientType g = gradientContainer->GetElement(directionIndex);
+    if ( g[0] == 0 && g[1] == 0 && g[2] == 0 ) 
+      {
+      // image is not b0 image
+      biextract->SetIndex(directionIndex);
+       
+      if (numberB0Directions == 0) 
+        {
+         B0Image = biextract->GetOutput();
+      } 
+      else 
+       {
+       // add it to the current B0 image
+       try 
+	 {
+         typedef itk::AddImageFilter<RealImageType> AddImageFilterType;
+	 AddImageFilterType::Pointer addfilter = AddImageFilterType::New();
+	 addfilter->SetInput1(biextract->GetOutput());
+	 addfilter->SetInput2(B0Image);
+	 addfilter->Update();
+	 B0Image = addfilter->GetOutput();
+         }
+       catch (itk::ExceptionObject & e)
+         {
+         std::cerr << "Error in addition for B0 computation" << std::endl;
+         std::cerr << e << std::endl;
+         }
+	      
+       }
+	  
+       numberB0Directions++;
+    }
+  }
+      
+  typedef itk::ImageRegionIterator< RealImageType > RealIterator;
+  RealIterator iterImage (B0Image, B0Image->GetBufferedRegion());
+  while ( !iterImage.IsAtEnd() )  {
+    iterImage.Set(iterImage.Get() / numberB0Directions);
+    ++iterImage;
+  }
+
+  if(VERBOSE)
+    std::cout << "Number of  B0 images : " << numberB0Directions << std::endl;
+
+  // Output B0 image if requested
+  if(vm.count("B0"))
+  { 
+    try 
+    {
+      typedef itk::ImageFileWriter<RealImageType> RealImageFileWriterType;
+      RealImageFileWriterType::Pointer realwriter = RealImageFileWriterType::New();
+      realwriter->SetInput(B0Image);
+      realwriter->SetFileName(vm["B0"].as<std::string>().c_str());
+      realwriter->Update();
+    }
+    catch (itk::ExceptionObject & e)
+    {
+      std::cerr << "Could not write B0 file" << std::endl;
+      std::cerr << e << std::endl;
+    }
+  }
+
   // If we didnt specify a threshold compute it as the ostu threshold
   // of the baseline image
-  
 
   ScalarPixelType threshold;
   if(vm.count("threshold"))
@@ -475,19 +549,11 @@ int main(int argc, char* argv[])
   }
   else
   {
-    typedef itk::VectorIndexSelectionCastImageFilter<VectorImageType, IntImageType>
-      BaselineExtractAdaptorType;
-
-    BaselineExtractAdaptorType::Pointer baselineextract = BaselineExtractAdaptorType::New();
-    baselineextract->SetInput(dwireader->GetOutput());
-    baselineextract->SetIndex(0);
-    baselineextract->Update();
-
-    typedef itk::OtsuThresholdImageCalculator<IntImageType> 
+    typedef itk::OtsuThresholdImageCalculator<RealImageType> 
       OtsuThresholdCalculatorType;
 
     OtsuThresholdCalculatorType::Pointer  otsucalculator = OtsuThresholdCalculatorType::New();
-    otsucalculator->SetImage(baselineextract->GetOutput());
+    otsucalculator->SetImage(B0Image);
     otsucalculator->Compute();
     threshold = static_cast<ScalarPixelType>(.9 * otsucalculator->GetThreshold());
 
@@ -495,27 +561,15 @@ int main(int argc, char* argv[])
       std::cout << "Otsu threshold: " << threshold << std::endl;
   }
 
+
   // Output b0 threshold mask if requested
   if(vm.count("threshold-mask"))
   {
     // Will take last B0 image in sequence
 
-    typedef itk::VectorIndexSelectionCastImageFilter<VectorImageType,IntImageType> VectorSelectionFilterType;
-    VectorSelectionFilterType::Pointer b0extract = VectorSelectionFilterType::New();
-    b0extract->SetInput(dwi);
-    for (unsigned int directionIndex = 0 ; directionIndex < gradientContainer->Size(); directionIndex++)
-    {
-      // information whether image is b0 or not
-      GradientType g = gradientContainer->GetElement(directionIndex);
-      if (g[0] == 0 && g[1] == 0 && g[2] == 0) 
-      {
-	b0extract->SetIndex(directionIndex);
-      }
-    }
-
-    typedef itk::BinaryThresholdImageFilter<IntImageType,LabelImageType> ThresholdFilterType;
+    typedef itk::BinaryThresholdImageFilter<RealImageType,LabelImageType> ThresholdFilterType;
     ThresholdFilterType::Pointer thresholdfilter = ThresholdFilterType::New();
-    thresholdfilter->SetInput(b0extract->GetOutput());
+    thresholdfilter->SetInput(B0Image);
     thresholdfilter->SetLowerThreshold(threshold);
     thresholdfilter->SetUpperThreshold(itk::NumericTraits<ScalarPixelType>::max());
     thresholdfilter->Update();
@@ -535,7 +589,7 @@ int main(int argc, char* argv[])
     }
 
   }
-  
+
   // Output idwi image if requested
   if(vm.count("idwi"))
   { 
