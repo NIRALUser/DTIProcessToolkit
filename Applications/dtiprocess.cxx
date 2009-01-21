@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-01-09 15:39:51 $
-  Version:   $Revision: 1.6 $
+  Date:      $Date: 2009-01-21 21:11:49 $
+  Version:   $Revision: 1.7 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -118,9 +118,9 @@ int main(int argc, char* argv[])
     // Derived outputs
     ("fa-output,f", po::value<std::string>(), "FA output file")
     ("md-output,m", po::value<std::string>(), "MD output file")
-    //("fa-gradient-output", po::value<std::string>(), "FA gradient")
-    //("sigma,s", po::value<double>()->default_value(2.0), "Scale of gradients.")
-    //("fa-gradmag-output", po::value<std::string>(), "FA gradient magnitude")
+    ("fa-gradient-output", po::value<std::string>(), "FA gradient")
+    ("sigma,s", po::value<double>()->default_value(2.0), "Scale of gradients.")
+    ("fa-gradmag-output", po::value<std::string>(), "FA gradient magnitude")
     ("color-fa-output,c", po::value<std::string>(), "Color FA output file")
     ("principal-eigenvector-output,V", po::value<std::string>(), "Principal Eigenvector of tensor field")
 //    ("closest-dotproduct-output,D", po::value<std::string>(),  "Closes dot product of principal eigenvector to all gradient directions")
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     if(vm.count("help"))
     {
-      std::cout << "$Date: 2009-01-09 15:39:51 $ $Revision: 1.6 $" << std::endl;
+      std::cout << "$Date: 2009-01-21 21:11:49 $ $Revision: 1.7 $" << std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
     }
