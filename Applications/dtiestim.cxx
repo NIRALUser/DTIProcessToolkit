@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-01-15 12:52:21 $
-  Version:   $Revision: 1.9 $
+  Date:      $Date: 2009-03-03 15:15:31 $
+  Version:   $Revision: 1.10 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     if(vm.count("help"))
     {
-      std::cout << "Version: $Date: 2009-01-15 12:52:21 $ $Revision: 1.9 $" << std::endl;
+      std::cout << "Version: $Date: 2009-03-03 15:15:31 $ $Revision: 1.10 $" << std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
     }
@@ -510,13 +510,22 @@ int main(int argc, char* argv[])
        numberB0Directions++;
     }
   }
-      
-  typedef itk::ImageRegionIterator< RealImageType > RealIterator;
-  RealIterator iterImage (B0Image, B0Image->GetBufferedRegion());
-  while ( !iterImage.IsAtEnd() )  {
-    iterImage.Set(iterImage.Get() / numberB0Directions);
-    ++iterImage;
-  }
+  
+  if (numberB0Directions == 0) {
+    if (VERBOSE)
+      std::cout << "No B0 image, setting first gradient image as B0 image (rather random behavior though)" << std::endl;
+    biextract->SetIndex(0);
+    B0Image = biextract->GetOutput();
+  } 
+  else
+    {
+      typedef itk::ImageRegionIterator< RealImageType > RealIterator;
+      RealIterator iterImage (B0Image, B0Image->GetBufferedRegion());
+      while ( !iterImage.IsAtEnd() )  {
+	iterImage.Set(iterImage.Get() / numberB0Directions);
+	++iterImage;
+      }
+    }
 
   if(VERBOSE)
     std::cout << "Number of  B0 images : " << numberB0Directions << std::endl;
@@ -525,18 +534,18 @@ int main(int argc, char* argv[])
   if(vm.count("B0"))
   { 
     try 
-    {
-      typedef itk::ImageFileWriter<RealImageType> RealImageFileWriterType;
-      RealImageFileWriterType::Pointer realwriter = RealImageFileWriterType::New();
-      realwriter->SetInput(B0Image);
-      realwriter->SetFileName(vm["B0"].as<std::string>().c_str());
-      realwriter->Update();
-    }
+      {
+	typedef itk::ImageFileWriter<RealImageType> RealImageFileWriterType;
+	RealImageFileWriterType::Pointer realwriter = RealImageFileWriterType::New();
+	realwriter->SetInput(B0Image);
+	realwriter->SetFileName(vm["B0"].as<std::string>().c_str());
+	realwriter->Update();
+      }
     catch (itk::ExceptionObject & e)
-    {
-      std::cerr << "Could not write B0 file" << std::endl;
-      std::cerr << e << std::endl;
-    }
+      {
+	std::cerr << "Could not write B0 file" << std::endl;
+	std::cerr << e << std::endl;
+      }
   }
 
   // If we didnt specify a threshold compute it as the ostu threshold
