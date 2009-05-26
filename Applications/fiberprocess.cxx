@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-01-09 15:39:51 $
-  Version:   $Revision: 1.5 $
+  Date:      $Date: 2009-05-26 16:21:19 $
+  Version:   $Revision: 1.6 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
     ("tensor-volume,T", po::value<std::string>(), "Interpolate tensor values from the given field")
 
     // ******  TODO **********
-    ("voxelize,V", po::value<std::string>(),"Voxelize fiber into a label map.  The tensor file must be specified to get the size, origin, spacing of the image.")
+    ("voxelize,V", po::value<std::string>(),"Voxelize fiber into a label map (the labelmap filename is the argument of -V).  The tensor file must be specified using -T for information about the size, origin, spacing of the image.")
     ("voxelize-count-fibers", "Count number of fibers per-voxel instead of just setting to 1")
     ("voxel-label,l", po::value<ScalarPixelType>()->default_value(1),"Label for voxelized fiber")
 
@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     if(vm.count("help"))
     {
-      std::cout << "Version $Revision: 1.5 $ "<< std::endl;
+      std::cout << "Version $Revision: 1.6 $ "<< std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
     }
@@ -141,11 +141,21 @@ int main(int argc, char* argv[])
     std::cout << "Getting spacing" << std::endl;
 
   // Get Spacing and offset from group
-  const double* spacing = group->GetSpacing();
+  double spacing[3];
+  for(unsigned int i =0; i < 3; i++)
+    spacing[i] = (group->GetSpacing())[i];
   newgroup->SetSpacing(spacing);
 
-  const itk::Vector<double, 3> sooffset = group->GetObjectToParentTransform()->GetOffset();
+  itk::Vector<double, 3> sooffset;
+  for(unsigned int i = 0; i < 3; i++)
+    sooffset[i] = (group->GetObjectToParentTransform()->GetOffset())[i];
   newgroup->GetObjectToParentTransform()->SetOffset(sooffset.GetDataPointer());
+
+  if(VERBOSE)
+  {
+    std::cout << "Group Spacing: " << spacing[0] << ", " << spacing[1] << ", " << spacing[2] << std::endl;
+    std::cout << "Group Offset: " << sooffset[0] << ", " << sooffset[1]  << ", " << sooffset[2] << std::endl;
+  }
 
   // Setup tensor file if available
   typedef itk::ImageFileReader<TensorImageType> TensorImageReader;
@@ -197,9 +207,43 @@ int main(int argc, char* argv[])
     labelimage->FillBuffer(0);
   }
 
+  double newspacing[3];
+  for(unsigned int i =0; i < 3; i++)
+    newspacing[i] = spacing[i];
+  
+  if (vm.count("tensor-volume") || vm.count("voxelize"))
+  {
+    for(unsigned int i =0; i < 3; i++)
+      newspacing[i] = 1;
+    // fiber coordinates are newly in mm
+  }
+
   // For each fiber
   for(it = children->begin(); it != children->end(); it++)
   {
+    // Get Spacing and offset from fiber
+    const double* fiberspacing = (*it).GetPointer()->GetSpacing();
+    const itk::Vector<double, 3> fibersooffset = dynamic_cast<DTITubeType*>((*it).GetPointer())->GetObjectToParentTransform()->GetOffset();
+    
+    // TODO: mode for selecting which to use
+    if ((fiberspacing[0] != spacing[0]) || (fiberspacing[1] != spacing[1]) || (fiberspacing[1] != spacing[1]) || 
+	(sooffset[0] != fibersooffset[0]) || (sooffset[1] != fibersooffset[1]) || (sooffset[1] != fibersooffset[1]))
+    {
+      std::cout << "Fiber and group spacing/offset is not equal using the one from the fiber group." << std::endl;
+      if(VERBOSE)
+      {
+	std::cout << "Fiber Spacing: " << fiberspacing[0] << ", " << fiberspacing[1] << ", " << fiberspacing[2] << std::endl;
+	std::cout << "Fiber Offset: " << fibersooffset[0] << ", " << fibersooffset[1]  << ", " << fibersooffset[2] << std::endl;
+      }
+      for(unsigned int i =0; i < 3; i++) 
+      {
+	spacing[i] = fiberspacing[i];
+	sooffset[i] = fibersooffset[i];
+      }
+      newgroup->SetSpacing(spacing);
+      newgroup->GetObjectToParentTransform()->SetOffset(sooffset.GetDataPointer());
+    }
+
     DTIPointListType pointlist = dynamic_cast<DTITubeType*>((*it).GetPointer())->GetPoints();
     DTITubeType::Pointer newtube = DTITubeType::New();
     DTIPointListType newpoints;
@@ -214,33 +258,46 @@ int main(int argc, char* argv[])
 
       // p is not really a point its a continuous index
       const PointType p = pit->GetPosition();
+      itk::Point<double, 3> pt; 
+      // pt is Point in world coordinates (without any reorientation, i.e. disregarding transform matrix)
+      pt[0] = p[0] * spacing[0] + sooffset[0];
+      pt[1] = p[1] * spacing[1] + sooffset[1];
+      pt[2] = p[2] * spacing[2] + sooffset[2];
+
       typedef DeformationInterpolateType::ContinuousIndexType ContinuousIndexType;
       ContinuousIndexType ci, origci;
       for(unsigned int i =0; i < 3; i++)
         origci[i] = ci[i] = p[i];
 
-      if(deformationfield)
+      if (vm.count("tensor-volume"))
       {
+	// get index in image
+	tensorreader->GetOutput()->TransformPhysicalPointToContinuousIndex(pt, ci);
+	for(unsigned int i =0; i < 3; i++)
+	  origci[i] = ci[i];
+	if(deformationfield)
+	{
+	  // just for debug 
+	  //std::cout << "p" << p[0] << "," << p[1] << "," << p[2] << std::endl;
+	  //std::cout << "ci" << ci[0] << "," << ci[1] << "," << ci[2] << std::endl;
+
+	  DeformationPixelType warp(definterp->EvaluateAtContinuousIndex(ci).GetDataPointer());
         
-        DeformationPixelType warp(definterp->EvaluateAtContinuousIndex(ci).GetDataPointer());
-        
-        for(unsigned int i =0; i < 3; i++)
-          ci[i] = ci[i] + warp[i] / spacing[i];
+	  // Get Spacing from tensorfile
+	  TensorImageType::SpacingType tensorspacing = tensorreader->GetOutput()->GetSpacing();
+
+	  for(unsigned int i =0; i < 3; i++)
+	    ci[i] = ci[i] + warp[i] / tensorspacing[i];
+	} 
       }
 
       if(vm.count("voxelize"))
       {
-        itk::Point<double, 3> pt;
-        pt[0] = ci[0] * spacing[0] + sooffset[0];
-        pt[1] = ci[1] * spacing[1] + sooffset[1];
-        pt[2] = ci[2] * spacing[2] + sooffset[2];
-
-        ContinuousIndexType cind;
         itk::Index<3> ind;
-        labelimage->TransformPhysicalPointToContinuousIndex(pt, cind);
-        ind[0] = static_cast<long int>(round(cind[0]));
-        ind[1] = static_cast<long int>(round(cind[1]));
-        ind[2] = static_cast<long int>(round(cind[2]));
+        labelimage->TransformPhysicalPointToContinuousIndex(pt, ci);
+        ind[0] = static_cast<long int>(round(ci[0]));
+        ind[1] = static_cast<long int>(round(ci[1]));
+        ind[2] = static_cast<long int>(round(ci[2]));
         if(!labelimage->GetLargestPossibleRegion().IsInside(ind))
         {
           std::cerr << "Error index: " << ind << " not in image"  << std::endl;
@@ -299,7 +356,7 @@ int main(int argc, char* argv[])
       newpoints.push_back(newpoint);
     }
 
-    newtube->SetSpacing(spacing);
+    newtube->SetSpacing(newspacing);
     newtube->SetId(id++);
     newtube->SetPoints(newpoints);
     newgroup->AddSpatialObject(newtube);
@@ -310,7 +367,7 @@ int main(int argc, char* argv[])
   if(VERBOSE)
     std::cout << "Ending Loop" << std::endl;
 
-  if(VERBOSE)
+  if(VERBOSE && vm.count("fiber-output"))
     std::cout << "Output: " << vm["fiber-output"].as<std::string>() << std::endl;
 
   if(vm.count("fiber-output"))
