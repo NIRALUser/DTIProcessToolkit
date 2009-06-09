@@ -1,9 +1,9 @@
-/*=========================================================================
+ /*=========================================================================
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-05-26 16:21:19 $
-  Version:   $Revision: 1.6 $
+  Date:      $Date: 2009-06-09 14:57:41 $
+  Version:   $Revision: 1.7 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -60,6 +60,7 @@ int main(int argc, char* argv[])
     ("voxelize,V", po::value<std::string>(),"Voxelize fiber into a label map (the labelmap filename is the argument of -V).  The tensor file must be specified using -T for information about the size, origin, spacing of the image.")
     ("voxelize-count-fibers", "Count number of fibers per-voxel instead of just setting to 1")
     ("voxel-label,l", po::value<ScalarPixelType>()->default_value(1),"Label for voxelized fiber")
+    ("fiberRadius,R",po::value<double>(),"set radius of all fibers to this value")
 
     // Compute 1-D statistics
     // ("mean-statistics,s", po::value<std::string>(), "Write summary statistics to text file")
@@ -100,7 +101,7 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     if(vm.count("help"))
     {
-      std::cout << "Version $Revision: 1.6 $ "<< std::endl;
+      std::cout << "Version $Revision: 1.7 $ "<< std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
     }
@@ -250,7 +251,7 @@ int main(int argc, char* argv[])
     
     DTIPointListType::iterator pit;
 
-    // For each point alogng thje fiber
+    // For each point alogng the fiber
     for(pit = pointlist.begin(); pit != pointlist.end(); ++pit)
     {
       DTIPointType newpoint;
@@ -269,6 +270,8 @@ int main(int argc, char* argv[])
       for(unsigned int i =0; i < 3; i++)
         origci[i] = ci[i] = p[i];
 
+      newpoint.SetPosition(ci);
+
       if (vm.count("tensor-volume"))
       {
 	// get index in image
@@ -277,10 +280,6 @@ int main(int argc, char* argv[])
 	  origci[i] = ci[i];
 	if(deformationfield)
 	{
-	  // just for debug 
-	  //std::cout << "p" << p[0] << "," << p[1] << "," << p[2] << std::endl;
-	  //std::cout << "ci" << ci[0] << "," << ci[1] << "," << ci[2] << std::endl;
-
 	  DeformationPixelType warp(definterp->EvaluateAtContinuousIndex(ci).GetDataPointer());
         
 	  // Get Spacing from tensorfile
@@ -288,6 +287,17 @@ int main(int argc, char* argv[])
 
 	  for(unsigned int i =0; i < 3; i++)
 	    ci[i] = ci[i] + warp[i] / tensorspacing[i];
+
+	  if(vm.count("no-warp"))
+	    newpoint.SetPosition(origci);
+	  else
+	    newpoint.SetPosition(ci);
+
+	  double  newFiberSpacing[3];
+	  for(unsigned int i =0; i < 3; i++)
+	    newFiberSpacing[i] =  tensorspacing[i];
+	  
+	  newgroup->SetSpacing(newFiberSpacing);
 	} 
       }
 
@@ -308,21 +318,22 @@ int main(int argc, char* argv[])
         else
           labelimage->SetPixel(ind, vm["voxel-label"].as<ScalarPixelType>());
       }
-      
-      // Should not have to do this
-      if(vm.count("no-warp"))
-        newpoint.SetPosition(origci);
+      if (vm.count("fiberRadius")) 
+      {
+	newpoint.SetRadius(vm["fiberRadius"].as<double>());
+      } 
       else
-        newpoint.SetPosition(ci);
-
-      newpoint.SetRadius(.4);
+      {
+	newpoint.SetRadius(0.4);
+      }
       newpoint.SetRed(0.0);
       newpoint.SetGreen(1.0);
       newpoint.SetBlue(0.0);
 
       // Attribute tensor data if provided
       if(vm.count("tensor-volume") && vm.count("fiber-output"))
-      {
+      { 
+	//std::cout << "ci" << ci[0] << "," << ci[1] << "," << ci[2] << std::endl;
         itk::DiffusionTensor3D<double> tensor(tensorinterp->EvaluateAtContinuousIndex(ci).GetDataPointer());
 
         // TODO: Change SpatialObject interface to accept DiffusionTensor3D
