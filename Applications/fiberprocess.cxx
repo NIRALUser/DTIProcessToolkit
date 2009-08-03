@@ -1,9 +1,9 @@
- /*=========================================================================
+/*=========================================================================
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-06-09 14:57:41 $
-  Version:   $Revision: 1.7 $
+  Date:      $Date: 2009-08-03 17:36:42 $
+  Version:   $Revision: 1.8 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -54,6 +54,7 @@ int main(int argc, char* argv[])
     ("h-field,H", po::value<std::string>(), "HField for warp and statistics lookup.  If this option is used tensor-volume must also be specified.")
     ("displacement-field", po::value<std::string>(), "Displacement field for warp and statistics lookup.  If this option is used tensor-volume must also be specified.")
     ("no-warp,n", "Do not warp the geometry of the tensors only obtain the new statistics")
+    ("index-space", "Use index-space for fiber output coordinates, otherwise us world space for fiber output coordinates (from tensor file)")
     ("tensor-volume,T", po::value<std::string>(), "Interpolate tensor values from the given field")
 
     // ******  TODO **********
@@ -101,7 +102,7 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     if(vm.count("help"))
     {
-      std::cout << "Version $Revision: 1.7 $ "<< std::endl;
+      std::cout << "Version $Revision: 1.8 $ "<< std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
     }
@@ -251,7 +252,7 @@ int main(int argc, char* argv[])
     
     DTIPointListType::iterator pit;
 
-    // For each point alogng the fiber
+    // For each point along the fiber
     for(pit = pointlist.begin(); pit != pointlist.end(); ++pit)
     {
       DTIPointType newpoint;
@@ -259,7 +260,7 @@ int main(int argc, char* argv[])
 
       // p is not really a point its a continuous index
       const PointType p = pit->GetPosition();
-      itk::Point<double, 3> pt; 
+      itk::Point<double, 3> pt, newpt, trypt; 
       // pt is Point in world coordinates (without any reorientation, i.e. disregarding transform matrix)
       pt[0] = p[0] * spacing[0] + sooffset[0];
       pt[1] = p[1] * spacing[1] + sooffset[1];
@@ -288,16 +289,26 @@ int main(int argc, char* argv[])
 	  for(unsigned int i =0; i < 3; i++)
 	    ci[i] = ci[i] + warp[i] / tensorspacing[i];
 
-	  if(vm.count("no-warp"))
-	    newpoint.SetPosition(origci);
+	  if(vm.count("index-space"))
+	  {
+	    if(vm.count("no-warp"))
+	      newpoint.SetPosition(origci);
+	    else
+	      newpoint.SetPosition(ci);
+	  }
 	  else
-	    newpoint.SetPosition(ci);
-
-	  double  newFiberSpacing[3];
-	  for(unsigned int i =0; i < 3; i++)
-	    newFiberSpacing[i] =  tensorspacing[i];
-	  
-	  newgroup->SetSpacing(newFiberSpacing);
+	  {
+	    tensorreader->GetOutput()->TransformContinuousIndexToPhysicalPoint(ci, newpt);
+	    // this uses full physical space info from tensor image file
+	    if(vm.count("no-warp"))
+	      newpoint.SetPosition(pt);
+	    else
+	      newpoint.SetPosition(newpt);
+	  }
+	  //	  double  newFiberSpacing[3];
+	  //	  for(unsigned int i =0; i < 3; i++)
+	  //	    newFiberSpacing[i] =  tensorspacing[i];	  
+	  //	  newgroup->SetSpacing(newFiberSpacing);
 	} 
       }
 
