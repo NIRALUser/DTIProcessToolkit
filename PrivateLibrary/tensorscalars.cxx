@@ -239,6 +239,7 @@ GradientImageType::Pointer createPrincipalEigenvector(TensorImageType::Pointer t
 
   PrincipalEigenvectorFilterType::Pointer ppdfilter = PrincipalEigenvectorFilterType::New();
   ppdfilter->SetInput(timg);
+  ppdfilter->Update();
   return ppdfilter->GetOutput();
 }
 

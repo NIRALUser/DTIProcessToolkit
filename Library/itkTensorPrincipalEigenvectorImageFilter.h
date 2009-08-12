@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkTensorPrincipalEigenvectorImageFilter.h,v $
   Language:  C++
-  Date:      $Date: 2009-01-09 15:39:51 $
-  Version:   $Revision: 1.5 $
+  Date:      $Date: 2009-08-12 16:53:43 $
+  Version:   $Revision: 1.6 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -65,9 +65,9 @@ public:
       y[3] -= lambdas[2];
       y[5] -= lambdas[2];
       
-      const double epsilon = 1.0e-8;
+      //const double epsilon = 1.0e-16;
       // Largest eigenvalue is distinct
-      if(lambdas[2] - lambdas[1] > epsilon)
+      if(lambdas[2] - lambdas[1] >= 0)
       {
         // Cross-product of any two rows of y
         const vnl_double_3 a(y[0],y[1],y[2]);
