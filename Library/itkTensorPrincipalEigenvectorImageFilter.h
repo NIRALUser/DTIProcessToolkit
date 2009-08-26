@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkTensorPrincipalEigenvectorImageFilter.h,v $
   Language:  C++
-  Date:      $Date: 2009-08-12 16:53:43 $
-  Version:   $Revision: 1.6 $
+  Date:      $Date: 2009-08-26 14:24:01 $
+  Version:   $Revision: 1.7 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -67,8 +67,8 @@ public:
       
       //const double epsilon = 1.0e-16;
       // Largest eigenvalue is distinct
-      if(lambdas[2] - lambdas[1] >= 0)
-      {
+      //      if(lambdas[2] - lambdas[1] >= 0)
+      //      {
         // Cross-product of any two rows of y
         const vnl_double_3 a(y[0],y[1],y[2]);
         const vnl_double_3 b(y[1],y[3],y[4]);
@@ -80,16 +80,16 @@ public:
                                    vnl_cross_3d(b,c)).normalize();
 
         return PixelType(evec.data_block());
-      }
+	//      }
       // Largest two are duplicated but distinct from smallest
 //       else if(lambdas[1] - lambdas[0] > epsilon)
 //       {
 //       }
       // Space is isotropic
-      else
-      {
-        throw itk::ExceptionObject("Tracked into region with undefined largest eigenvector");
-      }
+	//     else
+	//     {
+	//       throw itk::ExceptionObject("Tracked into region with undefined largest eigenvector");
+	//     }
       
     }
 }; 
@@ -98,13 +98,8 @@ public:
 
 
 /** \class TensorPrincipalEigenvectorImageFilter
- * \brief Computes the Mean Diffusivity for every pixel of a input tensor image.
+ * \brief Computes the Principal Eigenvector on a voxelwise basis
  *
- * TensorPrincipalEigenvectorImageFilter applies pixel-wise the invokation for
- * computing the mean diffusivity of every pixel. The pixel type of the
- * input image is expected to implement a method GetTrace(), and
- * to specify its return type as RealValueType.
- * 
  * \sa TensorRelativeAnisotropyImageFilter
  * \sa TensorFractionalAnisotropyImageFilter
  * \sa DiffusionTensor3D
