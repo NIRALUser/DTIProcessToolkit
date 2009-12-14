@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-01-21 21:11:49 $
-  Version:   $Revision: 1.7 $
+  Date:      $Date: 2009-12-14 12:29:41 $
+  Version:   $Revision: 1.8 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -139,12 +139,12 @@ int main(int argc, char* argv[])
     // tensor transformations
     // affine
     ("rot-output,r", po::value<std::string>(),"Rotated tensor output file.  Must also specify the dof file.")
-    ("dof-file,d", po::value<std::string>(),"Transformation file for affine transformation.  This can be RView or ITK format.")
+    ("dof-file,d", po::value<std::string>(),"Transformation file for affine transformation. This must be RView text format (not binary!).") //This can be RView or ITK format.")
 
     // deformation
     ("deformation-output,w", po::value<std::string>(), "Warped tensor field based on a deformation field.  This option requires the --forward,-F transformation to be specified.")
     ("forward,F", po::value<std::string>(), "Forward transformation.  Assumed to be a deformation field in world coordinates, unless the --h-field option is specified.")
-    ("inverse,I", po::value<std::string>(), "Inverse of warp (DEPRECATED: NO LONGER REQUIRED)")
+    //("inverse,I", po::value<std::string>(), "Inverse of warp (DEPRECATED: NO LONGER REQUIRED)")
     ("h-field", "forward and inverse transformations are h-fields instead of displacement fields")
 
     // transformation options
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     if(vm.count("help"))
     {
-      std::cout << "$Date: 2009-01-21 21:11:49 $ $Revision: 1.7 $" << std::endl;
+      std::cout << "$Date: 2009-12-14 12:29:41 $ $Revision: 1.8 $" << std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
     }
@@ -398,7 +398,6 @@ int main(int argc, char* argv[])
     writeImage(vm["negative-eig-output"].as<std::string>(), 
                createNegativeEigenValueLabel(tensors));
   }
-
 
   if(vm.count("rot-output"))
   {
