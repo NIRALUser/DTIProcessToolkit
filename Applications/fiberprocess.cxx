@@ -2,7 +2,7 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-08-03 17:36:42 $
+  Date:      $Date: 2009/08/03 17:36:42 $
   Version:   $Revision: 1.8 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
@@ -19,14 +19,6 @@
 #include <iostream>
 #include <fstream>
 
-// boost includes
-#include <boost/program_options/option.hpp>
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/positional_options.hpp>
-#include <boost/program_options/variables_map.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/program_options/cmdline.hpp>
-
 // ITK includes
 #include <itkDiffusionTensor3D.h>
 #include <itkImageFileReader.h>
@@ -39,11 +31,11 @@
 #include "deformationfieldoperations.h"
 #include "fiberio.h"
 #include "dtitypes.h"
-
-namespace po = boost::program_options;
+#include "fiberprocessCLP.h"
 
 int main(int argc, char* argv[])
 {
+#if 0
   // Read program options/configuration
   po::options_description config("Usage: fiberprocess input-fiber [options]");
   config.add_options()
@@ -111,17 +103,18 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
     }
   }
-
-  const bool VERBOSE = vm.count("verbose");
+#endif
+  PARSE_ARGS;
+  const bool VERBOSE = verbose;
 
   // Reader fiber bundle
-  GroupType::Pointer group = readFiberFile(vm["fiber-file"].as<std::string>());
+  GroupType::Pointer group = readFiberFile(fiberFile);
 
   DeformationImageType::Pointer deformationfield(NULL);
-  if(vm.count("h-field"))
-    deformationfield = readDeformationField(vm["h-field"].as<std::string>(), HField);
-  else if(vm.count("displacement-field"))
-    deformationfield = readDeformationField(vm["displacement-field"].as<std::string>(), Displacement);
+  if(hField != "")
+    deformationfield = readDeformationField(hField, HField);
+  else if(displacementField != "")
+    deformationfield = readDeformationField(displacementField, Displacement);
   else
     deformationfield = NULL;
 
@@ -165,12 +158,12 @@ int main(int argc, char* argv[])
   TensorImageReader::Pointer tensorreader = NULL;
   TensorInterpolateType::Pointer tensorinterp = NULL;
   
-  if(vm.count("tensor-volume"))
+  if(tensorVolume != "")
   {
     tensorreader = TensorImageReader::New();
     tensorinterp = TensorInterpolateType::New();
 
-    tensorreader->SetFileName(vm["tensor-volume"].as<std::string>().c_str());
+    tensorreader->SetFileName(tensorVolume);
     try
     {
       tensorreader->Update();
@@ -192,9 +185,9 @@ int main(int argc, char* argv[])
   // Need to allocate an image to write into for creating
   // the fiber label map
   IntImageType::Pointer labelimage;
-  if(vm.count("voxelize"))
+  if(voxelize != "")
   {
-    if(!vm.count("tensor-volume"))
+    if(tensorVolume == "")
     {
       std::cerr << "Must specify tensor file to copy image metadata for fiber voxelize." << std::endl;
       return EXIT_FAILURE;
@@ -213,7 +206,7 @@ int main(int argc, char* argv[])
   for(unsigned int i =0; i < 3; i++)
     newspacing[i] = spacing[i];
   
-  if (vm.count("tensor-volume") || vm.count("voxelize"))
+  if (tensorVolume != "" || voxelize != "")
   {
     for(unsigned int i =0; i < 3; i++)
       newspacing[i] = 1;
@@ -273,7 +266,7 @@ int main(int argc, char* argv[])
 
       newpoint.SetPosition(ci);
 
-      if (vm.count("tensor-volume"))
+      if (tensorVolume != "")
       {
 	// get index in image
 	tensorreader->GetOutput()->TransformPhysicalPointToContinuousIndex(pt, ci);
@@ -289,21 +282,29 @@ int main(int argc, char* argv[])
 	  for(unsigned int i =0; i < 3; i++)
 	    ci[i] = ci[i] + warp[i] / tensorspacing[i];
 
-	  if(vm.count("index-space"))
+	  if(indexSpace)
 	  {
-	    if(vm.count("no-warp"))
-	      newpoint.SetPosition(origci);
-	    else
-	      newpoint.SetPosition(ci);
+          if(noWarp)
+            {
+            newpoint.SetPosition(origci);
+            }
+          else
+            {
+            newpoint.SetPosition(ci);
+            }
 	  }
 	  else
 	  {
 	    tensorreader->GetOutput()->TransformContinuousIndexToPhysicalPoint(ci, newpt);
 	    // this uses full physical space info from tensor image file
-	    if(vm.count("no-warp"))
+	    if(noWarp)
+              {
 	      newpoint.SetPosition(pt);
+              }
 	    else
+              {
 	      newpoint.SetPosition(newpt);
+              }
 	  }
 	  //	  double  newFiberSpacing[3];
 	  //	  for(unsigned int i =0; i < 3; i++)
@@ -312,7 +313,7 @@ int main(int argc, char* argv[])
 	} 
       }
 
-      if(vm.count("voxelize"))
+      if(voxelize != "")
       {
         itk::Index<3> ind;
         labelimage->TransformPhysicalPointToContinuousIndex(pt, ci);
@@ -324,25 +325,32 @@ int main(int argc, char* argv[])
           std::cerr << "Error index: " << ind << " not in image"  << std::endl;
           return EXIT_FAILURE;
         }
-        if(vm.count("voxelize-count-fibers"))
+        if(voxelizeCountFibers)
+          {
           labelimage->SetPixel(ind, labelimage->GetPixel(ind) + 1);
+          }
         else
-          labelimage->SetPixel(ind, vm["voxel-label"].as<ScalarPixelType>());
+          {
+          labelimage->SetPixel(ind, voxelLabel);
+          }
       }
-      if (vm.count("fiberRadius")) 
-      {
+#if 0
+      if (vm.count("fiberRadius")) {
 	newpoint.SetRadius(vm["fiberRadius"].as<double>());
       } 
       else
       {
 	newpoint.SetRadius(0.4);
       }
+#else
+      newpoint.SetRadius(fiberRadius);
+#endif
       newpoint.SetRed(0.0);
       newpoint.SetGreen(1.0);
       newpoint.SetBlue(0.0);
 
       // Attribute tensor data if provided
-      if(vm.count("tensor-volume") && vm.count("fiber-output"))
+      if(tensorVolume != "" && fiberOutput != "")
       { 
 	//std::cout << "ci" << ci[0] << "," << ci[1] << "," << ci[2] << std::endl;
         itk::DiffusionTensor3D<double> tensor(tensorinterp->EvaluateAtContinuousIndex(ci).GetDataPointer());
@@ -389,18 +397,18 @@ int main(int argc, char* argv[])
   if(VERBOSE)
     std::cout << "Ending Loop" << std::endl;
 
-  if(VERBOSE && vm.count("fiber-output"))
-    std::cout << "Output: " << vm["fiber-output"].as<std::string>() << std::endl;
+  if(VERBOSE && fiberOutput != "")
+    std::cout << "Output: " << fiberOutput << std::endl;
 
-  if(vm.count("fiber-output"))
-    writeFiberFile(vm["fiber-output"].as<std::string>(), newgroup);
+  if(fiberOutput != "")
+    writeFiberFile(fiberOutput, newgroup);
 
-  if(vm.count("voxelize"))
+  if(voxelize != "")
   {
     typedef itk::ImageFileWriter<IntImageType> LabelWriter;
     LabelWriter::Pointer writer = LabelWriter::New();
     writer->SetInput(labelimage);
-    writer->SetFileName(vm["voxelize"].as<std::string>());
+    writer->SetFileName(voxelize);
     writer->UseCompressionOn();
     try
     {

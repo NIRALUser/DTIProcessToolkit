@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>DTI</category>
+  <title>dtiprocess</title>
+  <description> </description>
+  <documentation-url>http://www.google.com/</documentation-url>
+  <license>
+  Copyright (c)  Casey Goodlett. All rights reserved.
+  See http://www.ia.unc.edu/dev/Copyright.htm for details.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notices for more information.
+  </license>
+  <contributor>Casey Goodlet</contributor>
+  <version>1.0.0</version>
+  <parameters advanced="false">
+    <boolean>
+      <name>verbose</name>
+      <flag>v</flag>
+      <longflag>--verbose</longflag>
+      <label>Verbose</label>
+      <description>produce verbose output</description>
+      <default>0</default>
+    </boolean>
+    <image>
+      <name>mask</name>
+      <longflag>--mask</longflag>
+      <label>Mask</label>
+      <description>Mask tensors</description>
+      <channel>input</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>faOutput</name>
+      <longflag>--fa_output</longflag>
+      <flag>f</flag>
+      <label>FA Output</label>
+      <description>FA output file</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>mdOutput</name>
+      <longflag>--md_output</longflag>
+      <flag>m</flag>
+      <label>MD Output</label>
+      <description>MD output file</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>faGradientOutput</name>
+      <longflag>--fa_gradient_output</longflag>
+      <label>FA Gradient Output</label>
+      <description>FA Gradient output file</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <double>
+      <name>sigma</name>
+      <longflag>--sigma</longflag>
+      <flag>s</flag>
+      <description>Scale of gradients</description>
+      <default>2.0</default>
+    </double>
+    <image>
+      <name>faGradientMagOutput</name>
+      <longflag>--fa_gradmag_output</longflag>
+      <label>FA Gradient Output</label>
+      <description>FA Gradient Magnitude output file</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>colorFAOutput</name>
+      <longflag>--color_fa_output</longflag>
+      <label>Color FA Output</label>
+      <description>Color FA output file</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>principalEigenvectorOutput</name>
+      <longflag>--principal_eigenvector_output</longflag>
+      <label>Principal Eigenvectors Output</label>
+      <description>Principal Eigenvectors Output</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>negativeEigenvectorOutput</name>
+      <longflag>--negative_eigenvector_output</longflag>
+      <label>Negative Eigenvectors Output</label>
+      <description>Negative Eigenvectors Output</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>frobeniusNormOutput</name>
+      <longflag>--frobenius_norm_output</longflag>
+      <label>Frobenius Norm Output</label>
+      <description>Frobenius Norm Output</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>lambda1Output</name>
+      <longflag>--lambda1_output</longflag>
+      <label>Lambda 1 </label>
+      <description>Lambda 1 (largest eigenvalue) output</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>lambda2Output</name>
+      <longflag>--lambda2_output</longflag>
+      <label>Lambda 2 </label>
+      <description>Lambda 2 (middle eigenvalue) output</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>lambda3Output</name>
+      <longflag>--lambda3_output</longflag>
+      <label>Lambda 3 </label>
+      <description>Lambda 3 (smallest eigenvalue) output</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <boolean>
+      <name>scalarFloat</name>
+      <longflag>--scalar_float</longflag>
+      <label>Scalar Float</label>
+      <description>Write scalar [FA,MD] as unscaled float.  Also causes FA to be unscaled [0..1].</description>
+      <default>0</default>
+    </boolean>
+    <image>
+      <name>rotOutput</name>
+      <longflag>--rot_output</longflag>
+      <flag>r</flag>
+      <label>Rotated Tensor Output</label>
+      <description>Rotated tensor output file.  Must also specify the dof file.</description>
+      <channel>output</channel>
+    </image>
+    <file>
+      <name>dofFile</name>
+      <longflag>--dof_file</longflag>
+      <flag>d</flag>
+      <label>Transformation File</label>
+      <description>Transformation file for affine transformation.  This can be RView or ITK format.</description>
+      <channel>output</channel>
+    </file>
+    <image>
+      <name>deformationOutput</name>
+      <longflag>--deformation_output</longflag>
+      <flag>w</flag>
+      <label>Deformation Output</label>
+      <description>Warped tensor field based on a deformation field.  This option requires the --forward,-F transformation to be specified.</description>
+      <channel>output</channel>
+    </image>
+    <image>
+      <name>forwardTransformation</name>
+      <longflag>--forward</longflag>
+      <flag>F</flag>
+      <label>Forward Transformation</label>
+      <description>Forward transformation.  Assumed to be a deformation field in world coordinates, unless the --h-field option is specified.</description>
+      <channel>output</channel>
+    </image>
+    <boolean>
+      <name>hField</name>
+      <longflag>--hField</longflag>
+      <label>H Fields</label>
+      <description>forward and inverse transformations are h-fields instead of displacement fields</description>
+      <default>0</default>
+    </boolean>
+    <string-enumeration>
+      <name>interpolation</name>
+      <longflag>--interpolation</longflag>
+      <flag>i</flag>
+      <description>Interpolation type (nearestneighbor, linear, cubic)</description>
+      <default>linear</default>
+      <element>nearestneighbor</element>
+      <element>linear</element>
+      <element>cubic</element>
+    </string-enumeration>
+    <string-enumeration>
+      <name>reorientation</name>
+      <longflag>--reorientation</longflag>
+      <description>Reorientation type (fs, ppd)</description>
+      <default>fs</default>
+    </string-enumeration>
+    <image>
+      <name>dtiImage</name>
+      <longflag>--dti_image</longflag>
+      <label>DTI Image</label>
+      <description>DTI tensor volume</description>
+      <channel>input</channel>
+    </image>
+
+  </parameters>
+</executable>

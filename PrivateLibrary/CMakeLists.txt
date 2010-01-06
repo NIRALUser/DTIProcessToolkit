@@ -1,19 +1,7 @@
-IF(CMAKE_SYSTEM MATCHES "Linux*")
-  EXEC_PROGRAM(gcc ARGS --version OUTPUT_VARIABLE CMAKE_C_COMPILER_VERSION)
-  IF(CMAKE_C_COMPILER_VERSION MATCHES ".*4\\.[0-9]\\.[0-9].*")
-    SET(GCC_FORTRAN_LIBRARY gfortran)
-  ELSE(CMAKE_C_COMPILER_VERSION MATCHES ".*4\\.[0-9]\\.[0-9].*")
-    SET(GCC_FORTRAN_LIBRARY g2c)
-  ENDIF(CMAKE_C_COMPILER_VERSION MATCHES ".*4\\.[0-9]\\.[0-9].*") 
-ELSEIF(CMAKE_SYSTEM MATCHES "Darwin*")
-     SET(GCC_FORTRAN_LIBRARY gfortran)
-ELSE(CMAKE_SYSTEM MATCHES "Linux*")
-  ERROR("Don't know how to support fortran on non-linux/mac")
-ENDIF(CMAKE_SYSTEM MATCHES "Linux*")
 
 ADD_LIBRARY(DWIPrivateLibrary wrapper.cxx)
 
-TARGET_LINK_LIBRARIES(DWIPrivateLibrary bessel ${GCC_FORTRAN_LIBRARY})
+TARGET_LINK_LIBRARIES(DWIPrivateLibrary ${BESSEL_LIB} )
 
 ADD_LIBRARY(TensorOperations SHARED tensorscalars.cxx tensordeformation.cxx)
 ADD_LIBRARY(DTIIO SHARED tensorio.cxx fiberio.cxx deformationfieldio.cxx)

@@ -2,7 +2,7 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-01-09 15:39:51 $
+  Date:      $Date: 2009/01/09 15:39:51 $
   Version:   $Revision: 1.3 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
@@ -17,13 +17,6 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
-
-#include <boost/program_options/option.hpp>
-#include <boost/program_options/positional_options.hpp>
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/variables_map.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/program_options/cmdline.hpp>
 
 #include <itkInterpolateImageFunction.h>
 #include <itkLinearInterpolateImageFunction.h>
@@ -41,7 +34,8 @@
 
 #include "deformationfieldio.h"
 #include "dtitypes.h"
-
+#include "scalartransformCLP.h"
+#if 0
 // Validates the interpolation type option string to the the allowed
 // values for interpolation methods.  Currently nearestneighbor,
 // linear, or cubic.
@@ -76,6 +70,7 @@ void validate(boost::any& v,
     throw validation_error("Interpolation type invalid.  Only \"nearestneighbor\", \"linear\", and \"cubic\" allowed.");
     }
 }
+#endif
 
 typedef itk::InterpolateImageFunction<IntImageType, double> InterpolatorType;
 
@@ -97,6 +92,7 @@ InterpolatorType::Pointer createInterpolater(InterpolationType interp)
 
 int main(int argc, char* argv[])
 {
+#if 0
   namespace po = boost::program_options;
 
   // Read program options/configuration
@@ -127,7 +123,7 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     return EXIT_FAILURE;
     }
-     
+
   if(vm.count("help") || !vm.count("input-image") || !vm.count("output-image")
      || (!vm.count("transformation") && !vm.count("deformation")))
     {
@@ -140,13 +136,19 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
       }
     }
-     
-  
+#endif
+  PARSE_ARGS;
+  if(inputImage == "" || outputImage == "" ||
+     transformation == "" || deformation == "")
+    {
+    std::cerr << "The input, output, and transformation must be specified." << std::endl;
+    return EXIT_FAILURE;
+    }
   typedef itk::ImageFileReader<IntImageType> ImageReader;
   
   ImageReader::Pointer reader = ImageReader::New();
   
-  reader->SetFileName( vm["input-image"].as<std::string>() );
+  reader->SetFileName( inputImage );
 
   try
     {
@@ -157,15 +159,18 @@ int main(int argc, char* argv[])
     std::cerr << e << std::endl;
     return EXIT_FAILURE;
     }
-
+  InterpolationType interpType =
+    (interpolation == "linear" ? Linear :
+     (interpolation == "nearestneightbor" ? NearestNeighbor :
+      Cubic));
   IntImageType::Pointer result = NULL;
-  InterpolatorType::Pointer interp = createInterpolater( vm["interpolator"].as<InterpolationType>() );
-  if(vm.count("transformation"))
+  InterpolatorType::Pointer interp = createInterpolater(interpType);
+  if(transformation != "")
   {
     typedef itk::TransformFileReader TransformReader;
     TransformReader::Pointer treader = TransformReader::New();
 
-    treader->SetFileName( vm["transformation"].as<std::string>() );
+    treader->SetFileName(transformation);
 
     try
     {
@@ -193,11 +198,11 @@ int main(int argc, char* argv[])
     resampler->Update();
     result = resampler->GetOutput();
   }
-  else if(vm.count("deformation"))
+  else if(deformation != "")
   {
     DeformationImageType::Pointer defimage = DeformationImageType::New();
-    defimage = readDeformationField(vm["deformation"].as<std::string>(), 
-                                    vm.count("h-field") ? HField : Displacement);
+    defimage = readDeformationField(deformation,
+                                    hField ? HField : Displacement);
 
     typedef itk::WarpImageFilter<IntImageType, IntImageType, DeformationImageType> WarpFilter;
     WarpFilter::Pointer warpresampler = WarpFilter::New();
@@ -221,7 +226,7 @@ int main(int argc, char* argv[])
   typedef itk::ImageFileWriter<IntImageType > ImageWriter;
   ImageWriter::Pointer writer = ImageWriter::New();
   writer->UseCompressionOn();
-  writer->SetFileName( vm["output-image"].as<std::string>() );
+  writer->SetFileName(outputImage);
   writer->SetInput(result);
 
   try

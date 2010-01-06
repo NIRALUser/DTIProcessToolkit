@@ -8,8 +8,8 @@
 #include <itkGradientMagnitudeRecursiveGaussianImageFilter.h>
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
-#include <itkFastSymmetricEigenAnalysisImageFilter.h>
-#include <itkVectorIndexSelectionCastImageFilter.h>
+#include "itkFastSymmetricEigenAnalysisImageFilter.h"
+#include "itkVectorIndexSelectionCastImageFilter.h"
 
 // My ITK Filters
 #include "itkVectorMaskNegatedImageFilter.h"

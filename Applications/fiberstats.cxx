@@ -2,7 +2,7 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-01-09 15:39:51 $
+  Date:      $Date: 2009/01/09 15:39:51 $
   Version:   $Revision: 1.3 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
@@ -18,26 +18,18 @@
 #include <string>
 #include <iostream>
 #include <numeric>
-
-// boost includes
-#include <boost/program_options/option.hpp>
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/positional_options.hpp>
-#include <boost/program_options/variables_map.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/program_options/cmdline.hpp>
-#include <boost/lambda/lambda.hpp>
-
+#include <set>
 // ITK includes
 #include <itkVersion.h>
 #include <itkIndex.h>
 #include "fiberio.h"
 #include "dtitypes.h"
 #include "pomacros.h"
-
+#include "fiberstatsCLP.h"
 
 int main(int argc, char* argv[])
 {
+#if 0
   namespace po = boost::program_options;
   using namespace boost::lambda;
 
@@ -73,26 +65,19 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     return EXIT_FAILURE;
   }
-
+#endif
+  PARSE_ARGS;
   // End option reading configuration
 
   // Display help if asked or program improperly called
-  if(vm.count("help") || !vm.count("fiber-file"))
+  if(fiberFile == "")
   {
-    std::cout << config << std::endl;
-    
-    if(vm.count("help"))
-    {
-      std::cout << "Version: $Date: 2009-01-09 15:39:51 $ $Revision: 1.3 $" << std::endl;
-      std::cout << ITK_SOURCE_VERSION << std::endl;
-      return EXIT_SUCCESS;
-    }
-    else
+    std::cout << "No DTI Fiber file given" << std::endl;
       return EXIT_FAILURE;
   }
 
-  const bool VERBOSE = vm.count("verbose");
-  GroupType::Pointer group = readFiberFile(vm["fiber-file"].as<std::string>());
+  const bool VERBOSE = verbose;
+  GroupType::Pointer group = readFiberFile(fiberFile);
 
   verboseMessage("Getting spacing");
 
@@ -103,7 +88,8 @@ int main(int argc, char* argv[])
     group->GetObjectToParentTransform()->GetOffset();
 
   typedef itk::Index<3> IndexType;
-  typedef std::set<IndexType, itk::Index<3>::LexicographicCompare> VoxelSet;
+  typedef itk::Functor::IndexLexicographicCompare<3> IndexCompare;
+  typedef std::set<IndexType, IndexCompare> VoxelSet;
   typedef std::list<float> MeasureSample;
   typedef std::map<std::string, MeasureSample> SampleMap;
 
@@ -163,8 +149,14 @@ int main(int argc, char* argv[])
     
     double mean = std::accumulate(it->second.begin(), it->second.end(), 0.0) / it->second.size();
     std::cout << statname << " mean: " << mean << std::endl;
-    double var = std::accumulate(it->second.begin(), it->second.end(), 0.0,
-                                 (_1 - mean)*(_1 - mean)) / (it->second.size() - 1);
+    double var = 0.0; //= std::accumulate(it->second.begin(), it->second.end(), 0.0,
+      //                                 (_1 - mean)*(_1 - mean)) / (it->second.size() - 1);
+    for(MeasureSample::const_iterator it2 = it->second.begin();
+        it2 != it->second.end(); it2++)
+      {
+      double minusMean((*it2) - mean);
+      var += (minusMean * minusMean) / (it->second.size() - 1);
+      }
     std::cout << statname << " std: " << std::sqrt(var) << std::endl;
   }
 

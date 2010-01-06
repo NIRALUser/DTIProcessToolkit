@@ -2,8 +2,8 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-12-14 12:29:41 $
-  Version:   $Revision: 1.8 $
+  Date:      $Date: 2009/01/21 21:11:49 $
+  Version:   $Revision: 1.7 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -19,7 +19,7 @@
 #include <iostream>
 
 // boost includes
-#include <boost/program_options.hpp>
+//#include <boost/program_options.hpp>
 
 // ITK includes
 // datastructures
@@ -36,11 +36,14 @@
 #include "imageio.h"
 #include "deformationfieldio.h"
 
-namespace po = boost::program_options;
+#include "dtiprocessCLP.h"
+
+//namespace po = boost::program_options;
 
 // Bad global variables.  TODO: remove these
 bool VERBOSE=false;
 
+#if 0
 // Validates the interpolation type option string to the the allowed
 // values for interpolation methods.  Currently nearestneighbor,
 // linear, or cubic.
@@ -102,11 +105,13 @@ void validate(boost::any& v,
     throw validation_error("Reorientation type invalid.  Only \"fs\" or \"ppd\"");
   }
 }
-
+#endif
 
 int main(int argc, char* argv[])
 {
-
+#if 1
+  PARSE_ARGS;
+#else
   // Read program options/configuration
   po::options_description config("Usage: dtiprocess tensor-image [options]");
   config.add_options()
@@ -139,12 +144,12 @@ int main(int argc, char* argv[])
     // tensor transformations
     // affine
     ("rot-output,r", po::value<std::string>(),"Rotated tensor output file.  Must also specify the dof file.")
-    ("dof-file,d", po::value<std::string>(),"Transformation file for affine transformation. This must be RView text format (not binary!).") //This can be RView or ITK format.")
+    ("dof-file,d", po::value<std::string>(),"Transformation file for affine transformation.  This can be RView or ITK format.")
 
     // deformation
     ("deformation-output,w", po::value<std::string>(), "Warped tensor field based on a deformation field.  This option requires the --forward,-F transformation to be specified.")
     ("forward,F", po::value<std::string>(), "Forward transformation.  Assumed to be a deformation field in world coordinates, unless the --h-field option is specified.")
-    //("inverse,I", po::value<std::string>(), "Inverse of warp (DEPRECATED: NO LONGER REQUIRED)")
+    ("inverse,I", po::value<std::string>(), "Inverse of warp (DEPRECATED: NO LONGER REQUIRED)")
     ("h-field", "forward and inverse transformations are h-fields instead of displacement fields")
 
     // transformation options
@@ -180,40 +185,44 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  // End option reading configuration
-
   // Display help if asked or program improperly called
   if(vm.count("help") || !vm.count("dti-image"))
   {
     std::cout << config << std::endl;
     if(vm.count("help"))
     {
-      std::cout << "$Date: 2009-12-14 12:29:41 $ $Revision: 1.8 $" << std::endl;
+      std::cout << "$Date: 2009/01/21 21:11:49 $ $Revision: 1.7 $" << std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
     }
     else
       return EXIT_FAILURE;
   }
+  // End option reading configuration
+#endif
 
   // If the value scale is true (default) we scal FA and MD values to
   // integer ranges.
-  bool scale = true;
-  if(vm.count("scalar-float"))
-  {
-    scale = false;
-  }
-
-  if(vm.count("verbose"))
-  {
-    VERBOSE = true;
-  }
-
+//   {
+//     scale = false;
+//   }
+  bool scale = !scalarFloat; // I don't understand this logic but...
+  
+//   if(vm.count("verbose"))
+//   {
+//     VERBOSE = true;
+//   }
+  VERBOSE = verbose;
   // Read tensor image
   typedef itk::ImageFileReader<TensorImageType> FileReaderType;
   FileReaderType::Pointer dtireader = FileReaderType::New();
-  dtireader->SetFileName(vm["dti-image"].as<std::string>().c_str());
-
+  //  dtireader->SetFileName(vm["dti-image"].as<std::string>().c_str());
+  if(dtiImage == "")
+    {
+    std::cerr << "Missing DTI Image filename" << std::endl;
+    exit(1);
+    }
+  dtireader->SetFileName(dtiImage.c_str());
   try
   {
     dtireader->Update();
@@ -275,25 +284,28 @@ int main(int argc, char* argv[])
   // Debugging
   if(VERBOSE)
   {
-    std::cout << "Interpolation type: " << vm["interpolation"].as<InterpolationType>() << std::endl;
-    std::cout << "reorientation type: " << vm["reorientation"].as<TensorReorientationType>() << std::endl;
+  std::cout << "Interpolation type: " << // vm["interpolation"].as<InterpolationType>() << std::endl;
+    interpolation << std::endl;
+  std::cout << "reorientation type: " << // vm["reorientation"].as<TensorReorientationType>() << std::endl;
+    reorientation << std::endl;
   }
 
   TensorImageType::Pointer tensors = dtireader->GetOutput();
-  if(vm.count("mask"))
+  //  if(vm.count("mask"))
+  if(mask != "")
   {
     typedef itk::ImageFileReader<LabelImageType> MaskFileReaderType;
     MaskFileReaderType::Pointer maskreader = MaskFileReaderType::New();
-    maskreader->SetFileName(vm["mask"].as<std::string>());
-
+    //    maskreader->SetFileName(vm["mask"].as<std::string>());
+    maskreader->SetFileName(mask.c_str());
     typedef itk::VectorMaskImageFilter<TensorImageType,LabelImageType,TensorImageType> MaskFilterType;
-    MaskFilterType::Pointer mask = MaskFilterType::New();
-    mask->SetInput1(tensors);
-    mask->SetInput2(maskreader->GetOutput());
+    MaskFilterType::Pointer _mask = MaskFilterType::New();
+    _mask->SetInput1(tensors);
+    _mask->SetInput2(maskreader->GetOutput());
 
     try
     {
-      mask->Update();
+      _mask->Update();
     }
     catch (itk::ExceptionObject & e)
     {
@@ -301,120 +313,126 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
     }
 
-    tensors = mask->GetOutput();
+    tensors = _mask->GetOutput();
   }
 
-  double sigma = vm["sigma"].as<double>();
+  // sigma set in PARSE_ARGS
+  // double sigma = vm["sigma"].as<double>();
+    
 
   // Compute FA image
-  if(vm.count("fa-output"))
+  //  if(vm.count("fa-output"))
+  if(faOutput != "")
   {
     if(scale)
-      writeImage(vm["fa-output"].as<std::string>(), 
+      writeImage(faOutput,
                  createFA<unsigned short>(tensors));
     else
-      writeImage(vm["fa-output"].as<std::string>(), 
+      writeImage(faOutput,
                  createFA<double>(tensors));
   }
 
 
-  if(vm.count("fa-gradient-output"))
+  //  if(vm.count("fa-gradient-output"))
+  if(faGradientOutput != "")
   {
-    writeImage(vm["fa-gradient-output"].as<std::string>(), 
-               createFAGradient(tensors, sigma));
+  writeImage(faGradientOutput,
+             createFAGradient(tensors, sigma));
   }
 
-  if(vm.count("fa-gradmag-output"))
+  //  if(vm.count("fa-gradmag-output"))
+  if(faGradientMagOutput != "")
   {
-    writeImage(vm["fa-gradmag-output"].as<std::string>(), 
-               createFAGradMag(tensors, sigma));
+  writeImage(faGradientMagOutput,
+             createFAGradMag(tensors, sigma));
   }
 
-  if(vm.count("color-fa-output"))
+  if(colorFAOutput != "")
   {
-    writeImage(vm["color-fa-output"].as<std::string>(), 
-               createColorFA(tensors));
+  writeImage(colorFAOutput,
+             createColorFA(tensors));
   }
 
-  if(vm.count("principal-eigenvector-output"))// || 
+  if(principalEigenvectorOutput != "")
 //     vm.count("closest-dotproduct-output"))
   {
-    writeImage(vm["principal-eigenvector-output"].as<std::string>(),
-               createPrincipalEigenvector(tensors));
+  writeImage(principalEigenvectorOutput,
+             createPrincipalEigenvector(tensors));
   }
 
-  if(vm.count("md-output"))
+  //  if(vm.count("md-output"))
+  if(mdOutput != "")
   {
     if(scale)
-      writeImage(vm["md-output"].as<std::string>(), 
+      writeImage(mdOutput,
                  createMD<unsigned short>(tensors));
     else
-      writeImage(vm["md-output"].as<std::string>(), 
+      writeImage(mdOutput,
                  createMD<double>(tensors));
   }
 
-  if(vm.count("lambda1-output"))
+  if(lambda1Output != "")
   {
     if(scale)
-      writeImage(vm["lambda1-output"].as<std::string>(), 
+      writeImage(lambda1Output,
                  createLambda<unsigned short>(tensors, Lambda1));
     else
-      writeImage(vm["lambda1-output"].as<std::string>(), 
+      writeImage(lambda1Output,
                  createLambda<double>(tensors, Lambda1));
   }
 
-  if(vm.count("lambda2-output"))
+  if(lambda2Output != "")
   {
     if(scale)
-      writeImage(vm["lambda2-output"].as<std::string>(), 
+      writeImage(lambda2Output,
                  createLambda<unsigned short>(tensors, Lambda2));
     else
-      writeImage(vm["lambda2-output"].as<std::string>(), 
+      writeImage(lambda2Output,
                  createLambda<double>(tensors, Lambda2));
   }
 
-  if(vm.count("lambda3-output"))
+  if(lambda3Output != "")
   {
     if(scale)
-      writeImage(vm["lambda3-output"].as<std::string>(), 
+      writeImage(lambda3Output,
                  createLambda<unsigned short>(tensors, Lambda3));
     else
-      writeImage(vm["lambda3-output"].as<std::string>(), 
+      writeImage(lambda3Output,
                  createLambda<double>(tensors, Lambda3));
   }
 
-  if(vm.count("frobenius-norm-output"))
+  if(frobeniusNormOutput != "")
   {
     if(scale)
-      writeImage(vm["frobenius-norm-output"].as<std::string>(),
+      writeImage(frobeniusNormOutput,
                  createFro<unsigned short>(tensors));
     else
-      writeImage(vm["frobenius-norm-output"].as<std::string>(),
+      writeImage(frobeniusNormOutput,
                  createFro<double>(tensors));
   }
 
-  if(vm.count("negative-eig-output"))
+  if(negativeEigenvectorOutput != "")
   {
-    writeImage(vm["negative-eig-output"].as<std::string>(), 
-               createNegativeEigenValueLabel(tensors));
+  writeImage(negativeEigenvectorOutput,
+             createNegativeEigenValueLabel(tensors));
   }
 
-  if(vm.count("rot-output"))
+
+  if(rotOutput != "")
   {
-    if(!vm.count("dof-file"))
+  if(dofFile == "")
     {
-      std::cerr << "Tensor rotation requested, but dof file not specified" << std::endl;
-      return EXIT_FAILURE;
+    std::cerr << "Tensor rotation requested, but dof file not specified" << std::endl;
+    return EXIT_FAILURE;
     }
-    writeImage(vm["rot-output"].as<std::string>(),
-               createROT(tensors,
-                         vm["dof-file"].as<std::string>()));
+  writeImage(rotOutput,
+             createROT(tensors,dofFile));
   }
    
-
-  if(vm.count("deformation-output"))
+    
+  if(deformationOutput != "")
   {
-    if(!vm.count("forward"))
+  if(forwardTransformation == "")
     {
       std::cerr << "Deformation field info not fully specified" << std::endl;
       return EXIT_FAILURE;
@@ -422,18 +440,26 @@ int main(int argc, char* argv[])
     DeformationImageType::Pointer forward;
     
     DeformationFieldType dftype = Displacement;
-    if(vm.count("h-field"))
+    if(hField)
+      {
       dftype = HField;
+      }
     
-    forward = readDeformationField(vm["forward"].as<std::string>(), dftype);
+    forward = readDeformationField(forwardTransformation, dftype);
 
-    writeImage(vm["deformation-output"].as<std::string>(),
+    writeImage(deformationOutput,
                createWarp(tensors,
                           forward,
-                          vm["reorientation"].as<TensorReorientationType>(),
-                          vm["interpolation"].as<InterpolationType>()));
+                          //vm["reorientation"].as<TensorReorientationType>(),
+                          (reorientation == "fs" ? FiniteStrain :
+                           PreservationPrincipalDirection),
+                          //vm["interpolation"].as<InterpolationType>()));
+                          (interpolation == "linear" ? Linear :
+                           (interpolation == "nearestneightbor" ? NearestNeighbor :
+                            Cubic))));
   }
 
+#if 0 //
   if(vm.count("stats"))
   {
     if(!vm.count("mask"))
@@ -446,7 +472,7 @@ int main(int argc, char* argv[])
 //    TensorRegionStatistics tstat = computeTensorStatistics(tensors);
     
   }
-
+#endif
   return EXIT_SUCCESS;
 }
 

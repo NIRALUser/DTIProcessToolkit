@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>DTI</category>
+  <title>DTIAverage</title>
+  <description> </description>
+  <documentation-url>http://www.google.com/</documentation-url>
+  <license>
+    Copyright (c)  Casey Goodlett. All rights reserved.
+    See http://www.ia.unc.edu/dev/Copyright.htm for details.
+    This software is distributed WITHOUT ANY WARRANTY; without even
+    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+    PURPOSE.  See the above copyright notices for more information.
+  </license>
+  <contributor>Casey Goodlet</contributor>
+  <version>1.0.0</version>
+  <parameters advanced="false">
+    <string-enumeration>
+      <name>method</name>
+      <longflag>--method</longflag>
+      <flag>m</flag>
+      <description>Statistics method (euclidean,log-euclidean,pga)</description>
+      <default>euclidian</default>
+      <element>euclidean</element>
+      <element>log-euclidean</element>
+      <element>pga</element>
+    </string-enumeration>
+    <boolean>
+      <name>verbose</name>
+      <flag>v</flag>
+      <longflag>--verbose</longflag>
+      <label>Verbose</label>
+      <description>produce verbose output</description>
+      <default>0</default>
+    </boolean>
+    <file>
+      <name>tensorOutput</name>
+      <longflag>--tensor_output</longflag>
+      <label>Tensor Output</label>
+      <description>Averaged tensor volume</description>
+      <channel>output</channel>
+    </file>
+    <image multiple="true">
+      <name>inputs</name>
+      <longflag>--inputs</longflag>
+      <label>Inputs</label>
+      <description>Tensor inputs.</description>
+      <channel>input</channel>
+    </image>
+  </parameters>
+</executable>

@@ -3,7 +3,7 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkTensorPrincipalEigenvectorImageFilter.h,v $
   Language:  C++
-  Date:      $Date: 2009-08-26 14:24:01 $
+  Date:      $Date: 2009/08/26 14:24:01 $
   Version:   $Revision: 1.7 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.

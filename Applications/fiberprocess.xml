@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>DTI</category>
+  <title>FiberProcess</title>
+  <description> </description>
+  <documentation-url>http://www.google.com/</documentation-url>
+  <license>
+    Copyright (c)  Casey Goodlett. All rights reserved.
+    See http://www.ia.unc.edu/dev/Copyright.htm for details.
+    This software is distributed WITHOUT ANY WARRANTY; without even
+    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+    PURPOSE.  See the above copyright notices for more information.
+  </license>
+  <contributor>Casey Goodlet</contributor>
+  <version>1.0.0</version>
+  <parameters advanced="false">
+    <boolean>
+      <name>verbose</name>
+      <flag>v</flag>
+      <longflag>--verbose</longflag>
+      <label>Verbose</label>
+      <description>produce verbose output</description>
+      <default>0</default>
+    </boolean>
+    <file>
+      <name>fiberOutput</name>
+      <longflag>--fiber_output</longflag>
+      <flag>o</flag>
+      <label>Fiber Output</label>
+      <description>Output fiber file. May be warped or updated with new data depending on other options used.</description>
+      <channel>output</channel>
+    </file>
+    <file>
+      <name>hField</name>
+      <longflag>--h_field</longflag>
+      <flag>H</flag>
+      <label>HField</label>
+      <description>HField for warp and statistics lookup.  If this option is used tensor-volume must also be specified.</description>
+      <channel>input</channel>
+    </file>
+    <file>
+      <name>displacementField</name>
+      <longflag>--displacement_field</longflag>
+      <flag>H</flag>
+      <label>DisplacementField</label>
+      <description>HField for warp and statistics lookup.  If this option is used tensor-volume must also be specified.</description>
+      <channel>input</channel>
+    </file>
+    <boolean>
+      <name>noWarp</name>
+      <flag>n</flag>
+      <longflag>--no_warp</longflag>
+      <label>No Warp</label>
+      <description>Do not warp the geometry of the tensors only obtain the new statistics.</description>
+      <default>0</default>
+    </boolean>
+    <boolean>
+      <name>indexSpace</name>
+      <longflag>--index_space</longflag>
+      <label>Index Space</label>
+      <description>Use index-space for fiber output coordinates, otherwise us world space for fiber output coordinates (from tensor file).</description>
+      <default>0</default>
+    </boolean>
+    <file>
+      <name>tensorVolume</name>
+      <longflag>--tensor_volume</longflag>
+      <flag>T</flag>
+      <label>Tensor Volume</label>
+      <description>Interpolate tensor values from the given field</description>
+      <channel>input</channel>
+    </file>
+    <file>
+      <name>voxelize</name>
+      <longflag>--voxelize</longflag>
+      <flag>V</flag>
+      <label>Voxelize</label>
+      <description>Voxelize fiber into a label map (the labelmap filename is the argument of -V). 
+      The tensor file must be specified using -T for information about the size, origin, spacing of the image.
+      </description>
+      <channel>output</channel>
+    </file>
+    <boolean>
+      <name>voxelizeCountFibers</name>
+      <longflag>--voxelize_count_fibers</longflag>
+      <label>Voxelize Count Fibers</label>
+      <description>Count number of fibers per-voxel instead of just setting to 1</description>
+      <default>0</default>
+    </boolean>
+    <integer>
+      <name>voxelLabel</name>
+      <longflag>--voxel_label</longflag>
+      <label>Label for voxelized fiber</label>
+      <description>Label for voxelized fiber</description>
+      <default>1</default>
+    </integer>
+    <float>
+      <name>fiberRadius</name> 
+      <longflag>--fiber_radius</longflag> 
+      <flag>R</flag>
+      <description>set radius of all fibers to this value</description> 
+      <label>Radius for all fibers</label> 
+      <default>0.4</default>
+    </float> 
+    <file>
+      <name>fiberFile</name>
+      <longflag>--fiber_file</longflag>
+      <label>Fiber File</label>
+      <description>DTI fiber file</description>
+      <channel>input</channel>
+    </file>
+  </parameters>
+</executable>

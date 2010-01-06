@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>DTI</category>
+  <title>fiberstats</title>
+  <description> </description>
+  <documentation-url>http://www.google.com/</documentation-url>
+  <license>
+  Copyright (c)  Casey Goodlett. All rights reserved.
+  See http://www.ia.unc.edu/dev/Copyright.htm for details.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notices for more information.
+  </license>
+  <contributor>Casey Goodlet</contributor>
+  <acknowledgements>Hans Johnson(1,3,4); Kent Williams(1); (1=University of Iowa Department of Psychiatry, 3=University of Iowa Department of Biomedical Engineering, 4=University of Iowa Department of Electrical and Computer Engineering) provided conversions to make DTIProcess compatible with Slicer execution, and simplified the stand-alone build requirements by removing the dependancies on boost and a fortran compiler.</acknowledgements>
+  <version>1.1.0</version>
+  <parameters advanced="false">
+    <file>
+      <name>fiberFile</name>
+      <longflag>--fiber_file</longflag>
+      <label>DTI Fiber File</label>
+      <description>DTI Fiber File</description>
+      <channel>input</channel>
+      <default></default>
+    </file>
+    <boolean>
+      <name>verbose</name>
+      <flag>v</flag>
+      <longflag>--verbose</longflag>
+      <label>Verbose</label>
+      <description>produce verbose output</description>
+      <default>0</default>
+    </boolean>
+  </parameters>
+</executable>

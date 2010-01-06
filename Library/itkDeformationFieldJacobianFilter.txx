@@ -3,7 +3,7 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkDeformationFieldJacobianFilter.txx,v $
   Language:  C++
-  Date:      $Date: 2008-07-02 15:54:54 $
+  Date:      $Date: 2008/07/02 15:54:54 $
   Version:   $Revision: 1.4 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.

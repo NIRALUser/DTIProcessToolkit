@@ -2,7 +2,7 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-01-09 15:39:51 $
+  Date:      $Date: 2009/01/09 15:39:51 $
   Version:   $Revision: 1.4 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
@@ -27,19 +27,14 @@
 #include <itkSpatialObjectWriter.h>
 #include <itkMetaDataObject.h>
 
-// boost includes
-#include <boost/program_options/option.hpp>
-#include <boost/program_options/positional_options.hpp>
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/variables_map.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/program_options/cmdline.hpp>
-
 #include <iostream>
 #include <string>
 #include <cmath>
 
+#include "fibertrackCLP.h"
+
 enum IntegrationType {Euler, Midpoint, RK4};
+#if 0
 void validate(boost::any& v,
               const std::vector<std::string>& values,
               IntegrationType* target_type,
@@ -71,10 +66,21 @@ void validate(boost::any& v,
     throw validation_error("Estimation type invalid.  Only \"lls\", \"nls\", \"wls\", and \"ml\" allowed.");
   }
 }
-
+#endif
 
 int main(int argc, char* argv[])
 {
+  typedef itk::DiffusionTensor3D<double> DiffusionTensor;
+  typedef itk::Image<DiffusionTensor, 3> TensorImage;
+  typedef itk::Image<unsigned short, 3>  LabelImage;
+  typedef itk::GroupSpatialObject<3>     FiberBundle;
+
+  typedef itk::ImageFileReader<TensorImage> TensorImageReader;
+  typedef itk::ImageFileReader<LabelImage>  LabelImageReader;
+
+  typedef itk::ImageToDTIStreamlineTractographyFilter<TensorImage, LabelImage, FiberBundle> TractographyFilter;
+
+#if 0
   namespace po = boost::program_options;
 
   po::options_description config("Usage: fibertrack [options]");
@@ -96,16 +102,6 @@ int main(int argc, char* argv[])
     ("force",
      "Ignore image sanity checks.")
     ;
-
-  typedef itk::DiffusionTensor3D<double> DiffusionTensor;
-  typedef itk::Image<DiffusionTensor, 3> TensorImage;
-  typedef itk::Image<unsigned short, 3>  LabelImage;
-  typedef itk::GroupSpatialObject<3>     FiberBundle;
-
-  typedef itk::ImageFileReader<TensorImage> TensorImageReader;
-  typedef itk::ImageFileReader<LabelImage>  LabelImageReader;
-
-  typedef itk::ImageToDTIStreamlineTractographyFilter<TensorImage, LabelImage, FiberBundle> TractographyFilter;
 
   po::variables_map vm;
   try
@@ -132,12 +128,19 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
     }
   }
-
+#endif
+  PARSE_ARGS;
+  
+  if(inputTensor == "" || inputROI == "" || outputFiberFile == "")
+    {
+    std::cerr << "Tensor image and roi image needs to be specified." << std::endl;
+    return EXIT_FAILURE;
+    }
   TensorImageReader::Pointer tensorreader = TensorImageReader::New();
   LabelImageReader::Pointer  labelreader  = LabelImageReader::New();
   
-  tensorreader->SetFileName(vm["input-tensor-file"].as<std::string>());
-  labelreader->SetFileName(vm["input-roi-file"].as<std::string>());
+  tensorreader->SetFileName(inputTensor);
+  labelreader->SetFileName(inputROI);
 
   try
   {
@@ -150,7 +153,7 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
   
-  if(vm.count("verbose"))
+  if(verbose)
   {
     tensorreader->GetOutput()->Print(std::cout);
   }
@@ -158,32 +161,32 @@ int main(int argc, char* argv[])
   // Sanity check the ROI and tensor image as they must be consistent
   // for the filter to work correctly
   requireequal((tensorreader->GetOutput()->GetSpacing() == labelreader->GetOutput()->GetSpacing()),
-               "Image Spacings", vm.count("force"));
+               "Image Spacings", force);
   requireequal((tensorreader->GetOutput()->GetLargestPossibleRegion() == labelreader->GetOutput()->GetLargestPossibleRegion()),
-               "Image Sizes", vm.count("force"));
+               "Image Sizes", force);
   requireequal((tensorreader->GetOutput()->GetOrigin() == labelreader->GetOutput()->GetOrigin()),
-               "Image Origins", vm.count("force"));
+               "Image Origins", force);
   requireequal((tensorreader->GetOutput()->GetDirection() == labelreader->GetOutput()->GetDirection()),
-               "Image Orientations", vm.count("force"));
+               "Image Orientations", force);
 
   TractographyFilter::Pointer fibertracker = TractographyFilter::New();
-  if(vm.count("really-verbose"))
+  if(reallyVerbose)
     fibertracker->DebugOn();
-  if(vm.count("whole-brain"))
+  if(wholeBrain)
     fibertracker->WholeBrainOn();
   fibertracker->SetTensorImage(tensorreader->GetOutput());
   fibertracker->SetROIImage(labelreader->GetOutput());
-  fibertracker->SetSourceLabel(vm["source-label"].as<unsigned int>());
-  fibertracker->SetTargetLabel(vm["target-label"].as<unsigned int>());
-  fibertracker->SetForbiddenLabel(vm["forbidden-label"].as<unsigned int>());
-  fibertracker->SetMaximumAngleChange(vm["max-angle"].as<double>());
-  fibertracker->SetMinimumFractionalAnisotropy(vm["min-fa"].as<double>());
-  fibertracker->SetStepSize(vm["step-size"].as<double>());
+  fibertracker->SetSourceLabel(sourceLabel);
+  fibertracker->SetTargetLabel(targetLabel);
+  fibertracker->SetForbiddenLabel(forbiddenLabel);
+  fibertracker->SetMaximumAngleChange(maxAngle);
+  fibertracker->SetMinimumFractionalAnisotropy(minFa);
+  fibertracker->SetStepSize(stepSize);
   fibertracker->Update();
   
   try
   {
-    writeFiberFile(vm["output-fiber-file"].as<std::string>(), fibertracker->GetOutput());
+    writeFiberFile(outputFiberFile, fibertracker->GetOutput());
   }
   catch(itk::ExceptionObject e)
   {

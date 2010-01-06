@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>DTI</category>
+  <title>ScalarTransform</title>
+  <description> </description>
+  <documentation-url>http://www.google.com/</documentation-url>
+  <license>
+  Copyright (c)  Casey Goodlett. All rights reserved.
+  See http://www.ia.unc.edu/dev/Copyright.htm for details.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notices for more information.
+  </license>
+  <contributor>Casey Goodlet</contributor>
+  <version>1.0.0</version>
+  <parameters advanced="false">
+    <image>
+      <name>inputImage</name>
+      <flag>i</flag>
+      <longflag>--input_image</longflag>
+      <label>Input Image</label>
+      <description>Image to tranform</description>
+      <channel>input</channel>
+    </image>
+    <image>
+      <name>outputImage</name>
+      <longflag>--output_image</longflag>
+      <flag>o</flag>
+      <label>Output Image</label>
+      <description>The transformed image</description>
+      <channel>output</channel>
+    </image>
+    <file>
+      <name>transformation</name>
+      <longflag>--transformation</longflag>
+      <flag>t</flag>
+      <label>Transformation File</label>
+      <description>Output file for transformation parameters</description>
+      <channel>output</channel>
+    </file>
+    <boolean>
+      <name>invert</name>
+      <longflag>--invert</longflag>
+      <label>Invert</label>
+      <description>Invert tranform before applying.</description>
+      <default>0</default>
+    </boolean>
+    <image>
+      <name>deformation</name>
+      <longflag>--deformation</longflag>
+      <flag>w</flag>
+      <label>Deformation Field</label>
+      <description>Deformation field.</description>
+      <channel>input</channel>
+    </image>
+    <boolean>
+      <name>hField</name>
+      <longflag>--h_field</longflag>
+      <label>H-Field</label>
+      <description>The deformation is an h-field.</description>
+      <default>0</default>
+    </boolean>
+    <string-enumeration>
+      <name>interpolation</name>
+      <longflag>--interpolation</longflag>
+      <flag>i</flag>
+      <description>Interpolation type (nearestneighbor, linear, cubic)</description>
+      <default>linear</default>
+      <element>nearestneighbor</element>
+      <element>linear</element>
+      <element>cubic</element>
+    </string-enumeration>
+  </parameters>
+</executable>

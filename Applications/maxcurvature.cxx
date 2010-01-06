@@ -2,7 +2,7 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-01-09 15:39:51 $
+  Date:      $Date: 2009/01/09 15:39:51 $
   Version:   $Revision: 1.5 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
@@ -18,9 +18,6 @@
 #include <string>
 #include <iostream>
 
-// boost includes
-#include <boost/program_options.hpp>
-
 #include <itkImage.h>
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
@@ -35,11 +32,10 @@
 #include <itkIntensityWindowingImageFilter.h>
 #include <itkCastImageFilter.h>
 #include <itkVersion.h>
+#include "maxcurvatureCLP.h"
 
-namespace po = boost::program_options;
-
-enum CurvatureType { MaxEigenvalue, SmoothNormalized, RawNormalized };
-
+enum CurvatureType { MaxEigenvalue, SmoothNormalized, RawNormalized, UnPossible };
+#if 0
 void validate(boost::any& v,
               const std::vector<std::string>& values,
               CurvatureType* curvature_type,
@@ -73,9 +69,11 @@ void validate(boost::any& v,
 
 
 }
+#endif
 
 int main(int argc, char* argv[])
 {
+#if 0
   // Read program options/configuration
   po::options_description config("Usage: maxcurvature input-image [options]");
   config.add_options()
@@ -116,34 +114,33 @@ int main(int argc, char* argv[])
     }
 
   // End option reading configuration
-
+#endif
+  PARSE_ARGS;
+  
   // Display help if asked or program improperly called
-  if(vm.count("help") || !vm.count("image"))
+  if(image == "")
     {
-    std::cout << config << std::endl;
-    if(vm.count("help"))
-    {   
-      std::cout << "Version: $Date: 2009-01-09 15:39:51 $ $Revision: 1.5 $" << std::endl;
-      std::cout << ITK_SOURCE_VERSION << std::endl;
-      return EXIT_SUCCESS;
-    }
-    else
-      return EXIT_FAILURE;
-    }
-
-  bool VERBOSE = false;
-  if(vm.count("verbose"))
-    {
-    VERBOSE = true;
-    }
-
-  if(!vm.count("output"))
-    {
-    std::cerr << "Must specify output file" << std::endl;
+    std::cerr << "maxcurvature: Missing input FA image (--image)" << std::endl;
     return EXIT_FAILURE;
     }
 
-  CurvatureType ctype = vm["type"].as<CurvatureType>();
+  // bool VERBOSE = verbose;
+
+  if(output == "")
+    {
+    std::cerr << "maxcurvature: Must specify output file" << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  CurvatureType ctype =
+    type == "orig" ? MaxEigenvalue :
+    (type == "snorm" ? SmoothNormalized :
+     (type == "rnorm" ? RawNormalized : UnPossible));
+  if(ctype == UnPossible)
+    {
+    std::cerr << "maxcurvature: Bad Curvature type " << type << std::endl;
+    return EXIT_FAILURE;
+    }
 
   typedef unsigned short PixelType;
   typedef double FloatPixelType;
@@ -160,9 +157,10 @@ int main(int argc, char* argv[])
   typedef itk::ImageFileReader<ImageType> FileReaderType;
  
   FileReaderType::Pointer reader = FileReaderType::New();
-  reader->SetFileName(vm["image"].as<std::string>().c_str());
+  reader->SetFileName(image);
 
-  double sigma = vm["sigma"].as<double>();
+  // sigma set by PARSE_ARGS
+  //  double sigma = vm["sigma"].as<double>();
   typedef itk::HessianRecursiveGaussianImageFilter<ImageType> HessianFilterType;
   HessianFilterType::Pointer hessian = HessianFilterType::New();
   hessian->SetInput(reader->GetOutput());
@@ -226,7 +224,7 @@ int main(int argc, char* argv[])
   FileWriterType::Pointer writer = FileWriterType::New();
   writer->SetUseCompression(true);
   writer->SetInput(cast->GetOutput());
-  writer->SetFileName(vm["output"].as<std::string>().c_str());
+  writer->SetFileName(output);
 
   try
     {

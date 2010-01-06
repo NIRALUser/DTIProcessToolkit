@@ -2,7 +2,7 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2008-07-02 15:54:54 $
+  Date:      $Date: 2008/07/02 15:54:54 $
   Version:   $Revision: 1.4 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 

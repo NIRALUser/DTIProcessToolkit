@@ -43,7 +43,7 @@ HFieldToDeformationFieldImageFilter<TInputImage,TOutputImage>::ComputeDisplaceme
                                                                                    typename InputImageType::IndexType ind,
                                                                                    typename InputImageType::PixelType hvec)
 {
-  typedef typename InputImageType::PixelType InputPixelType;
+  //typedef typename InputImageType::PixelType InputPixelType;
   typedef typename InputPixelType::ValueType CoordRepType;
   const unsigned int Dimension = InputImageType::ImageDimension;
 

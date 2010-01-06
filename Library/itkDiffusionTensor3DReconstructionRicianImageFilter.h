@@ -3,7 +3,7 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkDiffusionTensor3DReconstructionRicianImageFilter.h,v $
   Language:  C++
-  Date:      $Date: 2009-01-09 15:39:51 $
+  Date:      $Date: 2009/01/09 15:39:51 $
   Version:   $Revision: 1.5 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
@@ -29,7 +29,8 @@
 
 #include "vnl/vnl_cost_function.h"
 
-#include "wrapper.h"
+#include "cephes/cephes.h"
+
 #include <iomanip>
 #include <iostream>
 
@@ -54,7 +55,7 @@ public:
     for(unsigned int i = 0; i < ns; ++i)
       attenuation[i] = exp(attenuation[i]);
     vnl_vector<double> A = m_S0*attenuation;
-    int ierr;
+    //int ierr;
 
     vnl_vector<double> loglhood(ns);
     double sumloglhood = 0.0;
@@ -68,7 +69,11 @@ public:
 //      std::cout << "I0: " << besseli0(m_Signal[i]*A[i]/s2,0,&ierr) << std::endl;
       //                                                                                                                                     Correction factor
 //      loglhood[i] = log(m_Signal[i]) - log(s2) - (m_Signal[i]*m_Signal[i] + A[i]*A[i])/(2*s2) + log(besseli0(m_Signal[i]*A[i]/s2,1,&ierr)) + m_Signal[i]*A[i]/s2 ;
+#if 0 // amos fortan bessel
       loglhood[i] =  - (m_Signal[i]*m_Signal[i] + A[i]*A[i])/(2*s2) + log(besseli0(m_Signal[i]*A[i]/s2,1,&ierr)) + m_Signal[i]*A[i]/s2 ;
+#else //cephes c bessel
+      loglhood[i] =  - (m_Signal[i]*m_Signal[i] + A[i]*A[i])/(2*s2) + log(i0e(m_Signal[i]*A[i]/s2)) + m_Signal[i]*A[i]/s2 ;
+#endif
 //       std::cout << "[" << std::setw(2) << i << "]: " << std::setw(13) << m_Signal[i]
 //                 << std::setw(13) << A[i]
 //                 << std::setw(13) << loglhood[i]
@@ -108,7 +113,7 @@ public:
 //     const double s2 = m_Sigma * m_Sigma;
 //     const unsigned int ns = m_Signal.size();
 //     const vnl_matrix<double> X = m_Design_Matrix;
-    
+
 //     vnl_vector<double> attenuation(ns);
 //     attenuation = m_Design_Matrix * D;
 //     for(unsigned int i = 0; i < ns; ++i)
@@ -124,12 +129,10 @@ public:
 //         double besselarg = m_Signal[i] * m_S0 * exp(X(i,j) * D[j]) / s2;
 //         gradient[j] += -(m_S0*m_S0 * X(i,j) * exp(2*X(i,j) * D[j]))/s2 + (X(i,j) * exp(X(i,j) * D[j]) * m_S0 * m_Signal[i])/s2 *
 //                          besseli1(besselarg,1,&ierr) / besseli0(besselarg,1,&ierr);
-                         
 //         }
 //       }
 //     gradient = -gradient;
 //     std::cout << "g: " << gradient << std::endl;
-    
   }
 
   virtual unsigned int GetNumberOfParameters() const {return 6;}

@@ -2,7 +2,7 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-03-03 15:15:31 $
+  Date:      $Date: 2009/03/03 15:15:31 $
   Version:   $Revision: 1.10 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
@@ -21,14 +21,6 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
-
-// boost includes
-#include <boost/program_options/option.hpp>
-#include <boost/program_options/positional_options.hpp>
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/variables_map.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/program_options/cmdline.hpp>
 
 // ITK includes
 // datastructures
@@ -65,11 +57,13 @@
 #include <vnl/algo/vnl_svd.h>
 
 #include "dtitypes.h"
+#include <dtiestimCLP.h>
 
 const char* NRRD_MEASUREMENT_KEY = "NRRD_measurement frame";
 
 enum EstimationType {LinearEstimate, NonlinearEstimate, WeightedEstimate, MaximumLikelihoodEstimate};
 
+#if 0
 void validate(boost::any& v,
               const std::vector<std::string>& values,
               EstimationType* target_type,
@@ -105,9 +99,13 @@ void validate(boost::any& v,
     throw validation_error("Estimation type invalid.  Only \"lls\", \"nls\", \"wls\", and \"ml\" allowed.");
   }
 }
+#endif
 
 int main(int argc, char* argv[])
 {
+#if 1
+  PARSE_ARGS;
+#else
   namespace po = boost::program_options;
 
 
@@ -172,62 +170,42 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     return EXIT_FAILURE;
   }
-
+#endif
   // End option reading configuration
 
   // Display help if asked or program improperly called
-  if(vm.count("help") || !vm.count("dwi-image") || !vm.count("tensor-output"))
+  //if(vm.count("help") || !vm.count("dwi-image") || !vm.count("tensor-output"))
+  if(dwiImage == "" || tensorOutput == "")
   {
-    std::cout << config << std::endl;
-    if(vm.count("help"))
-    {
-      std::cout << "Version: $Date: 2009-03-03 15:15:31 $ $Revision: 1.10 $" << std::endl;
-      std::cout << ITK_SOURCE_VERSION << std::endl;
-      return EXIT_SUCCESS;
-    }
-    else
-    {
-      std::cerr << "DWI image and output tensor filename needs to be specified." << std::endl;
-      return EXIT_FAILURE;
-    }
+  std::cerr << "DWI image and output tensor filename needs to be specified." << std::endl;
+  return EXIT_FAILURE;
   }
 
-  bool VERBOSE = false;
-  if(vm.count("verbose"))
-    VERBOSE = true;
-
-  double step = 1.0e-8, sigma = 0.0;
-  try
+  bool VERBOSE(verbose);
+  if(stepSize < 0.0)
   {
-    step = vm["step"].as<double>();
-  }
-  catch( ... )
-  {
-    if(vm["method"].as<EstimationType>() == NonlinearEstimate || vm["method"].as<EstimationType>() == MaximumLikelihoodEstimate)
+//   if(vm["method"].as<EstimationType>() == NonlinearEstimate ||
+//      vm["method"].as<EstimationType>() == MaximumLikelihoodEstimate)
+  if(method == "nls" || method == "ml")
     {
       std::cerr << "Step size not set for optimization method" << std::endl;
       return EXIT_FAILURE;
     }    
   }
-  try
-  {
-    sigma = vm["sigma"].as<double>();
-  }
-  catch( ... )
-  {
-    if(vm["method"].as<EstimationType>() == MaximumLikelihoodEstimate)
+  if(sigma < 0.0)
     {
+    //    if(vm["method"].as<EstimationType>() == MaximumLikelihoodEstimate)
+    if(method == "ml")
+      {
       std::cerr << "Noise level not set for optimization method" << std::endl;
       return EXIT_FAILURE;
+      }    
     }    
-    
-  }
-
   // Read diffusion weighted MR
 
   typedef itk::ImageFileReader<VectorImageType> FileReaderType;
   FileReaderType::Pointer dwireader = FileReaderType::New();
-  dwireader->SetFileName(vm["dwi-image"].as<std::string>().c_str());
+  dwireader->SetFileName(dwiImage.c_str());
 
   try
   {
@@ -405,11 +383,11 @@ int main(int argc, char* argv[])
   }
 
   // Read brain mask if it is specified.  
-  if(vm.count("brain-mask"))
+  if(brainMask != "")
   {
     typedef itk::ImageFileReader<LabelImageType> MaskFileReaderType;
     MaskFileReaderType::Pointer maskreader = MaskFileReaderType::New();
-    maskreader->SetFileName(vm["brain-mask"].as<std::string>().c_str());
+    maskreader->SetFileName(brainMask.c_str());
 
     try
     {
@@ -436,11 +414,11 @@ int main(int argc, char* argv[])
   }
   
   // Read negative mask
-  if(vm.count("bad-region-mask"))
+  if(badRegionMask != "")
   {
     typedef itk::ImageFileReader<LabelImageType> MaskFileReaderType;
     MaskFileReaderType::Pointer maskreader = MaskFileReaderType::New();
-
+    maskreader->SetFileName(badRegionMask);
     
     //  Go ahead and read data so we can use adaptors as necessary
     try
@@ -531,14 +509,14 @@ int main(int argc, char* argv[])
     std::cout << "Number of  B0 images : " << numberB0Directions << std::endl;
 
   // Output B0 image if requested
-  if(vm.count("B0"))
+  if(B0 != "")
   { 
     try 
       {
 	typedef itk::ImageFileWriter<RealImageType> RealImageFileWriterType;
 	RealImageFileWriterType::Pointer realwriter = RealImageFileWriterType::New();
 	realwriter->SetInput(B0Image);
-	realwriter->SetFileName(vm["B0"].as<std::string>().c_str());
+	realwriter->SetFileName(B0.c_str());
 	realwriter->Update();
       }
     catch (itk::ExceptionObject & e)
@@ -551,10 +529,15 @@ int main(int argc, char* argv[])
   // If we didnt specify a threshold compute it as the ostu threshold
   // of the baseline image
 
-  ScalarPixelType threshold;
-  if(vm.count("threshold"))
+  ScalarPixelType _threshold;
+  // the ScalarPixelType is unsigned short. ModuleDescription only has
+  // 'int' as a possible type, which should be wider than unsigned short, and
+  //  contains its range, which is 0..ScalarPixelType.max()
+  //  So it's 'safe' to initialize threshold to -1 and use that as a sentinel
+  //  value indicating that no threshold was specified on the command line.
+  if(threshold >= 0)
   {
-    threshold = vm["threshold"].as<ScalarPixelType>();
+  _threshold = static_cast<ScalarPixelType>(threshold);
   }
   else
   {
@@ -564,7 +547,7 @@ int main(int argc, char* argv[])
     OtsuThresholdCalculatorType::Pointer  otsucalculator = OtsuThresholdCalculatorType::New();
     otsucalculator->SetImage(B0Image);
     otsucalculator->Compute();
-    threshold = static_cast<ScalarPixelType>(.9 * otsucalculator->GetThreshold());
+    _threshold = static_cast<ScalarPixelType>(.9 * otsucalculator->GetThreshold());
 
     if(VERBOSE)
       std::cout << "Otsu threshold: " << threshold << std::endl;
@@ -572,14 +555,16 @@ int main(int argc, char* argv[])
 
 
   // Output b0 threshold mask if requested
-  if(vm.count("threshold-mask"))
+  // BUG in original -- looked for "threshold-mask" tag in command line, when
+  // it was really named B0
+  if(B0 != "")
   {
     // Will take last B0 image in sequence
 
     typedef itk::BinaryThresholdImageFilter<RealImageType,LabelImageType> ThresholdFilterType;
     ThresholdFilterType::Pointer thresholdfilter = ThresholdFilterType::New();
     thresholdfilter->SetInput(B0Image);
-    thresholdfilter->SetLowerThreshold(threshold);
+    thresholdfilter->SetLowerThreshold(_threshold);
     thresholdfilter->SetUpperThreshold(itk::NumericTraits<ScalarPixelType>::max());
     thresholdfilter->Update();
 
@@ -588,7 +573,7 @@ int main(int argc, char* argv[])
       typedef itk::ImageFileWriter<LabelImageType> MaskImageFileWriterType;
       MaskImageFileWriterType::Pointer maskwriter = MaskImageFileWriterType::New();
       maskwriter->SetInput(thresholdfilter->GetOutput());
-      maskwriter->SetFileName(vm["threshold-mask"].as<std::string>().c_str());
+      maskwriter->SetFileName(B0.c_str());
       maskwriter->Update();
     }
     catch (itk::ExceptionObject & e)
@@ -600,11 +585,11 @@ int main(int argc, char* argv[])
   }
 
   // Output idwi image if requested
-  if(vm.count("idwi"))
+  if(IDWI != "")
   { 
     typedef itk::VectorIndexSelectionCastImageFilter<VectorImageType,RealImageType> VectorSelectionFilterType;
-    VectorSelectionFilterType::Pointer biextract = VectorSelectionFilterType::New();
-    biextract->SetInput(dwi);
+    VectorSelectionFilterType::Pointer _biextract = VectorSelectionFilterType::New();
+    _biextract->SetInput(dwi);
     int numberNonB0Directions = 0;
 
     RealImageType::Pointer idwiImage; 
@@ -618,7 +603,7 @@ int main(int argc, char* argv[])
       if ( g[0] != 0 || g[1] != 0 || g[2] != 0 ) 
       {
 	// image is not b0 image
-	biextract->SetIndex(directionIndex);
+	_biextract->SetIndex(directionIndex);
 
 	if (numberNonB0Directions == 0) 
 	{
@@ -626,7 +611,7 @@ int main(int argc, char* argv[])
 	  try 
 	  {
 	    LogImageFilterType::Pointer logfilter = LogImageFilterType::New();
-	    logfilter->SetInput(biextract->GetOutput());
+	    logfilter->SetInput(_biextract->GetOutput());
 	    logfilter->Update();
 	    idwiImage = logfilter->GetOutput();
 	  }
@@ -643,7 +628,7 @@ int main(int argc, char* argv[])
 	  try 
 	  {
 	    LogImageFilterType::Pointer logfilter = LogImageFilterType::New();
-	    logfilter->SetInput(biextract->GetOutput());
+	    logfilter->SetInput(_biextract->GetOutput());
 	    logfilter->Update();
 	    typedef itk::AddImageFilter<RealImageType> AddImageFilterType;
 	    AddImageFilterType::Pointer addfilter = AddImageFilterType::New();
@@ -686,7 +671,7 @@ int main(int argc, char* argv[])
       typedef itk::ImageFileWriter<RealImageType> RealImageFileWriterType;
       RealImageFileWriterType::Pointer realwriter = RealImageFileWriterType::New();
       realwriter->SetInput(expfilter->GetOutput());
-      realwriter->SetFileName(vm["idwi"].as<std::string>().c_str());
+      realwriter->SetFileName(IDWI.c_str());
       realwriter->Update();
     }
     catch (itk::ExceptionObject & e)
@@ -703,22 +688,24 @@ int main(int argc, char* argv[])
 
   if(VERBOSE)
   {
-    std::cout << "Estimation method: " << vm["method"].as<EstimationType>() << std::endl;
+    std::cout << "Estimation method: " << method << std::endl;
   }
 
   DiffusionEstimationFilterType::Pointer llsestimator = DiffusionEstimationFilterType::New();
   llsestimator->ReleaseDataFlagOn();
   llsestimator->SetGradientImage(gradientContainer,dwi);
   llsestimator->SetBValue(b0);
-  llsestimator->SetThreshold(threshold);
+  llsestimator->SetThreshold(_threshold);
   llsestimator->Update();
   tensors = llsestimator->GetOutput();
 
-  if(vm["method"].as<EstimationType>() == LinearEstimate)
-  {
-  }
-  else if(vm["method"].as<EstimationType>() == NonlinearEstimate)
-  {
+  //  if(vm["method"].as<EstimationType>() == LinearEstimate)
+  if(method == "lls")
+    {
+    }
+  //  else if(vm["method"].as<EstimationType>() == NonlinearEstimate)
+  else if(method == "nls")
+    {
     NLDiffusionEstimationFilterType::Pointer estimator = NLDiffusionEstimationFilterType::New();
     estimator->ReleaseDataFlagOn();
     
@@ -726,31 +713,35 @@ int main(int argc, char* argv[])
 
     estimator->SetGradientImage(gradientContainer,dwi);
     estimator->SetBValue(b0);
-    estimator->SetThreshold(threshold);
-    estimator->SetStep(step);
+    estimator->SetThreshold(_threshold);
+    estimator->SetStep(stepSize);
     estimator->SetNumberOfThreads(1);
     estimator->Update();
     tensors = estimator->GetOutput();
-  }
-  else if(vm["method"].as<EstimationType>() == WeightedEstimate)
-  {
+    }
+  //else if(vm["method"].as<EstimationType>() == WeightedEstimate)
+  else if(method == "wls")
+    {
     WLDiffusionEstimationFilterType::Pointer estimator = WLDiffusionEstimationFilterType::New();
     estimator->ReleaseDataFlagOn();
 
     TensorImageType::Pointer llstensors = tensors;
 
     if(VERBOSE)
-      std::cout << "Weighting steps: " << vm["weight-iterations"].as<unsigned int>() << std::endl;
+      {
+      std::cout << "Weighting steps: " << weightIterations << std::endl;
+      }
 
     estimator->SetGradientImage(gradientContainer,dwi);
     estimator->SetBValue(b0);
-    estimator->SetThreshold(threshold);
-    estimator->SetNumberOfIterations(vm["weight-iterations"].as<unsigned int>());
+    estimator->SetThreshold(_threshold);
+    estimator->SetNumberOfIterations(weightIterations);
     estimator->Update();
     tensors = estimator->GetOutput();
-  }
-  else if(vm["method"].as<EstimationType>() == MaximumLikelihoodEstimate)
-  {
+    }
+  //  else if(vm["method"].as<EstimationType>() == MaximumLikelihoodEstimate)
+  else if(method == "ml")
+    {
     MLDiffusionEstimationFilterType::Pointer estimator = MLDiffusionEstimationFilterType::New();
     estimator->ReleaseDataFlagOn();
 
@@ -758,9 +749,9 @@ int main(int argc, char* argv[])
 
     estimator->SetGradientImage(gradientContainer,dwi);
     estimator->SetBValue(b0);
-    estimator->SetThreshold(threshold);
+    estimator->SetThreshold(_threshold);
     estimator->SetInitialTensor(llstensors);
-    estimator->SetStep(step);
+    estimator->SetStep(stepSize);
     estimator->SetNumberOfThreads(1);
     std::cout << "Start sigma: " << sigma << std::endl;
     estimator->SetSigma(sigma);
@@ -783,7 +774,7 @@ int main(int argc, char* argv[])
     typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;
 
     TensorFileWriterType::Pointer tensorWriter = TensorFileWriterType::New();
-    tensorWriter->SetFileName(vm["tensor-output"].as<std::string>().c_str());
+    tensorWriter->SetFileName(tensorOutput.c_str());
     tensors->SetMetaDataDictionary(dict);
     tensorWriter->SetInput(tensors);
     tensorWriter->SetUseCompression(true);

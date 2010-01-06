@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>DTI</category>
+  <title>dtiestim</title>
+  <description> </description>
+  <documentation-url>http://www.google.com/</documentation-url>
+  <license>
+  Copyright (c)  Casey Goodlett. All rights reserved.
+  See http://www.ia.unc.edu/dev/Copyright.htm for details.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notices for more information.
+  </license>
+  <contributor>Casey Goodlet</contributor>
+  <acknowledgements>Hans Johnson(1,3,4); Kent Williams(1); (1=University of Iowa Department of Psychiatry, 3=University of Iowa Department of Biomedical Engineering, 4=University of Iowa Department of Electrical and Computer Engineering) provided conversions to make DTIProcess compatible with Slicer execution, and simplified the stand-alone build requirements by removing the dependancies on boost and a fortran compiler.</acknowledgements>
+  <version>1.1.0</version>
+  <parameters advanced="false">
+    <image>
+      <name>brainMask</name>
+      <longflag>--brain_mask</longflag>
+      <flag>M</flag>
+      <label>Brain Mask</label>
+      <description>Brain mask.  Image where for every voxel == 0 the tensors are not estimated.</description>
+      <channel>input</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>badRegionMask</name>
+      <longflag>--bad_region_mask</longflag>
+      <flag>B</flag>
+      <label>Bad Region Mask</label>
+      <description>Bad region mask.  Image where for every voxel > 0 the tensors are not estimated.</description>
+      <channel>input</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>thresholdMask</name>
+      <longflag>--threshold_mask</longflag>
+      <label>Threshold Mask</label>
+      <description>Bad region mask.  Image where for every voxel > 0 the tensors are not estimated.</description>
+      <channel>input</channel>
+      <default></default>
+    </image>
+    <integer>
+      <name>threshold</name>
+      <longflag>--threshold</longflag>
+      <flag>t</flag>
+      <description>Baseline threshold for estimation.  If not specified calculated using an OTSU threshold on the baseline image.</description>
+      <default>-1</default>
+    </integer>
+    <image>
+      <name>B0</name>
+      <longflag>--B0</longflag>
+      <label>Baseline Image</label>
+      <description>Baseline image, average of all baseline images.</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>IDWI</name>
+      <longflag>--idwi</longflag>
+      <label>IDWI</label>
+      <description>idwi output image. Image with isotropic diffusion-weighted information = geometric mean of diffusion images.</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>dwiImage</name>
+      <longflag>--dwi_image</longflag>
+      <label>DWI Image</label>
+      <description>DWI image volume</description>
+      <channel>input</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>tensorOutput</name>
+      <longflag>--tensor_output</longflag>
+      <label>Tensor Output</label>
+      <description>Tensor OutputImage.</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <string-enumeration>
+      <name>method</name>
+      <label>Method</label>
+      <longflag>--method</longflag>
+      <flag>m</flag>
+      <description>Esitmation method (lls,wls,nls,ml)</description>
+      <default>lls</default>
+      <element>lls</element>
+      <element>wls</element>
+      <element>nls</element>
+      <element>ml</element>
+    </string-enumeration>
+    <integer>
+      <name>weightIterations</name>
+      <longflag>--weight_iterations</longflag>
+      <description>Number of iterations to recaluate weightings from tensor estimate</description>
+      <default>1</default>
+    </integer>
+    <double>
+      <name>stepSize</name>
+      <longflag>--step</longflag>
+      <!--flag>s</flag-->
+      <label>Step Size</label>
+      <description>Gradient descent step size (for nls and ml methods)</description>
+      <default>-9999999.9</default>
+    </double>
+    <double>
+      <name>sigma</name>
+      <longflag>--sigma</longflag>
+      <flag>s</flag>
+      <description>Scale of gradients</description>
+      <default>-1.0</default>
+    </double>
+    <boolean>
+      <name>verbose</name>
+      <flag>v</flag>
+      <longflag>--verbose</longflag>
+      <label>Verbose</label>
+      <description>produce verbose output</description>
+      <default>0</default>
+    </boolean>
+  </parameters>
+</executable>

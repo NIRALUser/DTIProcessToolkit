@@ -2,7 +2,7 @@
 
   Program:   NeuroLib (DTI command line tools)
   Language:  C++
-  Date:      $Date: 2009-01-09 15:39:51 $
+  Date:      $Date: 2009/01/09 15:39:51 $
   Version:   $Revision: 1.5 $
   Author:    Casey Goodlett (gcasey@sci.utah.edu)
 
@@ -18,14 +18,6 @@
 #include <string>
 #include <vector>
 
-// boost includes
-#include <boost/program_options/option.hpp>
-#include <boost/program_options/positional_options.hpp>
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/variables_map.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/program_options/cmdline.hpp>
-
 #include <itkDiffusionTensor3D.h>
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
@@ -38,6 +30,7 @@
 
 #include "itkLogEuclideanTensorImageFilter.h"
 #include "itkExpEuclideanTensorImageFilter.h"
+#include "dtiaverageCLP.h"
 
 template <class TElementType>
 class PixelDivider
@@ -55,7 +48,7 @@ public:
 };
 
 enum StatisticsType {Euclidean, LogEuclidean, PGA};
-
+#if 0
 void validate(boost::any& v,
               const std::vector<std::string>& values,
               StatisticsType* target_type,
@@ -87,10 +80,11 @@ void validate(boost::any& v,
     throw validation_error("Statistics type invalid.  Only \"euclidean\", \"log-euclidean\", and \"pga\" allowed.");
   }
 }
-
+#endif
 
 int main(int argc, char* argv[])
 {
+#if 0
   namespace po = boost::program_options;
 
   // Read program options/configuration
@@ -135,11 +129,13 @@ int main(int argc, char* argv[])
   if(vm.count("help"))
   {
     std::cout << config << std::endl;
-    std::cout << "Version: $Date: 2009-01-09 15:39:51 $ $Revision: 1.5 $" << std::endl;
+    std::cout << "Version: $Date: 2009/01/09 15:39:51 $ $Revision: 1.5 $" << std::endl;
     std::cout << ITK_SOURCE_VERSION << std::endl;
     return EXIT_SUCCESS;
   }
-
+#endif
+  PARSE_ARGS;
+  
   typedef double RealType;
   typedef itk::DiffusionTensor3D<RealType> TensorPixelType;
   typedef itk::Image<TensorPixelType, 3> TensorImageType;
@@ -153,9 +149,9 @@ int main(int argc, char* argv[])
 
   typedef itk::ImageDuplicator<LogTensorImageType> DuplicateImageFilter;
 
-  const std::vector<std::string> sources = vm["inputs"].as<std::vector<std::string> >();
+  //  const std::vector<std::string> sources = vm["inputs"].as<std::vector<std::string> >();
   
-  const int n = sources.size();
+  const int n = inputs.size();
   
   TensorFileReader::Pointer reader = TensorFileReader::New();
   AddImageFilter::Pointer adder = AddImageFilter::New();
@@ -163,9 +159,9 @@ int main(int argc, char* argv[])
 
   DuplicateImageFilter::Pointer dup = DuplicateImageFilter::New();
 
-  if(vm.count("verbose"))
-    std::cout << "Loading: " <<  sources[0] << std::endl;
-  reader->SetFileName(sources[0]);
+  if(verbose)
+    std::cout << "Loading: " <<  inputs[0] << std::endl;
+  reader->SetFileName(inputs[0]);
   reader->Update();
   logfilt->SetInput(reader->GetOutput());
   logfilt->Update();
@@ -176,9 +172,9 @@ int main(int argc, char* argv[])
 
   for(int i = 1; i < n; ++i)
   {
-    if(vm.count("verbose"))
-      std::cout << "Loading: " <<  sources[i] << std::endl;
-    reader->SetFileName(sources[i].c_str());
+  if(verbose)
+      std::cout << "Loading: " <<  inputs[i] << std::endl;
+    reader->SetFileName(inputs[i].c_str());
     
     adder->SetInput1(average);
     adder->SetInput2(logfilt->GetOutput());
@@ -203,7 +199,7 @@ int main(int argc, char* argv[])
   TensorFileWriterType::Pointer twrit = TensorFileWriterType::New();
   twrit->SetUseCompression(true);
   twrit->SetInput(expf->GetOutput());
-  twrit->SetFileName(vm["tensor-output"].as<std::string>());
+  twrit->SetFileName(tensorOutput);
   twrit->Update();
   
   return EXIT_SUCCESS;

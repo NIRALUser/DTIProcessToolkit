@@ -1,5 +1,7 @@
 #include "wrapper.h"
 
+#if 0
+
 extern "C" void zbesi_(double *zr,
                    double *zi,
                    double *fnu,
@@ -10,8 +12,9 @@ extern "C" void zbesi_(double *zr,
                    int *nz,
                    int *nerr);
 
-// If scaling is non-zero then the result * exp(x)
+// If scaling is non-zero then the result * exp(-abs(x))
 // gives the bessel function
+// This function returns exp(-abs(x))*I(0,x);
 double besseli0(double x, int scaling, int *ierr_)
 {
   double zero = 0.0;
@@ -26,6 +29,7 @@ double besseli0(double x, int scaling, int *ierr_)
   return cyr;
 }
 
+#if 0
 double besseli1(double x, int scaling, int *ierr_)
 {
   double zero = 0.0;
@@ -40,4 +44,5 @@ double besseli1(double x, int scaling, int *ierr_)
 
   return cyr;
 }
-
+#endif
+#endif
