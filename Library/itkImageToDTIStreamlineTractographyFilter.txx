@@ -252,7 +252,7 @@ typename TTensorImage::PointType
 ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObject>
 ::IntegrateOneStep(const PointType& pt,
                    const EigenVectorType& vec,
-                   double h) const
+                   double /* h */) const
 {
   // Implement rk4
   EigenVectorType k1,k2,k3,k4;
