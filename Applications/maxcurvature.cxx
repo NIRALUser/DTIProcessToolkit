@@ -118,13 +118,17 @@ int main(int argc, char* argv[])
   PARSE_ARGS;
   
   // Display help if asked or program improperly called
-  if(image == "")
+  if(help || image == "")
     {
-    std::cerr << "maxcurvature: Missing input FA image (--image)" << std::endl;
-    return EXIT_FAILURE;
+    if(help)
+    {
+      std::cout << "Version: $Date: 2009-01-09 15:39:51 $ $Revision: 1.5 $" << std::endl;
+      std::cout << ITK_SOURCE_VERSION << std::endl;
+      return EXIT_SUCCESS;
     }
-
-  // bool VERBOSE = verbose;
+    else
+      return EXIT_FAILURE;
+    }
 
   if(output == "")
     {

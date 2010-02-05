@@ -7,6 +7,8 @@
 #include <itkVectorNearestNeighborInterpolateImageFunction.h>
 #include <itkImageFileWriter.h>
 #include <itkImageFileReader.h>
+#include <itkTransformFileReader.h>
+#include <itkTransformBase.h>
 
 #include "itkDeformationFieldJacobianFilter.h"
 #include "itkHFieldToDeformationFieldImageFilter.h"
@@ -18,14 +20,91 @@
 #include "itkTensorRotateFromDeformationFieldPPDImageFilter.h"
 
 TensorImageType::Pointer createROT(TensorImageType::Pointer timg, 
-                                   const std::string &doffile)
+                                   const std::string &doffile,
+				   int doffiletype)
 {
-  RViewTransform<TransformRealType> dof(readDOFFile<TransformRealType>(doffile));
-  AffineTransformType::Pointer transform = 
-    createITKAffine(dof,
-                    timg->GetLargestPossibleRegion().GetSize(),
-                    timg->GetSpacing(),
-                    timg->GetOrigin());
+  //Depending on which kind of input is given for the transformation we adapt the readers:
+  // doffiletype = 0 -> Old dof file, = 1 -> New dof file (dof2mat), = 2 -> itk format.
+
+  AffineTransformType::Pointer transform;
+  //Deal with DOF files
+  if(doffiletype == 0)
+  {
+    RViewTransform<TransformRealType> dof(readDOFFile<TransformRealType>(doffile));
+    //AffineTransformType::Pointer transform = 
+    AffineTransformType::Pointer transform_tmp = 
+      createITKAffine(dof,
+		      timg->GetLargestPossibleRegion().GetSize(),
+		      timg->GetSpacing(),
+		      timg->GetOrigin());
+    transform = transform_tmp;
+  }
+  if(doffiletype == 1)
+  {
+    newRViewTransform<TransformRealType> dof(readDOF2MATFile<TransformRealType>(doffile));
+    AffineTransformType::Pointer transform_tmp = 
+      createnewITKAffine(dof,
+		      timg->GetLargestPossibleRegion().GetSize(),
+		      timg->GetSpacing(),
+		      timg->GetOrigin());
+    transform = transform_tmp;
+  }
+  //Deal with itk affine files
+  else if(doffiletype == 2)
+  {
+    //Create a temporary transform filter before copying it to transform
+    AffineTransformType::Pointer transform_tmp = AffineTransformType::New();
+
+    typedef itk::TransformFileReader TransformationReader;
+    typedef itk::TransformBase TransformBaseType;
+    TransformationReader::Pointer treader = TransformationReader::New();
+
+    treader->SetFileName(doffile);
+    try
+    {
+      treader->Update();
+    }
+    catch (itk::ExceptionObject & e)
+    {
+      std::cerr << e << std::endl;
+    }
+    
+    TransformBaseType::Pointer basetransform = treader->GetTransformList()->front();
+   
+    //Fill out the Affine matrix
+    AffineTransformType::MatrixType aff3itk;
+    int x = 0;
+    int y = 0;
+    for(unsigned int i = 0 ; i < 9 ; i++)
+    {
+      aff3itk(x,y) = basetransform->GetParameters()(i);
+      y++;
+      if(y == 3) 
+      {
+	y = 0;
+	x++;
+      }
+    }
+    transform_tmp->SetMatrix(aff3itk);
+
+    //Set the translation values
+    AffineTransformType::TranslationType itktranslation;
+    itktranslation[0] = basetransform->GetParameters()(9);
+    itktranslation[1] = basetransform->GetParameters()(10);
+    itktranslation[2] = basetransform->GetParameters()(11);
+    transform_tmp->SetTranslation(itktranslation);
+
+    //Get the fixed parameters (center of rotation)
+    AffineTransformType::CenterType itkcenter;
+    itkcenter[0] = basetransform->GetFixedParameters()(0);
+    itkcenter[1] = basetransform->GetFixedParameters()(1);
+    itkcenter[2] = basetransform->GetFixedParameters()(2);
+    transform_tmp->SetCenter(itkcenter);
+
+    //Copy the temporary transform in the transform filter
+    transform = transform_tmp;
+  }
+
   vnl_matrix<TransformRealType> R = 
     getInverseRotation(transform);
 
@@ -84,7 +163,7 @@ TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
                                     InterpolationType interpolationtype)
 {
   // Compute jacobian of inverse deformation field
-  typedef itk::DeformationFieldJacobianFilter<DeformationImageType,float> JacobianFilterType;
+  typedef itk::DeformationFieldJacobianFilter<DeformationImageType, RealType> JacobianFilterType;
   typedef JacobianFilterType::OutputImageType JacobianImageType;
   JacobianFilterType::Pointer jacobian = JacobianFilterType::New();
   //jacobian->SetInput(inverse);

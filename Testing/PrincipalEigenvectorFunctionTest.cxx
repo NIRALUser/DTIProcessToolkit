@@ -24,7 +24,7 @@
 #include "itkTensorPrincipalEigenvectorImageFilter.h"
 
 
-int PrincipalEigenvectorFunctionTest(int argc, char* argv[])
+int PrincipalEigenvectorFunctionTest(int /*argc */, char* /*argv */[])
 {
   std::cout << "running Principal Eigenvector test" << std::endl;
   

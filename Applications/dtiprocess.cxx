@@ -18,8 +18,6 @@
 #include <string>
 #include <iostream>
 
-// boost includes
-//#include <boost/program_options.hpp>
 
 // ITK includes
 // datastructures
@@ -37,8 +35,6 @@
 #include "deformationfieldio.h"
 
 #include "dtiprocessCLP.h"
-
-//namespace po = boost::program_options;
 
 // Bad global variables.  TODO: remove these
 bool VERBOSE=false;
@@ -143,7 +139,7 @@ int main(int argc, char* argv[])
 
     // tensor transformations
     // affine
-    ("rot-output,r", po::value<std::string>(),"Rotated tensor output file.  Must also specify the dof file.")
+    ("rotOutput,r", po::value<std::string>(),"Rotated tensor output file.  Must also specify the dof file.")
     ("dof-file,d", po::value<std::string>(),"Transformation file for affine transformation.  This can be RView or ITK format.")
 
     // deformation
@@ -207,7 +203,7 @@ int main(int argc, char* argv[])
 //     scale = false;
 //   }
   bool scale = !scalarFloat; // I don't understand this logic but...
-  
+
 //   if(vm.count("verbose"))
 //   {
 //     VERBOSE = true;
@@ -216,7 +212,6 @@ int main(int argc, char* argv[])
   // Read tensor image
   typedef itk::ImageFileReader<TensorImageType> FileReaderType;
   FileReaderType::Pointer dtireader = FileReaderType::New();
-  //  dtireader->SetFileName(vm["dti-image"].as<std::string>().c_str());
   if(dtiImage == "")
     {
     std::cerr << "Missing DTI Image filename" << std::endl;
@@ -293,7 +288,7 @@ int main(int argc, char* argv[])
   TensorImageType::Pointer tensors = dtireader->GetOutput();
   //  if(vm.count("mask"))
   if(mask != "")
-  {
+    {
     typedef itk::ImageFileReader<LabelImageType> MaskFileReaderType;
     MaskFileReaderType::Pointer maskreader = MaskFileReaderType::New();
     //    maskreader->SetFileName(vm["mask"].as<std::string>());
@@ -304,17 +299,34 @@ int main(int argc, char* argv[])
     _mask->SetInput2(maskreader->GetOutput());
 
     try
-    {
+      {
       _mask->Update();
-    }
+      }
     catch (itk::ExceptionObject & e)
-    {
+      {
       std::cerr << e <<std::endl;
       return EXIT_FAILURE;
-    }
+      }
 
     tensors = _mask->GetOutput();
-  }
+    //If the outmask option is specified, the masked tensor field is saved 
+    if(outmask != "" )
+      {
+      typedef itk::ImageFileWriter<TensorImageType> FileWriterType;
+      FileWriterType::Pointer dtiwriter = FileWriterType::New();
+      dtiwriter->SetFileName(outmask.c_str());
+      dtiwriter->SetInput(tensors);
+      try
+        {
+        dtiwriter->Update();
+        }
+      catch (itk::ExceptionObject & e)
+        {
+        std::cerr << e <<std::endl;
+        return EXIT_FAILURE;
+        }       
+      }
+    }
 
   // sigma set in PARSE_ARGS
   // double sigma = vm["sigma"].as<double>();
@@ -425,11 +437,27 @@ int main(int argc, char* argv[])
     std::cerr << "Tensor rotation requested, but dof file not specified" << std::endl;
     return EXIT_FAILURE;
     }
-  writeImage(rotOutput,
-             createROT(tensors,dofFile));
+    //If the input affine file is a dof file from rview
+    else if(dofFile != "")
+      {
+      writeImage(rotOutput,
+        createROT(tensors,dofFile,0));
+      }
+    //If the input affine file is a new dof file (output of dof2mat)
+    else if(newdof_file != "")
+      {
+      writeImage(rotOutput,
+        createROT(tensors, newdof_file, 1));
+      }
+    //If the input affine file is an itk compatible file   
+    else if(affineitk_file != "")
+      {
+      writeImage(rotOutput,
+        createROT(tensors, affineitk_file, 2));
+      }
   }
-   
-    
+
+
   if(deformationOutput != "")
   {
   if(forwardTransformation == "")

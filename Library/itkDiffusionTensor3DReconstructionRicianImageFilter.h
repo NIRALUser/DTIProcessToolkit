@@ -30,7 +30,6 @@
 #include "vnl/vnl_cost_function.h"
 
 #include "cephes/cephes.h"
-
 #include <iomanip>
 #include <iostream>
 

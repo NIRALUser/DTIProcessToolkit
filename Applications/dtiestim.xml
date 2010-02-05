@@ -121,5 +121,12 @@
       <description>produce verbose output</description>
       <default>0</default>
     </boolean>
+    <boolean>
+      <name>help</name>
+      <longflag>--help</longflag>
+      <label>help</label>
+      <description>produce debugging output</description>
+      <default>0</default>
+    </boolean>
   </parameters>
 </executable>

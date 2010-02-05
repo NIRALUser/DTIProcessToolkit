@@ -42,7 +42,7 @@ public:
 
   TElementType operator()(const TElementType &numerator) { return numerator / m_Denominator; }
 
-  bool operator !=(const PixelDivider & rhs) { return true; }
+  bool operator !=(const PixelDivider & rhs) { return (this != &rhs) ; }
 
   double m_Denominator;
 };
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
   }
 #endif
   PARSE_ARGS;
-  
+
   typedef double RealType;
   typedef itk::DiffusionTensor3D<RealType> TensorPixelType;
   typedef itk::Image<TensorPixelType, 3> TensorImageType;

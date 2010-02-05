@@ -26,7 +26,15 @@
       <name>mask</name>
       <longflag>--mask</longflag>
       <label>Mask</label>
-      <description>Mask tensors</description>
+      <description>Mask tensors (specify --outmask if you want to save the masked tensor field) </description>
+      <channel>input</channel>
+      <default></default>
+    </image>
+    <image>
+      <name>outmask</name>
+      <longflag>--outmask</longflag>
+      <label>Output Mask</label>
+      <description>Name of the masked tensor field.</description>
       <channel>input</channel>
       <default></default>
     </image>
@@ -147,7 +155,7 @@
       <longflag>--dof_file</longflag>
       <flag>d</flag>
       <label>Transformation File</label>
-      <description>Transformation file for affine transformation.  This can be RView or ITK format.</description>
+      <description>Transformation file for affine transformation.  This can be ITK format (or the outdated RView).</description>
       <channel>output</channel>
     </file>
     <image>
@@ -194,6 +202,21 @@
       <longflag>--dti_image</longflag>
       <label>DTI Image</label>
       <description>DTI tensor volume</description>
+      <channel>input</channel>
+    </image>
+
+    <image>
+      <name>newdof_file</name>
+      <longflag>--newdof_file</longflag>
+      <label> newdof_file </label>
+      <description>Transformation file for affine transformation.  RView NEW format. (txt file output of dof2mat)</description>
+      <channel>input</channel>
+    </image>
+    <image>
+      <name>affineitk_file</name>
+      <longflag>--affineitk_file</longflag>
+      <label> affineitk_file </label>
+      <description>Transformation file for affine transformation.  ITK format.</description>
       <channel>input</channel>
     </image>
 

@@ -70,9 +70,15 @@ int main(int argc, char* argv[])
   // End option reading configuration
 
   // Display help if asked or program improperly called
-  if(fiberFile == "")
+  if(help || fiberFile == "")
   {
-    std::cout << "No DTI Fiber file given" << std::endl;
+    if(help)
+    {
+      std::cout << "Version: $Date: 2009-01-09 15:39:51 $ $Revision: 1.3 $" << std::endl;
+      std::cout << ITK_SOURCE_VERSION << std::endl;
+      return EXIT_SUCCESS;
+    }
+    else
       return EXIT_FAILURE;
   }
 

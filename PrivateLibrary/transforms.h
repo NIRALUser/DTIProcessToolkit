@@ -2,6 +2,7 @@
 #define _transforms_h__
 
 #include <itkAffineTransform.h>
+#include <itkMatrix.h>
 #include <vnl/vnl_matrix.h>
 
 #ifndef M_PI
@@ -21,10 +22,23 @@ public:
   unsigned int ndofs;
 };
 
+template<class TPrecision>
+class newRViewTransform
+{
+public:
+  typedef TPrecision Precision;
+  itk::Matrix<Precision,4,4> transfomat;
+};
+
 // Reads the parameter's from RView's dof file
 template<class Precision>
 RViewTransform<Precision>
 readDOFFile(const std::string &doffile);
+
+// Reads the parameter's from the new version of RView's dof file
+template<class Precision>
+newRViewTransform<Precision>
+readDOF2MATFile(const std::string &doffile);
 
 template<class Precision, unsigned int ImageDimension>
 typename itk::AffineTransform<Precision,
@@ -39,6 +53,18 @@ template <class DOFType,
 typename itk::AffineTransform<typename DOFType::Precision, 
                               ImageSizeType::Dimension>::Pointer 
 createITKAffine(const DOFType& dof,
+                const ImageSizeType& size,
+                const ImageSpacingType& spacing,
+                const ImagePointType& origin);
+
+// Creates an ITK affine transform from the NEW RView's dof file
+template <class DOFType, 
+          class ImageSizeType, 
+          class ImageSpacingType, 
+          class ImagePointType>
+typename itk::AffineTransform<typename DOFType::Precision, 
+                              ImageSizeType::Dimension>::Pointer 
+createnewITKAffine(const DOFType& dof,
                 const ImageSizeType& size,
                 const ImageSpacingType& spacing,
                 const ImagePointType& origin);

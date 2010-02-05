@@ -1,4 +1,8 @@
 
+
+
+
+
 ADD_EXECUTABLE(nrrdvtk nrrdvtk.cxx)
 TARGET_LINK_LIBRARIES(nrrdvtk ITKIO)
 
@@ -32,10 +36,11 @@ GENERATECLP(scalartransform_SRC scalartransform.xml)
 ADD_EXECUTABLE(scalartransform ${scalartransform_SRC})
 TARGET_LINK_LIBRARIES(scalartransform DTIIO ITKIO ${BOOST_LIBRARIES})
 
-set(fiberprocess_SRC fiberprocess.cxx)
-GENERATECLP(fiberprocess_SRC fiberprocess.xml)
-ADD_EXECUTABLE(fiberprocess ${fiberprocess_SRC})
-TARGET_LINK_LIBRARIES(fiberprocess DTIIO ITKIO ITKNumerics ${BOOST_LIBRARIES})
+MESSAGE(WARNING "Not producing the fiberprocess program because it is currently broken.")
+#set(fiberprocess_SRC fiberprocess.cxx)
+#GENERATECLP(fiberprocess_SRC fiberprocess.xml)
+#ADD_EXECUTABLE(fiberprocess ${fiberprocess_SRC})
+#TARGET_LINK_LIBRARIES(fiberprocess DTIIO ITKIO ITKNumerics ${BOOST_LIBRARIES})
 
 set(dtiaverage_SRC dtiaverage.cxx)
 GENERATECLP(dtiaverage_SRC dtiaverage.xml)
@@ -60,8 +65,8 @@ TARGET_LINK_LIBRARIES(maxcurvature ITKIO ITKNumerics ${BOOST_LIBRARIES})
 
 INSTALL(TARGETS dtiprocess 
                 dtiestim
-                scalartransform 
-                fiberprocess
+                scalartransform
+                #                fiberprocess
                 dtiaverage
                 fibertrack
                 fiberstats

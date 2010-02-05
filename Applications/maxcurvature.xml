@@ -40,6 +40,13 @@
       <description>produce verbose output</description>
       <default>0</default>
     </boolean>
+    <boolean>
+      <name>help</name>
+      <longflag>--help</longflag>
+      <label>Help</label>
+      <description>Produce help output</description>
+      <default>0</default>
+    </boolean>
     <double>
       <name>sigma</name>
       <longflag>--sigma</longflag>

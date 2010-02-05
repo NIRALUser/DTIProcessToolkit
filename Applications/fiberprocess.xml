@@ -22,6 +22,13 @@
       <description>produce verbose output</description>
       <default>0</default>
     </boolean>
+    <boolean>
+      <name>noDataChange</name>
+      <longflag>--noDataChange</longflag>
+      <label>No Data Change</label>
+      <description>Produce verbose output</description>
+      <default>0</default>
+    </boolean>
     <file>
       <name>fiberOutput</name>
       <longflag>--fiber_output</longflag>

@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
   }
 #endif
   PARSE_ARGS;
-  
+
   if(inputTensor == "" || inputROI == "" || outputFiberFile == "")
     {
     std::cerr << "Tensor image and roi image needs to be specified." << std::endl;

@@ -39,6 +39,24 @@ RViewTransform<Precision> readDOFFile(const std::string &doffile)
   return dof;
 }
 
+//Read the new format of dof files, it has to be converted first into ASCII format using dof2mat
+template<class Precision>
+newRViewTransform<Precision> readDOF2MATFile(const std::string &dof2matfile)
+{                            
+  newRViewTransform<Precision> dofmatrix;
+  
+  std::ifstream dofstream(dof2matfile.c_str());
+  std::string junk;
+  //Skip the first line which has 4 characters
+  for(unsigned int i = 0 ; i < 4 ; i++)  
+    dofstream >> junk;
+  
+  for (unsigned int i = 0; i < 4; ++i)
+    dofstream >> dofmatrix.transfomat(i,0) >> dofmatrix.transfomat(i,1) >> dofmatrix.transfomat(i,2) >> dofmatrix.transfomat(i,3);
+
+  return dofmatrix;
+}
+
 template<class Precision, unsigned int ImageDimension>
 typename itk::AffineTransform<Precision,
                               ImageDimension>::Pointer
@@ -202,6 +220,74 @@ createITKAffine(const DOFType & dof,
 
   return itktransform;
 }
+
+template<class DOFType, class ImageSizeType, class ImageSpacingType, class ImagePointType>
+typename itk::AffineTransform<typename DOFType::Precision,
+                              ImageSpacingType::Dimension>::Pointer 
+createnewITKAffine(const DOFType & dof,
+                const ImageSizeType& size,
+                const ImageSpacingType& spacing,
+                const ImagePointType& origin)
+{
+  typedef typename DOFType::Precision Precision;
+  typedef typename itk::AffineTransform<Precision,ImageSpacingType::Dimension> AffineTransformType;
+
+  vnl_matrix<Precision> affine(4,4,0);
+
+  affine(0,0) = dof.transfomat(0,0);
+  affine(0,1) = dof.transfomat(0,1);
+  affine(0,2) = dof.transfomat(0,2);
+  affine(0,3) = dof.transfomat(0,3);
+  affine(1,0) = dof.transfomat(1,0);
+  affine(1,1) = dof.transfomat(1,1);
+  affine(1,2) = dof.transfomat(1,2);
+  affine(1,3) = dof.transfomat(1,3);
+  affine(2,0) = dof.transfomat(2,0);
+  affine(2,1) = dof.transfomat(2,1);
+  affine(2,2) = dof.transfomat(2,2);
+  affine(2,3) = dof.transfomat(2,3);
+  affine(3,3) = dof.transfomat(3,3);
+
+
+  // itk needs the inverse transform
+//  vnl_matrix<Precision> affine3(vnl_matrix_inverse<Precision>(affine.extract(3,3)));
+
+  // Setup the itk affine transform 
+  typename AffineTransformType::Pointer itktransform = AffineTransformType::New();
+  typedef typename AffineTransformType::MatrixType MatrixType;
+  typedef typename AffineTransformType::TranslationType TranslationType;
+  typedef typename AffineTransformType::CenterType CenterType;
+  typedef typename AffineTransformType::OffsetType OffsetType;
+  
+  MatrixType aff3itk;
+  for(int i = 0; i < 3; ++i)
+    for(int j = 0; j < 3; ++j)
+      aff3itk(i,j) = affine(i,j);
+  itktransform->SetMatrix(aff3itk);
+
+  // (Extent - 1)/2 * spacing
+  CenterType itkcenter;
+  itkcenter[0] = (size[0]-1)/2.0 * spacing[0] + origin[0];
+  itkcenter[1] = (size[1]-1)/2.0 * spacing[1] + origin[1];
+  itkcenter[2] = (size[2]-1)/2.0 * spacing[2] + origin[2];
+  itktransform->SetCenter(itkcenter);
+
+  vnl_vector<Precision> tx(3);
+  tx[0] = dof.transfomat(0,3);
+  tx[1] = dof.transfomat(1,3);
+  tx[2] = dof.transfomat(2,3);
+
+  // the translation needs to be inverted as well
+  TranslationType itktranslation;
+  itktranslation[0] = tx[0];
+  itktranslation[1] = tx[1];
+  itktranslation[2] = tx[2];
+  itktransform->SetTranslation(itktranslation);  
+
+  return itktransform;
+
+}
+
 
 template <class T>
 vnl_matrix<typename T::ObjectType::ScalarType>
