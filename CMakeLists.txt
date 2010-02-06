@@ -77,6 +77,11 @@ if(NOT ITK_FOUND)
     include(${ITK_USE_FILE})
 endif(NOT ITK_FOUND)
 
+if(NOT VTK_FOUND)
+    find_package(VTK REQUIRED)
+    include(${VTK_USE_FILE})
+endif(NOT VTK_FOUND)
+
 ##  In many cases stand-alone sub-projects include private versions
 ##  of DicomToNrrd
 ##  that can be built stand alone are combined in larger packages.
