@@ -1,0 +1,14 @@
+NRRD0005
+content: synthetic DTI data
+type: double
+dimension: 4
+space: left-posterior-superior
+sizes: 6 5 5 5
+space directions: none (1,0,0) (0,2,0) (0,0,3)
+centerings: ??? cell cell cell
+kinds: 3D-symmetric-matrix space space space
+endian: little
+encoding: raw
+space origin: (-50, 150, -80)
+measurement frame: (1,0,0) (0,1,0) (0,0,1)
+data file: syntheticdti.raw
