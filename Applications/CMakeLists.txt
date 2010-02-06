@@ -34,33 +34,33 @@ TARGET_LINK_LIBRARIES(dtiestim DWIPrivateLibrary ${ITK_LIBRARIES} cephes)
 set(scalartransform_SRC scalartransform.cxx)
 GENERATECLP(scalartransform_SRC scalartransform.xml)
 ADD_EXECUTABLE(scalartransform ${scalartransform_SRC})
-TARGET_LINK_LIBRARIES(scalartransform DTIIO ITKIO ${BOOST_LIBRARIES})
+TARGET_LINK_LIBRARIES(scalartransform DTIIO ITKIO )
 
 MESSAGE(WARNING "Not producing the fiberprocess program because it is currently broken.")
 #set(fiberprocess_SRC fiberprocess.cxx)
 #GENERATECLP(fiberprocess_SRC fiberprocess.xml)
 #ADD_EXECUTABLE(fiberprocess ${fiberprocess_SRC})
-#TARGET_LINK_LIBRARIES(fiberprocess DTIIO ITKIO ITKNumerics ${BOOST_LIBRARIES})
+#TARGET_LINK_LIBRARIES(fiberprocess DTIIO ITKIO ITKNumerics )
 
 set(dtiaverage_SRC dtiaverage.cxx)
 GENERATECLP(dtiaverage_SRC dtiaverage.xml)
 ADD_EXECUTABLE(dtiaverage ${dtiaverage_SRC})
-TARGET_LINK_LIBRARIES(dtiaverage TensorOperations DTIIO ${BOOST_LIBRARIES})
+TARGET_LINK_LIBRARIES(dtiaverage TensorOperations DTIIO )
 
 set(fibertrack_SRC fibertrack.cxx)
 GENERATECLP(fibertrack fibertrack.xml)
 ADD_EXECUTABLE(fibertrack ${fibertrack_SRC})
-TARGET_LINK_LIBRARIES(fibertrack DTIIO TensorOperations ITKIO ITKSpatialObject ${BOOST_LIBRARIES})
+TARGET_LINK_LIBRARIES(fibertrack DTIIO TensorOperations ITKIO ITKSpatialObject )
 
 set(fiberstats_SRC fiberstats.cxx)
 GENERATECLP(fiberstats_SRC fiberstats.xml)
 ADD_EXECUTABLE(fiberstats fiberstats.cxx)
-TARGET_LINK_LIBRARIES(fiberstats DTIIO ${BOOST_LIBRARIES})
+TARGET_LINK_LIBRARIES(fiberstats DTIIO )
 
 set(maxcurvature_SRC maxcurvature.cxx)
 GENERATECLP(maxcurvature_SRC maxcurvature.xml)
 ADD_EXECUTABLE(maxcurvature ${maxcurvature_SRC})
-TARGET_LINK_LIBRARIES(maxcurvature ITKIO ITKNumerics ${BOOST_LIBRARIES})
+TARGET_LINK_LIBRARIES(maxcurvature ITKIO ITKNumerics )
 
 
 INSTALL(TARGETS dtiprocess 
