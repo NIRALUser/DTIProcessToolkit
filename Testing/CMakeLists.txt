@@ -14,6 +14,7 @@ ReadITKAffineTest.cxx
 ADD_EXECUTABLE(TestSuite TestSuite.cxx ${TestSuite_SRCS})
 TARGET_LINK_LIBRARIES(TestSuite ITKNumerics ITKCommon ITKIO DWIPrivateLibrary)
 
+#SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
 
 SET(TESTING_DATA_DIR ${CMAKE_SOURCE_DIR}/Testing/Data)
 SET(TESTING_RESULTS_DIR ${CMAKE_BINARY_DIR}/Testing/Data)
@@ -47,7 +48,7 @@ ADD_TEST(ReadITKAffineTest ${TEST_SUITE} ReadITKAffineTest
                            ${TESTING_DATA_DIR}/itkAffineTransformDouble.txt)
 
 # Application Command Line tests
-ADD_TEST(TransformDWITest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}dwiprocess
+ADD_TEST(TransformDWITest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dwiprocess
                           ${TESTING_DATA_DIR}/testdwi.nrrd
                           ${TESTING_RESULTS_DIR}/testdwi-rot.nrrd
                           ${TESTING_DATA_DIR}/test.dof)
@@ -58,9 +59,9 @@ ADD_TEST(TensorEstimateVolumeTest
          ${TESTING_DATA_DIR}/tensors.nrrd
          ${TESTING_RESULTS_DIR}/result-tensors.nrrd
          CommandLineTest
-         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim
-         ${TESTING_DATA_DIR}/testdwi.nrrd
-         ${TESTING_RESULTS_DIR}/result-tensors.nrrd -t 200)
+         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim --dwi_image
+         ${TESTING_DATA_DIR}/testdwi.nrrd --tensor_output
+         ${TESTING_RESULTS_DIR}/result-tensors.nrrd -threshold 200)
 
 ADD_TEST(TensorEstimateNEXTest
          ${TEST_SUITE}
@@ -68,12 +69,12 @@ ADD_TEST(TensorEstimateNEXTest
          ${TESTING_RESULTS_DIR}/result-tensors-rep.nrrd
          ${TESTING_RESULTS_DIR}/result-tensors-nex.nrrd
          CommandLineTest
-         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim
-         ${TESTING_DATA_DIR}/testdwirepbaseline.nrrd
-         ${TESTING_RESULTS_DIR}/result-tensors-rep.nrrd -t 200 &&
-         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim
-         ${TESTING_DATA_DIR}/testdwirepbaselinenex.nrrd
-         ${TESTING_RESULTS_DIR}/result-tensors-nex.nrrd -t 200)
+         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim --dwi_image
+         ${TESTING_DATA_DIR}/testdwirepbaseline.nrrd --tensor_output
+         ${TESTING_RESULTS_DIR}/result-tensors-rep.nrrd -threshold 200 &&
+         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim --dwi_image
+         ${TESTING_DATA_DIR}/testdwirepbaselinenex.nrrd --tensor_output
+         ${TESTING_RESULTS_DIR}/result-tensors-nex.nrrd -threshold 200)
 
 ADD_TEST(TensorEstimateVolumeTest
          ${TEST_SUITE}
@@ -81,8 +82,8 @@ ADD_TEST(TensorEstimateVolumeTest
          ${TESTING_DATA_DIR}/tensors.nrrd
          ${TESTING_RESULTS_DIR}/result-tensors.nrrd
          CommandLineTest
-         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim
-         ${TESTING_DATA_DIR}/testdwi.nrrd
+         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim --dwi_image
+         ${TESTING_DATA_DIR}/testdwi.nrrd --tensor_output
          ${TESTING_RESULTS_DIR}/result-tensors.nrrd -t 200)
 
 ADD_TEST(TensorEstimateNEXTest
@@ -91,18 +92,22 @@ ADD_TEST(TensorEstimateNEXTest
          ${TESTING_RESULTS_DIR}/result-tensors-rep.nrrd
          ${TESTING_RESULTS_DIR}/result-tensors-nex.nrrd
          CommandLineTest
-         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim
-         ${TESTING_DATA_DIR}/testdwirepbaseline.nrrd
+         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim --dwi_image
+         ${TESTING_DATA_DIR}/testdwirepbaseline.nrrd --tensor_output
          ${TESTING_RESULTS_DIR}/result-tensors-rep.nrrd -t 200 &&
-         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim
-         ${TESTING_DATA_DIR}/testdwirepbaselinenex.nrrd
+         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim --dwi_image
+         ${TESTING_DATA_DIR}/testdwirepbaselinenex.nrrd --tensor_output
          ${TESTING_RESULTS_DIR}/result-tensors-nex.nrrd -t 200)
 
 ADD_TEST(CompareFATest
          ${TEST_SUITE}
-         --compare ${TESTING_DATA_DIR}/fa.nrrd
-                   ${TESTING_RESULTS_DIR}/result-fa.nrrd
-         CommandLineTest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess ${TESTING_DATA_DIR}/tensors.nrrd -f ${TESTING_RESULTS_DIR}/result-fa.nrrd)
+         --compare 
+	 ${TESTING_DATA_DIR}/fa.nrrd
+         ${TESTING_RESULTS_DIR}/result-fa.nrrd
+         CommandLineTest 
+	 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess --dti_image 
+	 ${TESTING_DATA_DIR}/tensors.nrrd -f 
+	 ${TESTING_RESULTS_DIR}/result-fa.nrrd)
 
 # ADD_TEST(CompareIntFAPythonTest
 #          ${TEST_SUITE}
@@ -118,31 +123,51 @@ ADD_TEST(CompareFATest
 
 ADD_TEST(CompareCFATest
          ${TEST_SUITE}
-         --compare ${TESTING_DATA_DIR}/cfa.nrrd
-                   ${TESTING_RESULTS_DIR}/result-cfa.nrrd
-         CommandLineTest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess ${TESTING_DATA_DIR}/tensors.nrrd -c ${TESTING_RESULTS_DIR}/result-cfa.nrrd)
+         --compare 
+	 ${TESTING_DATA_DIR}/cfa.nrrd
+         ${TESTING_RESULTS_DIR}/result-cfa.nrrd
+         CommandLineTest 
+	 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess --dti_image 
+	 ${TESTING_DATA_DIR}/tensors.nrrd --color_fa_output
+	 ${TESTING_RESULTS_DIR}/result-cfa.nrrd)
 
 ADD_TEST(CompareMDTest
          ${TEST_SUITE}
-         --compare ${TESTING_DATA_DIR}/md.nrrd
-                   ${TESTING_RESULTS_DIR}/result-md.nrrd
-         CommandLineTest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess ${TESTING_DATA_DIR}/tensors.nrrd -m ${TESTING_RESULTS_DIR}/result-md.nrrd)
+         --compare 
+	 ${TESTING_DATA_DIR}/md.nrrd
+         ${TESTING_RESULTS_DIR}/result-md.nrrd
+         CommandLineTest 
+	 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess --dti_image 
+	 ${TESTING_DATA_DIR}/tensors.nrrd -m 
+	 ${TESTING_RESULTS_DIR}/result-md.nrrd)
 
 ADD_TEST(CompareLbd1Test
          ${TEST_SUITE}
-         --compare ${TESTING_DATA_DIR}/l1.nrrd
-                   ${TESTING_RESULTS_DIR}/result-l1.nrrd
-         CommandLineTest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess ${TESTING_DATA_DIR}/tensors.nrrd --lambda1-output ${TESTING_RESULTS_DIR}/result-l1.nrrd)
+         --compare 
+	 ${TESTING_DATA_DIR}/l1.nrrd
+         ${TESTING_RESULTS_DIR}/result-l1.nrrd
+         CommandLineTest 
+	 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess --dti_image 
+	 ${TESTING_DATA_DIR}/tensors.nrrd --lambda1_output 
+	 ${TESTING_RESULTS_DIR}/result-l1.nrrd)
 
 ADD_TEST(CompareLbd2Test
          ${TEST_SUITE}
-         --compare ${TESTING_DATA_DIR}/l2.nrrd
-                   ${TESTING_RESULTS_DIR}/result-l2.nrrd
-         CommandLineTest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess ${TESTING_DATA_DIR}/tensors.nrrd --lambda2-output ${TESTING_RESULTS_DIR}/result-l2.nrrd)
+         --compare 
+	 ${TESTING_DATA_DIR}/l2.nrrd
+         ${TESTING_RESULTS_DIR}/result-l2.nrrd
+         CommandLineTest 
+	 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess --dti_image 
+	 ${TESTING_DATA_DIR}/tensors.nrrd --lambda2_output 
+	 ${TESTING_RESULTS_DIR}/result-l2.nrrd)
 
 ADD_TEST(CompareLbd3Test
          ${TEST_SUITE}
-         --compare ${TESTING_DATA_DIR}/l3.nrrd
-                   ${TESTING_RESULTS_DIR}/result-l3.nrrd
-         CommandLineTest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess ${TESTING_DATA_DIR}/tensors.nrrd --lambda3-output ${TESTING_RESULTS_DIR}/result-l3.nrrd)
+         --compare 
+	 ${TESTING_DATA_DIR}/l3.nrrd
+         ${TESTING_RESULTS_DIR}/result-l3.nrrd
+         CommandLineTest 
+	 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess --dti_image 
+	 ${TESTING_DATA_DIR}/tensors.nrrd --lambda3_output 
+	 ${TESTING_RESULTS_DIR}/result-l3.nrrd)
 
