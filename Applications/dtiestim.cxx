@@ -176,17 +176,18 @@ int main(int argc, char* argv[])
   // Display help if asked or program improperly called
   if(dwiImage == "" || tensorOutput == "")
   {
-    if(help == true)
+    /*   if(help == true)
     {
       std::cout << "Version: $Date: 2009-03-03 15:15:31 $ $Revision: 1.10 $" << std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
     }
     else
-    {
+    {*/
       std::cerr << "DWI image and output tensor filename needs to be specified." << std::endl;
       return EXIT_FAILURE;
-    }
+      /* }
+    */
   }
 
   bool VERBOSE(verbose);
