@@ -180,9 +180,9 @@ int main(int argc, char* argv[])
         ContinuousIndexType cind;
         itk::Index<3> ind;
         labelimage->TransformPhysicalPointToContinuousIndex(pt, cind);
-        ind[0] = static_cast<long int>(round(cind[0]));
-        ind[1] = static_cast<long int>(round(cind[1]));
-        ind[2] = static_cast<long int>(round(cind[2]));
+        ind[0] = static_cast<long int>(vnl_math_rnd_halfinttoeven(cind[0]));
+        ind[1] = static_cast<long int>(vnl_math_rnd_halfinttoeven(cind[1]));
+        ind[2] = static_cast<long int>(vnl_math_rnd_halfinttoeven(cind[2]));
 	
         if(!labelimage->GetLargestPossibleRegion().IsInside(ind))
         {

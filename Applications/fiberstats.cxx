@@ -122,9 +122,9 @@ int main(int argc, char* argv[])
       PointType p = pit->GetPosition();
 
       IndexType i;
-      i[0] = static_cast<long int>(round(p[0]));
-      i[1] = static_cast<long int>(round(p[1]));
-      i[2] = static_cast<long int>(round(p[2]));
+      i[0] = static_cast<long int>(vnl_math_rnd_halfinttoeven(p[0]));
+      i[1] = static_cast<long int>(vnl_math_rnd_halfinttoeven(p[1]));
+      i[2] = static_cast<long int>(vnl_math_rnd_halfinttoeven(p[2]));
       
       seenvoxels.insert(i);
 
