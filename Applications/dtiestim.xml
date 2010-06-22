@@ -33,14 +33,6 @@
       <channel>input</channel>
       <default></default>
     </image>
-    <image>
-      <name>thresholdMask</name>
-      <longflag>--threshold_mask</longflag>
-      <label>Threshold Mask</label>
-      <description>Bad region mask.  Image where for every voxel > 0 the tensors are not estimated.</description>
-      <channel>input</channel>
-      <default></default>
-    </image>
     <integer>
       <name>threshold</name>
       <longflag>--threshold</longflag>
@@ -110,7 +102,7 @@
       <name>sigma</name>
       <longflag>--sigma</longflag>
       <flag>s</flag>
-      <description>Scale of gradients</description>
+      <description></description>
       <default>-1.0</default>
     </double>
     <boolean>
