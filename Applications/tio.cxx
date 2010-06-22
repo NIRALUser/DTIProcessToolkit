@@ -119,14 +119,14 @@ int main(int argc, char* argv[])
   int outFilePos = 3 ;
   if( argc >= 6 && !strcmp( argv[ 3 ] , "-s") )
     {
-    sourceSet = true ;
-    numberOfArgs -= 2 ;
-    sourceFileName.assign( argv[ 4 ] ) ;
-    outFilePos = 5 ;
+      sourceSet = true ;
+      numberOfArgs -= 2 ;
+      sourceFileName.assign( argv[ 4 ] ) ;
+      outFilePos = 5 ;
     }
   //check if old or new rview
   bool rview_old = true;
-  int transformTypePos ;
+  int transformTypePos = outFilePos;
   if( argc > outFilePos + 1 )
   {
     std::istringstream inputType ;
@@ -159,10 +159,10 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
     }
 
-
   const std::string doffile( argv[ 1 ] ) ;
   const std::string targetFileName( argv[ 2 ] ) ;
   const std::string outputFileName( argv[ outFilePos ] ) ;
+
   if( doubleSet )
   {
     return ComputeTransform< doublePrecision > ( doffile ,
