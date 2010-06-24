@@ -99,8 +99,7 @@ int main(int argc, char* argv[])
     ("whole-brain", "Use every voxel in the brain as a potential seed point")
     ("verbose,v", "Verbose output")
     ("really-verbose", "Follow detail of fiber tracking algorithm")
-    ("force",
-     "Ignore image sanity checks.")
+    ("force","Ignore image sanity checks.")
     ;
 
   po::variables_map vm;
@@ -129,7 +128,7 @@ int main(int argc, char* argv[])
     }
   }
 #endif
-  PARSE_ARGS;
+ PARSE_ARGS;
 
   if(inputTensor == "" || inputROI == "" || outputFiberFile == "")
     {
@@ -138,7 +137,7 @@ int main(int argc, char* argv[])
     }
   TensorImageReader::Pointer tensorreader = TensorImageReader::New();
   LabelImageReader::Pointer  labelreader  = LabelImageReader::New();
-  
+
   tensorreader->SetFileName(inputTensor);
   labelreader->SetFileName(inputROI);
 

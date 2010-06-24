@@ -134,6 +134,7 @@ int main(int argc, char* argv[])
     return EXIT_SUCCESS;
   }
 #endif
+
   PARSE_ARGS;
 
   typedef double RealType;
@@ -151,57 +152,64 @@ int main(int argc, char* argv[])
 
   //  const std::vector<std::string> sources = vm["inputs"].as<std::vector<std::string> >();
   
-  const int n = inputs.size();
-  
-  TensorFileReader::Pointer reader = TensorFileReader::New();
-  AddImageFilter::Pointer adder = AddImageFilter::New();
-  LogEuclideanFilter::Pointer logfilt = LogEuclideanFilter::New();
+  const int numberofinputs = inputs.size();
+  if(numberofinputs > 0)
+    {
+      TensorFileReader::Pointer reader = TensorFileReader::New();
+      AddImageFilter::Pointer adder = AddImageFilter::New();
+      LogEuclideanFilter::Pointer logfilt = LogEuclideanFilter::New();
+      
+      DuplicateImageFilter::Pointer dup = DuplicateImageFilter::New();
+      std::cout << "lbl1" << std::endl;
+      if(verbose)
+	std::cout << "Loading: " <<  inputs[0] << std::endl;
+      
+      reader->SetFileName(inputs[0]);
+      reader->Update();
+      logfilt->SetInput(reader->GetOutput());
+      logfilt->Update();
+      
+      dup->SetInputImage(logfilt->GetOutput());
+      dup->Update();
+      LogTensorImageType::Pointer average = dup->GetOutput();
+      
+      for(int i = 1; i < numberofinputs; ++i)
+	{
+	  if(verbose)
+	    std::cout << "Loading: " <<  inputs[i] << std::endl;
+	  reader->SetFileName(inputs[i].c_str());
+	  
+	  adder->SetInput1(average);
+	  adder->SetInput2(logfilt->GetOutput());
+	  adder->Update();
+	  
+	  dup->SetInputImage(adder->GetOutput());
+	  dup->Update();
+	  average = dup->GetOutput();
+	  
+	}
 
-  DuplicateImageFilter::Pointer dup = DuplicateImageFilter::New();
+      DivideImageFilter::Pointer divide = DivideImageFilter::New();
+      divide->SetFunctor(PixelDivider<LogTensorPixelType>(numberofinputs));
+      divide->SetInput(average);
+      divide->Update();
 
-  if(verbose)
-    std::cout << "Loading: " <<  inputs[0] << std::endl;
-  reader->SetFileName(inputs[0]);
-  reader->Update();
-  logfilt->SetInput(reader->GetOutput());
-  logfilt->Update();
- 
-  dup->SetInputImage(logfilt->GetOutput());
-  dup->Update();
-  LogTensorImageType::Pointer average = dup->GetOutput();
-
-  for(int i = 1; i < n; ++i)
-  {
-  if(verbose)
-      std::cout << "Loading: " <<  inputs[i] << std::endl;
-    reader->SetFileName(inputs[i].c_str());
-    
-    adder->SetInput1(average);
-    adder->SetInput2(logfilt->GetOutput());
-    adder->Update();
-    
-    dup->SetInputImage(adder->GetOutput());
-    dup->Update();
-    average = dup->GetOutput();
-    
-  }
-
-  DivideImageFilter::Pointer divide = DivideImageFilter::New();
-  divide->SetFunctor(PixelDivider<LogTensorPixelType>(n));
-  divide->SetInput(average);
-  divide->Update();
-
-  typedef itk::ExpEuclideanTensorImageFilter<RealType> ExpEuclideanFilter;
-  ExpEuclideanFilter::Pointer expf = ExpEuclideanFilter::New();
-  expf->SetInput(divide->GetOutput());
-  
-  typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;
-  TensorFileWriterType::Pointer twrit = TensorFileWriterType::New();
-  twrit->SetUseCompression(true);
-  twrit->SetInput(expf->GetOutput());
-  twrit->SetFileName(tensorOutput);
-  twrit->Update();
-  
+      typedef itk::ExpEuclideanTensorImageFilter<RealType> ExpEuclideanFilter;
+      ExpEuclideanFilter::Pointer expf = ExpEuclideanFilter::New();
+      expf->SetInput(divide->GetOutput());
+      
+      typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;
+      TensorFileWriterType::Pointer twrit = TensorFileWriterType::New();
+      twrit->SetUseCompression(true);
+      twrit->SetInput(expf->GetOutput());
+      twrit->SetFileName(tensorOutput);
+      twrit->Update();
+    }
+  else
+    {
+      std::cout << "At least one tensor field has to be specified" << std::endl;
+      return EXIT_FAILURE;
+    }
   return EXIT_SUCCESS;
 }
 

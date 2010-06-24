@@ -2,7 +2,7 @@
 <executable>
   <category>DTI.DTIProcess</category>
   <title>maxcurvature</title>
-  <description> </description>
+  <description> This program computes the Hessian of the FA image (--image). We use this scalar image as a registration input when doing DTI atlas building. For most adult FA we use a sigma of 2 whereas for neonate or primate images and sigma of 1 or 1.5 is more appropriate. For really noisy images, 2.5 - 4 can be considered. The final image (--output) shows the main feature of the input image.</description>
   <documentation-url>http://www.google.com/</documentation-url>
   <license>
   Copyright (c)  Casey Goodlett. All rights reserved.
@@ -26,7 +26,8 @@
     </image>
     <image>
       <name>image</name>
-      <longflag>--iamge</longflag>
+      <longflag>--image</longflag>
+      <flag>i</flag>
       <label>FA image file</label>
       <description>FA Image</description>
       <channel>input</channel>
@@ -40,31 +41,13 @@
       <description>produce verbose output</description>
       <default>0</default>
     </boolean>
-    <boolean>
-      <name>help</name>
-      <longflag>--help</longflag>
-      <label>Help</label>
-      <description>Produce help output</description>
-      <default>0</default>
-    </boolean>
     <double>
       <name>sigma</name>
       <longflag>--sigma</longflag>
-      <!--flag>s</flag-->
+      <flag>s</flag>
       <label>Scale of Gradients</label>
       <description>Scale of Gradients</description>
-      <default>-9999999.9</default>
+      <default>2</default>
     </double>
-    <string-enumeration>
-      <name>type</name>
-      <label>Curvature Type</label>
-      <longflag>--type</longflag>
-      <flag>t</flag>
-      <description>Curvature Type</description>
-      <default>orig</default>
-      <element>orig</element>
-      <element>snorm</element>
-      <element>rnorm</element>
-    </string-enumeration>
   </parameters>
 </executable>

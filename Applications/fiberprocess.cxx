@@ -36,6 +36,12 @@ PURPOSE.  See the above copyright notices for more information.
 int main(int argc, char* argv[])
 {
   PARSE_ARGS;
+
+  if(fiberFile == "")
+    {
+      std::cerr << "A fiber file has to be specified" << std::endl;
+      return EXIT_FAILURE;
+    }
   const bool VERBOSE = verbose;
   
   // Reader fiber bundle

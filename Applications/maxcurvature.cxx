@@ -118,31 +118,16 @@ int main(int argc, char* argv[])
   PARSE_ARGS;
   
   // Display help if asked or program improperly called
-  if(help || image == "")
-    {
-    if(help)
+    if(image == "")
     {
       std::cout << "Version: $Date: 2009-01-09 15:39:51 $ $Revision: 1.5 $" << std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
-      return EXIT_SUCCESS;
-    }
-    else
       return EXIT_FAILURE;
     }
-
+  
   if(output == "")
     {
     std::cerr << "maxcurvature: Must specify output file" << std::endl;
-    return EXIT_FAILURE;
-    }
-
-  CurvatureType ctype =
-    type == "orig" ? MaxEigenvalue :
-    (type == "snorm" ? SmoothNormalized :
-     (type == "rnorm" ? RawNormalized : UnPossible));
-  if(ctype == UnPossible)
-    {
-    std::cerr << "maxcurvature: Bad Curvature type " << type << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -191,26 +176,8 @@ int main(int argc, char* argv[])
   ScaleImageType::Pointer scale = ScaleImageType::New();
   scale->SetShift(0.0);
 
-  if(ctype == SmoothNormalized)
-    {
-    typedef itk::SmoothingRecursiveGaussianImageFilter<ImageType, FloatImageType> SmoothType;
-    SmoothType::Pointer smooth = SmoothType::New();
-    smooth->SetInput(reader->GetOutput());
-    smooth->SetSigma(sigma);
-    
-    typedef itk::DivideImageFilter<FloatImageType, FloatImageType, FloatImageType> DivideType;
-    DivideType::Pointer divider = DivideType::New();
-    divider->SetInput1(cast2->GetOutput());
-    divider->SetInput2(smooth->GetOutput());
-
-    scale->SetScale(-10000.0);
-    scale->SetInput(divider->GetOutput());
-    }
-  else if(ctype == MaxEigenvalue)
-    {
-    scale->SetScale(-10.0);
-    scale->SetInput(cast2->GetOutput());
-    }
+  scale->SetScale(-10.0);
+  scale->SetInput(cast2->GetOutput());
 
   typedef itk::IntensityWindowingImageFilter<FloatImageType> WindowFilterType;
   WindowFilterType::Pointer window = WindowFilterType::New();
