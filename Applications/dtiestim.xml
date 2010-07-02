@@ -93,7 +93,7 @@
     <double>
       <name>stepSize</name>
       <longflag>--step</longflag>
-      <flag>s</flag>
+      <flag>S</flag>
       <label>Step Size</label>
       <description>Gradient descent step size (for nls and ml methods)</description>
       <default>.00000001</default>
