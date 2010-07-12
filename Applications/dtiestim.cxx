@@ -472,31 +472,31 @@ int main(int argc, char* argv[])
        
       if (numberB0Directions == 0) 
         {
-         B0Image = biextract->GetOutput();
-      } 
+	  B0Image = biextract->GetOutput();
+	} 
       else 
-       {
-       // add it to the current B0 image
-       try 
-	 {
-         typedef itk::AddImageFilter<RealImageType> AddImageFilterType;
-	 AddImageFilterType::Pointer addfilter = AddImageFilterType::New();
-	 addfilter->SetInput1(biextract->GetOutput());
-	 addfilter->SetInput2(B0Image);
-	 addfilter->Update();
-	 B0Image = addfilter->GetOutput();
-         }
-       catch (itk::ExceptionObject & e)
-         {
-         std::cerr << "Error in addition for B0 computation" << std::endl;
-         std::cerr << e << std::endl;
-         }
+	{
+	// add it to the current B0 image
+	try 
+	  {
+	  typedef itk::AddImageFilter<RealImageType> AddImageFilterType;
+	  AddImageFilterType::Pointer addfilter = AddImageFilterType::New();
+	  addfilter->SetInput1(biextract->GetOutput());
+	  addfilter->SetInput2(B0Image);
+	  addfilter->Update();
+	  B0Image = addfilter->GetOutput();
+	  }
+	catch (itk::ExceptionObject & e)
+	  {
+	  std::cerr << "Error in addition for B0 computation" << std::endl;
+	  std::cerr << e << std::endl;
+	  }
 	      
-       }
+	}
 	  
-       numberB0Directions++;
+      numberB0Directions++;
+      }
     }
-  }
   
   if (numberB0Directions == 0) {
     if (VERBOSE)
@@ -522,6 +522,8 @@ int main(int argc, char* argv[])
   { 
     try 
       {
+	if(VERBOSE)
+	  std::cout << "Writing B0" << std::endl;
 	typedef itk::ImageFileWriter<RealImageType> RealImageFileWriterType;
 	RealImageFileWriterType::Pointer realwriter = RealImageFileWriterType::New();
 	realwriter->SetInput(B0Image);
@@ -566,7 +568,7 @@ int main(int argc, char* argv[])
   // Output b0 threshold mask if requested
   // BUG in original -- looked for "threshold-mask" tag in command line, when
   // it was really named B0
-  if(B0 != "")
+  if(B0MaskOutput != "")
   {
     // Will take last B0 image in sequence
 
@@ -579,10 +581,12 @@ int main(int argc, char* argv[])
 
     try 
     {
+      if(VERBOSE)
+	std::cout << "Writing mask B0" << std::endl;
       typedef itk::ImageFileWriter<LabelImageType> MaskImageFileWriterType;
       MaskImageFileWriterType::Pointer maskwriter = MaskImageFileWriterType::New();
       maskwriter->SetInput(thresholdfilter->GetOutput());
-      maskwriter->SetFileName(B0.c_str());
+      maskwriter->SetFileName(B0MaskOutput.c_str());
       maskwriter->Update();
     }
     catch (itk::ExceptionObject & e)
