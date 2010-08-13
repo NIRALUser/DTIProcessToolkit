@@ -160,6 +160,16 @@ int main(int argc, char* argv[])
       for(unsigned int i =0; i < 3; i++)
         origci[i] = ci[i] = p[i];
       
+      itk::Point<double, 3> pt;
+      pt[0] = ci[0] * spacing[0] + sooffset[0];
+      pt[1] = ci[1] * spacing[1] + sooffset[1];
+      pt[2] = ci[2] * spacing[2] + sooffset[2];
+
+      if (vm.count("tensor-volume"))
+      {
+	tensorreader->GetOutput()->TransformPhysicalPointToContinuousIndex(pt, ci);
+	
+      }
 
       if(deformationfield)
       {
@@ -168,21 +178,9 @@ int main(int argc, char* argv[])
           ci[i] = ci[i] + warp[i] / spacing[i];
       }
       
-      if(!tensorreader->GetOutput()->GetLargestPossibleRegion().IsInside(ci))
-      {
-	std::cerr << "Error index: " << ci << " not in image"  << std::endl;
-        std::cout << "Ignoring" << std::endl;
-        continue;
-        //return EXIT_FAILURE;
-      }
       
       if(voxelize != "")
       {
-        itk::Point<double, 3> pt;
-        pt[0] = ci[0] * spacing[0] + sooffset[0];
-        pt[1] = ci[1] * spacing[1] + sooffset[1];
-        pt[2] = ci[2] * spacing[2] + sooffset[2];
-	
         ContinuousIndexType cind;
         itk::Index<3> ind;
         labelimage->TransformPhysicalPointToContinuousIndex(pt, cind);
