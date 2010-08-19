@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
       pt[1] = ci[1] * spacing[1] + sooffset[1];
       pt[2] = ci[2] * spacing[2] + sooffset[2];
 
-      if (vm.count("tensor-volume"))
+      if (tensorVolume != "")
       {
 	tensorreader->GetOutput()->TransformPhysicalPointToContinuousIndex(pt, ci);
 	
