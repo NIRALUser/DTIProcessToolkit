@@ -63,7 +63,7 @@
     <string-enumeration>
       <name>interpolation</name>
       <longflag>--interpolation</longflag>
-      <flag>i</flag>
+      <flag>I</flag>
       <description>Interpolation type (nearestneighbor, linear, cubic)</description>
       <default>linear</default>
       <element>nearestneighbor</element>
