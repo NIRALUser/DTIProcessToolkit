@@ -83,12 +83,12 @@ int main(int argc, char* argv[])
   itk::Vector<double, 3> sooffset;
   for(unsigned int i = 0; i < 3; i++)
     sooffset[i] = (group->GetObjectToParentTransform()->GetOffset())[i];
-  newgroup->GetObjectToParentTransform()->SetOffset(sooffset.GetDataPointer());
   
   if(VERBOSE)
   {
     std::cout << "Group Spacing: " << spacing[0] << ", " << spacing[1] << ", " << spacing[2] << std::endl;
     std::cout << "Group Offset: " << sooffset[0] << ", " << sooffset[1]  << ", " << sooffset[2] << std::endl;
+    std::cout << "deformationfield: '" << deformationfield << "'" << std::endl; 
   }
   
   // Setup tensor file if available
@@ -251,8 +251,8 @@ int main(int argc, char* argv[])
       }
       
       newpoints.push_back(newpoint);
-    }
-    // TODO set the offset of the group 
+    } 
+    newgroup->GetObjectToParentTransform()->SetOffset(sooffset.GetDataPointer());
     newtube->SetSpacing(spacing);
     newtube->SetId(id++);
     newtube->SetPoints(newpoints);
