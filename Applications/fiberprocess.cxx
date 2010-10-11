@@ -61,6 +61,8 @@ int main(int argc, char* argv[])
   {
     definterp = DeformationInterpolateType::New();
     definterp->SetInputImage(deformationfield);
+  } else {
+    noWarp = true;
   }
   
   // Setup new fiber bundle group
@@ -171,11 +173,11 @@ int main(int argc, char* argv[])
 	
       }
 
-      if(deformationfield)
+      if(deformationfield && !noWarp)
       {
         DeformationPixelType warp(definterp->EvaluateAtContinuousIndex(ci).GetDataPointer());
         for(unsigned int i =0; i < 3; i++)
-          ci[i] = ci[i] + warp[i] / spacing[i];
+          ci[i] = ci[i] + warp[i] / spacing[i]; // TODO needs to be spacing of the deformation field
       }
       
       
@@ -250,7 +252,7 @@ int main(int argc, char* argv[])
       
       newpoints.push_back(newpoint);
     }
-    
+    // TODO set the offset of the group 
     newtube->SetSpacing(spacing);
     newtube->SetId(id++);
     newtube->SetPoints(newpoints);

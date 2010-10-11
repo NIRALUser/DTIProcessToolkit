@@ -26,7 +26,7 @@
       <name>noDataChange</name>
       <longflag>--noDataChange</longflag>
       <label>No Data Change</label>
-      <description>Produce verbose output</description>
+      <description>Do not change data ??? </description>
       <default>0</default>
     </boolean>
     <file>
