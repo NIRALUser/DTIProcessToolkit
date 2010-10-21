@@ -213,8 +213,13 @@ int main(int argc, char* argv[])
       // Should not have to do this
       if(noWarp)
 	newpoint.SetPosition(origci);
-      else
-	newpoint.SetPosition(ci);
+      else{
+	//set the point to world coordinate system and set the spacing to 1
+	newpoint.SetPosition(pt);
+	spacing[0] = spacing[1] = spacing[2] = 1; 
+      }
+        
+      
       
       //newpoint.SetRadius(.4);
       //newpoint.SetRed(0.0);
