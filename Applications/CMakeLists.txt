@@ -1,8 +1,3 @@
-
-
-
-
-
 ADD_EXECUTABLE(nrrdvtk nrrdvtk.cxx)
 TARGET_LINK_LIBRARIES(nrrdvtk ITKIO)
 
@@ -20,6 +15,10 @@ TARGET_LINK_LIBRARIES(tio ITKIO)
 
 ADD_EXECUTABLE(morph morph.cxx)
 TARGET_LINK_LIBRARIES(morph ITKIO)
+
+ADD_SUBDIRECTORY(dwiAtlas)
+ADD_DEPENDENCIES(dwiAtlas dwiprocess DTIIO)	
+
 
 set(dtiprocess_SRC dtiprocess.cxx)
 GENERATECLP(dtiprocess_SRC dtiprocess.xml)
