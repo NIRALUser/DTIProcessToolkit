@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+
+    <category>ITK Practice</category>
+    <title>Spherical Harmonic Interpolation</title>
+    <description>Fit spherical harmonics to input DWI, create new DWI with different gradient directions.</description>
+    <version>1.0</version>
+    <documentation-url></documentation-url>
+    <license></license>
+    <contributor>Sami Benzaid</contributor>
+    <acknowledgements></acknowledgements>
+
+    <parameters>
+        <label>Input/Output</label>
+        <description>Input/Output Parameters</description>
+        <image type="diffusion-weighted">
+            <name>dwiInputVolume</name>
+            <label>Input Volume</label>
+            <channel>input</channel>
+            <index>0</index>
+            <default>None</default>
+            <description>Input DWI Volume.</description>
+        </image>
+        <image type="diffusion-weighted">
+            <name>dwiOutputVolume</name>
+            <label>Output Volume</label>
+            <channel>output</channel>
+            <index>1</index>
+            <default>None</default>
+            <description>Output DWI Volume, with new gradient directions.</description>
+        </image>
+        <string>
+            <name>gradientVectorFile</name>
+            <label>Gradient Direction File</label>
+            <index>2</index>
+            <default>None</default>
+            <description>Plaintext file containing gradient directions for which to produce images.</description>
+        </string>
+        <integer>
+            <name>SHOrder</name>
+            <label>Spherical Harmonics Order</label>
+            <index>3</index>
+            <default>-1</default>
+            <description>The order of spherical harmonic basis functions to use for interpolation.</description>
+        </integer>
+        <double>
+            <name>lambda</name>
+            <label>Lambda for Regularization Term</label>
+            <index>4</index>
+            <default>0</default>
+            <description>Lambda to use for Regularization term. Use 0 to disable regularization term.</description>
+        </double>
+    </parameters>
+
+</executable>
+
