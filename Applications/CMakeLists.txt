@@ -16,8 +16,10 @@ TARGET_LINK_LIBRARIES(tio ITKIO)
 ADD_EXECUTABLE(morph morph.cxx)
 TARGET_LINK_LIBRARIES(morph ITKIO)
 
-ADD_SUBDIRECTORY(dwiAtlas)
-ADD_DEPENDENCIES(dwiAtlas dwiprocess DTIIO)	
+if(BUILD_dwiAtlas)
+  ADD_SUBDIRECTORY(dwiAtlas)
+  ADD_DEPENDENCIES(dwiAtlas dwiprocess DTIIO)	
+endif(BUILD_dwiAtlas)
 
 
 set(dtiprocess_SRC dtiprocess.cxx)

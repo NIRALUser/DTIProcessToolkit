@@ -25,6 +25,8 @@ SETIFEMPTY(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 SETIFEMPTY(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 SETIFEMPTY(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
+option(BUILD_dwiAtlas "Build dwiAtlas or not.  Requires boost." OFF)
+
 ##  Before looking for ITK or VTK, or many other packages, determine if
 ##  we are supposed to be building against Slicer3, and if so, then
 ##  be sure to get the Slicer3 version of the software first.
