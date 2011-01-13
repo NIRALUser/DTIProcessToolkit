@@ -527,6 +527,7 @@ int main(int argc, char* argv[])
 	typedef itk::ImageFileWriter<RealImageType> RealImageFileWriterType;
 	RealImageFileWriterType::Pointer realwriter = RealImageFileWriterType::New();
 	realwriter->SetInput(B0Image);
+	realwriter->SetUseCompression(true);
 	realwriter->SetFileName(B0.c_str());
 	realwriter->Update();
       }
@@ -684,6 +685,7 @@ int main(int argc, char* argv[])
       typedef itk::ImageFileWriter<RealImageType> RealImageFileWriterType;
       RealImageFileWriterType::Pointer realwriter = RealImageFileWriterType::New();
       realwriter->SetInput(expfilter->GetOutput());
+      realwriter->SetUseCompression(true);
       realwriter->SetFileName(IDWI.c_str());
       realwriter->Update();
     }
