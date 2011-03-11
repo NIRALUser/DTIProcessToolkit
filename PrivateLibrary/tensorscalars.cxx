@@ -10,7 +10,8 @@
 #include <itkImageFileWriter.h>
 #include "itkFastSymmetricEigenAnalysisImageFilter.h"
 #include "itkVectorIndexSelectionCastImageFilter.h"
-
+#include <itkAddImageFilter.h>
+#include <itkMultiplyByConstantImageFilter.h>
 // My ITK Filters
 #include "itkVectorMaskNegatedImageFilter.h"
 #include "itkTensorMeanDiffusivityImageFilter.h"
@@ -116,6 +117,59 @@ itk::Image<unsigned short, 3>::Pointer createLambda<unsigned short>(TensorImageT
   return scalefilter->GetOutput();
 }
 
+template<>
+itk::Image<double, 3>::Pointer createRD<double>(TensorImageType::Pointer timg) // Tensor image
+{
+  typedef itk::FastSymmetricEigenAnalysisImageFilter<TensorImageType,DeformationImageType> LambdaFilterType;
+  LambdaFilterType::Pointer lambdafilter = LambdaFilterType::New();
+  lambdafilter->SetInput(timg);
+  lambdafilter->OrderEigenValuesBy(LambdaFilterType::FunctorType::OrderByValue);
+  lambdafilter->Update();
+    
+  typedef itk::AddImageFilter<RealImageType,RealImageType,RealImageType> RDFilterType;
+  RDFilterType::Pointer rdfilter = RDFilterType::New();
+  
+  typedef itk::VectorIndexSelectionCastImageFilter<LambdaFilterType::OutputImageType, RealImageType> ElementSelectAdaptorType;
+  ElementSelectAdaptorType::Pointer elementSelect1 = ElementSelectAdaptorType::New();
+  elementSelect1->SetInput(lambdafilter->GetOutput());
+  //lambda3
+  elementSelect1->SetIndex(0); 
+  elementSelect1->Update();
+  rdfilter->SetInput1(elementSelect1->GetOutput());
+
+  ElementSelectAdaptorType::Pointer elementSelect2 = ElementSelectAdaptorType::New();
+  elementSelect2->SetInput(lambdafilter->GetOutput());
+  //lambda2
+  elementSelect2->SetIndex(1); 
+  elementSelect2->Update();
+  rdfilter->SetInput2(elementSelect2->GetOutput());
+
+  rdfilter->Update();
+  
+  typedef itk::MultiplyByConstantImageFilter<RDFilterType::OutputImageType,float,RealImageType> DivideFilterType;
+  DivideFilterType::Pointer dividefilter = DivideFilterType::New();
+  dividefilter->SetInput(rdfilter->GetOutput());
+  dividefilter->SetConstant(0.5);
+  dividefilter->Update();
+
+  return dividefilter->GetOutput();
+
+}
+
+template<>
+itk::Image<unsigned short, 3>::Pointer createRD<unsigned short>(TensorImageType::Pointer timg)      // Tensor image
+{
+  RealImageType::Pointer realfro = createRD<double>(timg);
+    
+  typedef itk::ShiftScaleImageFilter<RealImageType,IntImageType> ShiftScaleFilterType;
+  ShiftScaleFilterType::Pointer scalefilter = ShiftScaleFilterType::New();
+  scalefilter->SetInput(realfro);
+  scalefilter->SetShift(0);
+  scalefilter->SetScale(100000);
+  scalefilter->Update();
+
+  return scalefilter->GetOutput();
+}
 
 template<>
 itk::Image<double, 3>::Pointer createFro<double>(TensorImageType::Pointer timg) // Tensor image

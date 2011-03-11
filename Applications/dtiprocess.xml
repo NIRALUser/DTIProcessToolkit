@@ -135,6 +135,14 @@
       <channel>output</channel>
       <default></default>
     </image>
+    <image>
+      <name>RDOutput</name>
+      <longflag>--RD_output</longflag>
+      <label>RD </label>
+      <description>RD (radial diffusivity 1/2*(lambda2+lambda3)) output</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
     <boolean>
       <name>scalarFloat</name>
       <longflag>--scalar_float</longflag>

@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
     ("lambda1-output", po::value<std::string>(), "Lambda 1 (largest eigenvalue) output")
     ("lambda2-output", po::value<std::string>(), "Lambda 2 (middle eigenvalue) output")
     ("lambda3-output", po::value<std::string>(), "Lambda 3 (smallest eigenvalue) output")
-  
+    ("RD-output", po::value<std::string>(), "RD (1/2*(Lambda2+Lambda3)) output")
 
     // derived output options
     ("scalar-float", "Write scalar [FA,MD] as unscaled float.  Also causes FA to be unscaled [0..1].")
@@ -411,6 +411,16 @@ int main(int argc, char* argv[])
     else
       writeImage(lambda3Output,
                  createLambda<double>(tensors, Lambda3));
+  }
+  
+  if(RDOutput != "")
+  {
+    if(scale)
+      writeImage(RDOutput,
+                 createRD<unsigned short>(tensors));
+    else
+      writeImage(RDOutput,
+                 createRD<double>(tensors));
   }
 
   if(frobeniusNormOutput != "")
