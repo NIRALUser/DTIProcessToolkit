@@ -12,7 +12,7 @@ ReadITKAffineTest.cxx
 )
 
 ADD_EXECUTABLE(TestSuite TestSuite.cxx ${TestSuite_SRCS})
-TARGET_LINK_LIBRARIES(TestSuite ITKNumerics ITKCommon ITKIO DWIPrivateLibrary)
+TARGET_LINK_LIBRARIES(TestSuite ${ITK_LIBRARIES} ${ITK_LIBRARIES} DWIPrivateLibrary)
 
 #SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
 
