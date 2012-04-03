@@ -81,7 +81,7 @@
       <longflag>--voxelize</longflag>
       <flag>V</flag>
       <label>Voxelize</label>
-      <description>Voxelize fiber into a label map (the labelmap filename is the argument of -V). The tensor file must be specified using -T for information about the size, origin, spacing of the image. </description>
+      <description>Voxelize fiber into a label map (the labelmap filename is the argument of -V). The tensor file must be specified using -T for information about the size, origin, spacing of the image. The deformation is applied before the voxelization </description>
       <channel>output</channel>
     </file>
     <boolean>

@@ -76,8 +76,19 @@ int main(int argc, char* argv[])
   
   // Get Spacing and offset from group
   double spacing[3];
-  for(unsigned int i =0; i < 3; i++)
-    spacing[i] = (group->GetSpacing())[i];
+  if( noWarp )
+  {
+    newgroup->SetObjectToWorldTransform( group->GetObjectToWorldTransform() ) ;
+    newgroup->ComputeObjectToParentTransform() ;
+    for(unsigned int i =0; i < 3; i++)
+    {
+      spacing[i] = (group->GetSpacing())[i];
+    }
+  }
+  else
+  {
+    spacing[0] = spacing[1] = spacing[2] = 1; 
+  }
   newgroup->SetSpacing(spacing);
   
   itk::Vector<double, 3> sooffset;
@@ -151,41 +162,46 @@ int main(int argc, char* argv[])
     DTIPointListType::iterator pit;
     
     typedef DeformationInterpolateType::ContinuousIndexType ContinuousIndexType;
-    ContinuousIndexType ci, origci;
+    ContinuousIndexType tensor_ci, def_ci ;
     // For each point along the fiber
+//std::cout<<"plop"<<std::endl;
     for(pit = pointlist.begin(); pit != pointlist.end(); ++pit)
     {
       typedef DTIPointType::PointType PointType;
-      
+//      std::cout<<"plop3"<<std::endl;
       // p is not really a point its a continuous index
       const PointType p = pit->GetPosition();
-      for(unsigned int i =0; i < 3; i++)
-        origci[i] = ci[i] = p[i];
-      
-      itk::Point<double, 3> pt;
-      pt[0] = ci[0] * spacing[0] + sooffset[0];
-      pt[1] = ci[1] * spacing[1] + sooffset[1];
-      pt[2] = ci[2] * spacing[2] + sooffset[2];
-
-      if (tensorVolume != "")
+      DTITubeType::TransformPointer transform = ((*it).GetPointer())->GetObjectToWorldTransform() ;
+      const PointType p_world_orig = transform->TransformPoint( p ) ;
+//      std::cout<<p_world_orig<<" "<<p<<std::endl;
+      itk::Point<double, 3> pt_trans = p_world_orig ;
+      if(deformationfield)
       {
-	tensorreader->GetOutput()->TransformPhysicalPointToContinuousIndex(pt, ci);
-	
-      }
+        deformationfield->TransformPhysicalPointToContinuousIndex(p_world_orig, def_ci);
 
-      if(deformationfield && !noWarp)
-      {
-        DeformationPixelType warp(definterp->EvaluateAtContinuousIndex(ci).GetDataPointer());
-        for(unsigned int i =0; i < 3; i++)
-          ci[i] = ci[i] + warp[i] / spacing[i]; // TODO needs to be spacing of the deformation field
+        if( !deformationfield->GetLargestPossibleRegion().IsInside( def_ci ) )
+        {
+          std::cerr << "Fiber is outside deformation field image. Deformation field has to be in the fiber space. Warning: Original position will be used" << std::endl ;
+        }
+        else
+        {
+          DeformationPixelType warp(definterp->EvaluateAtContinuousIndex(def_ci).GetDataPointer());
+          for( int i = 0 ; i < 3 ; i++ )
+          {
+            pt_trans[ i ] += warp[ i ] ;
+          }
+//          deformationfield->TransformContinuousIndexToPhysicalPoint( def_ci , pt_trans ) ;
+//          std::cout<<p << " "<< p_world_orig<<" "<<pt_trans<<std::endl;
+        }
       }
-      
+//            std::cout<<"plop6"<<std::endl;
       
       if(voxelize != "")
       {
+//        std::cout<<p << " "<< p_world_orig<<" "<<pt_trans<<std::endl;
         ContinuousIndexType cind;
         itk::Index<3> ind;
-        labelimage->TransformPhysicalPointToContinuousIndex(pt, cind);
+        labelimage->TransformPhysicalPointToContinuousIndex(pt_trans, cind);
         ind[0] = static_cast<long int>(vnl_math_rnd_halfinttoeven(cind[0]));
         ind[1] = static_cast<long int>(vnl_math_rnd_halfinttoeven(cind[1]));
         ind[2] = static_cast<long int>(vnl_math_rnd_halfinttoeven(cind[2]));
@@ -212,11 +228,15 @@ int main(int argc, char* argv[])
 	newpoint = *pit;
       // Should not have to do this
       if(noWarp)
-	newpoint.SetPosition(origci);
-      else{
+      {
+//        std::cout<<"no warp"<<std::endl;
+	newpoint.SetPosition(p);
+      }
+      else
+      {
 	//set the point to world coordinate system and set the spacing to 1
-	newpoint.SetPosition(pt);
-	spacing[0] = spacing[1] = spacing[2] = 1; 
+//        std::cout<<"warp"<<std::endl;
+	newpoint.SetPosition(pt_trans);
       }
         
       
@@ -229,7 +249,8 @@ int main(int argc, char* argv[])
       // Attribute tensor data if provided
       if(tensorVolume != "" && fiberOutput != "" && !noDataChange)
       {
-	itk::DiffusionTensor3D<double> tensor(tensorinterp->EvaluateAtContinuousIndex(ci).GetDataPointer());
+	tensorreader->GetOutput()->TransformPhysicalPointToContinuousIndex(pt_trans, tensor_ci);
+	itk::DiffusionTensor3D<double> tensor(tensorinterp->EvaluateAtContinuousIndex(tensor_ci).GetDataPointer());
 	
 	// TODO: Change SpatialObject interface to accept DiffusionTensor3D
 	float sotensor[6];
@@ -257,14 +278,12 @@ int main(int argc, char* argv[])
       
       newpoints.push_back(newpoint);
     } 
-    newgroup->GetObjectToParentTransform()->SetOffset(sooffset.GetDataPointer());
     newtube->SetSpacing(spacing);
     newtube->SetId(id++);
     newtube->SetPoints(newpoints);
     newgroup->AddSpatialObject(newtube);
   }
-  
-  newgroup->ComputeObjectToWorldTransform();
+//  std::cout<<"plop2"<<std::endl;
   
   if(VERBOSE)
     std::cout << "Ending Loop" << std::endl;
