@@ -67,7 +67,7 @@ public:
  *
  */
 template <typename TInputImage,
-          typename TOutputImage=itk::Image<ITK_TYPENAME TInputImage::PixelType::RealValueType,
+          typename TOutputImage=itk::Image<typename TInputImage::PixelType::RealValueType,
                                            ::itk::GetImageDimension<TInputImage>::ImageDimension > >
 class ITK_EXPORT TensorMeanDiffusivityImageFilter :
     public

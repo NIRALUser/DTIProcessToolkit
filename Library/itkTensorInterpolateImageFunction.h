@@ -56,7 +56,7 @@ namespace itk
 template <
 class TInputImage,
 class TCoordRep = float,
-class TPixelType = ITK_TYPENAME TInputImage::PixelType
+class TPixelType = typename TInputImage::PixelType
 >
 class ITK_EXPORT TensorInterpolateImageFunction : 
   public ImageFunction<
