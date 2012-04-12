@@ -16,7 +16,7 @@ PURPOSE.  See the above copyright notices for more information.
 =========================================================================*/
 #ifndef __itkDWIAtlasBuilder_txx
 #define __itkDWIAtlasBuilder_txx
-
+#include <vector>
 #include "itkDWIAtlasBuilder.h"
 #include <itkNumericTraits.h>
 #include "itkProgressReporter.h"
@@ -1360,8 +1360,10 @@ DWIAtlasBuilder< MyRealType, DWIPixelType >
   typedef itk::ImageRegionConstIterator<ScalarImageType> MaskImageIteratorType;
   
 
-  VectorIterator dwiits[ nrOfDatasets ];
-  HFieldIterator hfieldits[ nrOfDatasets ];
+  //  VectorIterator dwiits[ nrOfDatasets ];
+  std::vector<VectorIterator> dwiits(nrOfDatasets);
+  // HFieldIterator hfieldits[ nrOfDatasets ];
+  std::vector<HFieldIterator> hfieldits(nrOfDatasets);
   dwisReconstructedIteratorType recondwiit(outputImage, outputRegionForThread );
 
   OutlierImageIteratorType outlierit( OutlierImage, outputRegionForThread );
@@ -1433,7 +1435,9 @@ DWIAtlasBuilder< MyRealType, DWIPixelType >
 
     // loop over all the cases and get them one by one
 
-    STransformedGradientInformationType transformedInformation[ nrOfDatasets ];
+    // STransformedGradientInformationType transformedInformation[ nrOfDatasets ];
+    STransformedGradientInformationType *transformedInformation = 
+      new STransformedGradientInformationType[nrOfDatasets];
 
     bool isInMask = (maskit.Get()>0);
 
@@ -1655,6 +1659,8 @@ DWIAtlasBuilder< MyRealType, DWIPixelType >
       allBaselines.goodVoxel = false;
       allDWIs.goodVoxel = false;
       }
+
+    delete [] transformedInformation;
 
     // first write out the baselines
 

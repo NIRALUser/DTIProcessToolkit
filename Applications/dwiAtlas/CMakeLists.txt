@@ -1,8 +1,12 @@
 PROJECT(dwiAtlas)
 
-FIND_PATH(BOOST_INCLUDE_DIR boost/config.hpp)
-
-FIND_PATH(BOOST_LIBRARY_DIR boost_date_time-vc71-mt.lib)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME ON)
+find_package(Boost REQUIRED)
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+endif()
 
 LINK_DIRECTORIES(${BOOST_LIBRARY_DIR} ${DTIIO_LIBRARY_DIR})
 
@@ -10,9 +14,9 @@ INCLUDE_DIRECTORIES(${BOOST_INCLUDE_DIR} ${DWIProcess_SOURCE_DIR}/Library ${DWIP
 
 # Win32 has automatic linking of boost libraries so only add boost
 # libaries on unix
-IF(NOT WIN32 OR CYGWIN)
-  SET(BOOST_LIBRARIES boost_program_options)
-ENDIF(NOT WIN32 OR CYGWIN)
+# IF(NOT WIN32 OR CYGWIN)
+#   SET(BOOST_LIBRARIES boost_program_options)
+# ENDIF(NOT WIN32 OR CYGWIN)
 
 #FIND_PACKAGE ( ITK )
 #IF ( ITK_FOUND )
