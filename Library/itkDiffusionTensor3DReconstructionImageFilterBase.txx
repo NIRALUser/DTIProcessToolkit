@@ -35,7 +35,7 @@ DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
 {
   // At least 1 inputs is necessary for a vector image.
   // For images added one at a time we need at least six
-  this->SetNumberOfRequiredInputs( 1 ); 
+  this->SetNumberOfRequiredInputs( 1 );
   m_NumberOfGradientDirections = 0;
   m_Threshold = NumericTraits< GradientPixelType >::min();
   m_GradientDirectionContainer = NULL;
@@ -62,7 +62,7 @@ void DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
     this->ProcessObject::SetNthOutput(1, NULL);
     this->ProcessObject::SetNumberOfRequiredOutputs(1);
   }
- 
+
 }
 
 template< class TGradientImagePixelType, class TTensorPrecision >
@@ -79,13 +79,13 @@ void DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
                                                     TTensorPrecision >
 ::BeforeThreadedGenerateData()
 {
-  // There need to be at least 6 gradient directions to be able to compute the 
+  // There need to be at least 6 gradient directions to be able to compute the
   // tensor basis
   if( m_NumberOfGradientDirections < 7 )
     {
     itkExceptionMacro( << "At least 7 images are required" );
     }
-    
+
   this->ComputeTensorBasis();
 }
 
@@ -94,22 +94,22 @@ template< class TGradientImagePixelType, class TTensorPrecision >
 void DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
                                                     TTensorPrecision >
 ::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-                       int ) 
+                       ThreadIdType)
 {
-  typename OutputImageType::Pointer outputImage = 
+  typename OutputImageType::Pointer outputImage =
     static_cast< OutputImageType * >(this->ProcessObject::GetOutput(0));
-  typename ScalarImageType::Pointer baselineImage = 
+  typename ScalarImageType::Pointer baselineImage =
     static_cast< ScalarImageType *>(this->ProcessObject::GetOutput(1));
-  
+
   ImageRegionIterator< OutputImageType > oit(outputImage, outputRegionForThread);
   oit.GoToBegin();
 
   typedef ImageRegionConstIterator< GradientImagesType > GradientIteratorType;
   typedef typename GradientImagesType::PixelType         GradientVectorType;
   typename GradientImagesType::ConstPointer gradientImagePointer = NULL;
-    
+
   gradientImagePointer =  this->GetInput();
-    
+
   GradientIteratorType git(gradientImagePointer, outputRegionForThread );
   git.GoToBegin();
 
@@ -123,7 +123,7 @@ void DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
 
   vnl_vector<TTensorPrecision> B(m_NumberOfGradientDirections);
   vnl_vector<TTensorPrecision> D(7);
-    
+
   while( !git.IsAtEnd() )
   {
     GradientVectorType gv = git.Get();
@@ -135,7 +135,7 @@ void DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
     // First we need to estimate the S_0 then compare it to the threshold
     // D[6] is the estimated S_0
     if( exp(D[6]) >= m_Threshold )
-    {                
+    {
       // Copy all elements except the estimated S_0 (last element of D)
       std::copy(D.begin(), D.end() - 1, tensor.Begin());
 
@@ -149,13 +149,13 @@ void DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
       bit.Set(static_cast<GradientPixelType>(round(exp(D[6]))));
       ++bit;
     }
-    
+
   }
 }
 
 
 template< class TGradientImagePixelType, class TTensorPrecision >
-void DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType, 
+void DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
                                                     TTensorPrecision >
 ::ComputeTensorBasis()
 {
@@ -175,30 +175,30 @@ void DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
     m_BMatrix[m][5] =     -m_BValue * m_GradientDirectionContainer->ElementAt(m)[2] * m_GradientDirectionContainer->ElementAt(m)[2];
     m_BMatrix[m][6] = 1;
     }
- 
+
   m_TensorBasis = vnl_svd<TTensorPrecision>(m_BMatrix).pinverse();
-    
+
 }
 
 template< class TGradientImagePixelType, class TTensorPrecision >
-void DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType, 
+void DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
                                                     TTensorPrecision >
-::SetGradientImage( GradientDirectionContainerType *gradientDirection, 
+::SetGradientImage( GradientDirectionContainerType *gradientDirection,
                         const GradientImagesType *gradientImage )
 {
   this->m_GradientDirectionContainer = gradientDirection;
 
   m_NumberOfGradientDirections = gradientDirection->Size();
 
-  // ensure that the gradient image we received has as many components as 
+  // ensure that the gradient image we received has as many components as
   // the number of gradient directions
   if( gradientImage->GetVectorLength() != this->m_NumberOfGradientDirections )
     {
     itkExceptionMacro( << this->m_NumberOfGradientDirections << " gradient directions specified but image has " << gradientImage->GetVectorLength()
       << " components.");
     }
-  
-  this->ProcessObject::SetNthInput( 0, 
+
+  this->ProcessObject::SetNthInput( 0,
       const_cast< GradientImagesType* >(gradientImage) );
 }
 
@@ -218,10 +218,10 @@ void DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
     }
   else
     {
-    os << indent << 
+    os << indent <<
     "GradientDirectionContainer: (Gradient directions not set)" << std::endl;
     }
-  os << indent << "NumberOfGradientDirections: " << 
+  os << indent << "NumberOfGradientDirections: " <<
               m_NumberOfGradientDirections << std::endl;
   os << indent << "Threshold for reference B0 image: " << m_Threshold << std::endl;
   os << indent << "BValue: " << m_BValue << std::endl;

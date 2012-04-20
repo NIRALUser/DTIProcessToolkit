@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -32,15 +32,15 @@
 
 namespace itk {
 
-template< class TReferenceImagePixelType, 
+template< class TReferenceImagePixelType,
           class TGradientImagePixelType, class TTensorType >
 DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
   TGradientImagePixelType, TTensorType >
 ::DiffusionTensor3DReconstructionRicianImageFilter()
 {
-  // At least 1 inputs is necessary for a vector image.
+ // At least 1 inputs is necessary for a vector image.
   // For images added one at a time we need at least six
-  this->SetNumberOfRequiredInputs( 1 ); 
+  this->SetNumberOfRequiredInputs( 1 );
   m_NumberOfGradientDirections = 0;
   m_NumberOfBaselineImages = 1;
   m_Threshold = NumericTraits< ReferencePixelType >::min();
@@ -50,26 +50,25 @@ DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
   m_BValue = 1.0;
 }
 
-
-template< class TReferenceImagePixelType, 
+template< class TReferenceImagePixelType,
           class TGradientImagePixelType, class TTensorType >
 void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
   TGradientImagePixelType, TTensorType >
 ::BeforeThreadedGenerateData()
 {
-  // If we have more than 2 inputs, then each input, except the first is a 
+  // If we have more than 2 inputs, then each input, except the first is a
   // gradient image. The number of gradient images must match the number of
   // gradient directions.
   const unsigned int numberOfInputs = this->GetNumberOfInputs();
 
-  // There need to be at least 6 gradient directions to be able to compute the 
+  // There need to be at least 6 gradient directions to be able to compute the
   // tensor basis
   if( m_NumberOfGradientDirections < 6 )
     {
        itkExceptionMacro( << "At least 6 gradient directions are required" );
     }
-    
-  // If there is only 1 gradient image, it must be an itk::VectorImage. Otherwise 
+
+  // If there is only 1 gradient image, it must be an itk::VectorImage. Otherwise
   // we must have a container of (numberOfInputs-1) itk::Image. Check to make sure
   if ( numberOfInputs == 1
       && m_GradientImageTypeEnumeration != GradientIsInASingleImage )
@@ -78,12 +77,12 @@ void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
         this->ProcessObject::GetInput(0)->GetNameOfClass());
     if ( strcmp(gradientImageClassName.c_str(),"VectorImage") != 0 )
       {
-      itkExceptionMacro( << 
+      itkExceptionMacro( <<
           "There is only one Gradient image. I expect that to be a VectorImage. "
           << "But its of type: " << gradientImageClassName );
       }
     }
-    
+
   this->ComputeTensorBasis();
 }
 
@@ -92,50 +91,50 @@ void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
 //
 // Until we fix netlib svd routines, we will need to set the number of thread
 // to 1.
-template< class TReferenceImagePixelType, 
+template< class TReferenceImagePixelType,
           class TGradientImagePixelType, class TTensorType >
 void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
   TGradientImagePixelType, TTensorType >
 ::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-                       int ) 
+                       ThreadIdType )
 {
-  typename OutputImageType::Pointer outputImage = 
+  typename OutputImageType::Pointer outputImage =
             static_cast< OutputImageType * >(this->ProcessObject::GetOutput(0));
-  
+
   ImageRegionIterator< OutputImageType > oit(outputImage, outputRegionForThread);
   oit.GoToBegin();
 
   vnl_vector<double> B(m_NumberOfGradientDirections);
   vnl_vector<double> D(6);
-    
+
   // Two cases here .
   // 1. If the Gradients have been specified in multiple images, we will create
   // 'n' iterators for each of the gradient images and solve the Stejskal-Tanner
-  // equations for every pixel. 
+  // equations for every pixel.
   // 2. If the Gradients have been specified in a single multi-component image,
   // one iterator will suffice to do the same.
 
-  
+
   // The gradients are specified in a single multi-component image
   if( m_GradientImageTypeEnumeration == GradientIsInASingleImage )
     {
     typedef ImageRegionConstIterator< GradientImagesType > GradientIteratorType;
     typedef typename GradientImagesType::PixelType         GradientVectorType;
     typename GradientImagesType::Pointer gradientImagePointer = NULL;
-    
+
     // Would have liked a dynamic_cast here, but seems SGI doesn't like it
     // The enum will ensure that an inappropriate cast is not done
-    gradientImagePointer = static_cast< GradientImagesType * >( 
+    gradientImagePointer = static_cast< GradientImagesType * >(
                               this->ProcessObject::GetInput(0) );
-    
+
     GradientIteratorType git(gradientImagePointer, outputRegionForThread );
     git.GoToBegin();
 
-     // add by Ran    
+     // add by Ran
     typedef ImageRegionConstIterator< TensorImageType > TensorIteratorType;
     //typedef typename TensorImageType::PixelType         TensorVectorType;
-    typename TensorImageType::Pointer initialTensorImagePointer = NULL; 
-    initialTensorImagePointer = static_cast< TensorImageType * >( 
+    typename TensorImageType::Pointer initialTensorImagePointer = NULL;
+    initialTensorImagePointer = static_cast< TensorImageType * >(
                               this->ProcessObject::GetInput(1) );
     TensorIteratorType tit(initialTensorImagePointer, outputRegionForThread );
     tit.GoToBegin();
@@ -191,12 +190,12 @@ void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
         //B is the value corresponding to the gradient direction
          for( unsigned int i = 0; i< m_NumberOfGradientDirections; i++ )
            s[i] = b[gradientind[i]];
-         
-          
+
+
          typedef RicianLikelihood<ReferencePixelType> FittingFunctionType;
 
          typename FittingFunctionType::Pointer loglikelihood = FittingFunctionType::New();
-         
+
          loglikelihood->SetS0(b0);
          loglikelihood->SetDesign_Matrix(-m_BValue * m_BMatrix);
          loglikelihood->SetSigma(m_Sigma);
@@ -208,7 +207,7 @@ void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
          Array<double> lbounds(6);
          lbounds.Fill(-1);
 //         lbounds[0] = lbounds[3] = lbounds[5] = 0.0;
-         
+
          Array<double> hbounds(6);
          hbounds.Fill(1);
 
@@ -235,9 +234,9 @@ void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
 
          try
            {
-           optimizer->StartOptimization();        
+           optimizer->StartOptimization();
            vnlt = optimizer->GetCurrentPosition();
-           } 
+           }
          catch(itk::ExceptionObject &e)
            {
            std::cerr << e << std::endl;
@@ -245,7 +244,7 @@ void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
 
 //         std::cout << "min: " << vnlt << std::endl;
 //         std::cout << "Final Cost: "<< optimizer->GetValue() << std::endl;
-           
+
          std::copy(vnlt.begin(),vnlt.end(),tensor.Begin());
 
         }
@@ -261,7 +260,7 @@ void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
 }
 
 
-template< class TReferenceImagePixelType, 
+template< class TReferenceImagePixelType,
           class TGradientImagePixelType, class TTensorType >
 void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
   TGradientImagePixelType, TTensorType >
@@ -299,18 +298,18 @@ void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
 }
 
 
-template< class TReferenceImagePixelType, 
+template< class TReferenceImagePixelType,
           class TGradientImagePixelType, class TTensorType >
 void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
   TGradientImagePixelType, TTensorType >
-::SetGradientImage( GradientDirectionContainerType *gradientDirection, 
+::SetGradientImage( GradientDirectionContainerType *gradientDirection,
                          GradientImagesType *gradientImage )
 {
-  // Make sure crazy users did not call both AddGradientImage and 
+  // Make sure crazy users did not call both AddGradientImage and
   // SetGradientImage
   if( m_GradientImageTypeEnumeration == GradientIsInManyImages )
     {
-    itkExceptionMacro( << "Cannot call both methods:" 
+    itkExceptionMacro( << "Cannot call both methods:"
     << "AddGradientImage and SetGradientImage. Please call only one of them.");
     }
 
@@ -330,10 +329,10 @@ void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
         it.Value() = it.Value() / it.Value().two_norm();
       }
     }
-      
+
   this->m_NumberOfGradientDirections = numImages - this->m_NumberOfBaselineImages;
 
-  // ensure that the gradient image we received has as many components as 
+  // ensure that the gradient image we received has as many components as
   // the number of gradient directions
   if( gradientImage->GetVectorLength() != this->m_NumberOfBaselineImages + this->m_NumberOfGradientDirections )
     {
@@ -342,23 +341,23 @@ void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
                        << " directions specified but image has " << gradientImage->GetVectorLength()
       << " components.");
     }
-  
-  this->ProcessObject::SetNthInput( 0, 
+
+  this->ProcessObject::SetNthInput( 0,
       const_cast< GradientImagesType* >(gradientImage) );
   m_GradientImageTypeEnumeration = GradientIsInASingleImage;
 }
 
-template< class TReferenceImagePixelType, 
+template< class TReferenceImagePixelType,
           class TGradientImagePixelType, class TTensorType >
 void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
   TGradientImagePixelType, TTensorType >
 ::SetInitialTensor( TensorImageType *tensorImage )
 {
-  this->ProcessObject::SetNthInput( 1, 
+  this->ProcessObject::SetNthInput( 1,
       const_cast< TensorImageType* >(tensorImage) );
 }
 
-template< class TReferenceImagePixelType, 
+template< class TReferenceImagePixelType,
           class TGradientImagePixelType, class TTensorType >
 void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
   TGradientImagePixelType, TTensorType >
@@ -375,12 +374,12 @@ void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
     }
   else
     {
-    os << indent << 
+    os << indent <<
     "GradientDirectionContainer: (Gradient directions not set)" << std::endl;
     }
-  os << indent << "NumberOfGradientDirections: " << 
+  os << indent << "NumberOfGradientDirections: " <<
               m_NumberOfGradientDirections << std::endl;
-  os << indent << "NumberOfBaselineImages: " << 
+  os << indent << "NumberOfBaselineImages: " <<
               m_NumberOfBaselineImages << std::endl;
   os << indent << "Threshold for reference B0 image: " << m_Threshold << std::endl;
   os << indent << "BValue: " << m_BValue << std::endl;
