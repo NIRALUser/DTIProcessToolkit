@@ -99,7 +99,8 @@ int main(int argc, char* argv[])
   {
     std::cout << "Group Spacing: " << spacing[0] << ", " << spacing[1] << ", " << spacing[2] << std::endl;
     std::cout << "Group Offset: " << sooffset[0] << ", " << sooffset[1]  << ", " << sooffset[2] << std::endl;
-    std::cout << "deformationfield: '" << deformationfield << "'" << std::endl; 
+    if (deformationfield)
+      std::cout << "deformationfield: '" << deformationfield << "'" << std::endl; 
   }
   
   // Setup tensor file if available
