@@ -19,10 +19,11 @@
 #include <cassert>
 
 #include <itkVectorImage.h>
+#include <itkVectorImageToImageAdaptor.h>
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
 #include <itkResampleImageFilter.h>
-#include <itkImageToVectorImageFilter.h>
+#include <itkComposeImageFilter.h>
 #include <itkNthElementImageAdaptor.h>
 
 #include "itkVectorBSplineInterpolateImageFunction.h"
@@ -99,12 +100,12 @@ int main(int argc, char* argv[])
   // doing things.
   const unsigned int vectorlength = reader->GetOutput()->GetVectorLength();
   assert(vectorlength > 6);
-  
-  typedef itk::NthElementImageAdaptor<VectorImageType, unsigned int> VectorElementAdaptorType;
+
+  typedef itk::VectorImageToImageAdaptor<DWIPixelType, DIM> VectorElementAdaptorType;
   VectorElementAdaptorType::Pointer adaptor = VectorElementAdaptorType::New();
   adaptor->SetImage(reader->GetOutput());
-  
-  typedef itk::ImageToVectorImageFilter<ComponentImageType> VectorComposeFilterType;
+
+  typedef itk::ComposeImageFilter<ComponentImageType> VectorComposeFilterType;
   VectorComposeFilterType::Pointer vcompose = VectorComposeFilterType::New();
 
   typedef itk::ResampleImageFilter<VectorElementAdaptorType,ComponentImageType> ResamplerType;
@@ -113,7 +114,7 @@ int main(int argc, char* argv[])
   for(unsigned int i = 0; i < vectorlength; i++)
     {
     // Transform the ith component of the vector image
-    adaptor->SelectNthElement(i);
+    adaptor->SetExtractComponentIndex(i);
     adaptor->Update();
 
     resampler->SetInput(adaptor);
