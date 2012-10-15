@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>DTI.DTIProcess</category>
+  <category>Diffusion.DTIProcess</category>
   <title>DTIAverage</title>
   <description> \ndtiaverage is a program that allows to compute the average of an arbitrary number of tensor fields (listed after the --inputs option) This program is used in our pipeline as the last step of the atlas building processing. When all the tensor fields have been deformed in the same space, to create the average tensor field (--tensor_output) we use dtiaverage. \n Several average method can be used (specified by the --method option): euclidian, log-euclidian and pga. The default being euclidian.</description>
   <documentation-url>http://www.google.com/</documentation-url>
@@ -32,14 +32,14 @@
       <description>produce verbose output</description>
       <default>0</default>
     </boolean>
-    <file>
+    <image type="tensor">
       <name>tensorOutput</name>
       <longflag>--tensor_output</longflag>
       <label>Averaged tensor field file name</label>
       <description>Averaged tensor volume</description>
       <channel>output</channel>
-    </file>
-    <image multiple="true">
+    </image>
+    <image multiple="true" type="tensor">
       <name>inputs</name>
       <longflag>--inputs</longflag>
       <label>Inputs</label>
