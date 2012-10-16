@@ -1,124 +1,134 @@
-project(DTIProcess)
-set(LOCAL_PROJECT_NAME DTIProcess)
-cmake_minimum_required(VERSION 2.8)
-cmake_policy(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.7)
 
-ENABLE_TESTING()
-include(Dart)
-#include(CPack)
+#-----------------------------------------------------------------------------
+if(NOT Slicer_SOURCE_DIR)
+  set(EXTENSION_NAME DTIProcessExtension)
+  set(EXTENSION_HOMEPAGE "http://www.slicer.org/slicerWiki/index.php/Documentation/4.1/Extensions/DTIProcessExtension")
+  set(EXTENSION_CATEGORY "Diffusion")
+  set(EXTENSION_CONTRIBUTORS "Francois Budin (UNC)")
+  set(EXTENSION_DESCRIPTION "This extension provides the tool DTIProcess integrated in Slicer")
+  set(EXTENSION_ICONURL "http://viewvc.slicer.org/viewvc.cgi/Slicer4/trunk/Extensions/Testing/DTIProcessExtension/DTIProcessExtension.png?revision=19437&view=co")
+  set(EXTENSION_SCREENSHOTURLS "http://wiki.slicer.org/slicerWiki/images/a/ab/Slicer-r19441-DTIProcessExtension-screenshot.png http://wiki.slicer.org/slicerWiki/images/1/1e/Slicer-r19441-DTIProcessExtension-screenshot-2.png")
+endif()
 
-## A simple macro to set variables ONLY if it has not been set
-## This is needed when stand-alone packages are combined into
-## a larger package, and the desired behavior is that all the
-## binary results end up in the combined directory.
-if(NOT SETIFEMPTY)
-macro(SETIFEMPTY)
-  set(KEY ${ARGV0})
-  set(VALUE ${ARGV1})
-  if(NOT ${KEY})
-    set(${KEY} ${VALUE})
-  endif(NOT ${KEY})
-endmacro(SETIFEMPTY KEY VALUE)
-endif(NOT SETIFEMPTY)
-###
-SETIFEMPTY(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
-SETIFEMPTY(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
-SETIFEMPTY(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+#-----------------------------------------------------------------------------
+set(MODULE_NAME DTIProcessExtension)
 
-option(BUILD_dwiAtlas "Build dwiAtlas or not.  Requires boost." OFF)
+#-----------------------------------------------------------------------------
+if(NOT Slicer_SOURCE_DIR)
+  find_package(Slicer REQUIRED)
+  include(${Slicer_USE_FILE})
+endif()
 
-##  Before looking for ITK or VTK, or many other packages, determine if
-##  we are supposed to be building against Slicer3, and if so, then
-##  be sure to get the Slicer3 version of the software first.
-if(NOT CHECKIFSLICER3BUILD)
-macro(CHECKIFSLICER3BUILD)
-if(BUILD_AGAINST_SLICER3 OR Slicer3_SOURCE_DIR)
-    find_package(Slicer3 REQUIRED)
-    if (Slicer3_FOUND)
-      include(${Slicer3_USE_FILE})
-    else (Slicer3_FOUND)
-      message(FATAL_ERROR "Cannot build without a Slicer3 build tree or a Slicer3 installation when BUILD_AGAINST_SLICER3 was specified. Please set Slicer3_DIR when BUILD_AGAINST_SLICER3:BOOL=ON.")
-    endif (Slicer3_FOUND OR Slicer3_SOURCE_DIR)
-    slicer3_set_default_install_prefix_for_external_projects()
-  endif(BUILD_AGAINST_SLICER3 OR Slicer3_SOURCE_DIR)
-endmacro(CHECKIFSLICER3BUILD)
-endif(NOT CHECKIFSLICER3BUILD)
-CHECKIFSLICER3BUILD()  ## Call the convenience macro
+#-----------------------------------------------------------------------------
+#add_subdirectory(Logic)
 
-##  In many cases sub-projects depending on SlicerExectuion Model
-##  that can be built stand alone are combined in larger packages.
-##  This logic will include SlicerExectionModel only if it
-##  has not already been included by a previous package.
-if(NOT ADDFIRSTSLICEREXECUTIONMODEL)
-macro(ADDFIRSTSLICEREXECUTIONMODEL LOCAL_PROJECT_NAMESPACE)
+#-----------------------------------------------------------------------------
+#set(MODULE_INCLUDE_DIRECTORIES
+#  )
 
-  if(NOT BUILDSEMFROM${LOCAL_PROJECT_NAMESPACE})
-    find_package(GenerateCLP NO_MODULE QUIET)
-  endif(NOT BUILDSEMFROM${LOCAL_PROJECT_NAMESPACE})
+#set(MODULE_SRCS
+#  )
 
-  if( BUILDSEMFROM${LOCAL_PROJECT_NAMESPACE} OR NOT GenerateCLP_DIR )
-    set(BUILDSEMFROM${LOCAL_PROJECT_NAMESPACE} ON CACHE BOOL "FLAG FOR BUILD SlicerExectionModel building to prevent recursion.")
-    add_subdirectory(SlicerExecutionModel)
-  endif( BUILDSEMFROM${LOCAL_PROJECT_NAMESPACE} OR NOT GenerateCLP_DIR )
+#set(MODULE_TARGET_LIBRARIES
+#  ${ITK_LIBRARIES}
+#  )
 
-  find_package(GenerateCLP NO_MODULE REQUIRED)
-  if(GenerateCLP_DIR)
-    include(${GenerateCLP_USE_FILE})
-  else(GenerateCLP_DIR)
-    message(FATAL_ERROR "Can't build without GenerateCLP. Please set GenerateCLP_DIR")
-  endif(GenerateCLP_DIR)
+#-----------------------------------------------------------------------------
+#SEMMacroBuildCLI(
+#  NAME ${MODULE_NAME}
+#  TARGET_LIBRARIES ${MODULE_TARGET_LIBRARIES}
+#  INCLUDE_DIRECTORIES ${MODULE_INCLUDE_DIRECTORIES}
+#  ADDITIONAL_SRCS ${MODULE_SRCS}
+  #EXECUTABLE_ONLY
+#  )
 
-endmacro(ADDFIRSTSLICEREXECUTIONMODEL)
-endif(NOT ADDFIRSTSLICEREXECUTIONMODEL)
-###
-ADDFIRSTSLICEREXECUTIONMODEL(${LOCAL_PROJECT_NAME})
-
-
-if(NOT ITK_FOUND)
-    find_package(ITK REQUIRED)
-    include(${ITK_USE_FILE})
+include(ExternalProject)
+if(CMAKE_EXTRA_GENERATOR)
+  set(gen "${CMAKE_EXTRA_GENERATOR} - ${CMAKE_GENERATOR}")
 else()
-  if( NOT DEFINED ITKV3_COMPATIBILITY OR NOT ${ITKV3_COMPATIBILITY}  )
-    message( WARNING "Choose ITKv4 compiled with ITKV3_COMPATIBILITY set to ON (or GenerateCLP compiled against such an ITK version). If not, you may have compilation errors" )
-  endif()
-endif(NOT ITK_FOUND)
+  set(gen "${CMAKE_GENERATOR}")
+endif()
 
-if(NOT VTK_FOUND)
-    find_package(VTK REQUIRED)
-    include(${VTK_USE_FILE})
-endif(NOT VTK_FOUND)
 
-##  In many cases stand-alone sub-projects include private versions
-##  of DicomToNrrd
-##  that can be built stand alone are combined in larger packages.
-##  This logic will include DicomToNrrd only if it
-##  has not already been included by a previous package.
-if(NOT ADDFIRSTINSTANCE_DIRECTORY)
-macro(ADDFIRSTINSTANCE_DIRECTORY PROJECT_NAMESPACE STANDALONENAME)
-  if(BUILD${STANDALONENAME}FROM${PROJECT_NAMESPACE} OR NOT ${STANDALONENAME}_ALREADYINCLUDED)
-    set(BUILD${STANDALONENAME}FROM${PROJECT_NAMESPACE} ON CACHE BOOL "FLAG FOR ${STANDALONENAME} building to prevent recursion.")
-    set(${STANDALONENAME}_ALREADYINCLUDED ON CACHE BOOL "FLAG FOR ${STANDALONENAME} to indicate that it is already included.")
-    add_subdirectory(${STANDALONENAME})
-  endif( BUILD${STANDALONENAME}FROM${PROJECT_NAMESPACE} OR NOT ${STANDALONENAME}_ALREADYINCLUDED)
-endmacro(ADDFIRSTINSTANCE_DIRECTORY)
-endif(NOT ADDFIRSTINSTANCE_DIRECTORY)
-###
 
-INCLUDE_DIRECTORIES(
-${DTIProcess_SOURCE_DIR}/Library
-${DTIProcess_SOURCE_DIR}/PrivateLibrary
-${DTIProcess_SOURCE_DIR}
-)
+option(USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
+set(git_protocol "git")
+if(NOT USE_GIT_PROTOCOL)
+  set(git_protocol "http")
+else(NOT USE_GIT_PROTOCOL)
+  set(git_protocol "git")
+endif()
 
-## Replace bessel(FORTRAN) with cephes(C)
-SET(BESSEL_LIB cephes)
-ADD_SUBDIRECTORY(cephes)
+set(proj Insight)
+set(${proj}_REPOSITORY ${git_protocol}://itk.org/ITK.git CACHE STRING "" FORCE)
+ExternalProject_Add(${proj}
+  GIT_TAG v4.2.0
+  GIT_REPOSITORY ${${proj}_REPOSITORY}
+  UPDATE_COMMAND ""
+  SOURCE_DIR ${proj}
+  BINARY_DIR ${proj}-build
+  CMAKE_GENERATOR ${gen}
+  CMAKE_ARGS
+    -DBUILD_SHARED_LIBS:BOOL=OFF
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DITKV3_COMPATIBILITY:BOOL=ON
+    -DBUILD_TESTING:BOOL=OFF
+    -DBUILD_EXAMPLES:BOOL=OFF
+  INSTALL_COMMAND ""
+  )
+set(ITK4_DIR ${CMAKE_CURRENT_BINARY_DIR}/Insight-build)
+set(ITK4_DEPEND ${proj}) ## Set the internal dependancy for ITK
 
-ADD_SUBDIRECTORY(Library)
-ADD_SUBDIRECTORY(PrivateLibrary)
-ADD_SUBDIRECTORY(Applications)
 
-IF(BUILD_TESTING)
-  ADD_SUBDIRECTORY(Testing)
-ENDIF(BUILD_TESTING)
+set(proj SlicerExecutionModel)
+  ExternalProject_Add(${proj}
+  GIT_REPOSITORY ${git_protocol}://github.com/Slicer/SlicerExecutionModel.git
+  GIT_TAG "5ac91a89bba50db8b4f5e32cadbcb4baadb1ffc0"
+  SOURCE_DIR ${proj}
+  BINARY_DIR ${proj}-build
+  DEPENDS ${ITK4_DEPEND}
+  CMAKE_GENERATOR ${gen}
+  CMAKE_ARGS
+    -DBUILD_SHARED_LIBS:BOOL=OFF
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DITK_DIR:PATH=${ITK4_DIR}
+    INSTALL_COMMAND ""
+  )
 
+set(SlicerExecutionModel4_DIR ${CMAKE_CURRENT_BINARY_DIR}/SlicerExecutionModel-build)
+set(SlicerExecutionModel4_DEPEND ${proj}) ## Set the internal dependancy for ITK
+
+
+
+  set(proj dtiprocess)
+  ExternalProject_Add(${proj}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dtiprocess
+    BINARY_DIR ${proj}-build
+    DEPENDS  ${ITK4_DEPEND} ${SlicerExecutionModel4_DEPEND} ${VTK_DEPEND}
+    CMAKE_GENERATOR ${gen}
+    CMAKE_ARGS
+      ${LOCAL_CMAKE_BUILD_OPTIONS}
+      -DBUILD_TESTING:BOOL=OFF
+      -DITK_DIR:PATH=${ITK4_DIR}
+      -DVTK_DIR:PATH=${VTK_DIR}
+      -DGenerateCLP_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/SlicerExecutionModel-build/GenerateCLP
+      -DModuleDescriptionParser_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/SlicerExecutionModel-build/ModuleDescriptionParser
+      -DTCLAP_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/SlicerExecutionModel-build/tclap
+      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+      -DCMAKE_RUNTIME_OUTPUT_DIRECTORY:PATH=${EXECUTABLE_OUTPUT_PATH}
+    INSTALL_COMMAND ""
+  )
+
+
+
+#-----------------------------------------------------------------------------
+#if(BUILD_TESTING)
+#  add_subdirectory(Testing)
+#endif()
+
+#-----------------------------------------------------------------------------
+if(NOT Slicer_SOURCE_DIR)
+  include(${Slicer_EXTENSION_CPACK})
+endif()
