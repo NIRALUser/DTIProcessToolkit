@@ -66,12 +66,12 @@ TARGET_LINK_LIBRARIES(maxcurvature ${ITK_LIBRARIES} ${ITK_LIBRARIES} )
 INSTALL(TARGETS dtiprocess 
                 dtiestim
                 scalartransform
-                #                fiberprocess
+                fiberprocess
                 dtiaverage
                 fibertrack
                 fiberstats
                 maxcurvature
-                 RUNTIME DESTINATION bin
-                 LIBRARY DESTINATION lib
-                 ARCHIVE DESTINATION lib/static)
+                 RUNTIME DESTINATION ${INSTALL_RUNTIME_DESTINATION}
+                 LIBRARY DESTINATION ${INSTALL_LIBRARY_DESTINATION}
+                 ARCHIVE DESTINATION ${INSTALL_ARCHIVE_DESTINATION})
 
