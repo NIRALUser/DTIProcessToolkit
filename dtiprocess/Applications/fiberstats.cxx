@@ -65,8 +65,7 @@ int main(int argc, char* argv[])
     std::cout << config << std::endl;
     return EXIT_FAILURE;
   }
-#endif
-  PARSE_ARGS;
+
   // End option reading configuration
 
   // Display help if asked or program improperly called
@@ -81,7 +80,8 @@ int main(int argc, char* argv[])
     else
       return EXIT_FAILURE;
   }
-
+#endif
+  PARSE_ARGS;
   const bool VERBOSE = verbose;
   GroupType::Pointer group = readFiberFile(fiberFile);
 

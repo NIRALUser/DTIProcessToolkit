@@ -25,17 +25,9 @@
     </geometry>
     <boolean>
       <name>verbose</name>
-      <flag>v</flag>
       <longflag>--verbose</longflag>
       <label>Verbose</label>
       <description>produce verbose output</description>
-      <default>0</default>
-    </boolean>
-    <boolean>
-      <name>help</name>
-      <longflag>--help</longflag>
-      <label>Help</label>
-      <description>Produce help output</description>
       <default>0</default>
     </boolean>
   </parameters>
