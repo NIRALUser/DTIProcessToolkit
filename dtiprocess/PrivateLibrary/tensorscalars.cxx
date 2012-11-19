@@ -11,7 +11,7 @@
 #include "itkFastSymmetricEigenAnalysisImageFilter.h"
 #include "itkVectorIndexSelectionCastImageFilter.h"
 #include <itkAddImageFilter.h>
-#include <itkMultiplyByConstantImageFilter.h>
+//////////////////////////////////////////////#include <itkMultiplyByConstantImageFilter.h>
 // My ITK Filters
 #include "itkVectorMaskNegatedImageFilter.h"
 #include "itkTensorMeanDiffusivityImageFilter.h"
@@ -146,14 +146,16 @@ itk::Image<double, 3>::Pointer createRD<double>(TensorImageType::Pointer timg) /
 
   rdfilter->Update();
   
-  typedef itk::MultiplyByConstantImageFilter<RDFilterType::OutputImageType,float,RealImageType> DivideFilterType;
+/*  typedef itk::MultiplyByConstantImageFilter<RDFilterType::OutputImageType,float,RealImageType> DivideFilterType;
   DivideFilterType::Pointer dividefilter = DivideFilterType::New();
   dividefilter->SetInput(rdfilter->GetOutput());
   dividefilter->SetConstant(0.5);
   dividefilter->Update();
 
   return dividefilter->GetOutput();
-
+*/
+return rdfilter->GetOutput() ;
+///////////////////
 }
 
 template<>
@@ -205,7 +207,7 @@ GradientImageType::Pointer createFAGradient(TensorImageType::Pointer timg, // Te
   FAGradientImageFilter::Pointer fagradfilter = FAGradientImageFilter::New();
   fagradfilter->SetInput(timg);
   fagradfilter->SetSigma(sigma);
-
+  fagradfilter->Update() ;
   return fagradfilter->GetOutput();
 }
 

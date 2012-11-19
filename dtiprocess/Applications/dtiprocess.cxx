@@ -23,7 +23,8 @@
 // datastructures
 #include <itkMetaDataObject.h>
 #include <itkVersion.h>
-
+// Filters
+#include <itkCastImageFilter.h>
 // IO
 #include <itkImageFileReader.h>
 
@@ -37,7 +38,7 @@
 #include "dtiprocessCLP.h"
 
 // Bad global variables.  TODO: remove these
-bool VERBOSE=false;
+bool DebugVerbose=false;
 
 #if 0
 // Validates the interpolation type option string to the the allowed
@@ -197,6 +198,11 @@ int main(int argc, char* argv[])
   // End option reading configuration
 #endif
 
+
+  typedef itk::DiffusionTensor3D<float> TensorFloatPixelType;
+  typedef itk::Image<TensorFloatPixelType, DIM> TensorFloatImageType;
+  typedef itk::ImageFileWriter<TensorFloatImageType> TensorFileWriterType;
+  typedef itk::CastImageFilter< TensorImageType, TensorFloatImageType > CastDTIFilterType ;
   // If the value scale is true (default) we scal FA and MD values to
   // integer ranges.
 //   {
@@ -206,9 +212,9 @@ int main(int argc, char* argv[])
 
 //   if(vm.count("verbose"))
 //   {
-//     VERBOSE = true;
+//     DebugVerbose = true;
 //   }
-  VERBOSE = verbose;
+  DebugVerbose = verbose;
   // Read tensor image
   typedef itk::ImageFileReader<TensorImageType> FileReaderType;
   FileReaderType::Pointer dtireader = FileReaderType::New();
@@ -227,7 +233,6 @@ int main(int argc, char* argv[])
     std::cerr << e <<std::endl;
     return EXIT_FAILURE;
   }
-
   // Parse gradient directions from image header as specified by the
   // namic conventions defined at http://wiki.na-mic.org/Wiki/index.php/NAMIC_Wiki:DTI:Nrrd_format
   GradientListType::Pointer gradientContainer = GradientListType::New();
@@ -277,7 +282,7 @@ int main(int argc, char* argv[])
   }
 
   // Debugging
-  if(VERBOSE)
+  if(DebugVerbose)
   {
   std::cout << "Interpolation type: " << // vm["interpolation"].as<InterpolationType>() << std::endl;
     interpolation << std::endl;
@@ -288,7 +293,7 @@ int main(int argc, char* argv[])
   TensorImageType::Pointer tensors = dtireader->GetOutput();
   //  if(vm.count("mask"))
   if(mask != "")
-    {
+  {
     typedef itk::ImageFileReader<LabelImageType> MaskFileReaderType;
     MaskFileReaderType::Pointer maskreader = MaskFileReaderType::New();
     //    maskreader->SetFileName(vm["mask"].as<std::string>());
@@ -299,35 +304,56 @@ int main(int argc, char* argv[])
     _mask->SetInput2(maskreader->GetOutput());
 
     try
-      {
+    {
       _mask->Update();
-      }
+    }
     catch (itk::ExceptionObject & e)
-      {
+    {
       std::cerr << e <<std::endl;
       return EXIT_FAILURE;
-      }
+    }
 
     tensors = _mask->GetOutput();
     //If the outmask option is specified, the masked tensor field is saved 
     if(outmask != "" )
+    {
+      if( !doubleDTI )
       {
-      typedef itk::ImageFileWriter<TensorImageType> FileWriterType;
-      FileWriterType::Pointer dtiwriter = FileWriterType::New();
-      dtiwriter->SetFileName(outmask.c_str());
-      dtiwriter->SetInput(tensors);
-      try
+        CastDTIFilterType::Pointer castFilter = CastDTIFilterType::New() ;
+        castFilter->SetInput( tensors ) ;
+        TensorFileWriterType::Pointer dtiwriter = TensorFileWriterType::New();
+        dtiwriter->SetFileName(outmask.c_str());
+        dtiwriter->SetInput(castFilter->GetOutput());
+        dtiwriter->SetUseCompression(true);
+        try
         {
-        dtiwriter->Update();
+          dtiwriter->Update();
         }
-      catch (itk::ExceptionObject & e)
+        catch (itk::ExceptionObject & e)
         {
-        std::cerr << e <<std::endl;
-        return EXIT_FAILURE;
+          std::cerr << e <<std::endl;
+          return EXIT_FAILURE;
+        }       
+      }
+      else
+      {
+        typedef itk::ImageFileWriter<TensorImageType> FileWriterType;
+        FileWriterType::Pointer dtiwriter = FileWriterType::New();
+        dtiwriter->SetFileName(outmask.c_str());
+        dtiwriter->SetUseCompression(true);
+        dtiwriter->SetInput(tensors);
+        try
+        {
+          dtiwriter->Update();
+        }
+        catch (itk::ExceptionObject & e)
+        {
+          std::cerr << e <<std::endl;
+          return EXIT_FAILURE;
         }       
       }
     }
-
+  }
   // sigma set in PARSE_ARGS
   // double sigma = vm["sigma"].as<double>();
     
@@ -442,35 +468,45 @@ int main(int argc, char* argv[])
 
   if(rotOutput != "")
   {
-  if(dofFile == "")
-    {
-    std::cerr << "Tensor rotation requested, but dof file not specified" << std::endl;
-    return EXIT_FAILURE;
-    }
+    TensorImageType::Pointer tensorImage ;
     //If the input affine file is a dof file from rview
-    else if(dofFile != "")
-      {
-      writeImage(rotOutput,
-        createROT(tensors,dofFile,0));
-      }
+    if(dofFile != "")
+    {
+      tensorImage = createROT(tensors,dofFile,0) ;
+    }
     //If the input affine file is a new dof file (output of dof2mat)
     else if(newdof_file != "")
-      {
-      writeImage(rotOutput,
-        createROT(tensors, newdof_file, 1));
-      }
+    {
+      tensorImage = createROT(tensors, newdof_file, 1);
+    }
     //If the input affine file is an itk compatible file   
     else if(affineitk_file != "")
-      {
-      writeImage(rotOutput,
-        createROT(tensors, affineitk_file, 2));
-      }
+    {
+      tensorImage = createROT(tensors, affineitk_file, 2);
+    }
+    else
+    {
+      std::cerr << "Tensor rotation requested, but dof/newdof/affineitk file not specified" << std::endl;
+      return EXIT_FAILURE;
+    }
+    if( !doubleDTI )
+    {
+      CastDTIFilterType::Pointer castFilter = CastDTIFilterType::New() ;
+      castFilter->SetInput( tensorImage ) ;
+      castFilter->Update() ;
+      TensorFloatImageType::Pointer tensorFloat = castFilter->GetOutput() ;
+      writeImage( rotOutput , tensorFloat ) ;
+    }
+    else
+    {
+      writeImage( rotOutput , tensorImage ) ;
+    }
   }
 
 
   if(deformationOutput != "")
   {
-  if(forwardTransformation == "")
+    if(forwardTransformation == "")
     {
       std::cerr << "Deformation field info not fully specified" << std::endl;
       return EXIT_FAILURE;
@@ -479,22 +515,33 @@ int main(int argc, char* argv[])
     
     DeformationFieldType dftype = Displacement;
     if(hField)
-      {
+    {
       dftype = HField;
-      }
+    }
     
     forward = readDeformationField(forwardTransformation, dftype);
-
-    writeImage(deformationOutput,
-               createWarp(tensors,
-                          forward,
-                          //vm["reorientation"].as<TensorReorientationType>(),
-                          (reorientation == "fs" ? FiniteStrain :
-                           PreservationPrincipalDirection),
-                          //vm["interpolation"].as<InterpolationType>()));
-                          (interpolation == "linear" ? Linear :
-                           (interpolation == "nearestneightbor" ? NearestNeighbor :
-                            Cubic))));
+    TensorImageType::Pointer tensorImage ;
+    tensorImage = createWarp(tensors,
+               forward,
+               //vm["reorientation"].as<TensorReorientationType>(),
+               (reorientation == "fs" ? FiniteStrain :
+               PreservationPrincipalDirection),
+               //vm["interpolation"].as<InterpolationType>()));
+               (interpolation == "linear" ? Linear :
+               (interpolation == "nearestneightbor" ? NearestNeighbor :
+               Cubic)));
+    if( !doubleDTI )
+    {
+      CastDTIFilterType::Pointer castFilter = CastDTIFilterType::New() ;
+      castFilter->SetInput( tensorImage ) ;
+      castFilter->Update() ;
+      TensorFloatImageType::Pointer tensorFloat = castFilter->GetOutput() ;
+      writeImage( deformationOutput , tensorFloat ) ;
+    }
+    else
+    {
+      writeImage( deformationOutput , tensorImage ) ;
+    }
   }
 
 #if 0 //
@@ -504,7 +551,7 @@ int main(int argc, char* argv[])
     {
       std::cerr << "WARNING: No mask specified.  Computing whole brain statistics" << std::endl;
     }
-    if(VERBOSE)
+    if(DebugVerbose)
       std::cout << "Computing tensor stats" << std::endl;
     
 //    TensorRegionStatistics tstat = computeTensorStatistics(tensors);

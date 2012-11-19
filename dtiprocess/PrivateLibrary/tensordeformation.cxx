@@ -119,7 +119,6 @@ TensorImageType::Pointer createROT(TensorImageType::Pointer timg,
   LogEuclideanFilter::Pointer logf = LogEuclideanFilter::New();
   logf->SetInput(trotfilt->GetOutput()); 
   logf->Update();
-
   typedef itk::VectorResampleImageFilter<
     LogTensorImageType,LogTensorImageType> ResampleFilterType; // TODO: Should accept precision
   ResampleFilterType::Pointer resampler = ResampleFilterType::New();
@@ -137,6 +136,7 @@ TensorImageType::Pointer createROT(TensorImageType::Pointer timg,
   resampler->SetSize( logim->GetLargestPossibleRegion().GetSize() );
   resampler->SetOutputOrigin( logim->GetOrigin() );
   resampler->SetOutputSpacing( logim->GetSpacing() );
+  resampler->SetOutputDirection( logim->GetDirection() );
   
   typedef LogTensorImageType::PixelType LogPixelType;
   LogPixelType def(0.0);
@@ -205,6 +205,7 @@ TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
   warp->SetDeformationField(forward);
   warp->SetOutputSpacing(logf->GetOutput()->GetSpacing());
   warp->SetOutputOrigin(logf->GetOutput()->GetOrigin());
+  warp->SetOutputDirection(logf->GetOutput()->GetDirection() );
   warp->Update();
 
   typedef LogTensorImageType::PixelType LogPixelType;

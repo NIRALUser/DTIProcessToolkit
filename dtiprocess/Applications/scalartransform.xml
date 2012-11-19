@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Diffusion.DTIProcess</category>
+  <category>Diffusion.NIRALPipeline.Deprecated</category>
   <title>ScalarTransform</title>
   <description> </description>
   <documentation-url>http://www.google.com/</documentation-url>

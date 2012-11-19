@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Diffusion.DTIProcess</category>
-  <title>fiberstats</title>
+  <category>Diffusion.NIRALPipeline</category>
+  <title>FiberStats</title>
   <description> Obsolete tool - Not used anymore</description>
   <documentation-url>http://www.google.com/</documentation-url>
   <license>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Diffusion.DTIProcess</category>
+  <category>Diffusion.NIRALPipeline</category>
   <title>DTIAverage</title>
   <description> \ndtiaverage is a program that allows to compute the average of an arbitrary number of tensor fields (listed after the --inputs option) This program is used in our pipeline as the last step of the atlas building processing. When all the tensor fields have been deformed in the same space, to create the average tensor field (--tensor_output) we use dtiaverage. \n Several average method can be used (specified by the --method option): euclidian, log-euclidian and pga. The default being euclidian.</description>
   <documentation-url>http://www.google.com/</documentation-url>
