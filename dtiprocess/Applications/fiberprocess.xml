@@ -14,21 +14,14 @@
   <contributor>Casey Goodlett</contributor>
   <version>1.0.0</version>
   <parameters advanced="false">
-    <boolean>
-      <name>verbose</name>
-      <flag>v</flag>
-      <longflag>--verbose</longflag>
-      <label>Verbose</label>
-      <description>produce verbose output</description>
-      <default>0</default>
-    </boolean>
-    <boolean>
-      <name>noDataChange</name>
-      <longflag>--noDataChange</longflag>
-      <label>No Data Change</label>
-      <description>Do not change data ??? </description>
-      <default>0</default>
-    </boolean>
+    <label>I/O</label>
+    <geometry type="fiberbundle">
+      <name>fiberFile</name>
+      <longflag>--fiber_file</longflag>
+      <label>Fiber File</label>
+      <description>DTI fiber file</description>
+      <channel>input</channel>
+    </geometry>
     <geometry type="fiberbundle">
       <name>fiberOutput</name>
       <longflag>--fiber_output</longflag>
@@ -37,6 +30,14 @@
       <description>Output fiber file. May be warped or updated with new data depending on other options used.</description>
       <channel>output</channel>
     </geometry>
+    <image type="tensor">
+      <name>tensorVolume</name>
+      <longflag>--tensor_volume</longflag>
+      <flag>T</flag>
+      <label>Tensor Volume</label>
+      <description>Interpolate tensor values from the given field</description>
+      <channel>input</channel>
+    </image>
     <image type="vector">
       <name>hField</name>
       <longflag>--h_field</longflag>
@@ -53,6 +54,9 @@
       <description>Displacement Field for warp and statistics lookup.  If this option is used tensor-volume must also be specified.</description>
       <channel>input</channel>
     </image>
+  </parameters>
+  <parameters advanced="false">
+    <label>Options</label>
     <boolean>
       <name>noWarp</name>
       <flag>n</flag>
@@ -61,6 +65,14 @@
       <description>Do not warp the geometry of the tensors only obtain the new statistics.</description>
       <default>0</default>
     </boolean>
+    <float>
+      <name>fiberRadius</name> 
+      <longflag>--fiber_radius</longflag> 
+      <flag>R</flag>
+      <description>set radius of all fibers to this value</description> 
+      <label>Radius for all fibers</label> 
+      <default>0.4</default>
+    </float> 
     <boolean>
       <name>indexSpace</name>
       <longflag>--index_space</longflag>
@@ -68,14 +80,9 @@
       <description>Use index-space for fiber output coordinates, otherwise us world space for fiber output coordinates (from tensor file).</description>
       <default>0</default>
     </boolean>
-    <image type="tensor">
-      <name>tensorVolume</name>
-      <longflag>--tensor_volume</longflag>
-      <flag>T</flag>
-      <label>Tensor Volume</label>
-      <description>Interpolate tensor values from the given field</description>
-      <channel>input</channel>
-    </image>
+  </parameters>
+  <parameters advanced="true">
+    <label>Voxelize</label>
     <image type="label">
       <name>voxelize</name>
       <longflag>--voxelize</longflag>
@@ -98,20 +105,23 @@
       <description>Label for voxelized fiber</description>
       <default>1</default>
     </integer>
-    <float>
-      <name>fiberRadius</name> 
-      <longflag>--fiber_radius</longflag> 
-      <flag>R</flag>
-      <description>set radius of all fibers to this value</description> 
-      <label>Radius for all fibers</label> 
-      <default>0.4</default>
-    </float> 
-    <geometry type="fiberbundle">
-      <name>fiberFile</name>
-      <longflag>--fiber_file</longflag>
-      <label>Fiber File</label>
-      <description>DTI fiber file</description>
-      <channel>input</channel>
-    </geometry>
+  </parameters>
+  <parameters advanced="true">
+    <label>Advanced options</label>
+    <boolean>
+      <name>verbose</name>
+      <flag>v</flag>
+      <longflag>--verbose</longflag>
+      <label>Verbose</label>
+      <description>produce verbose output</description>
+      <default>0</default>
+    </boolean>
+    <boolean>
+      <name>noDataChange</name>
+      <longflag>--noDataChange</longflag>
+      <label>No Data Change</label>
+      <description>Do not change data ??? </description>
+      <default>0</default>
+    </boolean>
   </parameters>
 </executable>

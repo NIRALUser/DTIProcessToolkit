@@ -27,6 +27,7 @@
 #include <itkUnaryFunctorImageFilter.h>
 #include <itkImageDuplicator.h>
 #include <itkVersion.h>
+#include <itkCastImageFilter.h>
 
 #include "itkLogEuclideanTensorImageFilter.h"
 #include "itkExpEuclideanTensorImageFilter.h"
@@ -154,50 +155,69 @@ int main(int argc, char* argv[])
   
   const int numberofinputs = inputs.size();
   if(numberofinputs > 0)
+  {
+    TensorFileReader::Pointer reader = TensorFileReader::New();
+    AddImageFilter::Pointer adder = AddImageFilter::New();
+    LogEuclideanFilter::Pointer logfilt = LogEuclideanFilter::New();
+      
+    DuplicateImageFilter::Pointer dup = DuplicateImageFilter::New();
+    if(verbose)
     {
-      TensorFileReader::Pointer reader = TensorFileReader::New();
-      AddImageFilter::Pointer adder = AddImageFilter::New();
-      LogEuclideanFilter::Pointer logfilt = LogEuclideanFilter::New();
+      std::cout << "Loading: " <<  inputs[0] << std::endl;
+    }
+    
+    reader->SetFileName(inputs[0]);
+    reader->Update();
+    logfilt->SetInput(reader->GetOutput());
+    logfilt->Update();
       
-      DuplicateImageFilter::Pointer dup = DuplicateImageFilter::New();
-      std::cout << "lbl1" << std::endl;
+    dup->SetInputImage(logfilt->GetOutput());
+    dup->Update();
+    LogTensorImageType::Pointer average = dup->GetOutput();
+      
+    for(int i = 1; i < numberofinputs; ++i)
+    {
       if(verbose)
-	std::cout << "Loading: " <<  inputs[0] << std::endl;
-      
-      reader->SetFileName(inputs[0]);
-      reader->Update();
-      logfilt->SetInput(reader->GetOutput());
-      logfilt->Update();
-      
-      dup->SetInputImage(logfilt->GetOutput());
+      {
+        std::cout << "Loading: " <<  inputs[i] << std::endl;
+      }
+      reader->SetFileName(inputs[i].c_str());
+
+      adder->SetInput1(average);
+      adder->SetInput2(logfilt->GetOutput());
+      adder->Update();
+
+      dup->SetInputImage(adder->GetOutput());
       dup->Update();
-      LogTensorImageType::Pointer average = dup->GetOutput();
-      
-      for(int i = 1; i < numberofinputs; ++i)
-	{
-	  if(verbose)
-	    std::cout << "Loading: " <<  inputs[i] << std::endl;
-	  reader->SetFileName(inputs[i].c_str());
-	  
-	  adder->SetInput1(average);
-	  adder->SetInput2(logfilt->GetOutput());
-	  adder->Update();
-	  
-	  dup->SetInputImage(adder->GetOutput());
-	  dup->Update();
-	  average = dup->GetOutput();
-	  
-	}
+      average = dup->GetOutput();	  
+    }
 
-      DivideImageFilter::Pointer divide = DivideImageFilter::New();
-      divide->SetFunctor(PixelDivider<LogTensorPixelType>(numberofinputs));
-      divide->SetInput(average);
-      divide->Update();
+    DivideImageFilter::Pointer divide = DivideImageFilter::New();
+    divide->SetFunctor(PixelDivider<LogTensorPixelType>(numberofinputs));
+    divide->SetInput(average);
+    divide->Update();
 
-      typedef itk::ExpEuclideanTensorImageFilter<RealType> ExpEuclideanFilter;
-      ExpEuclideanFilter::Pointer expf = ExpEuclideanFilter::New();
-      expf->SetInput(divide->GetOutput());
+    typedef itk::ExpEuclideanTensorImageFilter<RealType> ExpEuclideanFilter;
+    ExpEuclideanFilter::Pointer expf = ExpEuclideanFilter::New();
+    expf->SetInput(divide->GetOutput());
       
+
+    if( !doubleDTI )
+    {
+      typedef itk::DiffusionTensor3D<float> TensorFloatPixelType;
+      typedef itk::Image<TensorFloatPixelType, 3> TensorFloatImageType;
+      typedef itk::CastImageFilter< TensorImageType, TensorFloatImageType > CastDTIFilterType ;
+      CastDTIFilterType::Pointer castFilter = CastDTIFilterType::New() ;
+      castFilter->SetInput( expf->GetOutput() ) ;
+      typedef itk::ImageFileWriter<TensorFloatImageType> TensorFileWriterType;
+      TensorFileWriterType::Pointer tensorWriter = TensorFileWriterType::New();
+      tensorWriter->SetFileName(tensorOutput.c_str());
+      tensorWriter->SetInput(castFilter->GetOutput());
+      tensorWriter->SetUseCompression(true);
+      tensorWriter->Update();
+    }
+    else
+    {
       typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;
       TensorFileWriterType::Pointer twrit = TensorFileWriterType::New();
       twrit->SetUseCompression(true);
@@ -205,11 +225,12 @@ int main(int argc, char* argv[])
       twrit->SetFileName(tensorOutput);
       twrit->Update();
     }
+  }
   else
-    {
-      std::cout << "At least one tensor field has to be specified" << std::endl;
-      return EXIT_FAILURE;
-    }
+  {
+    std::cout << "At least one tensor field has to be specified" << std::endl;
+    return EXIT_FAILURE;
+  }
   return EXIT_SUCCESS;
 }
 

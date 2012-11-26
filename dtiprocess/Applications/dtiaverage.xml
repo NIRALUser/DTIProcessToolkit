@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Diffusion.NIRALPipeline</category>
+  <category>Diffusion.NIRALPipeline.OnlyCommandLine</category>
   <title>DTIAverage</title>
   <description> \ndtiaverage is a program that allows to compute the average of an arbitrary number of tensor fields (listed after the --inputs option) This program is used in our pipeline as the last step of the atlas building processing. When all the tensor fields have been deformed in the same space, to create the average tensor field (--tensor_output) we use dtiaverage. \n Several average method can be used (specified by the --method option): euclidian, log-euclidian and pga. The default being euclidian.</description>
   <documentation-url>http://www.google.com/</documentation-url>
@@ -14,7 +14,22 @@
   <contributor>Casey Goodlett</contributor>
   <version>1.0.0</version>
   <parameters advanced="false">
+    <image multiple="true" type="tensor">
+      <name>inputs</name>
+      <longflag>--inputs</longflag>
+      <label>Inputs</label>
+      <description>List of all the tensor fields to be averaged</description>
+      <channel>input</channel>
+    </image>
+    <image type="tensor">
+      <name>tensorOutput</name>
+      <longflag>--tensor_output</longflag>
+      <label>Averaged tensor field file name</label>
+      <description>Averaged tensor volume</description>
+      <channel>output</channel>
+    </image>
     <string-enumeration>
+      <label>Statistics method</label>
       <name>method</name>
       <longflag>--method</longflag>
       <flag>m</flag>
@@ -24,6 +39,16 @@
       <element>log-euclidean</element>
       <element>pga</element>
     </string-enumeration>
+  </parameters>
+  <parameters advanced="true">
+    <label>Advanced options</label>
+    <boolean>
+      <name>doubleDTI</name>
+      <longflag>--DTI_double</longflag>
+      <label>DTI double (do not use in 3D Slicer)</label>
+      <description>Tensor components are saved as doubles (cannot be visualized in Slicer)</description>
+      <default>false</default>
+    </boolean>
     <boolean>
       <name>verbose</name>
       <flag>v</flag>
@@ -32,19 +57,5 @@
       <description>produce verbose output</description>
       <default>0</default>
     </boolean>
-    <image type="tensor">
-      <name>tensorOutput</name>
-      <longflag>--tensor_output</longflag>
-      <label>Averaged tensor field file name</label>
-      <description>Averaged tensor volume</description>
-      <channel>output</channel>
-    </image>
-    <image multiple="true" type="tensor">
-      <name>inputs</name>
-      <longflag>--inputs</longflag>
-      <label>Inputs</label>
-      <description>List of all the tensor fields to be averaged</description>
-      <channel>input</channel>
-    </image>
   </parameters>
 </executable>

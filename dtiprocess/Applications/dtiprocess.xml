@@ -43,6 +43,14 @@
       <channel>output</channel>
       <default></default>
     </image>
+    <double>
+      <name>sigma</name>
+      <longflag>--sigma</longflag>
+      <flag>s</flag>
+      <label>Gradients scale</label>
+      <description>Scale of gradients</description>
+      <default>2.0</default>
+    </double>
     <image type="vector">
       <name>faGradientOutput</name>
       <longflag>--fa_gradient_output</longflag>
@@ -224,14 +232,6 @@
   </parameters>
   <parameters advanced="true">
     <label>Options</label>
-    <double>
-      <name>sigma</name>
-      <longflag>--sigma</longflag>
-      <flag>s</flag>
-      <label>Sigma</label>
-      <description>Scale of gradients</description>
-      <default>2.0</default>
-    </double>
     <boolean>
       <name>scalarFloat</name>
       <longflag>--scalar_float</longflag>

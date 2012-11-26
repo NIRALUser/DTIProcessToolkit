@@ -41,10 +41,10 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup)
   else if (filename.rfind(".vt") != std::string::npos)
   {
     // Build VTK data structure
-    vtkSmartPointer<vtkPolyData> polydata(vtkPolyData::New());
-    vtkSmartPointer<vtkFloatArray> tensorsdata(vtkFloatArray::New());
-    vtkSmartPointer<vtkIdList> ids(vtkIdList::New());
-    vtkSmartPointer<vtkPoints> pts(vtkPoints::New());
+    vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
+    vtkSmartPointer<vtkFloatArray> tensorsdata = vtkSmartPointer<vtkFloatArray>::New();
+    vtkSmartPointer<vtkIdList> ids = vtkSmartPointer<vtkIdList>::New();
+    vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
 
     tensorsdata->SetNumberOfComponents(9);
     polydata->SetPoints (pts);
@@ -106,7 +106,7 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup)
     // Legacy
     if (filename.rfind(".vtk") != std::string::npos)
     {
-      vtkSmartPointer<vtkPolyDataWriter> fiberwriter = vtkPolyDataWriter::New();
+      vtkSmartPointer<vtkPolyDataWriter> fiberwriter = vtkSmartPointer<vtkPolyDataWriter>::New();
       fiberwriter->SetFileTypeToBinary();
       fiberwriter->SetFileName(filename.c_str());
       fiberwriter->SetInput(polydata);
@@ -115,7 +115,7 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup)
     // XML
     else if (filename.rfind(".vtp") != std::string::npos)
     {
-      vtkSmartPointer<vtkXMLPolyDataWriter> fiberwriter = vtkXMLPolyDataWriter::New();
+      vtkSmartPointer<vtkXMLPolyDataWriter> fiberwriter = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
       fiberwriter->SetFileName(filename.c_str());
       fiberwriter->SetInput(polydata);
       fiberwriter->Update();
@@ -158,7 +158,7 @@ GroupType::Pointer readFiberFile(const std::string & filename)
     // Legacy
     if (filename.rfind(".vtk") != std::string::npos)
     {
-      vtkSmartPointer<vtkPolyDataReader> reader(vtkPolyDataReader::New());
+      vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
       reader->SetFileName(filename.c_str());
       reader->Update();
       fibdata = reader->GetOutput();
@@ -166,7 +166,7 @@ GroupType::Pointer readFiberFile(const std::string & filename)
     }
     else if (filename.rfind(".vtp") != std::string::npos)
     {
-      vtkSmartPointer<vtkXMLPolyDataReader> reader(vtkXMLPolyDataReader::New());
+      vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
       reader->SetFileName(filename.c_str());
       reader->Update();
       fibdata = reader->GetOutput();
