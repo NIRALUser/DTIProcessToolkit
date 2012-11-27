@@ -14,6 +14,7 @@
   <contributor>Casey Goodlett</contributor>
   <version>1.0.0</version>
   <parameters advanced="false">
+    <label>I/O</label>
     <image multiple="true" type="tensor">
       <name>inputs</name>
       <longflag>--inputs</longflag>
