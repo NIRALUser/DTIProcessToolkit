@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Diffusion.NIRALPipeline</category>
+  <category>Diffusion.NIRALPipeline.OnlyCommandLine</category>
   <title>FiberStats</title>
   <description> Obsolete tool - Not used anymore</description>
   <documentation-url>http://www.google.com/</documentation-url>

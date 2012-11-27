@@ -28,17 +28,6 @@
       <description>Averaged tensor volume</description>
       <channel>output</channel>
     </image>
-    <string-enumeration>
-      <label>Statistics method</label>
-      <name>method</name>
-      <longflag>--method</longflag>
-      <flag>m</flag>
-      <description>Statistics method (euclidean,log-euclidean,pga)</description>
-      <default>euclidian</default>
-      <element>euclidean</element>
-      <element>log-euclidean</element>
-      <element>pga</element>
-    </string-enumeration>
   </parameters>
   <parameters advanced="true">
     <label>Advanced options</label>
