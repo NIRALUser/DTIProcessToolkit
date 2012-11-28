@@ -1,173 +1,164 @@
+#
+# Test executable
+#
 
-# Unit tests
-SET(TestSuite_SRCS
-BesselTest.cxx
-ScalarDeformationApplyTest.cxx
-WarpFiberTest.cxx
-WarpTensorTest.cxx
-FiberIOTest.cxx
-TensorEstimateTest.cxx
-PrincipalEigenvectorFunctionTest.cxx
-ReadITKAffineTest.cxx
-)
 
-ADD_EXECUTABLE(TestSuite TestSuite.cxx ${TestSuite_SRCS})
-TARGET_LINK_LIBRARIES(TestSuite ${ITK_LIBRARIES} ${ITK_LIBRARIES} DWIPrivateLibrary)
+include( CTest )
 
-#SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
 
-SET(TESTING_DATA_DIR ${CMAKE_SOURCE_DIR}/Testing/Data)
-SET(TESTING_RESULTS_DIR ${CMAKE_BINARY_DIR}/Testing/Data)
 
-FILE(MAKE_DIRECTORY ${TESTING_RESULTS_DIR})
+set(SOURCE_DIRECTORY ${DTIProcess_SOURCE_DIR}/Data/ )
+set(TEMP_DIR ${DTIProcess_BINARY_DIR}/Testing/Temporary )
 
-# Unit tests
-SET(TEST_SUITE ${CMAKE_BINARY_DIR}/bin/TestSuite)
+######################################
+# DTIEstim tests
+######################################
 
-ADD_TEST(BesselTest ${TEST_SUITE} BesselTest)
-ADD_TEST(LLSTensorEstimateTest ${TEST_SUITE} LLSTensorEstimateTest)
-ADD_TEST(WLSTensorEstimateTest ${TEST_SUITE} WLSTensorEstimateTest)
-ADD_TEST(NLSTensorEstimateTest ${TEST_SUITE} NLSTensorEstimateTest)
-ADD_TEST(PrincipalEigenvectorFunctionTest ${TEST_SUITE} PrincipalEigenvectorFunctionTest)
-#ADD_TEST(WarpFiberTest ${TEST_SUITE} WarpFiberTest)
-#ADD_TEST(WarpTensortest ${TEST_SUITE} WarpTensorTest)
+set( CLP dtiestim )
+set( ${CLP}_tmp_dir ${TEMP_DIR}/${CLP} )
+set( ${CLP}_source_dir ${SOURCE_DIRECTORY}/${CLP} )
+file(MAKE_DIRECTORY  ${${CLP}_tmp_dir} )
 
-ADD_TEST(ScalarDeformationApplyTest ${TEST_SUITE}
-         --compare
-           ${TESTING_RESULTS_DIR}/transformfa.nrrd
-           ${TESTING_RESULTS_DIR}/warpfa.nrrd
-         ScalarDeformationApplyTest
-           ${TESTING_DATA_DIR}/fa.nrrd
-           ${TESTING_DATA_DIR}/test.dof
-           ${TESTING_RESULTS_DIR}/transformfa.nrrd
-           ${TESTING_RESULTS_DIR}/warpfa.nrrd
-           )
+set(input ${${CLP}_source_dir}/Input/dwi.nrrd )
 
-ADD_TEST(ReadITKAffineTest ${TEST_SUITE} ReadITKAffineTest
-                           ${TESTING_DATA_DIR}/itkAffineTransformFloat.txt
-                           ${TESTING_DATA_DIR}/itkAffineTransformDouble.txt)
+add_executable(${CLP}Test ImageCompareTest.cxx)
+target_link_libraries(${CLP}Test ${CLP}Lib)
+set(trash ${${CLP}_tmp_dir}/dti_trash.nrrd )
 
-# Application Command Line tests
-ADD_TEST(TransformDWITest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dwiprocess
-                          ${TESTING_DATA_DIR}/testdwi.nrrd
-                          ${TESTING_RESULTS_DIR}/testdwi-rot.nrrd
-                          ${TESTING_DATA_DIR}/test.dof)
+#B0
+set(output ${${CLP}_tmp_dir}/b0.nrrd )
+set(baseline ${${CLP}_source_dir}/Baseline/b0.nrrd )
+add_test(NAME ${CLP}B0Test COMMAND $<TARGET_FILE:${CLP}Test>
+  --compare
+    ${baseline}
+    ${output}
+  --compareIntensityTolerance 0
+  ModuleEntryPoint
+    --B0 ${output}
+    --dwi_image ${input}
+    --tensor_output ${trash}
+  )
 
-ADD_TEST(TensorEstimateVolumeTest
-         ${TEST_SUITE}
-         --compare
-         ${TESTING_DATA_DIR}/tensors.nrrd
-         ${TESTING_RESULTS_DIR}/result-tensors.nrrd
-         CommandLineTest
-         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim --dwi_image
-         ${TESTING_DATA_DIR}/testdwi.nrrd --tensor_output
-         ${TESTING_RESULTS_DIR}/result-tensors.nrrd -threshold 200)
+#DWI wls
+set(output ${${CLP}_tmp_dir}/dti_wls.nrrd )
+set(baseline ${${CLP}_source_dir}/Baseline/dti_WLS.nrrd )
+add_test(NAME ${CLP}DTI_WLS_Test COMMAND $<TARGET_FILE:${CLP}Test>
+  --compare
+    ${baseline}
+    ${output}
+  --compareIntensityTolerance 0
+  ModuleEntryPoint
+    --tensor_output ${output}
+    --dwi_image ${input}
+    -m wls
+  )
 
-ADD_TEST(TensorEstimateNEXTest
-         ${TEST_SUITE}
-         --compare
-         ${TESTING_RESULTS_DIR}/result-tensors-rep.nrrd
-         ${TESTING_RESULTS_DIR}/result-tensors-nex.nrrd
-         CommandLineTest
-         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim --dwi_image
-         ${TESTING_DATA_DIR}/testdwirepbaseline.nrrd --tensor_output
-         ${TESTING_RESULTS_DIR}/result-tensors-rep.nrrd -threshold 200 &&
-         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim --dwi_image
-         ${TESTING_DATA_DIR}/testdwirepbaselinenex.nrrd --tensor_output
-         ${TESTING_RESULTS_DIR}/result-tensors-nex.nrrd -threshold 200)
+set(output ${${CLP}_tmp_dir}/idwi.nrrd )
+set(baseline ${${CLP}_source_dir}/Baseline/IDWI.nrrd )
+add_test(NAME ${CLP}IDWITest COMMAND $<TARGET_FILE:${CLP}Test>
+  --compare
+    ${baseline}
+    ${output}
+  --compareIntensityTolerance 0
+  ModuleEntryPoint
+    --idwi ${output}
+    --dwi_image ${input}
+    --tensor_output ${trash}
+  )
 
-ADD_TEST(TensorEstimateVolumeTest
-         ${TEST_SUITE}
-         --compare
-         ${TESTING_DATA_DIR}/tensors.nrrd
-         ${TESTING_RESULTS_DIR}/result-tensors.nrrd
-         CommandLineTest
-         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim --dwi_image
-         ${TESTING_DATA_DIR}/testdwi.nrrd --tensor_output
-         ${TESTING_RESULTS_DIR}/result-tensors.nrrd -t 200)
 
-ADD_TEST(TensorEstimateNEXTest
-         ${TEST_SUITE}
-         --compare
-         ${TESTING_RESULTS_DIR}/result-tensors-rep.nrrd
-         ${TESTING_RESULTS_DIR}/result-tensors-nex.nrrd
-         CommandLineTest
-         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim --dwi_image
-         ${TESTING_DATA_DIR}/testdwirepbaseline.nrrd --tensor_output
-         ${TESTING_RESULTS_DIR}/result-tensors-rep.nrrd -t 200 &&
-         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiestim --dwi_image
-         ${TESTING_DATA_DIR}/testdwirepbaselinenex.nrrd --tensor_output
-         ${TESTING_RESULTS_DIR}/result-tensors-nex.nrrd -t 200)
+######################################
+# DTIAverage tests
+######################################
+set( CLP dtiaverage )
+set( ${CLP}_tmp_dir ${TEMP_DIR}/${CLP} )
+set( ${CLP}_source_dir ${SOURCE_DIRECTORY}/${CLP} )
+file(MAKE_DIRECTORY  ${${CLP}_tmp_dir} )
 
-ADD_TEST(CompareFATest
-         ${TEST_SUITE}
-         --compare 
-	 ${TESTING_DATA_DIR}/fa.nrrd
-         ${TESTING_RESULTS_DIR}/result-fa.nrrd
-         CommandLineTest 
-	 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess --dti_image 
-	 ${TESTING_DATA_DIR}/tensors.nrrd -f 
-	 ${TESTING_RESULTS_DIR}/result-fa.nrrd)
+set(input1 ${${CLP}_source_dir}/Input/dti.nrrd )
+set(input2 ${${CLP}_source_dir}/Input/dti2.nrrd )
 
-# ADD_TEST(CompareIntFAPythonTest
-#          ${TEST_SUITE}
-#          --compare ${TESTING_DATA_DIR}/fa.nrrd
-#                    ${TESTING_RESULTS_DIR}/presult-fa.nrrd
-#          CommandLineTest PYTHONPATH=${CMAKE_BINARY_DIR}/Wrapping python ${CMAKE_SOURCE_DIR}/Testing/test.py ${TESTING_DATA_DIR}/tensors.nrrd  ${TESTING_RESULTS_DIR}/presult-fa.nrrd int)
+add_executable(${CLP}Test ImageCompareTest.cxx)
+target_link_libraries(${CLP}Test ${CLP}Lib)
 
-# ADD_TEST(CompareFloatFAPythonTest
-#          ${TEST_SUITE}
-#          --compare ${TESTING_DATA_DIR}/floatfa.nrrd
-#                    ${TESTING_RESULTS_DIR}/presult-float-fa.nrrd
-#          CommandLineTest PYTHONPATH=${CMAKE_BINARY_DIR}/Wrapping python ${CMAKE_SOURCE_DIR}/Testing/test.py ${TESTING_DATA_DIR}/tensors.nrrd  ${TESTING_RESULTS_DIR}/presult-float-fa.nrrd float)
 
-ADD_TEST(CompareCFATest
-         ${TEST_SUITE}
-         --compare 
-	 ${TESTING_DATA_DIR}/cfa.nrrd
-         ${TESTING_RESULTS_DIR}/result-cfa.nrrd
-         CommandLineTest 
-	 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess --dti_image 
-	 ${TESTING_DATA_DIR}/tensors.nrrd --color_fa_output
-	 ${TESTING_RESULTS_DIR}/result-cfa.nrrd)
+set(output ${${CLP}_tmp_dir}/dti_avg.nrrd )
+set(baseline ${${CLP}_source_dir}/Baseline/dti_average.nrrd )
+add_test(NAME ${CLP}Test1 COMMAND $<TARGET_FILE:${CLP}Test>
+  --compare
+    ${baseline}
+    ${output}
+  --compareIntensityTolerance 0
+  ModuleEntryPoint
+    --tensor_output ${output}
+    --inputs ${input1}
+    --inputs ${input2}
+  )
 
-ADD_TEST(CompareMDTest
-         ${TEST_SUITE}
-         --compare 
-	 ${TESTING_DATA_DIR}/md.nrrd
-         ${TESTING_RESULTS_DIR}/result-md.nrrd
-         CommandLineTest 
-	 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess --dti_image 
-	 ${TESTING_DATA_DIR}/tensors.nrrd -m 
-	 ${TESTING_RESULTS_DIR}/result-md.nrrd)
+######################################
+# DTIProcess tests
+######################################
 
-ADD_TEST(CompareLbd1Test
-         ${TEST_SUITE}
-         --compare 
-	 ${TESTING_DATA_DIR}/l1.nrrd
-         ${TESTING_RESULTS_DIR}/result-l1.nrrd
-         CommandLineTest 
-	 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess --dti_image 
-	 ${TESTING_DATA_DIR}/tensors.nrrd --lambda1_output 
-	 ${TESTING_RESULTS_DIR}/result-l1.nrrd)
 
-ADD_TEST(CompareLbd2Test
-         ${TEST_SUITE}
-         --compare 
-	 ${TESTING_DATA_DIR}/l2.nrrd
-         ${TESTING_RESULTS_DIR}/result-l2.nrrd
-         CommandLineTest 
-	 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess --dti_image 
-	 ${TESTING_DATA_DIR}/tensors.nrrd --lambda2_output 
-	 ${TESTING_RESULTS_DIR}/result-l2.nrrd)
+set( CLP dtiprocess )
+set( ${CLP}_tmp_dir ${TEMP_DIR}/${CLP} )
+set( ${CLP}_source_dir ${SOURCE_DIRECTORY}/${CLP} )
+file(MAKE_DIRECTORY  ${${CLP}_tmp_dir} )
 
-ADD_TEST(CompareLbd3Test
-         ${TEST_SUITE}
-         --compare 
-	 ${TESTING_DATA_DIR}/l3.nrrd
-         ${TESTING_RESULTS_DIR}/result-l3.nrrd
-         CommandLineTest 
-	 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dtiprocess --dti_image 
-	 ${TESTING_DATA_DIR}/tensors.nrrd --lambda3_output 
-	 ${TESTING_RESULTS_DIR}/result-l3.nrrd)
+set(input ${${CLP}_source_dir}/Input/dti.nrrd )
+
+add_executable(${CLP}Test ImageCompareTest.cxx)
+target_link_libraries(${CLP}Test ${CLP}Lib)
+
+#FA
+set(output ${${CLP}_tmp_dir}/fa.nrrd )
+set(baseline ${${CLP}_source_dir}/Baseline/FA.nrrd )
+add_test(NAME ${CLP}FATest COMMAND $<TARGET_FILE:${CLP}Test>
+  --compare
+    ${baseline}
+    ${output}
+  --compareIntensityTolerance 0
+  ModuleEntryPoint
+    -f ${output}
+    --dti_image ${input}
+  )
+
+#MD
+set(output ${${CLP}_tmp_dir}/MD.nrrd )
+set(baseline ${${CLP}_source_dir}/Baseline/MD.nrrd )
+add_test(NAME ${CLP}MDTest COMMAND $<TARGET_FILE:${CLP}Test>
+  --compare
+    ${baseline}
+    ${output}
+  --compareIntensityTolerance 0.0000001
+  ModuleEntryPoint
+    -m ${output}
+    --dti_image ${input}
+  )
+
+#AD
+set(output ${${CLP}_tmp_dir}/AD.nrrd )
+set(baseline ${${CLP}_source_dir}/Baseline/AD.nrrd )
+add_test(NAME ${CLP}ADTest COMMAND $<TARGET_FILE:${CLP}Test>
+  --compare
+    ${baseline}
+    ${output}
+  --compareIntensityTolerance 0
+  ModuleEntryPoint
+    --lambda1_output ${output}
+    --dti_image ${input}
+  )
+
+#RD
+set(output ${${CLP}_tmp_dir}/RD.nrrd )
+set(baseline ${${CLP}_source_dir}/Baseline/RD.nrrd )
+add_test(NAME ${CLP}RDTest COMMAND $<TARGET_FILE:${CLP}Test>
+  --compare
+    ${baseline}
+    ${output}
+  --compareIntensityTolerance 0
+  ModuleEntryPoint
+    --RD_output ${output}
+    --dti_image ${input}
+  )
 

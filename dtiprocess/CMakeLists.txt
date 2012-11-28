@@ -3,9 +3,7 @@ set(LOCAL_PROJECT_NAME DTIProcess)
 cmake_minimum_required(VERSION 2.8)
 cmake_policy(VERSION 2.8)
 
-ENABLE_TESTING()
-include(Dart)
-#include(CPack)
+enable_testing()
 
 ## A simple macro to set variables ONLY if it has not been set
 ## This is needed when stand-alone packages are combined into
@@ -30,6 +28,7 @@ SETIFEMPTY(INSTALL_LIBRARY_DESTINATION lib)
 SETIFEMPTY(INSTALL_ARCHIVE_DESTINATION lib/static)
 
 option(BUILD_dwiAtlas "Build dwiAtlas or not.  Requires boost." OFF)
+option(BUILD_TESTING "Build the testing tree" ON)
 
 ##  Before looking for ITK or VTK, or many other packages, determine if
 ##  we are supposed to be building against Slicer3, and if so, then
