@@ -3,7 +3,6 @@ set(LOCAL_PROJECT_NAME DTIProcess)
 cmake_minimum_required(VERSION 2.8)
 cmake_policy(VERSION 2.8)
 
-enable_testing()
 
 ## A simple macro to set variables ONLY if it has not been set
 ## This is needed when stand-alone packages are combined into
@@ -26,6 +25,7 @@ SETIFEMPTY(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 SETIFEMPTY(INSTALL_RUNTIME_DESTINATION bin)
 SETIFEMPTY(INSTALL_LIBRARY_DESTINATION lib)
 SETIFEMPTY(INSTALL_ARCHIVE_DESTINATION lib/static)
+
 
 option(BUILD_dwiAtlas "Build dwiAtlas or not.  Requires boost." OFF)
 option(BUILD_TESTING "Build the testing tree" ON)
@@ -122,6 +122,7 @@ ADD_SUBDIRECTORY(PrivateLibrary)
 ADD_SUBDIRECTORY(Applications)
 
 IF(BUILD_TESTING)
+  enable_testing()
   ADD_SUBDIRECTORY(Testing)
 ENDIF(BUILD_TESTING)
 

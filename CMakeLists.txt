@@ -20,29 +20,7 @@ if(NOT Slicer_SOURCE_DIR)
   include(${Slicer_USE_FILE})
 endif()
 
-
-#-----------------------------------------------------------------------------
-#add_subdirectory(Logic)
-
-#-----------------------------------------------------------------------------
-#set(MODULE_INCLUDE_DIRECTORIES
-#  )
-
-#set(MODULE_SRCS
-#  )
-
-#set(MODULE_TARGET_LIBRARIES
-#  ${ITK_LIBRARIES}
-#  )
-
-#-----------------------------------------------------------------------------
-#SEMMacroBuildCLI(
-#  NAME ${MODULE_NAME}
-#  TARGET_LIBRARIES ${MODULE_TARGET_LIBRARIES}
-#  INCLUDE_DIRECTORIES ${MODULE_INCLUDE_DIRECTORIES}
-#  ADDITIONAL_SRCS ${MODULE_SRCS}
-  #EXECUTABLE_ONLY
-#  )
+enable_testing()
 
 include(ExternalProject)
 if(CMAKE_EXTRA_GENERATOR)
@@ -111,7 +89,7 @@ set(SlicerExecutionModel4_DEPEND ${proj}) ## Set the internal dependancy for ITK
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
       ${LOCAL_CMAKE_BUILD_OPTIONS}
-      -DBUILD_TESTING:BOOL=OFF
+      -DBUILD_TESTING:BOOL=ON
       -DITK_DIR:PATH=${ITK4_DIR}
       -DVTK_DIR:PATH=${VTK_DIR}
       -DGenerateCLP_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/SlicerExecutionModel-build/GenerateCLP
@@ -127,7 +105,9 @@ set(SlicerExecutionModel4_DEPEND ${proj}) ## Set the internal dependancy for ITK
     INSTALL_COMMAND ""
   )
 
-
+IF(BUILD_TESTING)
+  ADD_SUBDIRECTORY(Testing)
+ENDIF(BUILD_TESTING)
 
 #-----------------------------------------------------------------------------
 if(NOT Slicer_SOURCE_DIR)
