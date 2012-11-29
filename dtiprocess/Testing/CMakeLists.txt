@@ -130,7 +130,7 @@ add_test(NAME ${CLP}MDTest COMMAND $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
-  --compareIntensityTolerance 0.0000001
+  --compareIntensityTolerance 0
   ModuleEntryPoint
     -m ${output}
     --dti_image ${input}
