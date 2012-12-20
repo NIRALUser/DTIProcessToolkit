@@ -94,8 +94,15 @@ set(SlicerExecutionModel4_DEPEND ${proj}) ## Set the internal dependancy for ITK
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
       -DCLI_RUNTIME_OUTPUT_DIRECTORY:PATH=${SlicerExecutionModel_DEFAULT_CLI_RUNTIME_OUTPUT_DIRECTORY}
-      -DCLI_INSTALL_RUNTIME_DESTINATION:PATH=${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}
+    INSTALL_COMMAND ""
   )
+  set( Tools  dtiaverage dtiestim dtiprocess fiberprocess fiberstats fibertrack maxcurvature scalartransform )
+  foreach( tool ${Tools} )
+    if(NOT ${tool} STREQUAL "MriWatcher") # MriWatcher is not in a ./bin directory -> install step specified manually after calling macro
+      install(PROGRAMS ${SlicerExecutionModel_DEFAULT_CLI_RUNTIME_OUTPUT_DIRECTORY} DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}) 
+    endif()
+  endforeach()
+
 
 IF(BUILD_TESTING)
   ADD_SUBDIRECTORY(Testing)
