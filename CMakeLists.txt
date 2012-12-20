@@ -42,7 +42,7 @@ endif()
 set(proj Insight)
 set(${proj}_REPOSITORY ${git_protocol}://itk.org/ITK.git CACHE STRING "" FORCE)
 ExternalProject_Add(${proj}
-  GIT_TAG v4.2.0
+  GIT_TAG v4.3.0
   GIT_REPOSITORY ${${proj}_REPOSITORY}
   UPDATE_COMMAND ""
   SOURCE_DIR ${proj}

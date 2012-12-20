@@ -73,7 +73,7 @@ public:
  */
 template <typename TInputImage,
           typename TOutputImage=itk::Image<typename TInputImage::PixelType::RealValueType,
-                                           ::itk::GetImageDimension<TInputImage>::ImageDimension > >
+                                           TInputImage::ImageDimension > >
 class ITK_EXPORT TensorFrobeniusNormImageFilter :
     public
 UnaryFunctorImageFilter<TInputImage,TOutputImage, 
