@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8.7)
 #-----------------------------------------------------------------------------
 if(NOT Slicer_SOURCE_DIR)
   set(EXTENSION_NAME DTIProcess)
-  set(EXTENSION_HOMEPAGE "http://www.slicer.org/slicerWiki/index.php/Documentation/4.2/Extensions/DTIProcess_ToolKit")
+  set(EXTENSION_HOMEPAGE "http://www.slicer.org/slicerWiki/index.php/Documentation/4.2/Extensions/DTIProcess")
   set(EXTENSION_CATEGORY "Diffusion")
   set(EXTENSION_CONTRIBUTORS "Francois Budin (UNC)")
   set(EXTENSION_DESCRIPTION "This extension provides the tool DTIProcess integrated in Slicer")
