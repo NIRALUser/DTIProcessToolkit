@@ -9,6 +9,9 @@ if(NOT Slicer_SOURCE_DIR)
   set(EXTENSION_DESCRIPTION "This extension provides the tool DTIProcess integrated in Slicer")
   set(EXTENSION_ICONURL "http://www.nitrc.org/project/screenshot.php?group_id=312&screenshot_id=575")
   set(EXTENSION_SCREENSHOTURLS "http://www.slicer.org/slicerWiki/images/thumb/b/b8/DTIEstim-B0-crop.png/193px-DTIEstim-B0-crop.png http://www.slicer.org/slicerWiki/images/thumb/9/90/FiberTrack-fibers.png/138px-FiberTrack-fibers.png")
+  set(EXTENSION_STATUS "Beta")
+  set(EXTENSION_DEPENDS "NA") # Specified as a space separated list or 'NA' if any
+  set(EXTENSION_BUILD_SUBDIRECTORY dtiprocess-build)
 endif()
 
 #-----------------------------------------------------------------------------
@@ -96,10 +99,10 @@ set(SlicerExecutionModel4_DEPEND ${proj}) ## Set the internal dependancy for ITK
       -DCLI_RUNTIME_OUTPUT_DIRECTORY:PATH=${SlicerExecutionModel_DEFAULT_CLI_RUNTIME_OUTPUT_DIRECTORY}
     INSTALL_COMMAND ""
   )
-  set( Tools  dtiaverage dtiestim dtiprocess fiberprocess fiberstats fibertrack maxcurvature scalartransform )
-  foreach( tool ${Tools} )
-    install(PROGRAMS ${SlicerExecutionModel_DEFAULT_CLI_RUNTIME_OUTPUT_DIRECTORY}/${tool} DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}) 
-  endforeach()
+#  set( Tools  dtiaverage dtiestim dtiprocess fiberprocess fiberstats fibertrack maxcurvature scalartransform )
+#  foreach( tool ${Tools} )
+#    install(PROGRAMS ${SlicerExecutionModel_DEFAULT_CLI_RUNTIME_OUTPUT_DIRECTORY}/${tool} DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}) 
+#  endforeach()
 
 
 IF(BUILD_TESTING)

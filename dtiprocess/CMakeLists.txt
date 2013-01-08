@@ -91,3 +91,11 @@ IF(BUILD_TESTING)
   ADD_SUBDIRECTORY(Testing)
 ENDIF(BUILD_TESTING)
 
+set( Tools  dtiaverage dtiestim dtiprocess fiberprocess fiberstats fibertrack
+maxcurvature scalartransform )
+foreach( tool ${Tools} )
+  install(PROGRAMS
+${SlicerExecutionModel_DEFAULT_CLI_RUNTIME_OUTPUT_DIRECTORY}/${tool}
+DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION})
+endforeach()
+
