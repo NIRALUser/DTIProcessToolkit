@@ -103,6 +103,7 @@ set(SlicerExecutionModel4_DEPEND ${proj}) ## Set the internal dependancy for ITK
       -DEXTENSION_SUPERBUILD_BINARY_DIR:PATH=${${EXTENSION_NAME}_BINARY_DIR}
       # Slicer
       -DSlicer_DIR:PATH=${Slicer_DIR}
+      -DSlicer_EXTENSION_CPACK:FILEPATH=${Slicer_EXTENSION_CPACK}
     INSTALL_COMMAND ""
   )
 
