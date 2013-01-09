@@ -98,6 +98,7 @@ set(SlicerExecutionModel4_DEPEND ${proj}) ## Set the internal dependancy for ITK
       -DCLI_RUNTIME_OUTPUT_DIRECTORY:PATH=${SlicerExecutionModel_DEFAULT_CLI_RUNTIME_OUTPUT_DIRECTORY}
       -DSlicer_EXTENSION_CPACK:PATH=${Slicer_EXTENSION_CPACK}
       -DEXTENSION_NAME:STRING=${EXTENSION_NAME}
+      -DSlicer_USE_FILE:FILEPATH=${Slicer_USE_FILE}
     INSTALL_COMMAND ""
   )
 
