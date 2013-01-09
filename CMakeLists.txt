@@ -23,7 +23,6 @@ if(NOT Slicer_SOURCE_DIR)
   include(${Slicer_USE_FILE})
 endif()
 
-enable_testing()
 
 include(ExternalProject)
 if(CMAKE_EXTRA_GENERATOR)
@@ -93,23 +92,14 @@ set(SlicerExecutionModel4_DEPEND ${proj}) ## Set the internal dependancy for ITK
       -DBUILD_TESTING:BOOL=ON
       -DITK_DIR:PATH=${ITK4_DIR}
       -DVTK_DIR:PATH=${VTK_DIR}
-      -DSlicerExecutionModel_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/SlicerExecutionModel-build
+      -DSlicerExecutionModel_DIR:PATH=${SlicerExecutionModel4_DIR}
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
       -DCLI_RUNTIME_OUTPUT_DIRECTORY:PATH=${SlicerExecutionModel_DEFAULT_CLI_RUNTIME_OUTPUT_DIRECTORY}
+      -DSlicer_EXTENSION_CPACK:PATH=${Slicer_EXTENSION_CPACK}
     INSTALL_COMMAND ""
   )
-#  set( Tools  dtiaverage dtiestim dtiprocess fiberprocess fiberstats fibertrack maxcurvature scalartransform )
-#  foreach( tool ${Tools} )
-#    install(PROGRAMS ${SlicerExecutionModel_DEFAULT_CLI_RUNTIME_OUTPUT_DIRECTORY}/${tool} DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}) 
-#  endforeach()
 
 
-IF(BUILD_TESTING)
-  ADD_SUBDIRECTORY(Testing)
-ENDIF(BUILD_TESTING)
 
 #-----------------------------------------------------------------------------
-if(NOT Slicer_SOURCE_DIR)
-  include(${Slicer_EXTENSION_CPACK})
-endif()
