@@ -99,8 +99,8 @@ DESTINATION ${CLI_INSTALL_RUNTIME_DESTINATION})
 endforeach()
 
 #set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
-
-if( EXTENSION_NAME )
+message( "extension superbuild: "${EXTENSION_SUPERBUILD_BINARY_DIR})
+if( EXTENSION_SUPERBUILD_BINARY_DIR )
   message("test")
   find_package( Slicer )
   include( ${Slicer_USE_FILE} )
