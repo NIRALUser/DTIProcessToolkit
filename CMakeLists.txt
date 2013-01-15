@@ -22,6 +22,8 @@ find_package(Slicer REQUIRED)
 include(${Slicer_USE_FILE})
 
 
+
+
 include(ExternalProject)
 if(CMAKE_EXTRA_GENERATOR)
   set(gen "${CMAKE_EXTRA_GENERATOR} - ${CMAKE_GENERATOR}")
@@ -104,7 +106,5 @@ set(SlicerExecutionModel4_DEPEND ${proj}) ## Set the internal dependancy for ITK
       -DSlicer_USE_FILE:FILEPATH=${Slicer_USE_FILE}
     INSTALL_COMMAND ""
   )
-
-
 
 #-----------------------------------------------------------------------------

@@ -88,7 +88,7 @@ ADD_SUBDIRECTORY(PrivateLibrary)
 ADD_SUBDIRECTORY(Applications)
 
 IF(BUILD_TESTING)
-  enable_testing()
+#  enable_testing()
   ADD_SUBDIRECTORY(Testing)
 ENDIF(BUILD_TESTING)
 
@@ -112,5 +112,6 @@ if( EXTENSION_SUPERBUILD_BINARY_DIR )
   set( ITK_DIR ${ITK_DIR_TMP} CACHE PATH "ITK PATH" FORCE )
   set( SlicerExecutionModel_DIR ${SlicerExecutionModel_DIR_TMP} CACHE PATH
 "SlicerExecutionModel PATH" FORCE )
+  set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
   include(${Slicer_EXTENSION_CPACK})
 endif()
