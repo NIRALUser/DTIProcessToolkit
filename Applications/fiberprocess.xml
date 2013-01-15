@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Diffusion.NIRALPipeline</category>
+  <title>FiberProcess</title>
+  <description>\nfiberprocess is a tool that manage fiber files extracted from the fibertrack tool or any fiber tracking algorithm. It takes as an input .fib and .vtk files (--fiber_file) and saves the changed fibers (--fiber_output) into the 2 same formats. The main purpose of this tool is to deform the fiber file with a transformation field as an input (--displacement_field or --h_field depending if you deal with dfield or hfield). To use that option you need to specify the tensor field from which the fiber file was extracted with the option --tensor_volume. The transformation applied on the fiber file is the inverse of the one input. If the transformation is from one case to an atlas, fiberprocess assumes that the fiber file is in the atlas space and you want it in the original case space, so it's the inverse of the transformation which has been computed. \nYou have 2 options for fiber modification. You can either deform the fibers (their geometry) into the space OR you can keep the same geometry but map the diffusion properties (fa, md, lbd's...) of the original tensor field along the fibers at the corresponding locations. This is triggered by the --no_warp option. To use the previous example: when you have a tensor field in the original space and the deformed tensor field in the atlas space, you want to track the fibers in the atlas space, keeping this geometry but with the original case diffusion properties. Then you can specify the transformations field (from original case -> atlas) and the original tensor field with the --tensor_volume option. \nWith fiberprocess you can also binarize a fiber file. Using the --voxelize option will create an image where each voxel through which a fiber is passing is set to 1. The output is going to be a binary image with the values 0 or 1 by default but the 1 value voxel can be set to any number with the --voxel_label option. Finally you can create an image where the value at the voxel is the number of fiber passing through. (--voxelize_count_fibers)</description>
+  <documentation-url>http://www.google.com/</documentation-url>
+  <license>
+    Copyright (c)  Casey Goodlett. All rights reserved.
+    See http://www.ia.unc.edu/dev/Copyright.htm for details.
+    This software is distributed WITHOUT ANY WARRANTY; without even
+    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+    PURPOSE.  See the above copyright notices for more information.
+  </license>
+  <contributor>Casey Goodlett</contributor>
+  <version>1.0.0</version>
+  <parameters advanced="false">
+    <label>I/O</label>
+    <geometry type="fiberbundle">
+      <name>fiberFile</name>
+      <longflag>--fiber_file</longflag>
+      <label>Fiber File</label>
+      <description>DTI fiber file</description>
+      <channel>input</channel>
+    </geometry>
+    <geometry type="fiberbundle">
+      <name>fiberOutput</name>
+      <longflag>--fiber_output</longflag>
+      <flag>o</flag>
+      <label>Fiber Output</label>
+      <description>Output fiber file. May be warped or updated with new data depending on other options used.</description>
+      <channel>output</channel>
+    </geometry>
+    <image type="tensor">
+      <name>tensorVolume</name>
+      <longflag>--tensor_volume</longflag>
+      <flag>T</flag>
+      <label>Tensor Volume</label>
+      <description>Interpolate tensor values from the given field</description>
+      <channel>input</channel>
+    </image>
+    <image type="vector">
+      <name>hField</name>
+      <longflag>--h_field</longflag>
+      <flag>H</flag>
+      <label>HField</label>
+      <description>HField for warp and statistics lookup. If this option is used tensor-volume must also be specified.</description>
+      <channel>input</channel>
+    </image>
+    <image type="vector">
+      <name>displacementField</name>
+      <longflag>--displacement_field</longflag>
+      <flag>D</flag>
+      <label>DisplacementField</label>
+      <description>Displacement Field for warp and statistics lookup.  If this option is used tensor-volume must also be specified.</description>
+      <channel>input</channel>
+    </image>
+  </parameters>
+  <parameters advanced="false">
+    <label>Options</label>
+    <boolean>
+      <name>noWarp</name>
+      <flag>n</flag>
+      <longflag>--no_warp</longflag>
+      <label>No Warp</label>
+      <description>Do not warp the geometry of the tensors only obtain the new statistics.</description>
+      <default>0</default>
+    </boolean>
+    <float>
+      <name>fiberRadius</name> 
+      <longflag>--fiber_radius</longflag> 
+      <flag>R</flag>
+      <description>set radius of all fibers to this value</description> 
+      <label>Radius for all fibers</label> 
+      <default>0.4</default>
+    </float> 
+    <boolean>
+      <name>indexSpace</name>
+      <longflag>--index_space</longflag>
+      <label>Index Space</label>
+      <description>Use index-space for fiber output coordinates, otherwise us world space for fiber output coordinates (from tensor file).</description>
+      <default>0</default>
+    </boolean>
+  </parameters>
+  <parameters advanced="true">
+    <label>Voxelize</label>
+    <image type="label">
+      <name>voxelize</name>
+      <longflag>--voxelize</longflag>
+      <flag>V</flag>
+      <label>Voxelize</label>
+      <description>Voxelize fiber into a label map (the labelmap filename is the argument of -V). The tensor file must be specified using -T for information about the size, origin, spacing of the image. The deformation is applied before the voxelization </description>
+      <channel>output</channel>
+    </image>
+    <boolean>
+      <name>voxelizeCountFibers</name>
+      <longflag>--voxelize_count_fibers</longflag>
+      <label>Voxelize Count Fibers</label>
+      <description>Count number of fibers per-voxel instead of just setting to 1</description>
+      <default>0</default>
+    </boolean>
+    <integer>
+      <name>voxelLabel</name>
+      <longflag>--voxel_label</longflag>
+      <label>Label for voxelized fiber</label>
+      <description>Label for voxelized fiber</description>
+      <default>1</default>
+    </integer>
+  </parameters>
+  <parameters advanced="true">
+    <label>Advanced options</label>
+    <boolean>
+      <name>verbose</name>
+      <flag>v</flag>
+      <longflag>--verbose</longflag>
+      <label>Verbose</label>
+      <description>produce verbose output</description>
+      <default>0</default>
+    </boolean>
+    <boolean>
+      <name>noDataChange</name>
+      <longflag>--noDataChange</longflag>
+      <label>No Data Change</label>
+      <description>Do not change data ??? </description>
+      <default>0</default>
+    </boolean>
+  </parameters>
+</executable>
