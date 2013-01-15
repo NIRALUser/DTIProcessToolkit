@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+
+    <category>Atlas building</category>
+    <title>Spherical Harmonic Interpolation</title>
+    <description>Fit spherical harmonics to input DWI, create new DWI with different gradient directions.</description>
+    <version>1.0</version>
+    <documentation-url></documentation-url>
+    <license></license>
+    <contributor>Sami Benzaid, Casey Goodlett, and Marc Niethammer</contributor>
+    <acknowledgements></acknowledgements>
+
+    <parameters>
+        <label>Input/Output</label>
+        <description>Input/Output Parameters</description>
+
+        <image type="diffusion-weighted">
+            <name>dwiOutputVolume</name>
+            <label>Output Volume</label>
+            <channel>output</channel>
+            <index>0</index>
+            <default>None</default>
+            <description>Output DWI Volume, with new gradient directions.</description>
+        </image>
+
+        <image>
+            <name>maskImageFileName</name>
+            <label>Mask image</label>
+            <longflag>--mask</longflag>
+            <default>None</default>
+            <description>Mask image file name (needs to be already defined in atlas space). Can reduce the computational cost, because the atlas only needs to be computed within the mask.</description>
+        </image>
+
+        <image>
+            <name>outlierImageName</name>
+            <label>Outlier image filename</label>
+            <longflag>--outlierImage</longflag>
+            <default>None</default>
+            <description>Filen to save the outlier image to. This is only meaningful when using weighted least squares. Otherwise no outliers are going to be detected.</description>
+        </image>
+
+        <string>
+            <name>gradientVectorFile</name>
+            <flag>g</flag>
+            <longflag>--desiredGradients</longflag>
+            <label>Gradient Direction File</label>
+            <default>None</default>
+            <description>Plaintext file containing gradient directions for which to produce images.</description>
+        </string>
+
+        <string>
+            <name>sCaseFile</name>
+            <flag>c</flag>
+            <longflag>--caseFile</longflag>
+            <label>Case file</label>
+            <default>None</default>
+            <description>Case file which contains all DWI filenames and their associated deformation fields</description>
+        </string>
+     </parameters>
+
+     <parameters>
+        <label>Options</label>
+        <description>Optional settings</description>
+
+        <boolean>
+            <name>bHField</name>
+            <flag>f</flag>
+            <longflag>--isHField</longflag>
+            <label>HField</label>
+            <default>true</default>
+            <description>Deformation fields are h fields.</description>
+        </boolean>
+
+        <boolean>
+            <name>bJustDoResampling</name>
+            <longflag>--justResample</longflag>
+            <label>Just resample</label>
+            <default>false</default>
+            <description>If set to true, ignores the deformation field and just locally resamples the DWIs in the new basis. This is mainly for debugging purposes. But could also be used for local DWI averaging.</description>
+        </boolean>
+
+        <boolean>
+            <name>bVERBOSE</name>
+            <flag>v</flag>
+            <longflag>--verbose</longflag>
+            <label>Verbose output</label>
+            <default>false</default>
+            <description>Enables verbose output.</description>
+        </boolean>
+
+        <boolean>
+            <name>bNoLogFit</name>
+            <longflag>--noLogFit</longflag>
+            <label>No log fit</label>
+            <default>false</default>
+            <description>Disables the log domain fit for the sperical harmonics fit. The approximation is then done directly in the DWI domain. This is not recommended, since it is problematic with respect to the noise model and may create negative DWI values.</description>
+        </boolean>
+
+        <boolean>
+            <name>bDoWeightedLSEst</name>
+            <flag>w</flag>
+            <longflag>--weightedLS</longflag>
+            <label>Weighted LS</label>
+            <default>false</default>
+            <description>Do weighted least squares fit (needs to be in the log domain). If a Rician std is provided it is used. Otherwise it is estimated from the first baseline image found. If huberC is set to a value much larger than 10 this is essentially a weihgted least squares estimation. If it is set around 2 (default), outliers are downweighted through the loss function. In the log domain baseline images are always estimated using weighted least squares.</description>
+        </boolean>
+
+        <double>
+            <name>dHuberC</name>
+            <longflag>--huberC</longflag>
+            <label>Huber C</label>
+            <default>2.0</default>
+            <description>Specifies the C value for the Huber function which defines the transition from a quadratic to a magnitude fit. This value is related to the expected standard deviation for a residual. Set to 2, residuals with standard deviation twice the expected one (based on the weighted least squares model) are penalized based on the magnitude.</description>
+        </double>
+
+        <double>
+            <name>dRiceSigma</name>
+            <longflag>--riceSig</longflag>
+            <label>Rice sigma</label>
+            <default>-1</default>
+            <description>Estimation of the sigma paramter of the Rice distribution. If not specified and weighted least squares is used, it is estimated from the data.</description>
+        </double>
+
+        <integer>
+            <name>iWLSIter</name>
+            <longflag>--wlsIter</longflag>
+            <label>Number of WLS iterations</label>
+            <default>3</default>
+            <description>Number of iterations used for the iterative weighted least squares solver.</description>
+        </integer>
+
+        <string-enumeration>
+            <name>interpolationType</name>
+            <flag>i</flag>
+            <longflag>--interpolationType</longflag>
+            <description>Selects the type of interpolation to be used. The three options are: (i) nearestNeigbor: picks the nearest neighbor interpolation for all cases and then uses them for interpolation; (ii) linearlyInterpolated: performs linear interpolation on the DWIs for each case before combining them; (iii) weightedInterpolation: propgates the weights of the 8-neighborhood into the spherical harmonics approximation (WILL BE SLOW -- since lots of data is used for the computations). Only option (i) is currently implemented.</description>
+            <label>Interpolation Type</label>
+            <default>nearestNeighbor</default>
+            <element>nearestNeighbor</element>
+            <element>linearlyInterpolated</element>
+            <element>weightedInterpolation</element>
+        </string-enumeration>
+
+        <string-enumeration>
+            <name>averagingType</name>
+            <flag>a</flag>
+            <longflag>--averagingType</longflag>
+            <description>Sets the interpolation mode for the baseline images. Algebraic: simple mean. Geometric: geometric averaging (this is optimal based on the weighted least squares approximation to the Rician noise model).</description>
+            <label>Averaging Type</label>
+            <default>geometric</default>
+            <element>geometric</element>
+            <element>algebraic</element>
+        </string-enumeration>
+
+        <double>
+            <name>ricianNoiseLevel</name>
+            <flag>n</flag>
+            <longflag>--ricianNoiseLevel</longflag>
+            <label>Rician noise level</label>
+            <default>-1</default>
+            <description>Sets the Rician noise level (std) for the diffusion weighted images. If not specified, it is automatically estimated from the data.</description>
+        </double>
+
+        <integer>
+            <name>nrOfThreads</name>
+            <flag>p</flag>
+            <longflag>--threads</longflag>
+            <label>Number of threads</label>
+            <default>-1</default>
+            <description>Sets the number of threads used for computation. By default uses as many threads as CPUs in the system.</description>
+        </integer>
+
+        <integer>
+            <name>SHOrder</name>
+            <flag>s</flag>
+            <longflag>--shorder</longflag>
+            <label>Spherical Harmonics Order</label>
+            <default>8</default>
+            <description>The order of spherical harmonic basis functions to use for interpolation. The minimum required gradient directions, ng, for order o are: ng=(o+1)*(o+2)/2; i.e. ng/o: 3/1, 6/2, 10/3, 15/4, 21/5, 28/6, 36/7, 45/8, 55/9, 66/10, ...; set to -1 for maximally possible order</description>
+        </integer>
+
+        <double>
+            <name>dLambda</name>
+            <flag>l</flag>
+            <longflag>--lambda</longflag>
+            <label>Lambda for Regularization Term</label>
+            <default>0.001</default>
+            <description>Lambda to use for Regularization term. Use 0 to disable regularization term. 0.006 was recommended by Descoteaux. Suggest smaller value since we get regularization due to the large number of cases being averaged.</description>
+        </double>
+
+        <double>
+            <name>dScalingFactor</name>
+            <flag>m</flag>
+            <longflag>--scalingFactor</longflag>
+            <label>Scaling factor</label>
+            <default>1</default>
+            <description>Scaling factor for the signal reconstruction. If the acquired signal only uses a very small range of the input (integer) number range, this factor allows for scaling of the reconstructed output before casting it back to the original data format. This is sensible for badly-scaled input data.</description>
+        </double>
+
+        <integer>
+           <name>iLogMinArgumentValue</name>
+           <longflag>--logMinArgumentValue</longflag>
+           <label>Log minArgumentValue</label>
+           <default>1</default>
+           <description>Ideally DWI images should be masked and measurements should never be zero in the masked regions (TODO: implement mask feature). However, in case no masking is done and the estimation is performed in the log domain, we need to make sure that nowhere log(0) is being computed. The value set here sets the minium argument that all lower values will be put to. There should never be a reason to change this parameter, it is simply here to remind the user that this is happening inside the program.</description>
+       </integer>
+
+    </parameters>
+
+</executable>
+

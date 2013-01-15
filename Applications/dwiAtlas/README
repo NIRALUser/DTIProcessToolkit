@@ -1,0 +1,2 @@
+Code to build an atlas of diffusion weighted images. Needs
+transformation maps from a registration to atlas space. (mn)
