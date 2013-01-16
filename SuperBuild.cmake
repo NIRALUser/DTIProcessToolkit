@@ -16,6 +16,16 @@ else()
   set(gen "${CMAKE_GENERATOR}")
 endif()
 
+
+#-----------------------------------------------------------------------------
+unset( VTK_DIR CACHE )
+unset( VTK_DIR )
+unset( ITK_DIR CACHE )
+unset( ITK_DIR )
+unset( SlicerExecutionModel_DIR CACHE )
+unset( SlicerExecutionModel_DIR )
+find_package(Slicer REQUIRED)
+include(${Slicer_USE_FILE})
 #-----------------------------------------------------------------------------
 # Project dependencies
 #-----------------------------------------------------------------------------
@@ -80,7 +90,6 @@ set(SlicerExecutionModel4_DEPEND ${proj}) ## Set the internal dependancy for ITK
       -DADDITIONAL_CXX_FLAGS:STRING=${ADDITIONAL_CXX_FLAGS}
       -DDTIProcess_BUILD_SLICER_EXTENSION:BOOL=OFF
       -DEXTENSION_NAME:STRING=${EXTENSION_NAME}
-      -DSlicer_SKIP_PROJECT_COMMAND:BOOL=ON
       -DEXTENSION_SUPERBUILD_BINARY_DIR:PATH=${${EXTENSION_NAME}_BINARY_DIR}
       # Slicer
       -DSlicer_DIR:PATH=${Slicer_DIR}

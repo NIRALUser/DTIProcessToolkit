@@ -16,13 +16,11 @@ set(EXTENSION_BUILD_SUBDIRECTORY inner-build)
 
 find_package(Git REQUIRED)
 
-
+option( BUILD_TESTING
+        "Build the testing tree" ON )
 option( DTIProcess_BUILD_SLICER_EXTENSION
-        "Build DTIProcess as a Slicer extension" OFF )
+        "Build DTIProcess as a Slicer extension or as a Superbuild project" OFF )
 if( DTIProcess_BUILD_SLICER_EXTENSION )
-  #-----------------------------------------------------------------------------
-  find_package(Slicer REQUIRED)
-  include(${Slicer_USE_FILE})
   include("${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild.cmake")
   return()
 endif()
@@ -131,6 +129,7 @@ if( EXTENSION_SUPERBUILD_BINARY_DIR )
 endif()
 
 IF(BUILD_TESTING)
+  include( CTest )
   ADD_SUBDIRECTORY(Testing)
 ENDIF(BUILD_TESTING)
 

@@ -3,10 +3,6 @@
 #
 
 
-include( CTest )
-
-
-
 set(SOURCE_DIRECTORY ${DTIProcess_SOURCE_DIR}/Data/ )
 set(TEMP_DIR ${DTIProcess_BINARY_DIR}/Testing/Temporary )
 
