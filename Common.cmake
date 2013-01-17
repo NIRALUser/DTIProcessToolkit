@@ -16,7 +16,7 @@ set(EXTENSION_ICONURL "http://www.nitrc.org/project/screenshot.php?group_id=312&
 set(EXTENSION_SCREENSHOTURLS "http://www.slicer.org/slicerWiki/images/thumb/b/b8/DTIEstim-B0-crop.png/193px-DTIEstim-B0-crop.png http://www.slicer.org/slicerWiki/images/thumb/9/90/FiberTrack-fibers.png/138px-FiberTrack-fibers.png")
 set(EXTENSION_STATUS "Beta")
 set(EXTENSION_DEPENDS "NA") # Specified as a space separated list or 'NA' if any
-set(EXTENSION_BUILD_SUBDIRECTORY inner-build)
+set(EXTENSION_BUILD_SUBDIRECTORY DTIProcess-build)
 
 find_package(Git REQUIRED)
 
