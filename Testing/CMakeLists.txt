@@ -42,7 +42,7 @@ add_test(NAME ${CLP}DTI_WLS_Test COMMAND $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
-  --compareIntensityTolerance 0
+  --compareIntensityTolerance 0.000000000001
   ModuleEntryPoint
     --tensor_output ${output}
     --dwi_image ${input}
@@ -55,7 +55,7 @@ add_test(NAME ${CLP}IDWITest COMMAND $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
-  --compareIntensityTolerance 0
+  --compareIntensityTolerance 0.0000000001
   ModuleEntryPoint
     --idwi ${output}
     --dwi_image ${input}
@@ -84,7 +84,7 @@ add_test(NAME ${CLP}Test1 COMMAND $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
-  --compareIntensityTolerance 0
+  --compareIntensityTolerance 0.000000000000000000001
   ModuleEntryPoint
     --tensor_output ${output}
     --inputs ${input1}
