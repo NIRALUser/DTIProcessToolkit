@@ -46,7 +46,7 @@ set(CMAKE_MODULE_PATH
 #------------------------------------------------------------------------------
 include(PreventInSourceBuilds)
 include(PreventInBuildInstalls)
-
+include(SlicerExtensionsConfigureMacros)
 #-----------------------------------------------------------------------------
 # CMake Function(s) and Macro(s)
 #-----------------------------------------------------------------------------
