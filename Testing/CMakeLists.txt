@@ -3,6 +3,13 @@
 #
 
 
+include( CTest )
+
+# Add test of the homemade "round()" function
+add_executable(TestHomemadeRoundFunction TestHomemadeRoundFunction.cxx)
+target_link_libraries(TestHomemadeRoundFunction ${ITK_LIBRARIES})
+add_test(NAME TestHomemadeRoundFunction COMMAND TestHomemadeRoundFunction)
+
 set(SOURCE_DIRECTORY ${DTIProcess_SOURCE_DIR}/Data/ )
 set(TEMP_DIR ${DTIProcess_BINARY_DIR}/Testing/Temporary )
 
@@ -42,7 +49,7 @@ add_test(NAME ${CLP}DTI_WLS_Test COMMAND $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
-  --compareIntensityTolerance 0.000000000001
+  --compareIntensityTolerance 0
   ModuleEntryPoint
     --tensor_output ${output}
     --dwi_image ${input}
@@ -55,7 +62,7 @@ add_test(NAME ${CLP}IDWITest COMMAND $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
-  --compareIntensityTolerance 0.0000000001
+  --compareIntensityTolerance 0
   ModuleEntryPoint
     --idwi ${output}
     --dwi_image ${input}
@@ -84,7 +91,7 @@ add_test(NAME ${CLP}Test1 COMMAND $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
-  --compareIntensityTolerance 0.000000000000000000001
+  --compareIntensityTolerance 0
   ModuleEntryPoint
     --tensor_output ${output}
     --inputs ${input1}

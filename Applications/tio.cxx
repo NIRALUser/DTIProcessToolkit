@@ -91,7 +91,7 @@ int ComputeTransform(  const std::string doffile ,
    itk::Vector< float , 3 > translation ;
    translation = sourceCenter - targetCenter ;
    translation += aff->GetTranslation() ;
-   aff->SetTranslation( translation ) ;
+   aff->SetTranslation( (const itk::Vector< float , 3 >)translation ) ;
  }
  twriter->AddTransform( aff ) ;    
  twriter->SetFileName( outputFileName ) ;

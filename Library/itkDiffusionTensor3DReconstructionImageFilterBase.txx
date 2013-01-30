@@ -26,6 +26,13 @@
 #include "itkArray.h"
 #include "vnl/vnl_vector.h"
 
+#ifdef WIN32
+long round(double a) // round not defined on windows // no positive/negative statement because always called for exp()>0 (see l.156)
+{
+  return ((a-(long)a)>0.5)?(long)a+1:(long)a;
+}
+#endif
+
 namespace itk {
 
 template< class TGradientImagePixelType, class TTensorPrecision >
