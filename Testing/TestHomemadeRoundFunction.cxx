@@ -1,5 +1,4 @@
 #include "itkDiffusionTensor3DReconstructionImageFilterBase.h"
-#include <vector>
 
 int main(int argc, char* argv[])
 {
@@ -10,40 +9,16 @@ int main(int argc, char* argv[])
 	See Library/itkDiffusionTensor3DReconstructionImageFilterBase.txx:156:
 	bit.Set(static_cast<GradientPixelType>(round(exp(D[6]))));
 	*/
-
-	std::vector<double> vec;
-	std::vector<long> vecResult;
-	vec.push_back(0.1);
-	vecResult.push_back(0);
-
-	vec.push_back(0.2);
-	vecResult.push_back(0);
-
-	vec.push_back(0.5);
-	vecResult.push_back(1);
-
-	vec.push_back(1.1);
-	vecResult.push_back(1);
-
-	vec.push_back(2.71828);
-	vecResult.push_back(3);
-
-	vec.push_back(15.236);
-	vecResult.push_back(15);
-
-	vec.push_back(5488);
-	vecResult.push_back(5488);
-
-	vec.push_back(253.0);
-	vecResult.push_back(253);
-
-	vec.push_back(154.45);
-	vecResult.push_back(154);
-
-	for(unsigned int i=0;i<vec.size();i++)
+	double vec [] = { 0.1 , 0.2 , 0.5 , 1.1 , 2.71828 , 15.236 , 5488.0 , 253.0 , 154.45 } ;
+	long vecResult[] = { 0 , 0 , 1 , 1 , 3 , 15 , 5488 , 253 , 154 } ;
+	for( unsigned int i = 0 ; i < 9 ; i++ )
 	{
-		long rounded = round(vec[i]);
-		if(rounded!=vecResult[i]) return -1;
+		long rounded = round( vec[ i ] ) ;
+		if( rounded != vecResult[ i ] )
+		{
+			std::cout << rounded << " " << vecResult[i] << std::endl ;
+			return -1;
+		}
 //		std::cout<<"round("<<vec[i]<<") = "<<rounded<<std::endl;
 	}
 

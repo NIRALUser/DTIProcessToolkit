@@ -96,7 +96,6 @@ resetForSlicer( VERBOSE NAMES ITK_DIR SlicerExecutionModel_DIR CMAKE_C_COMPILER 
 endif()
 
 IF(BUILD_TESTING)
-  include( CTest )
   ADD_SUBDIRECTORY(Testing)
 ENDIF(BUILD_TESTING)
 
