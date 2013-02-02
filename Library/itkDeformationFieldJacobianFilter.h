@@ -88,9 +88,9 @@ namespace itk
 template < typename TInputImage,
            typename TRealType = double,
            typename TOutputImage = Image< Matrix<TRealType,
-                                                 ::itk::GetImageDimension<TInputImage>::ImageDimension,
-                                                 ::itk::GetImageDimension<TInputImage>::ImageDimension>, 
-                                          ::itk::GetImageDimension<TInputImage>::ImageDimension >
+                                                 TInputImage::ImageDimension,
+                                                 TInputImage::ImageDimension>, 
+                                          TInputImage::ImageDimension >
 >
 class ITK_EXPORT DeformationFieldJacobianFilter :
     public ImageToImageFilter< TInputImage, TOutputImage >
@@ -129,8 +129,8 @@ public:
 
   /** Define the data type and the vector of data type used in calculations. */
   typedef TRealType RealType;
-  typedef Vector<TRealType, ::itk::GetVectorDimension<InputPixelType>::VectorDimension> RealVectorType;
-  typedef Image<RealVectorType, ::itk::GetImageDimension<TInputImage>::ImageDimension>  RealVectorImageType;
+  typedef Vector<TRealType, InputPixelType::Dimension> RealVectorType;
+  typedef Image<RealVectorType, TInputImage::ImageDimension>  RealVectorImageType;
   
 
   /** Type of the iterator that will be used to move through the image.  Also
@@ -228,7 +228,7 @@ protected:
   }
 
   /** The weights used to scale partial derivatives during processing */
-  TRealType m_DerivativeWeights[itk::GetImageDimension<TInputImage>::ImageDimension];
+  TRealType m_DerivativeWeights[TInputImage::ImageDimension];
 
 private:
   bool m_UseImageSpacing;
