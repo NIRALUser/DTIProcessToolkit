@@ -8,7 +8,7 @@ include( CTest )
 # Add test of the homemade "round()" function
 add_executable(TestHomemadeRoundFunction TestHomemadeRoundFunction.cxx)
 target_link_libraries(TestHomemadeRoundFunction ${ITK_LIBRARIES})
-add_test(NAME TestHomemadeRoundFunction COMMAND TestHomemadeRoundFunction)
+add_test(NAME TestHomemadeRoundFunction COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:TestHomemadeRoundFunction> )
 
 set(SOURCE_DIRECTORY ${DTIProcess_SOURCE_DIR}/Data/ )
 set(TEMP_DIR ${DTIProcess_BINARY_DIR}/Testing/Temporary )
@@ -31,7 +31,7 @@ set(trash ${${CLP}_tmp_dir}/dti_trash.nrrd )
 #B0
 set(output ${${CLP}_tmp_dir}/b0.nrrd )
 set(baseline ${${CLP}_source_dir}/Baseline/b0.nrrd )
-add_test(NAME ${CLP}B0Test COMMAND $<TARGET_FILE:${CLP}Test>
+add_test(NAME ${CLP}B0Test COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
@@ -45,7 +45,7 @@ add_test(NAME ${CLP}B0Test COMMAND $<TARGET_FILE:${CLP}Test>
 #DWI wls
 set(output ${${CLP}_tmp_dir}/dti_wls.nrrd )
 set(baseline ${${CLP}_source_dir}/Baseline/dti_WLS.nrrd )
-add_test(NAME ${CLP}DTI_WLS_Test COMMAND $<TARGET_FILE:${CLP}Test>
+add_test(NAME ${CLP}DTI_WLS_Test COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
@@ -58,7 +58,7 @@ add_test(NAME ${CLP}DTI_WLS_Test COMMAND $<TARGET_FILE:${CLP}Test>
 
 set(output ${${CLP}_tmp_dir}/idwi.nrrd )
 set(baseline ${${CLP}_source_dir}/Baseline/IDWI.nrrd )
-add_test(NAME ${CLP}IDWITest COMMAND $<TARGET_FILE:${CLP}Test>
+add_test(NAME ${CLP}IDWITest COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
@@ -87,7 +87,7 @@ target_link_libraries(${CLP}Test ${CLP}Lib)
 
 set(output ${${CLP}_tmp_dir}/dti_avg.nrrd )
 set(baseline ${${CLP}_source_dir}/Baseline/dti_average.nrrd )
-add_test(NAME ${CLP}Test1 COMMAND $<TARGET_FILE:${CLP}Test>
+add_test(NAME ${CLP}Test1 COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
@@ -116,7 +116,7 @@ target_link_libraries(${CLP}Test ${CLP}Lib)
 #FA
 set(output ${${CLP}_tmp_dir}/fa.nrrd )
 set(baseline ${${CLP}_source_dir}/Baseline/FA.nrrd )
-add_test(NAME ${CLP}FATest COMMAND $<TARGET_FILE:${CLP}Test>
+add_test(NAME ${CLP}FATest COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
@@ -129,7 +129,7 @@ add_test(NAME ${CLP}FATest COMMAND $<TARGET_FILE:${CLP}Test>
 #MD
 set(output ${${CLP}_tmp_dir}/MD.nrrd )
 set(baseline ${${CLP}_source_dir}/Baseline/MD.nrrd )
-add_test(NAME ${CLP}MDTest COMMAND $<TARGET_FILE:${CLP}Test>
+add_test(NAME ${CLP}MDTest COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
@@ -142,7 +142,7 @@ add_test(NAME ${CLP}MDTest COMMAND $<TARGET_FILE:${CLP}Test>
 #AD
 set(output ${${CLP}_tmp_dir}/AD.nrrd )
 set(baseline ${${CLP}_source_dir}/Baseline/AD.nrrd )
-add_test(NAME ${CLP}ADTest COMMAND $<TARGET_FILE:${CLP}Test>
+add_test(NAME ${CLP}ADTest COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
@@ -155,7 +155,7 @@ add_test(NAME ${CLP}ADTest COMMAND $<TARGET_FILE:${CLP}Test>
 #RD
 set(output ${${CLP}_tmp_dir}/RD.nrrd )
 set(baseline ${${CLP}_source_dir}/Baseline/RD.nrrd )
-add_test(NAME ${CLP}RDTest COMMAND $<TARGET_FILE:${CLP}Test>
+add_test(NAME ${CLP}RDTest COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
     ${output}
