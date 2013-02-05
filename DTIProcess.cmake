@@ -101,14 +101,16 @@ ENDIF(BUILD_TESTING)
 
 
 
-set( Tools  dtiaverage dtiestim dtiprocess fiberprocess fiberstats fibertrack
-maxcurvature scalartransform )
-foreach( tool ${Tools} )
-  install(PROGRAMS ${CLI_RUNTIME_OUTPUT_DIRECTORY}/${tool}
-DESTINATION ${CLI_INSTALL_RUNTIME_DESTINATION})
-endforeach()
-
 if( EXTENSION_SUPERBUILD_BINARY_DIR )
   set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
   include(${Slicer_EXTENSION_CPACK})
+else()
+  if( NOT WIN32 )
+    set( Tools  dtiaverage dtiestim dtiprocess fiberprocess fiberstats fibertrack maxcurvature scalartransform )
+    foreach( tool ${Tools} )
+      install(PROGRAMS ${CLI_RUNTIME_OUTPUT_DIRECTORY}/${tool} DESTINATION ${CLI_INSTALL_RUNTIME_DESTINATION})
+    endforeach()
+  else()
+    message( WARNING "No install on Windows" )
+  endif()
 endif()
