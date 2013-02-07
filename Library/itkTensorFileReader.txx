@@ -28,7 +28,7 @@ TensorFileReader<TOutputImage>
 
 template <class TOutputImage>
 void TensorFileReader<TOutputImage>
-::PrintSelf(std::ostream& os, Indent indent) const
+::PrintSelf(std::ostream& , Indent ) const
 {
 //   os << indent << "Size:" << m_Size << std::endl;
 //   os << indent << "Origin:" << m_Origin << std::endl;

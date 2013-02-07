@@ -45,7 +45,7 @@ template <class TInputImage, class TOutputImage, class TFunction>
 void
 VectorNaryFunctorImageFilter<TInputImage, TOutputImage, TFunction>
 ::ThreadedGenerateData( const OutputImageRegionType &outputRegionForThread,
-                        int threadId)
+                        ThreadIdType threadId)
 {
 
   const unsigned int numberOfInputImages = 

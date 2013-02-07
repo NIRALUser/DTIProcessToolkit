@@ -124,7 +124,7 @@ protected:
    * local deformation vector from the transform.
    */
   void ThreadedGenerateData(const OutputImageRegionType& outputRegion,
-                       int threadId);
+                       ThreadIdType threadId);
 
 private:
   DeformationFieldFromTransform(const Self&); //purposely not implemented

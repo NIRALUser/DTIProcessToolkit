@@ -17,7 +17,11 @@ int ScalarDeformationApplyTest(int argc, char* argv[])
   // 2: transform
   // 3: transform image
   // 4: warped image
-
+  if(argc < 5)
+    {
+    std::cerr << argv[0] << ": input transform transformImage warpedImage" << std::endl;
+    return 1;
+    }
   typedef double TransformRealType;
   typedef unsigned short PixelType;
   typedef itk::Image<PixelType,3> ImageType;

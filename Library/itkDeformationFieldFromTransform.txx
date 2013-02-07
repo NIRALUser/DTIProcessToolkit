@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -35,7 +35,7 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
 {
   m_OutputSpacing.Fill(1.0);
   m_OutputOrigin.Fill(0.0);
-  
+
 }
 
 
@@ -45,7 +45,7 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
  * \todo Add details about this class
  */
 template <class TOutputImage, class TPrecision>
-void 
+void
 DeformationFieldFromTransform<TOutputImage, TPrecision>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
@@ -62,7 +62,7 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
  * Set the output image spacing.
  */
 template <class TOutputImage, class TPrecision>
-void 
+void
 DeformationFieldFromTransform<TOutputImage, TPrecision>
 ::SetOutputSpacing(
   const double* spacing)
@@ -76,7 +76,7 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
  * Set the output image origin.
  */
 template <class TOutputImage, class TPrecision>
-void 
+void
 DeformationFieldFromTransform<TOutputImage, TPrecision>
 ::SetOutputOrigin(
   const double* origin)
@@ -90,10 +90,10 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
  * ThreadedGenerateData
  */
 template <class TOutputImage, class TPrecision>
-void 
+void
 DeformationFieldFromTransform<TOutputImage, TPrecision>
 ::ThreadedGenerateData(const OutputImageRegionType& outputRegion,
-                       int threadId)
+                       ThreadIdType)
 {
 
   itkDebugMacro(<<"Actually executing");
@@ -102,7 +102,7 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
   OutputImageType *  outputPtr = this->GetOutput();
 
   // Create an iterator that will walk the output region for this thread.
-  typedef ImageRegionIteratorWithIndex< 
+  typedef ImageRegionIteratorWithIndex<
                                   TOutputImage> OutputIterator;
 
   OutputIterator outIt( outputPtr, outputRegion );
@@ -118,7 +118,7 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
 
   // Support for progress methods/callbacks
   ProgressReporter progress(this, 0, outputRegion.GetNumberOfPixels(), 10);
-        
+
   outIt.GoToBegin();
 
   // Walk the output region
@@ -129,7 +129,7 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
     outputPtr->TransformIndexToPhysicalPoint( outputIndex, outputPoint );
 
     // Compute corresponding inverse displacement vector
-    OutputPointType interpolatedDeformation = 
+    OutputPointType interpolatedDeformation =
                         m_Transform->TransformPoint( outputPoint );
 
     OutputPixelType displacement;
@@ -148,11 +148,11 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
 }
 
 
-/** 
+/**
  * Inform pipeline of required output region
  */
 template <class TOutputImage, class TPrecision>
-void 
+void
 DeformationFieldFromTransform<TOutputImage, TPrecision>
 ::GenerateOutputInformation()
 {
@@ -178,15 +178,15 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
 
 
 
-/** 
+/**
  * Verify if any of the components has been modified.
  */
 template <class TOutputImage, class TPrecision>
-unsigned long 
+unsigned long
 DeformationFieldFromTransform<TOutputImage, TPrecision>
 ::GetMTime( void ) const
 {
-  unsigned long latestTime = Object::GetMTime(); 
+  unsigned long latestTime = Object::GetMTime();
 
   return latestTime;
 }

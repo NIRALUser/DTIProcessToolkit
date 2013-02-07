@@ -180,7 +180,7 @@ template< typename TInputImage, typename TRealType, typename TOutputImage >
 void
 DeformationFieldJacobianFilter< TInputImage, TRealType, TOutputImage >
 ::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-                       int threadId)
+                       ThreadIdType threadId)
 {
 
   ZeroFluxNeumannBoundaryCondition<RealVectorImageType> nbc;
