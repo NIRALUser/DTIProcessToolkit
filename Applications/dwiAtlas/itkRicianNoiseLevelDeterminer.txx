@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -27,7 +27,7 @@ namespace itk {
 
 template< class TImageType, class RealType >
 RicianNoiseLevelDeterminer< TImageType, RealType >
-::RicianNoiseLevelDeterminer() 
+::RicianNoiseLevelDeterminer()
 {
   m_RadiusEstimation.Fill(3);
   m_MinimumNumberOfUsedVoxelsEstimation = 1;
@@ -37,9 +37,9 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
   m_Verbose = false;
   m_HistogramFilename = "None";
 }
-    
 
- 
+
+
 template< class TImageType, class RealType >
 void
 RicianNoiseLevelDeterminer< TImageType, RealType >
@@ -50,7 +50,7 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
 
   typename ThresholdImageFilterType::Pointer zeroMaskImageFilter = ThresholdImageFilterType::New();
 
-  zeroMaskImageFilter->SetInput( m_Input ); 
+  zeroMaskImageFilter->SetInput( m_Input );
   zeroMaskImageFilter->ThresholdOutside(0,0);
   zeroMaskImageFilter->SetOutsideValue( 1 );
 
@@ -64,9 +64,9 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
   maskedMeanImageFilter->SetRadius( m_RadiusEstimation );
 
   // now generate the restricted mask, based on the mean of the filtered values and standard deviations
-  
+
   typedef itk::LabelStatisticsImageFilter< ScalarRealImageType, ScalarImageType > LabelStatisticsImageFilterType;
-  
+
   typename LabelStatisticsImageFilterType::Pointer labelStatisticsImageFilter = LabelStatisticsImageFilterType::New();
   labelStatisticsImageFilter->SetInput( maskedMeanImageFilter->GetOutput() );
   labelStatisticsImageFilter->SetLabelInput( zeroMaskImageFilter->GetOutput() );
@@ -97,7 +97,7 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
 
   RealType dDesiredMax = dMean+dSigmaFac*dSTD;
   if ( dDesiredMax>dMax ) dDesiredMax = dMax;
-  
+
   // and extract values only within this range
 
   typedef itk::BinaryThresholdImageFilter<ScalarRealImageType,ScalarImageType> BinaryThresholdImageFilterType;
@@ -127,7 +127,7 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
   dUpperBound = dDesiredMax;
 
   iNumBins = (int)round( (dUpperBound-dLowerBound)*m_HistogramResolutionFactor );
-  
+
   if ( m_Verbose )
     {
     std::cout << "number of bins = " << iNumBins << std::endl;
@@ -171,30 +171,32 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
   std::ofstream outputStream;
   std::string histogramFileName = "histogram.dat";
 
-  if ( m_HistogramFilename.compare("None")!=0 ) 
+  if ( m_HistogramFilename.compare("None")!=0 )
     {
     outputStream.open( histogramFileName.c_str() );
-    }  
+    }
 
-  for ( unsigned int iI=0; iI<iSize; iI++ ) 
+  for ( unsigned int iI=0; iI<iSize; iI++ )
     {
 
     RealType dCurrentBinValue = (hp->GetMeasurementVector( iI ))[0];
-    
-    if ( (int)(hp->GetFrequency( iI ))>iCurrentMaxFrequency && (dCurrentBinValue<=m_MaximumNoiseSTD) && (dCurrentBinValue>=m_MinimumNoiseSTD) ) 
+
+    if ( (int)(hp->GetFrequency( iI ))>iCurrentMaxFrequency && (dCurrentBinValue<=m_MaximumNoiseSTD) && (dCurrentBinValue>=m_MinimumNoiseSTD) )
       {
       iCurrentMaxIndex = iI;
       iCurrentMaxFrequency = (int)hp->GetFrequency( iI );
       }
 
-    if ( m_HistogramFilename.compare("None")!=0 ) 
+    if ( m_HistogramFilename.compare("None")!=0 )
       {
-      outputStream << hp->GetFrequency( iI ) << " " << (hp->GetMeasurementVector( iI ))[0] << std::endl;
+      outputStream << std::setprecision(17) << std::scientific
+                   << hp->GetFrequency( iI ) << " "
+                   << (hp->GetMeasurementVector( iI ))[0] << std::endl;
       }
 
     }
 
-  if ( m_HistogramFilename.compare("None")!=0 ) 
+  if ( m_HistogramFilename.compare("None")!=0 )
     {
     outputStream.close();
     }
@@ -209,19 +211,19 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
 
   if ( m_Verbose )
     {
-    std::cout << "Estimated noise standard deviation is = " << dNoiseSTD_Estimated << std::endl; 
+    std::cout << "Estimated noise standard deviation is = " << dNoiseSTD_Estimated << std::endl;
     }
 
-  
+
   m_Output = dNoiseSTD_Estimated;
 
 }
-    
+
 template< class TImageType, class RealType >
 void
 RicianNoiseLevelDeterminer< TImageType, RealType >
 ::PrintSelf(
-  std::ostream& os, 
+  std::ostream& os,
   Indent indent) const
 {
   Superclass::PrintSelf( os, indent );
@@ -232,8 +234,8 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
 
 }
 
-    
-} // end of namespace itk 
+
+} // end of namespace itk
 
 
 #endif

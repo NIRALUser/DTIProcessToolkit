@@ -90,9 +90,6 @@ int main(int argc, char* argv[])
   // Get Spacing and offset from group
   const double* spacing = group->GetSpacing();
 
-  const itk::Vector<double, 3> sooffset = 
-    group->GetObjectToParentTransform()->GetOffset();
-
   typedef itk::Index<3> IndexType;
   typedef itk::Functor::IndexLexicographicCompare<3> IndexCompare;
   typedef std::set<IndexType, IndexCompare> VoxelSet;

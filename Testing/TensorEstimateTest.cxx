@@ -237,7 +237,7 @@ int LLSTensorEstimateTest(int, char*[])
 
   std::cout << "LLS Reconstructed tensor" << std::endl;
   bool passed = tensortester.checkTensorEstimate(tensorReconstructionFilter->GetOutput());
-  passed == passed && tensortester.checkB0Estimate(tensorReconstructionFilter->GetBaseline());
+  passed = passed && tensortester.checkB0Estimate(tensorReconstructionFilter->GetBaseline());
   if(passed)
     return EXIT_SUCCESS;
   else

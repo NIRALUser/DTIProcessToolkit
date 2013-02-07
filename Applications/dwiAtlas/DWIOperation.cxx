@@ -71,14 +71,14 @@ int getNumOutputGradients(const std::string &gfname)
 	else
 	{
 		std::string currentLine;
-		
+
 		while (!inFile.eof())
 		{
 			std::getline(inFile, currentLine);
 
 			if ((currentLine.length() > 0) && !(currentLine.at(0) == '#')) //check if it's a comment line
 			{
-                count++;			
+                count++;
             }
         }
         inFile.close();
@@ -91,7 +91,7 @@ int getNumOutputGradients(const std::string &gfname)
 //fills up a vnl_matrix with the gradients in the provided text file
 void parseGradientFile(const std::string &gfname, vnl_matrix<double> &newgradients)
 {
-    int count = 0;    
+    int count = 0;
     int total = newgradients.rows();
 
     std::ifstream inFile;
@@ -104,9 +104,9 @@ void parseGradientFile(const std::string &gfname, vnl_matrix<double> &newgradien
 	else
 	{
 		std::cout << "Reading new gradient directions...\n\n";
-		
+
 		std::string currentLine;
-		
+
 		while (!inFile.eof() && count < total)
 		{
 			std::getline(inFile, currentLine);
@@ -114,8 +114,8 @@ void parseGradientFile(const std::string &gfname, vnl_matrix<double> &newgradien
 			if ((currentLine.length() > 0) && !(currentLine.at(0) == '#')) //check if it's a comment line
 			{
                 std::istringstream iss(currentLine);
-                iss >> newgradients(count, 0) >> newgradients(count, 1) >> newgradients(count, 2);		
-                count++;	
+                iss >> newgradients(count, 0) >> newgradients(count, 1) >> newgradients(count, 2);
+                count++;
             }
         }
         inFile.close();
@@ -126,10 +126,10 @@ void parseGradientFile(const std::string &gfname, vnl_matrix<double> &newgradien
 //main processing method
 template<class DWIPixelType> int process(params list)
 {
-    //we have a "vector image".  Can be thought of as a large 3-d volume, 
+    //we have a "vector image".  Can be thought of as a large 3-d volume,
     //where every "pixel" is actually a _vector_ representing the n intensity values
-    //for the n gradients, plus the baseline(s).    
-    typedef itk::VectorImage<DWIPixelType,DIMENSION> DiffusionImageType;    
+    //for the n gradients, plus the baseline(s).
+    typedef itk::VectorImage<DWIPixelType,DIMENSION> DiffusionImageType;
 
     //acquire information for input/output files
     const std::string infile = list.dwiInputVolume;
@@ -138,7 +138,7 @@ template<class DWIPixelType> int process(params list)
     //a reader for vectorimages ("DiffusionImages")
     typedef itk::ImageFileReader<DiffusionImageType> ImageFileReaderType;
     typename ImageFileReaderType::Pointer reader = ImageFileReaderType::New();
-    
+
     //make sure the infile works with the reader
     reader->SetFileName(infile);
     try
@@ -149,7 +149,7 @@ template<class DWIPixelType> int process(params list)
     }
     catch (itk::ExceptionObject & e)
     {
-        std::cerr << "Something is wrong with your input file:\n";        
+        std::cerr << "Something is wrong with your input file:\n";
         std::cerr << e <<std::endl;
         return EXIT_FAILURE;
     }
@@ -161,7 +161,7 @@ template<class DWIPixelType> int process(params list)
     parseGradientFile(list.gradientVectorFile, newgrads);
 
     //Filter the image
-    typedef itk::SphericalHarmonicsInterpolationFilter<DiffusionImageType, DiffusionImageType> SphericalHarmonicsInterpolationFilterType; 
+    typedef itk::SphericalHarmonicsInterpolationFilter<DiffusionImageType, DiffusionImageType> SphericalHarmonicsInterpolationFilterType;
     typename SphericalHarmonicsInterpolationFilterType::Pointer shFilter = SphericalHarmonicsInterpolationFilterType::New();
     shFilter->SetInput(dwimg);
     shFilter->SetNewGradients(newgrads);
@@ -171,14 +171,14 @@ template<class DWIPixelType> int process(params list)
 
     int num_baselines = shFilter->GetNumBaselines();
 
-    //********************    
+    //********************
     //METADATA DICTIONARY*
     //********************
     std::cout << "Constructing metadata for output file...\n";
 
     typedef itk::MetaDataDictionary DictionaryType;
     const DictionaryType & dictionary = reader->GetMetaDataDictionary();
-  
+
     std::vector<std::string> imgMetaKeys = dictionary.GetKeys();
     std::vector<std::string>::iterator itKey = imgMetaKeys.begin();
     std::string metaString;
@@ -187,11 +187,11 @@ template<class DWIPixelType> int process(params list)
     itk::MetaDataDictionary newDictionary;
 
     typedef itk::MetaDataObject< std::string > MetaDataStringType;
-  
+
     DictionaryType::ConstIterator itr = dictionary.Begin();
     DictionaryType::ConstIterator end = dictionary.End();
 
-    //copy over relevant info consistent between input/output images    
+    //copy over relevant info consistent between input/output images
     while ( itr != end )
     {
         itk::MetaDataObjectBase::Pointer entry = itr->second;
@@ -215,7 +215,7 @@ template<class DWIPixelType> int process(params list)
     //write new gradient vectors (and b-value) into metadatadictionary
     std::string curKey = std::string("DWMRI_b-value");
     std::ostringstream bv;
-    bv << shFilter->GetBValue();    
+    bv << shFilter->GetBValue();
     std::string curVal = "" + bv.str();
     itk::EncapsulateMetaData<std::string>(newDictionary, curKey, curVal);
 
@@ -232,27 +232,24 @@ template<class DWIPixelType> int process(params list)
 
     //take care of the rest of the gradient directions
     for (int i = 0; i < numnewgrads; i++)
-    {      
-        sprintf(gnum, "%04d", i+num_baselines);
-        std::ostringstream g1;
-        std::ostringstream g2;
-        std::ostringstream g3;
-        g1 << newgrads(i, 0);
-        g2 << newgrads(i, 1);
-        g3 << newgrads(i, 2);
-
-        curKey = "DWMRI_gradient_" + std::string(gnum);
-        curVal = " " + g1.str() + " " + g2.str() + " " + g3.str();
-
-        itk::EncapsulateMetaData<std::string>(newDictionary, curKey, curVal);
-    }
-    //************************    
+      {
+      std::ostringstream attName;
+      attName << "DWMRI_gradient_"
+              << std::setw(4) << std::setfill('0') << (i + num_baselines);
+      std::ostream attVal;
+      attVal << std::scientific << std::setprecision(17) <<
+        newgrads(i,0) << " "
+        newgrads(i,1) << " "
+        newgrads(i,2);
+      itk::EncapsulateMetaData<std::string>(newDictionary, attName.str(), attVal.str());
+      }
+    //************************
     //END METADATA DICTIONARY*
     //************************
-    
+
     // write output
     itk::NrrdImageIO::Pointer io = itk::NrrdImageIO::New();
-    io->SetFileTypeToBinary();    
+    io->SetFileTypeToBinary();
     io->SetMetaDataDictionary(newDictionary);
 
     typedef itk::ImageFileWriter<DiffusionImageType> ImageFileWriterType;
@@ -261,12 +258,12 @@ template<class DWIPixelType> int process(params list)
     writer->SetInput(shFilter->GetOutput());
     writer->UseInputMetaDataDictionaryOff();
     writer->SetImageIO(io);
-  
+
     writer->SetFileName(outfile);
     writer->UseCompressionOn(); std::cout << "Output compression is turned ON.\n"; //comment/uncomment to enable compression
     try
     {
-        std::cout << "Writing output to disk (this may take a few minutes)...\n";        
+        std::cout << "Writing output to disk (this may take a few minutes)...\n";
         writer->Update();
     }
     catch (itk::ExceptionObject & e)
@@ -283,16 +280,16 @@ template<class DWIPixelType> int process(params list)
 
 int main(int argc, char* argv[])
 {
-    //takes care of generating usage message  
+    //takes care of generating usage message
     PARSE_ARGS;
 
     //need to take infile, outfile at command-line
     //explain how to use program
     //Usage: argv[0] infile outfile inputgradients shorder
     //Description: Takes .nrrd image, reapproximates intensity values using
-    //              spherical harmonics basis functions.    
+    //              spherical harmonics basis functions.
 
-    //take care of parameters    
+    //take care of parameters
     params list;
     list.dwiInputVolume = dwiInputVolume;
     list.dwiOutputVolume = dwiOutputVolume;

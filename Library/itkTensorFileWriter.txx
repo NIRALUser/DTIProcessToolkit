@@ -16,7 +16,7 @@ TensorFileWriter<T>::GenerateData()
   std::ofstream outstr(m_FileName.c_str(), std::ios::binary | std::ios::out | std::ios::trunc);
   typename InputImageType::ConstPointer in = this->GetInput(0);
   typename InputImageType::RegionType inregion = in->GetLargestPossibleRegion();
-
+  outstr << std::setprecision(17) << std::scientific;
   outstr << "# vtk DataFile Version 2.0" << std::endl;
   outstr << "Diffusion Tensor Data" << std::endl;
   outstr << "BINARY" << std::endl;

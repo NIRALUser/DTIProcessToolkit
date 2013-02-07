@@ -1336,7 +1336,7 @@ template< class MyRealType, class DWIPixelType >
 void
 DWIAtlasBuilder< MyRealType, DWIPixelType >
 ::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-                       int threadId)
+                       ThreadIdType threadId)
 {
   itkDebugMacro(<< "DWIAtlasBuilder::Update() called");
 

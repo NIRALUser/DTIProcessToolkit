@@ -282,7 +282,7 @@ protected:
   virtual void GenerateOutputInformation();
 
   // threaded version to generate data
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, int threadId );
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, ThreadIdType threadId );
   void AfterThreadedGenerateData( void );
   void BeforeThreadedGenerateData( void );
 

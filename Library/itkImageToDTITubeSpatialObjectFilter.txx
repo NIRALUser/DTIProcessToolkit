@@ -56,7 +56,7 @@ ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
 template <class TInputImage, class TOutputDTITubeSpatialObject>
 DataObject::Pointer
 ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
-::MakeOutput(unsigned int)
+::MakeOutput(DataObjectPointerArraySizeType)
 {
   OutputDTITubeSpatialObjectPointer  outputDTITubeSpatialObject = OutputDTITubeSpatialObjectType::New();
   return dynamic_cast< DataObject *>( outputDTITubeSpatialObject.GetPointer() );
