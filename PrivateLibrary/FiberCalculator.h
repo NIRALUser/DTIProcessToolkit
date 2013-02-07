@@ -27,7 +27,7 @@ class DTIPointWarper: public DTIPointModifier
 private:
   typedef itk::VectorInterpolateImageFunction<DeformationImageType> WarpInterpolateType;
 public:
-  explicit DTIPointWarper(WarpInterpolateType::Pointer wimage) : m_WarpInterpolate(wimage), 
+  explicit DTIPointWarper(WarpInterpolateType::Pointer wimage) : m_WarpInterpolate(wimage),
                                                                  m_Spacing(wimage->GetInputImage()->GetSpacing()) {}
   virtual ~DTIPointWarper() {}
 

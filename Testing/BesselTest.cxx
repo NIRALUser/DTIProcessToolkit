@@ -33,6 +33,6 @@ int BesselTest(int argc, char* argv[])
       }
 
     }
-    std::cout << "Test [PASSED]. " << std::endl;
-    return EXIT_SUCCESS;
+  std::cout << "Test [PASSED]. " << std::endl;
+  return EXIT_SUCCESS;
 }

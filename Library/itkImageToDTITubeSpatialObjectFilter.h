@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -21,7 +21,7 @@ namespace itk
 {
 
 /** \class ImageToDTITubeSpatialObjectFilter
- * \brief 
+ * \brief
  *
  * ImageToDTITubeSpatialObjectFilter is the base class for all process objects that output
  * DTITubeSpatialObject data and require image data as input. Specifically, this class
@@ -39,7 +39,7 @@ public:
   typedef SmartPointer<Self>  Pointer;
   typedef SmartPointer<const Self>  ConstPointer;
 
-  
+
   /** Run-time type information (and related methods). */
   itkTypeMacro(ImageToDTITubeSpatialObjectFilter, DTITubeSpatialObjectSource);
 
@@ -50,8 +50,8 @@ public:
   typedef   TInputImage                             InputImageType;
   typedef   typename InputImageType::Pointer        InputImagePointer;
   typedef   typename InputImageType::ConstPointer   InputImageConstPointer;
-  typedef   typename InputImageType::RegionType     InputImageRegionType; 
-  typedef   typename InputImageType::PixelType      InputImagePixelType; 
+  typedef   typename InputImageType::RegionType     InputImageRegionType;
+  typedef   typename InputImageType::PixelType      InputImagePixelType;
 
   /** Some DTITubeSpatialObject related typedefs. */
   typedef   TOutputDTITubeSpatialObject                             OutputDTITubeSpatialObjectType;
@@ -71,12 +71,12 @@ public:
 
   /** Prepare the output */
   void GenerateOutputInformation(void);
-     
+
 protected:
   ImageToDTITubeSpatialObjectFilter();
   ~ImageToDTITubeSpatialObjectFilter();
   void PrintSelf(std::ostream& os, Indent indent) const;
- 
+
 private:
   ImageToDTITubeSpatialObjectFilter(const ImageToDTITubeSpatialObjectFilter&); //purposely not implemented
   void operator=(const ImageToDTITubeSpatialObjectFilter&); //purposely not implemented

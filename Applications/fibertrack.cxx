@@ -50,21 +50,21 @@ void validate(boost::any& v,
   const std::string& s = validators::get_single_string(values);
 
   if(s == "euler")
-  {
+    {
     v = any(Euler);
-  }
+    }
   else if(s == "modpoint")
-  {
+    {
     v = any(Midpoint);
-  }
+    }
   else if(s == "rk4")
-  {
+    {
     v = any(RK4);
-  }
+    }
   else
-  {
+    {
     throw validation_error("Estimation type invalid.  Only \"lls\", \"nls\", \"wls\", and \"ml\" allowed.");
-  }
+    }
 }
 #endif
 
@@ -104,31 +104,31 @@ int main(int argc, char* argv[])
 
   po::variables_map vm;
   try
-  {
+    {
     po::store(po::command_line_parser(argc, argv).
               options(config).run(), vm);
-    po::notify(vm);     
-  } 
+    po::notify(vm);
+    }
   catch (const po::error &e)
-  {
+    {
     std::cout << e.what() << std::endl;
     return EXIT_FAILURE;
-  }
+    }
 
   if(vm.count("help") || !vm.count("input-tensor-file") ||
      !vm.count("input-roi-file") || !vm.count("output-fiber-file"))
-  {
+    {
     std::cout << config << std::endl;
     if(vm.count("help"))
       return EXIT_SUCCESS;
     else
-    {
+      {
       std::cerr << "Tensor image and roi image needs to be specified." << std::endl;
       return EXIT_FAILURE;
+      }
     }
-  }
 #endif
- PARSE_ARGS;
+  PARSE_ARGS;
 
   if(inputTensor == "" || inputROI == "" || outputFiberFile == "")
     {
@@ -142,20 +142,20 @@ int main(int argc, char* argv[])
   labelreader->SetFileName(inputROI);
 
   try
-  {
+    {
     tensorreader->Update();
     labelreader->Update();
-  }
+    }
   catch( itk::ExceptionObject & e)
-  {
+    {
     std::cerr << e << std::endl;
     return EXIT_FAILURE;
-  }
-  
+    }
+
   if(verbose)
-  {
+    {
     tensorreader->GetOutput()->Print(std::cout);
-  }
+    }
 
   // Sanity check the ROI and tensor image as they must be consistent
   // for the filter to work correctly
@@ -182,16 +182,16 @@ int main(int argc, char* argv[])
   fibertracker->SetMinimumFractionalAnisotropy(minFa);
   fibertracker->SetStepSize(stepSize);
   fibertracker->Update();
-  
+
   try
-  {
+    {
     writeFiberFile(outputFiberFile, fibertracker->GetOutput());
-  }
+    }
   catch(itk::ExceptionObject e)
-  {
+    {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
-  }
-  
+    }
+
   return EXIT_SUCCESS;
 }

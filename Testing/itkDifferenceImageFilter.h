@@ -25,7 +25,7 @@
 
 namespace itk
 {
- /** \class DifferenceImageFilter
+/** \class DifferenceImageFilter
  * This filter is an alias to the TestingComparisonImageFilter
  * and is only here for backwards compatibility.
  *
@@ -34,7 +34,7 @@ namespace itk
  */
 template< class TInputImage, class TOutputImage >
 class ITK_EXPORT DifferenceImageFilter:
-  public Testing::ComparisonImageFilter< TInputImage, TOutputImage >
+    public Testing::ComparisonImageFilter< TInputImage, TOutputImage >
 {
 public:
   /** Standard class typedefs. */

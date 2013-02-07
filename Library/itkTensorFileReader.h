@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -31,10 +31,10 @@ namespace itk
  * elements of the matrix-logarithm of the tensor field.
  *
  * LogEuclideanImageFilter applies pixel-wise the invokation for
- * computing the matrix logarithm of every pixel. 
- * 
+ * computing the matrix logarithm of every pixel.
+ *
  * \sa DiffusionTensor3D
- * 
+ *
  * \ingroup IntensityImageFilters  Multithreaded  TensorObjects
  *
  */
@@ -68,10 +68,10 @@ public:
   itkSetMacro(FileName,std::string);
 
   itkGetMacro(Type,std::string);
-  
+
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const;
-  
+
   virtual void GenerateOutputInformation(void);
 
 protected:

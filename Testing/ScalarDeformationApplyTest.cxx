@@ -42,7 +42,7 @@ int ScalarDeformationApplyTest(int argc, char* argv[])
   typedef DeformationImageType::SizeType ImageSizeType;
   typedef DeformationImageType::SpacingType ImageSpacingType;
   typedef itk::DeformationFieldFromTransform<DeformationImageType,double> DeformationSourceType;
-  
+
   DeformationSourceType::Pointer defgen = DeformationSourceType::New();
 
   defgen->SetOutputRegion(image->GetLargestPossibleRegion());
@@ -70,7 +70,7 @@ int ScalarDeformationApplyTest(int argc, char* argv[])
   writer->SetFileName(argv[3]);
   writer->Update();
 
-  // Apply transform using 
+  // Apply transform using
   typedef itk::WarpImageFilter<ImageType,ImageType,DeformationImageType> WarpImageType;
   WarpImageType::Pointer warp = WarpImageType::New();
   warp->SetInput(image);

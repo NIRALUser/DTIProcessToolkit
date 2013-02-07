@@ -5,8 +5,8 @@
 
 // warping functions
 TensorImageType::Pointer createROT(TensorImageType::Pointer, const std::string &,int doffiletype);
-TensorImageType::Pointer createWarp(TensorImageType::Pointer, 
-                                    DeformationImageType::Pointer, 
+TensorImageType::Pointer createWarp(TensorImageType::Pointer,
+                                    DeformationImageType::Pointer,
                                     TensorReorientationType, InterpolationType);
 
 

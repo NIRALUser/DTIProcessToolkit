@@ -57,7 +57,7 @@ void validate(boost::any& v,
   else if (s == "snorm")
     {
     v = any(SmoothNormalized);
-    } 
+    }
   else if (s == "rnorm")
     {
     v = any(RawNormalized);
@@ -86,11 +86,11 @@ int main(int argc, char* argv[])
     ("sigma,s", po::value<double>()->default_value(2.0), "Scale of gradients")
     ("type,t", po::value<CurvatureType>()->default_value(MaxEigenvalue,"orig"), "Curvature type")
     ;
-  
+
   po::options_description hidden("Hidden options");
   hidden.add_options()
     ("image", po::value<std::string>(), "FA image")
-  ;
+    ;
 
   po::options_description all;
   all.add(config).add(hidden);
@@ -105,8 +105,8 @@ int main(int argc, char* argv[])
     {
     po::store(po::command_line_parser(argc, argv).
               options(all).positional(p).run(), vm);
-    po::notify(vm);     
-    } 
+    po::notify(vm);
+    }
   catch (const po::error &e)
     {
     std::cerr << e.what() << std::endl;
@@ -116,15 +116,15 @@ int main(int argc, char* argv[])
   // End option reading configuration
 #endif
   PARSE_ARGS;
-  
+
   // Display help if asked or program improperly called
-    if(image == "")
+  if(image == "")
     {
-      std::cout << "Version: $Date: 2009-01-09 15:39:51 $ $Revision: 1.5 $" << std::endl;
-      std::cout << ITK_SOURCE_VERSION << std::endl;
-      return EXIT_FAILURE;
+    std::cout << "Version: $Date: 2009-01-09 15:39:51 $ $Revision: 1.5 $" << std::endl;
+    std::cout << ITK_SOURCE_VERSION << std::endl;
+    return EXIT_FAILURE;
     }
-  
+
   if(output == "")
     {
     std::cerr << "maxcurvature: Must specify output file" << std::endl;
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
   typedef itk::Image<EigenValuePixelType, DIM> EigenValueImageType;
 
   typedef itk::ImageFileReader<ImageType> FileReaderType;
- 
+
   FileReaderType::Pointer reader = FileReaderType::New();
   reader->SetFileName(image);
 
@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
   CastFilter2Type::Pointer cast2 = CastFilter2Type::New();
   cast2->SetInput(elementSelect);
   cast2->Update();
-  
+
   typedef itk::ShiftScaleImageFilter<FloatImageType,FloatImageType> ScaleImageType;
   ScaleImageType::Pointer scale = ScaleImageType::New();
   scale->SetShift(0.0);

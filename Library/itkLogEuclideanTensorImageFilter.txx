@@ -9,17 +9,17 @@ void LogEuclideanTensorImageFilter<T>::ThreadedGenerateData()
   const typename InputImageType::ConstPointer input(this->GetInput() );
 
   typename OutputImageType::Pointer output(this->GetOutput());
-  
+
   typename InputImageType::RegionType inputRequestedRegion(input->GetRequestedRegion());
 
   typename OutputImageType::RegionType outputRequestedRegion(output->GetRequestedRegion());
 
   ImageRegionConstIteratorWithIndex<InputImageType> it(
     input, inputRequestedRegion);
-  
+
   ImageRegionIterator<OutputImageType> oit = ImageRegionIterator<OutputImageType>(
     output, outputRequestedRegion);
-  
+
   InputPixelType tensor;
   for(it.GoToBegin(), oit.GoToBegin();!it.IsAtEnd(); ++it, ++oit)
     {
@@ -41,7 +41,7 @@ void LogEuclideanTensorImageFilter<T>::ThreadedGenerateData()
     m(0,0) = D[0] > 0 ? log(D[0]) : -10;
     m(1,1) = D[1] > 0 ? log(D[1]) : -10;
     m(2,2) = D[2] > 0 ? log(D[2]) : -10;
-    
+
 //    std::cout << U << std::endl;
 //    std::cout << D << std::endl;
 

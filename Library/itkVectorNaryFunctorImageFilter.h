@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -23,7 +23,7 @@
 
 namespace itk
 {
-  
+
 /** \class VectorNaryFunctorImageFilter
  * \brief Implements pixel-wise generic operation of Nth similar images.
  *
@@ -33,13 +33,13 @@ namespace itk
  * function.
  *
  * All the input images are of the same type.
- * 
+ *
  * \ingroup IntensityImageFilters   Multithreaded
  */
 
 template <class TInputImage, class TOutputImage, class TFunction >
 class ITK_EXPORT VectorNaryFunctorImageFilter :
-    public InPlaceImageFilter<TInputImage,TOutputImage> 
+    public InPlaceImageFilter<TInputImage,TOutputImage>
 
 {
 public:
@@ -50,7 +50,7 @@ public:
   typedef SmartPointer<const Self>  ConstPointer;
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
-  
+
   /** Run-time type information (and related methods). */
   itkTypeMacro(VectorNaryFunctorImageFilter, InPlaceImageFilter);
 
@@ -58,13 +58,13 @@ public:
   typedef TFunction   FunctorType;
   typedef TInputImage InputImageType;
   typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::RegionType   InputImageRegionType; 
-  typedef typename InputImageType::PixelType    InputImagePixelType; 
+  typedef typename InputImageType::RegionType   InputImageRegionType;
+  typedef typename InputImageType::PixelType    InputImagePixelType;
   typedef TOutputImage OutputImageType;
   typedef typename OutputImageType::Pointer     OutputImagePointer;
   typedef typename OutputImageType::RegionType  OutputImageRegionType;
   typedef typename OutputImageType::PixelType   OutputImagePixelType;
-  typedef VectorContainer<unsigned int, InputImagePixelType > VectorNaryArrayType; 
+  typedef VectorContainer<unsigned int, InputImagePixelType > VectorNaryArrayType;
 
   /** Get the functor object.  The functor is returned by reference.
    * (Functors do not have to derive from itk::LightObject, so they do
@@ -86,7 +86,7 @@ public:
       this->Modified();
       }
   }
-  
+
 protected:
   VectorNaryFunctorImageFilter();
   virtual ~VectorNaryFunctorImageFilter() {};

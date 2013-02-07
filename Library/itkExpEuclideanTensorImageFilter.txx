@@ -9,22 +9,22 @@ void ExpEuclideanTensorImageFilter<T>::ThreadedGenerateData()
   const typename InputImageType::ConstPointer input(this->GetInput() );
 
   typename OutputImageType::Pointer output(this->GetOutput());
-  
+
   typename InputImageType::RegionType inputRequestedRegion(input->GetRequestedRegion());
 
   typename OutputImageType::RegionType outputRequestedRegion(output->GetRequestedRegion());
 
   ImageRegionConstIterator<InputImageType> it = ImageRegionConstIterator<InputImageType>(
     input, inputRequestedRegion);
-  
+
   ImageRegionIterator<OutputImageType> oit = ImageRegionIterator<OutputImageType>(
     output, outputRequestedRegion);
-  
+
   InputPixelType logvec;
   for(it.GoToBegin(), oit.GoToBegin();!it.IsAtEnd(); ++it, ++oit)
     {
     logvec = it.Get();
-    
+
     DiffusionTensor3D<double> tensor;
     for(int i = 0; i < 6; ++i)
       tensor[i] = logvec[i];
@@ -34,7 +34,7 @@ void ExpEuclideanTensorImageFilter<T>::ThreadedGenerateData()
 
     Vector<double, 3> D;
     Matrix<double, 3, 3> U;
-    
+
     tensor.ComputeEigenAnalysis(D,U);
 
     vnl_matrix_fixed<double,3,3> m;
@@ -42,7 +42,7 @@ void ExpEuclideanTensorImageFilter<T>::ThreadedGenerateData()
     m(0,0) = exp(D[0]);
     m(1,1) = exp(D[1]);
     m(2,2) = exp(D[2]);
-    
+
 //    std::cout << U << std::endl;
 //    std::cout << D << std::endl;
 

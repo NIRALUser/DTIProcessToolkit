@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -22,7 +22,7 @@
 namespace itk
 {
 
-namespace Functor 
+namespace Functor
 {
 
 /**
@@ -36,23 +36,23 @@ public:
   ~TensorApparentDiffusionCoefficient() {}
 
   bool operator!=( const TensorApparentDiffusionCoefficient & ) const
-  {
-    return false;
-  }
+    {
+      return false;
+    }
   bool operator==( const TensorApparentDiffusionCoefficient & other ) const
-  {
-    return !(*this != other);
-  }
+    {
+      return !(*this != other);
+    }
 
   TOutput operator()(const TInput & d, const TGradientDirection & direction)
-  {
-    double result = 0.0;
-    for(unsigned int i = 0; i < 3; ++i)
-      for(unsigned int j = 0; j < 3; ++j)
-        result += direction[i]*d(i,j)*direction[j];
-    return result;
-  }
-  
+    {
+      double result = 0.0;
+      for(unsigned int i = 0; i < 3; ++i)
+        for(unsigned int j = 0; j < 3; ++j)
+          result += direction[i]*d(i,j)*direction[j];
+      return result;
+    }
+
 };
 
 } // end namespace Functor

@@ -8,7 +8,7 @@ public:
   typedef itk::DiffusionTensor3D<TPrecision> TensorType;
   typedef itk::Vector<itk::Vector<TPrecision, 3>, 6> TensorSpatialGradientType;
   typedef itk::Vector<itk::SymmetricSecondRankTensor<TPrecision, 3>, 6>
-                                                     TensorSpatialHessianType;
+  TensorSpatialHessianType;
   TensorType D;
   TensorSpatialGradientType gradD;
   TensorSpatialGradientType nablaD;

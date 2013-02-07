@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -32,11 +32,11 @@ namespace itk
  * computing the mean diffusivity of every pixel. The pixel type of the
  * input image is expected to implement a method GetTrace(), and
  * to specify its return type as RealValueType.
- * 
+ *
  * \sa TensorRelativeAnisotropyImageFilter
  * \sa TensorFractionalAnisotropyImageFilter
  * \sa DiffusionTensor3D
- * 
+ *
  * \ingroup IntensityImageFilters  Multithreaded  TensorObjects
  *
  */
@@ -64,19 +64,19 @@ public:
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
-  
+
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
-    { this->Superclass::PrintSelf( os, indent ); }
+  { this->Superclass::PrintSelf( os, indent ); }
 
   // need to override GenerateData (This should be threaded)
   void GenerateData();
 
   OutputPixelType ComputeDisplacement(typename InputImageType::ConstPointer input,
-                                     typename InputImageType::IndexType ind,
-                                     typename InputImageType::PixelType hvec);
+                                      typename InputImageType::IndexType ind,
+                                      typename InputImageType::PixelType hvec);
 
-  
+
 protected:
   HFieldToDeformationFieldImageFilter() {};
   virtual ~HFieldToDeformationFieldImageFilter() {};
@@ -92,6 +92,6 @@ private:
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "itkHFieldToDeformationFieldImageFilter.txx"
 #endif
-  
-  
+
+
 #endif

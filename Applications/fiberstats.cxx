@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
   {
     po::store(po::command_line_parser(argc, argv).
               options(all).positional(p).run(), vm);
-    po::notify(vm);     
-  } 
+    po::notify(vm);
+  }
   catch (const po::error &e)
   {
     std::cout << "Parse error: " << std::endl;
@@ -107,9 +107,9 @@ int main(int argc, char* argv[])
   ChildrenListType::iterator it;
   for(it = children->begin(); it != children->end(); it++)
   {
-    DTIPointListType pointlist = 
+    DTIPointListType pointlist =
       dynamic_cast<DTITubeType*>((*it).GetPointer())->GetPoints();
-    DTITubeType::Pointer newtube = DTITubeType::New();   
+    DTITubeType::Pointer newtube = DTITubeType::New();
 
     // For each point along the fiber
     for(DTIPointListType::iterator pit = pointlist.begin();
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
       i[0] = static_cast<long int>(vnl_math_rnd_halfinttoeven(p[0]));
       i[1] = static_cast<long int>(vnl_math_rnd_halfinttoeven(p[1]));
       i[2] = static_cast<long int>(vnl_math_rnd_halfinttoeven(p[2]));
-      
+
       seenvoxels.insert(i);
 
       typedef DTIPointType::FieldListType FieldList;
@@ -147,13 +147,13 @@ int main(int argc, char* argv[])
   //std::cout << "Measure statistics" << std::endl;
   for(SampleMap::const_iterator it = bundlestats.begin();
       it != bundlestats.end(); ++it)
-  {
+    {
     const std::string statname = it->first;
-    
+
     double mean = std::accumulate(it->second.begin(), it->second.end(), 0.0) / it->second.size();
     std::cout << statname << " mean: " << mean << std::endl;
     double var = 0.0; //= std::accumulate(it->second.begin(), it->second.end(), 0.0,
-      //                                 (_1 - mean)*(_1 - mean)) / (it->second.size() - 1);
+    //                                 (_1 - mean)*(_1 - mean)) / (it->second.size() - 1);
     for(MeasureSample::const_iterator it2 = it->second.begin();
         it2 != it->second.end(); it2++)
       {
@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
       var += (minusMean * minusMean) / (it->second.size() - 1);
       }
     std::cout << statname << " std: " << std::sqrt(var) << std::endl;
-  }
+    }
 
   delete children;
   return EXIT_SUCCESS;

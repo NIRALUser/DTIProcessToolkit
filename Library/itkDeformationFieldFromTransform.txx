@@ -103,7 +103,7 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
 
   // Create an iterator that will walk the output region for this thread.
   typedef ImageRegionIteratorWithIndex<
-                                  TOutputImage> OutputIterator;
+    TOutputImage> OutputIterator;
 
   OutputIterator outIt( outputPtr, outputRegion );
 
@@ -130,7 +130,7 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
 
     // Compute corresponding inverse displacement vector
     OutputPointType interpolatedDeformation =
-                        m_Transform->TransformPoint( outputPoint );
+      m_Transform->TransformPoint( outputPoint );
 
     OutputPixelType displacement;
     for( unsigned int i=0; i < ImageDimension; i++)

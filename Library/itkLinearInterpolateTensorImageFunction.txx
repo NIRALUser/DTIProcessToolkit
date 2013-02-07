@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -95,7 +95,7 @@ LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
       }
     distance[dim] = index[dim] - double( baseIndex[dim] );
     }
-  
+
   /**
    * Interpolated value is the weighted sum of each of the surrounding
    * neighbors. The weight for each neighbor is the fraction overlap
@@ -129,7 +129,7 @@ LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
       upper >>= 1;
 
       }
-    
+
     // get neighbor value only if overlap is not zero
     if( overlap )
       {
@@ -149,7 +149,7 @@ LinearInterpolateTensorImageFunction< TInputImage, TCoordRep >
   PixelType mean;
   SymmetricSpaceGeometry<double> ssg;
   TensorStatistics<double> ts(ssg);
-  
+
   ts.ComputeWeightedAve(weights,pixels,mean);
 
   return mean;

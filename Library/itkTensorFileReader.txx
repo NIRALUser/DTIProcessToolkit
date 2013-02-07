@@ -78,7 +78,7 @@ void TensorFileReader<TOutputImage>
   instr >> origin[0];
   instr >> origin[1];
   instr >> origin[2];
-  
+
   instr >> buf;
   instr >> nelem;
 
@@ -101,7 +101,7 @@ void TensorFileReader<TOutputImage>
   output->SetDirection( direction ); // Set the image direction cosines
   output->SetSpacing( spacing );     // Set the image spacing
   output->SetOrigin( origin );       // Set the image origin
-  
+
 
   typedef typename TOutputImage::IndexType   IndexType;
 
@@ -111,7 +111,7 @@ void TensorFileReader<TOutputImage>
   ImageRegionType region;
   region.SetSize(dimSize);
   region.SetIndex(start);
- 
+
   output->SetLargestPossibleRegion(region);
 
 }

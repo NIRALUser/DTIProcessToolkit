@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -26,8 +26,8 @@ namespace itk
 // This functor class invokes the eigendecomposition of a tensor
 // pixel.  The returned value is the major eigenvector in RGB space
 // weighted by the FA value.
-namespace Functor {  
- 
+namespace Functor {
+
 template< typename TInput , typename RGBPixelComponentType>
 class TensorColorFAFunction
 {
@@ -40,13 +40,13 @@ public:
   TensorColorFAFunction() {}
   ~TensorColorFAFunction() {}
   bool operator!=( const TensorColorFAFunction & ) const
-  {
-    return false;
-  }
+    {
+      return false;
+    }
   bool operator==( const TensorColorFAFunction & other ) const
-  {
-    return !(*this != other);
-  }
+    {
+      return !(*this != other);
+    }
   PixelType operator()( const TInput & x )
     {
       RealValueType fa = x.GetFractionalAnisotropy();
@@ -72,13 +72,13 @@ public:
         {
         ev1[0] = mat(0,0); ev1[1] = mat(0,1); ev1[2] = mat(0,2);
         }
-      
+
       color.Set(static_cast<RGBPixelComponentType>(fabs(ev1[0]) * fa * NumericTraits<RGBPixelComponentType>::max()),
                 static_cast<RGBPixelComponentType>(fabs(ev1[1]) * fa * NumericTraits<RGBPixelComponentType>::max()),
                 static_cast<RGBPixelComponentType>(fabs(ev1[2]) * fa * NumericTraits<RGBPixelComponentType>::max()));
       return color;
     }
-}; 
+};
 
 }  // end namespace functor
 
@@ -91,11 +91,11 @@ public:
  * pixel. The pixel type of the input image is expected to implement a
  * method GetFractionalAnisotropy() and ComputeEigenAnalysis().  The
  * resulting color is the eigenvector times the FA value.
- * 
+ *
  * \sa TensorRelativeAnisotropyImageFilter
  * \sa TensorFractionalAnisotropyImageFilter
  * \sa DiffusionTensor3D
- * 
+ *
  * \ingroup IntensityImageFilters  Multithreaded  TensorObjects
  *
  */
@@ -103,18 +103,18 @@ template <typename TInputImage,
           typename TOutputImage>
 class ITK_EXPORT TensorColorFAImageFilter :
     public
-UnaryFunctorImageFilter<TInputImage,TOutputImage, 
+UnaryFunctorImageFilter<TInputImage,TOutputImage,
                         Functor::TensorColorFAFunction<
-                              typename TInputImage::PixelType,
-                              typename TOutputImage::PixelType::ComponentType> > 
+                          typename TInputImage::PixelType,
+                          typename TOutputImage::PixelType::ComponentType> >
 {
 public:
   /** Standard class typedefs. */
   typedef TensorColorFAImageFilter  Self;
-  typedef UnaryFunctorImageFilter<TInputImage,TOutputImage, 
-                                  Functor::TensorColorFAFunction< 
-                                    typename TInputImage::PixelType,
-                                    typename TOutputImage::PixelType::ComponentType> >  Superclass;
+  typedef UnaryFunctorImageFilter<TInputImage,TOutputImage,
+    Functor::TensorColorFAFunction<
+    typename TInputImage::PixelType,
+    typename TOutputImage::PixelType::ComponentType> >  Superclass;
 
   typedef SmartPointer<Self>   Pointer;
   typedef SmartPointer<const Self>  ConstPointer;
@@ -127,11 +127,11 @@ public:
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
-  
+
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
-    { this->Superclass::PrintSelf( os, indent ); }
-  
+  { this->Superclass::PrintSelf( os, indent ); }
+
 
 protected:
   TensorColorFAImageFilter() {};
@@ -144,7 +144,7 @@ private:
 };
 
 
-  
+
 } // end namespace itk
-  
+
 #endif

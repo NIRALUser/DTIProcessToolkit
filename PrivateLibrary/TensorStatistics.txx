@@ -23,7 +23,7 @@ TensorStatistics<T, dimension>
   initialNormSquared = tensGeometry->NormSquared(mean, tangent);
   lastNormSquared = initialNormSquared;
   while(lastNormSquared >= EPSILON)
-  {
+    {
     mean = tensGeometry->ExpMap(mean, tangent * currStepSize);
 
     tangent.Fill(0.0);
@@ -34,15 +34,15 @@ TensorStatistics<T, dimension>
 
     normSquared = tensGeometry->NormSquared(mean, tangent);
     if(normSquared >= lastNormSquared)
-    {
+      {
       currStepSize *= 0.5;
       mean = tensorList->ElementAt(0);
       lastNormSquared = initialNormSquared;
       tangent = initialTangent;
-    }
+      }
     else
       lastNormSquared = normSquared;
-  }
+    }
 }
 
 template<class T, unsigned int dimension>
@@ -71,7 +71,7 @@ TensorStatistics<T, dimension>
   initialNormSquared = tensGeometry->NormSquared(weightedAve, tangent);
   lastNormSquared = initialNormSquared;
   while(lastNormSquared >= EPSILON)
-  {
+    {
     weightedAve = tensGeometry->ExpMap(weightedAve, tangent * currStepSize);
 
     tangent.Fill(0.0);
@@ -81,15 +81,15 @@ TensorStatistics<T, dimension>
 
     normSquared = tensGeometry->NormSquared(weightedAve, tangent);
     if(normSquared >= lastNormSquared)
-    {
+      {
       currStepSize *= 0.5;
       weightedAve = tensorList->ElementAt(0);
       lastNormSquared = initialNormSquared;
       tangent = initialTangent;
-    }
+      }
     else
       lastNormSquared = normSquared;
-  }
+    }
 }
 
 template<class T, unsigned int dimension>
@@ -107,18 +107,18 @@ TensorStatistics<T, dimension>
   covariance.Fill(0.0);
 
   for(i = 0; i < tensorList->Size(); i++)
-  {
+    {
     logTens = tensGeometry->LogMap(mean, tensorList->ElementAt(i));
 
     index = 0;
     for(j = 0; j < size; j++)
-    {
-      for(k = j; k < size; k++, index++)
       {
+      for(k = j; k < size; k++, index++)
+        {
         covariance[index] += logTens[j] * logTens[k];
+        }
       }
     }
-  }
 
   covariance = covariance * (1.0 / ((T) tensorList->Size() + 1));
 }
@@ -149,18 +149,18 @@ TensorStatistics<T, dimension>
   // Generate random gaussians with polar Box-Muller method
   dim = (dimension * (dimension + 1)) / 2;
   for(i = 0; i < dim; i++)
-  {
+    {
     r2 = 0;
     while(r2 > 1.0 || r2 == 0)
-    {
+      {
       x = (2.0 * (double) rand()) / (double)(RAND_MAX + 1.0) - 1.0;
       y = (2.0 * (double) rand()) / (double)(RAND_MAX + 1.0) - 1.0;
 
       r2 = x * x + y * y;
-    }
+      }
 
     logResult[i] = sigma * y * sqrt(-2.0 * log(r2) / r2);
-  }
+    }
 
   return tensGeometry->ExpMap(mean, logResult);
 }

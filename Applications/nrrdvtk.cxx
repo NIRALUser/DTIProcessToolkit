@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
     }
 
   bool nrrd2vtk = true;
- 
+
   const std::string file1(argv[1]);
   const std::string file2(argv[2]);
 
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     {
     nrrd2vtk = false;
     }
-  
+
   // vtk to nrrd
   if(!nrrd2vtk)
     {

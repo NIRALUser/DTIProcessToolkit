@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -24,8 +24,8 @@ namespace itk
 
 // This functor class invokes the computation of fractional anisotropy from
 // every pixel.
-namespace Functor {  
- 
+namespace Functor {
+
 template< typename TInput, typename TOutput >
 class TensorNegativeEigenValueFunction
 {
@@ -33,16 +33,16 @@ public:
   TensorNegativeEigenValueFunction() {}
   ~TensorNegativeEigenValueFunction() {}
   bool operator!=( const TensorNegativeEigenValueFunction & ) const
-  {
-    return false;
-  }
+    {
+      return false;
+    }
   bool operator==( const TensorNegativeEigenValueFunction & other ) const
-  {
-    return !(*this != other);
-  }
+    {
+      return !(*this != other);
+    }
   TOutput operator()( const TInput & x )
     {
-      
+
       if(x[0] == 0 && x[1] == 0 &&
          x[2] == 0 && x[3] == 0 &&
          x[4] == 0 && x[5] == 0)
@@ -56,7 +56,7 @@ public:
       else
         return 0;
     }
-}; 
+};
 
 }  // end namespace functor
 
@@ -68,11 +68,11 @@ public:
  * computing the mean diffusivity of every pixel. The pixel type of the
  * input image is expected to implement a method GetTrace(), and
  * to specify its return type as RealValueType.
- * 
+ *
  * \sa TensorRelativeAnisotropyImageFilter
  * \sa TensorFractionalAnisotropyImageFilter
  * \sa DiffusionTensor3D
- * 
+ *
  * \ingroup IntensityImageFilters  Multithreaded  TensorObjects
  *
  */
@@ -80,16 +80,16 @@ template <typename TInputImage,
           typename TOutputImage>
 class ITK_EXPORT TensorNegativeEigenValueImageFilter :
     public
-UnaryFunctorImageFilter<TInputImage,TOutputImage, 
-                        Functor::TensorNegativeEigenValueFunction< 
-  typename TInputImage::PixelType,
-  typename TOutputImage::PixelType> > 
+UnaryFunctorImageFilter<TInputImage,TOutputImage,
+                        Functor::TensorNegativeEigenValueFunction<
+                          typename TInputImage::PixelType,
+                          typename TOutputImage::PixelType> >
 {
 public:
   /** Standard class typedefs. */
   typedef TensorNegativeEigenValueImageFilter  Self;
-  typedef UnaryFunctorImageFilter<TInputImage,TOutputImage, 
-                                  Functor::TensorNegativeEigenValueFunction< 
+  typedef UnaryFunctorImageFilter<TInputImage,TOutputImage,
+    Functor::TensorNegativeEigenValueFunction<
     typename TInputImage::PixelType,
     typename TOutputImage::PixelType> >  Superclass;
 
@@ -104,11 +104,11 @@ public:
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
-  
+
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
-    { this->Superclass::PrintSelf( os, indent ); }
-  
+  { this->Superclass::PrintSelf( os, indent ); }
+
 
 protected:
   TensorNegativeEigenValueImageFilter() {};
@@ -121,7 +121,7 @@ private:
 };
 
 
-  
+
 } // end namespace itk
-  
+
 #endif

@@ -19,7 +19,7 @@
 #include "itkTensorRotateFromDeformationFieldImageFilter.h"
 #include "itkTensorRotateFromDeformationFieldPPDImageFilter.h"
 
-TensorImageType::Pointer createROT(TensorImageType::Pointer timg, 
+TensorImageType::Pointer createROT(TensorImageType::Pointer timg,
                                    const std::string &doffile,
 				   int doffiletype)
 {
@@ -29,29 +29,29 @@ TensorImageType::Pointer createROT(TensorImageType::Pointer timg,
   AffineTransformType::Pointer transform;
   //Deal with DOF files
   if(doffiletype == 0)
-  {
+    {
     RViewTransform<TransformRealType> dof(readDOFFile<TransformRealType>(doffile));
-    //AffineTransformType::Pointer transform = 
-    AffineTransformType::Pointer transform_tmp = 
+    //AffineTransformType::Pointer transform =
+    AffineTransformType::Pointer transform_tmp =
       createITKAffine(dof,
 		      timg->GetLargestPossibleRegion().GetSize(),
 		      timg->GetSpacing(),
 		      timg->GetOrigin());
     transform = transform_tmp;
-  }
+    }
   if(doffiletype == 1)
-  {
+    {
     newRViewTransform<TransformRealType> dof(readDOF2MATFile<TransformRealType>(doffile));
-    AffineTransformType::Pointer transform_tmp = 
+    AffineTransformType::Pointer transform_tmp =
       createnewITKAffine(dof,
-		      timg->GetLargestPossibleRegion().GetSize(),
-		      timg->GetSpacing(),
-		      timg->GetOrigin());
+                         timg->GetLargestPossibleRegion().GetSize(),
+                         timg->GetSpacing(),
+                         timg->GetOrigin());
     transform = transform_tmp;
-  }
+    }
   //Deal with itk affine files
   else if(doffiletype == 2)
-  {
+    {
     //Create a temporary transform filter before copying it to transform
     AffineTransformType::Pointer transform_tmp = AffineTransformType::New();
 
@@ -61,30 +61,30 @@ TensorImageType::Pointer createROT(TensorImageType::Pointer timg,
 
     treader->SetFileName(doffile);
     try
-    {
+      {
       treader->Update();
-    }
+      }
     catch (itk::ExceptionObject & e)
-    {
+      {
       std::cerr << e << std::endl;
-    }
-    
+      }
+
     TransformBaseType::Pointer basetransform = treader->GetTransformList()->front();
-   
+
     //Fill out the Affine matrix
     AffineTransformType::MatrixType aff3itk;
     int x = 0;
     int y = 0;
     for(unsigned int i = 0 ; i < 9 ; i++)
-    {
+      {
       aff3itk(x,y) = basetransform->GetParameters()(i);
       y++;
-      if(y == 3) 
-      {
+      if(y == 3)
+        {
 	y = 0;
 	x++;
+        }
       }
-    }
     transform_tmp->SetMatrix(aff3itk);
 
     //Set the translation values
@@ -103,9 +103,9 @@ TensorImageType::Pointer createROT(TensorImageType::Pointer timg,
 
     //Copy the temporary transform in the transform filter
     transform = transform_tmp;
-  }
+    }
 
-  vnl_matrix<TransformRealType> R = 
+  vnl_matrix<TransformRealType> R =
     getInverseRotation(transform);
 
   typedef itk::TensorRotateImageFilter<TensorImageType,TensorImageType,TransformRealType> TensorRotateType;
@@ -117,7 +117,7 @@ TensorImageType::Pointer createROT(TensorImageType::Pointer timg,
   typedef itk::LogEuclideanTensorImageFilter<RealType> LogEuclideanFilter;
   typedef LogEuclideanFilter::OutputImageType LogTensorImageType;
   LogEuclideanFilter::Pointer logf = LogEuclideanFilter::New();
-  logf->SetInput(trotfilt->GetOutput()); 
+  logf->SetInput(trotfilt->GetOutput());
   logf->Update();
 
   typedef itk::VectorResampleImageFilter<
@@ -137,7 +137,7 @@ TensorImageType::Pointer createROT(TensorImageType::Pointer timg,
   resampler->SetSize( logim->GetLargestPossibleRegion().GetSize() );
   resampler->SetOutputOrigin( logim->GetOrigin() );
   resampler->SetOutputSpacing( logim->GetSpacing() );
-  
+
   typedef LogTensorImageType::PixelType LogPixelType;
   LogPixelType def(0.0);
   def[0] = -10;
@@ -154,7 +154,7 @@ TensorImageType::Pointer createROT(TensorImageType::Pointer timg,
   expf->Update();
 
   return expf->GetOutput();
-    
+
 }
 
 TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
@@ -172,32 +172,32 @@ TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
   typedef itk::LogEuclideanTensorImageFilter<RealType> LogEuclideanFilter;
   typedef LogEuclideanFilter::OutputImageType LogTensorImageType;
   LogEuclideanFilter::Pointer logf = LogEuclideanFilter::New();
-  logf->SetInput(timg); 
+  logf->SetInput(timg);
   logf->Update();
 
   typedef itk::WarpVectorImageFilter<LogTensorImageType,LogTensorImageType,DeformationImageType>
     WarpImageFilterType;
   WarpImageFilterType::Pointer warp = WarpImageFilterType::New();
-  
+
   if(interpolationtype == Cubic)
     {
     typedef itk::VectorBSplineInterpolateImageFunction<LogTensorImageType,double,double> InterpolatorType;
     InterpolatorType::Pointer interpolator = InterpolatorType::New();
-    
+
     warp->SetInterpolator(interpolator);
     }
   else if (interpolationtype == Linear)
     {
     typedef itk::VectorLinearInterpolateImageFunction<LogTensorImageType,double> InterpolatorType;
     InterpolatorType::Pointer interpolator = InterpolatorType::New();
-    
+
     warp->SetInterpolator(interpolator);
-    }  
+    }
   else if (interpolationtype == NearestNeighbor)
     {
     typedef itk::VectorNearestNeighborInterpolateImageFunction<LogTensorImageType,double> InterpolatorType;
     InterpolatorType::Pointer interpolator = InterpolatorType::New();
-    
+
     warp->SetInterpolator(interpolator);
     }
 
@@ -222,7 +222,7 @@ TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
   expf->Update();
 
   //return expf->GetOutput();
-  
+
   // Rotate tensor based on inverse deformation field
   typedef itk::InPlaceImageFilter<
     TensorImageType,
@@ -245,7 +245,7 @@ TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
     fsrotate = TensorFSRotateImageFilterType::New();
 
     fsrotate->SetInput1(expf->GetOutput());
-    
+
     fsrotate->SetInput2(jacobian->GetOutput());
 
     rotate = fsrotate;
@@ -256,7 +256,7 @@ TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
     ppdrotate = TensorPPDRotateImageFilterType::New();
 
     ppdrotate->SetInput1(expf->GetOutput());
-    
+
     ppdrotate->SetInput2(jacobian->GetOutput());
     rotate = ppdrotate;
     }

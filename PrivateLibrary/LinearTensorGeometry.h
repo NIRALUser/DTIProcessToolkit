@@ -44,16 +44,16 @@ T LinearTensorGeometry<T, dimension>::InnerProduct(const TensorType & base,
   j = dimension;
   prod = 0.0;
   for(i = 0; i < v.Size(); i++)
-  {
-    if(i == diagIndex)
     {
+    if(i == diagIndex)
+      {
       prod += v[i] * w[i];
       diagIndex += j;
       j--;
-    }
+      }
     else
       prod += 2.0 * v[i] * w[i];
-  }
+    }
 
   return prod;
 }

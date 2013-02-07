@@ -29,23 +29,23 @@ public:
   ExponentialLeastSquaresFunction(unsigned int                   number_of_residuals,
                                   const vnl_matrix<TTensorPrecision>* design_matrix,
                                   const vnl_vector<TTensorPrecision>* signal) :
-    vnl_least_squares_function(7,number_of_residuals,no_gradient), 
+    vnl_least_squares_function(7,number_of_residuals,no_gradient),
     m_Design_Matrix(design_matrix),
     m_Signal(signal)
-  {
-  }
-  
-  void f(const vnl_vector<double> &x,
-         vnl_vector<double> &fx) 
-  {
-    vnl_vector<double> predictedsignal(n_);
-    predictedsignal = (*m_Design_Matrix) * x;
-    for(unsigned int i = 0; i < n_; ++i)
-    {    
-      predictedsignal[i] = exp(predictedsignal[i]);
-      fx[i] = (*m_Signal)[i] - predictedsignal[i];
+    {
     }
-  }
+
+  void f(const vnl_vector<double> &x,
+         vnl_vector<double> &fx)
+    {
+      vnl_vector<double> predictedsignal(n_);
+      predictedsignal = (*m_Design_Matrix) * x;
+      for(unsigned int i = 0; i < n_; ++i)
+        {
+        predictedsignal[i] = exp(predictedsignal[i]);
+        fx[i] = (*m_Signal)[i] - predictedsignal[i];
+        }
+    }
 
 private:
   const vnl_matrix<TTensorPrecision>* m_Design_Matrix;
@@ -55,28 +55,28 @@ private:
 
 template< class TGradientImagePixelType, class TTensorPrecision >
 vnl_vector<TTensorPrecision>
-DiffusionTensor3DReconstructionNonlinearImageFilter< TGradientImagePixelType, 
+DiffusionTensor3DReconstructionNonlinearImageFilter< TGradientImagePixelType,
                                                      TTensorPrecision >
 ::EstimateTensor(const vnl_vector<TTensorPrecision>& S) const
 {
   vnl_vector< TTensorPrecision > B(this->m_NumberOfGradientDirections);
   for(unsigned int i = 0; i < S.size(); ++i)
-  {
+    {
     if(S[i] == 0)
       B[i] = 0;
     else
       B[i] = log(S[i]);
-  }
+    }
 
   vnl_vector< TTensorPrecision > estimate(this->m_TensorBasis * B);
 
   typedef Functor::ExponentialLeastSquaresFunction<TTensorPrecision> FittingFunctionType;
-  
+
   unsigned int ng = this->m_NumberOfGradientDirections;
-  FittingFunctionType lsqf(ng, 
-                           &this->m_BMatrix, 
+  FittingFunctionType lsqf(ng,
+                           &this->m_BMatrix,
                            &S);
-  
+
   // Levenberg-Marquardt is optimal for functions
   // which are sum of squared residuals
   vnl_levenberg_marquardt optimizer(lsqf);
@@ -85,9 +85,9 @@ DiffusionTensor3DReconstructionNonlinearImageFilter< TGradientImagePixelType,
 
   std::cout << this->m_BMatrix.size() << std::endl;
   if(!optimizer.minimize(estimate))
-  {
+    {
     throw itk::ExceptionObject("Error in non-linear tensor estimation");
-  }
+    }
 
   return estimate;
 }

@@ -23,7 +23,7 @@ public:
   typedef TPrecision Precision;
   Precision tx[3];  // Translation
   Precision ea[3];  // Euler angles
-  Precision sc[3];  // Scaling 
+  Precision sc[3];  // Scaling
   Precision skew[6];// Skews
   unsigned int ndofs;
 };
@@ -41,12 +41,12 @@ template<class Precision>
 RViewTransform<Precision> readDOFFile(const std::string &doffile)
 {
   RViewTransform<Precision> dof;
-  
+
   std::ifstream dofstream(doffile.c_str());
   float nil;
   std::string junk;
   dofstream >> junk >> dof.ndofs;
-  
+
   for (unsigned int i = 0; i < 3; ++i)
     dofstream >> nil >> nil >> dof.tx[i];
 
@@ -72,15 +72,15 @@ RViewTransform<Precision> readDOFFile(const std::string &doffile)
 //Read the new format of dof files, it has to be converted first into ASCII format using dof2mat
 template<class Precision>
 newRViewTransform<Precision> readDOF2MATFile(const std::string &dof2matfile)
-{                            
+{
   newRViewTransform<Precision> dofmatrix;
-  
+
   std::ifstream dofstream(dof2matfile.c_str());
   std::string junk;
   //Skip the first line which has 4 characters
-  for(unsigned int i = 0 ; i < 4 ; i++)  
+  for(unsigned int i = 0 ; i < 4 ; i++)
     dofstream >> junk;
-  
+
   for (unsigned int i = 0; i < 4; ++i)
     dofstream >> dofmatrix.transfomat(i,0) >> dofmatrix.transfomat(i,1) >> dofmatrix.transfomat(i,2) >> dofmatrix.transfomat(i,3);
 
@@ -101,38 +101,38 @@ readITKAffine(const std::string &doffile)
   TransformReader::Pointer treader = TransformReader::New();
   treader->SetFileName(doffile);
   treader->Update();
-   
+
   typename ReturnTransformType::Pointer rttransform = ReturnTransformType::New();
 
   // If we have a float transform
-  typename FloatTransformType::Pointer flttransform = 
+  typename FloatTransformType::Pointer flttransform =
     dynamic_cast<FloatTransformType*>( treader->GetTransformList()->front().GetPointer() );
   if(!flttransform.IsNull())
-  {
+    {
     rttransform->SetParameters(flttransform->GetParameters());
     rttransform->SetFixedParameters(flttransform->GetFixedParameters());
 
     return rttransform;
-  }
+    }
 
   // If we have a double transform
-  typename DoubleTransformType::Pointer dbltransform = 
+  typename DoubleTransformType::Pointer dbltransform =
     dynamic_cast<DoubleTransformType*>( treader->GetTransformList()->front().GetPointer() );
   if(!dbltransform.IsNull())
-  {
+    {
     rttransform->SetParameters(dbltransform->GetParameters());
     rttransform->SetFixedParameters(dbltransform->GetFixedParameters());
 
     return rttransform;
-  }
-  
+    }
+
   throw itk::ExceptionObject("Invalid transform type");
 }
 
 
 template<class DOFType, class ImageSizeType, class ImageSpacingType, class ImagePointType>
 typename itk::AffineTransform<typename DOFType::Precision,
-                              ImageSpacingType::Dimension>::Pointer 
+                              ImageSpacingType::Dimension>::Pointer
 createITKAffine(const DOFType & dof,
                 const ImageSizeType& size,
                 const ImageSpacingType& spacing,
@@ -185,7 +185,7 @@ createITKAffine(const DOFType & dof,
     affine(2,0) = affine(2,0)*dof.sc[0];
     affine(2,1) = affine(2,1)*dof.sc[1];
     affine(2,2) = affine(2,2)*dof.sc[2];
-    
+
     }
 
   if(dof.ndofs > 9)
@@ -193,17 +193,17 @@ createITKAffine(const DOFType & dof,
     vnl_matrix<Precision> skewx(4,4,0);
     skewx.set_identity();
     skewx(2, 1)= tan(dof.skew[3]*(M_PI/180.0));
-    skewx(1, 2)= tan(dof.skew[2]*(M_PI/180.0)); 
-    
+    skewx(1, 2)= tan(dof.skew[2]*(M_PI/180.0));
+
     vnl_matrix<Precision> skewy(4,4,0);
     skewy.set_identity();
     skewy(2, 0)= tan(dof.skew[4]*(M_PI/180.0));
     skewy(0, 2)= tan(dof.skew[5]*(M_PI/180.0));
-    
+
     vnl_matrix<Precision> skewz(4,4,0);
     skewz.set_identity();
-    skewz(1, 0)= tan(dof.skew[0]*(M_PI/180.0));  
-    skewz(0, 1)= tan(dof.skew[1]*(M_PI/180.0)); 
+    skewz(1, 0)= tan(dof.skew[0]*(M_PI/180.0));
+    skewz(0, 1)= tan(dof.skew[1]*(M_PI/180.0));
 
     affine *= skewx * skewy * skewz;
 
@@ -212,13 +212,13 @@ createITKAffine(const DOFType & dof,
   // itk needs the inverse transform
   vnl_matrix<Precision> affine3(vnl_matrix_inverse<Precision>(affine.extract(3,3)));
 
-  // Setup the itk affine transform 
+  // Setup the itk affine transform
   typename AffineTransformType::Pointer itktransform = AffineTransformType::New();
   typedef typename AffineTransformType::MatrixType MatrixType;
   typedef typename AffineTransformType::TranslationType TranslationType;
   typedef typename AffineTransformType::CenterType CenterType;
   typedef typename AffineTransformType::OffsetType OffsetType;
-  
+
   MatrixType aff3itk;
   for(int i = 0; i < 3; ++i)
     for(int j = 0; j < 3; ++j)
@@ -246,18 +246,18 @@ createITKAffine(const DOFType & dof,
   itktranslation[0] = -rt[0];
   itktranslation[1] = -rt[1];
   itktranslation[2] = -rt[2];
-  itktransform->SetTranslation(itktranslation);  
+  itktransform->SetTranslation(itktranslation);
 
   return itktransform;
 }
 
 template<class DOFType, class ImageSizeType, class ImageSpacingType, class ImagePointType>
 typename itk::AffineTransform<typename DOFType::Precision,
-                              ImageSpacingType::Dimension>::Pointer 
+                              ImageSpacingType::Dimension>::Pointer
 createnewITKAffine(const DOFType & dof,
-                const ImageSizeType& size,
-                const ImageSpacingType& spacing,
-                const ImagePointType& origin)
+                   const ImageSizeType& size,
+                   const ImageSpacingType& spacing,
+                   const ImagePointType& origin)
 {
   typedef typename DOFType::Precision Precision;
   typedef typename itk::AffineTransform<Precision,ImageSpacingType::Dimension> AffineTransformType;
@@ -282,13 +282,13 @@ createnewITKAffine(const DOFType & dof,
   // itk needs the inverse transform
 //  vnl_matrix<Precision> affine3(vnl_matrix_inverse<Precision>(affine.extract(3,3)));
 
-  // Setup the itk affine transform 
+  // Setup the itk affine transform
   typename AffineTransformType::Pointer itktransform = AffineTransformType::New();
   typedef typename AffineTransformType::MatrixType MatrixType;
   typedef typename AffineTransformType::TranslationType TranslationType;
   typedef typename AffineTransformType::CenterType CenterType;
   typedef typename AffineTransformType::OffsetType OffsetType;
-  
+
   MatrixType aff3itk;
   for(int i = 0; i < 3; ++i)
     for(int j = 0; j < 3; ++j)
@@ -312,7 +312,7 @@ createnewITKAffine(const DOFType & dof,
   itktranslation[0] = tx[0];
   itktranslation[1] = tx[1];
   itktranslation[2] = tx[2];
-  itktransform->SetTranslation(itktranslation);  
+  itktransform->SetTranslation(itktranslation);
 
   return itktransform;
 

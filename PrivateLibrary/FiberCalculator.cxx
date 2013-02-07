@@ -24,8 +24,8 @@ DTIPointWarper::ComputeNewPoint(const itk::DTITubeSpatialObjectPoint<DIM> & oldp
 // itk::DTITubeSpatialObjectPoint<DIM>
 // DTIPointStatisticsGatherer::ComputeNewPoint(const itk::DTITubeSpatialObjectPoint<DIM> & oldpoint) const
 // {
-  
-  
+
+
 // }
 
 

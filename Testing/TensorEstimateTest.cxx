@@ -32,7 +32,7 @@ namespace{
   // Assign gradient directions
   //
   const double bvalue = 1000;
-  const double PRIVATEGradientDirections[numberOfGradientImages][3] = 
+  const double PRIVATEGradientDirections[numberOfGradientImages][3] =
   {
     {0, 0, 0},
     {-0.99823, -0.036499, 0.047033},
@@ -74,7 +74,7 @@ public:
       gradientDirections->CastToSTLContainer().push_back(grad);
       std::cout << grad << std::endl;
     }
-    
+
     // Create gradient images
     //
     typedef typename TTensorEstimateType::GradientImagesType DWIImageType;
@@ -83,7 +83,7 @@ public:
     typedef typename GradientRegionType::IndexType  GradientIndexType;
     typedef typename GradientRegionType::SizeType   GradientSizeType;
     typedef typename DWIImageType::PixelType   VectorDWIPixelType;
-    
+
     typename DWIImageType::Pointer dwimage = DWIImageType::New();
     GradientSizeType  sizeGradientImage  = {{ 4, 4, 4 }};
     GradientIndexType indexGradientImage = {{ 0, 0, 0 }};
@@ -93,14 +93,14 @@ public:
     dwimage->SetVectorLength(numberOfGradientImages);
     dwimage->SetRegions( regionGradientImage );
     dwimage->Allocate();
-  
+
     const double PRIVATEtruetensor[6] = {3.0e-4, 0.0, 0.0, 2.0e-4, 0.0, 1.0e-4};
     m_TrueTensor = TensorPixelType(PRIVATEtruetensor);
-    
-    itk::ImageRegionIteratorWithIndex< DWIImageType > git( 
+
+    itk::ImageRegionIteratorWithIndex< DWIImageType > git(
       dwimage, regionGradientImage );
     git.GoToBegin();
-    
+
     typedef itk::Functor::TensorApparentDiffusionCoefficient<itk::DiffusionTensor3D<double>, vnl_vector_fixed<double, 3>, double> ADC;
     while( !git.IsAtEnd() )
     {
@@ -117,7 +117,7 @@ public:
     std::cout << "DWI signal: " << std::endl;
     typename DWIImageType::IndexType ind = {{3,3,3}};
     std::cout << dwimage->GetPixel(ind) << std::endl;
-    
+
     testim->SetGradientImage( gradientDirections, dwimage );
     testim->SetBValue(bvalue);
     testim->Update();
@@ -126,7 +126,7 @@ public:
   bool checkB0Estimate( ScalarImageType::Pointer b0)
   {
     typedef TensorImageType::IndexType TensorImageIndexType;
-  
+
     TensorImageIndexType tensorImageIndex    = {{3,3,3}};
     DWIComponentPixelType result(b0->GetPixel(tensorImageIndex));
 
@@ -144,11 +144,11 @@ public:
   bool checkTensorEstimate( TensorImageType::Pointer timg)
   {
     typedef TensorImageType::IndexType TensorImageIndexType;
-  
+
     TensorImageIndexType tensorImageIndex    = {{3,3,3}};
 
     std::cout << timg->GetPixel(tensorImageIndex) << std::endl;
-  
+
     itk::DiffusionTensor3D<double> result(timg->GetPixel(tensorImageIndex));
     const double precision = 0.0001;
     for(unsigned int i = 0; i < 6; ++i)
@@ -172,14 +172,14 @@ private:
 
 int NLSTensorEstimateTest(int, char*[])
 {
-  typedef itk::DiffusionTensor3DReconstructionNonlinearImageFilter< 
-        DWIComponentPixelType, TensorPrecisionType > 
+  typedef itk::DiffusionTensor3DReconstructionNonlinearImageFilter<
+        DWIComponentPixelType, TensorPrecisionType >
         TensorReconstructionImageFilterType;
 
   typedef TensorReconstructionImageFilterType TensorReconstructionImageFilterType;
 
   // NLS
-  TensorReconstructionImageFilterType::Pointer tensorReconstructionFilter = 
+  TensorReconstructionImageFilterType::Pointer tensorReconstructionFilter =
     TensorReconstructionImageFilterType::New();
 
   TensorEstimateTester<TensorReconstructionImageFilterType> tensortester;
@@ -196,14 +196,14 @@ int NLSTensorEstimateTest(int, char*[])
 
 int WLSTensorEstimateTest(int, char*[])
 {
-  typedef itk::DiffusionTensor3DReconstructionWeightedImageFilter< 
-      DWIComponentPixelType, TensorPrecisionType > 
+  typedef itk::DiffusionTensor3DReconstructionWeightedImageFilter<
+      DWIComponentPixelType, TensorPrecisionType >
         WeightedTensorReconstructionImageFilterType;
 
   typedef WeightedTensorReconstructionImageFilterType TensorReconstructionImageFilterType;
 
   // WLS
-  WeightedTensorReconstructionImageFilterType::Pointer wlstensorReconstructionFilter = 
+  WeightedTensorReconstructionImageFilterType::Pointer wlstensorReconstructionFilter =
     WeightedTensorReconstructionImageFilterType::New();
 
   TensorEstimateTester<WeightedTensorReconstructionImageFilterType> tensortester;
@@ -220,14 +220,14 @@ int WLSTensorEstimateTest(int, char*[])
 
 int LLSTensorEstimateTest(int, char*[])
 {
-  typedef itk::DiffusionTensor3DReconstructionLinearImageFilter< 
-      DWIComponentPixelType, TensorPrecisionType > 
+  typedef itk::DiffusionTensor3DReconstructionLinearImageFilter<
+      DWIComponentPixelType, TensorPrecisionType >
         TensorReconstructionImageFilterType;
 
   typedef TensorReconstructionImageFilterType TensorReconstructionImageFilterType;
 
   // WLS
-  TensorReconstructionImageFilterType::Pointer tensorReconstructionFilter = 
+  TensorReconstructionImageFilterType::Pointer tensorReconstructionFilter =
     TensorReconstructionImageFilterType::New();
 
   TensorEstimateTester<TensorReconstructionImageFilterType> tensortester;

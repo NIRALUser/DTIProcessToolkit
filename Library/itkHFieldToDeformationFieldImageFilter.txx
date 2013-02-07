@@ -15,17 +15,17 @@ void HFieldToDeformationFieldImageFilter<TInputImage,TOutputImage>::GenerateData
   const typename InputImageType::ConstPointer input(this->GetInput() );
 
   typename OutputImageType::Pointer output(this->GetOutput());
-  
+
   typename InputImageType::RegionType inputRequestedRegion(input->GetRequestedRegion());
 
   typename OutputImageType::RegionType outputRequestedRegion(output->GetRequestedRegion());
 
   ImageRegionConstIteratorWithIndex<InputImageType> it = ImageRegionConstIteratorWithIndex<InputImageType>(
     input, inputRequestedRegion);
-  
+
   ImageRegionIterator<OutputImageType> oit = ImageRegionIterator<OutputImageType>(
     output, outputRequestedRegion);
-  
+
   //  typename InputImageType::SpacingType spacing = input->GetSpacing();
   for(it.GoToBegin(), oit.GoToBegin();!it.IsAtEnd(); ++it, ++oit)
     {
@@ -38,7 +38,7 @@ void HFieldToDeformationFieldImageFilter<TInputImage,TOutputImage>::GenerateData
 }
 
 template <typename TInputImage, typename TOutputImage>
-typename TOutputImage::PixelType 
+typename TOutputImage::PixelType
 HFieldToDeformationFieldImageFilter<TInputImage,TOutputImage>::ComputeDisplacement(typename InputImageType::ConstPointer input,
                                                                                    typename InputImageType::IndexType ind,
                                                                                    typename InputImageType::PixelType hvec)

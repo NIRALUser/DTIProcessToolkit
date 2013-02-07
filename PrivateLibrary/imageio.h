@@ -22,7 +22,7 @@
 #include <itkSmartPointer.h>
 
 template<typename TImage>
-void writeImage(const std::string & filename, 
+void writeImage(const std::string & filename,
                 itk::SmartPointer<TImage> image);
 
 #include "imageio.txx"

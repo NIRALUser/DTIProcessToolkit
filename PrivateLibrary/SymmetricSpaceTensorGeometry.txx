@@ -1,7 +1,7 @@
 // -*- Mode: C++ -*-
 
 template<class T, unsigned int dimension>
-T 
+T
 SymmetricSpaceTensorGeometry<T, dimension>
 ::InnerProduct(const TensorType & base, const TangentType & v,
                const TangentType & w)
@@ -17,13 +17,13 @@ SymmetricSpaceTensorGeometry<T, dimension>
   OrientedEigensystem(base, eigenValues, eigenVectors);
 
   for(i = 0; i < dimension; i++)
-  {
+    {
     if(eigenValues[i] <= 0.0)
       return 0; // Need to add error handling here!!
 
     diag[i][i] = sqrt(eigenValues[i]);
     diagInv[i][i] = (1.0 / diag[i][i]);
-  }
+    }
 
   g = eigenVectors.GetTranspose() * diag.GetVnlMatrix();
   gTrans = g.transpose();
@@ -57,13 +57,13 @@ SymmetricSpaceTensorGeometry<T, dimension>
 
   OrientedEigensystem(base, eigenValues, eigenVectors);
   for(i = 0; i < dimension; i++)
-  {
+    {
     if(eigenValues[i] <= 0.0)
       return tensor; // Need to add error handling here!!
 
     diag[i][i] = sqrt(eigenValues[i]);
     diagInv[i][i] = 1.0 / diag[i][i];
-  }
+    }
 
   g = eigenVectors.GetTranspose() * diag.GetVnlMatrix();
   gInv = diagInv.GetVnlMatrix() * eigenVectors.GetVnlMatrix();
@@ -78,7 +78,7 @@ SymmetricSpaceTensorGeometry<T, dimension>
   for(i = 0; i < dimension; i++)
     diag[i][i] = exp(eigenValues[i]);
 
-  result = (g * eigenVectors.GetTranspose() * diag.GetVnlMatrix() * 
+  result = (g * eigenVectors.GetTranspose() * diag.GetVnlMatrix() *
             eigenVectors.GetVnlMatrix() * g.transpose());
 
   MatrixToTensor(result, tensor);
@@ -104,13 +104,13 @@ SymmetricSpaceTensorGeometry<T, dimension>
 
   OrientedEigensystem(base, eigenValues, eigenVectors);
   for(i = 0; i < dimension; i++)
-  {
+    {
     if(eigenValues[i] <= 0.0)
       return tensor; // Need to add error handling here!!
 
     diag[i][i] = sqrt(eigenValues[i]);
     diagInv[i][i] = 1.0 / diag[i][i];
-  }
+    }
 
   TensorToMatrix(p, pMatrix);
 
@@ -125,7 +125,7 @@ SymmetricSpaceTensorGeometry<T, dimension>
   for(i = 0; i < dimension; i++)
     diag[i][i] = log(eigenValues[i]);
 
-  result = (g * eigenVectors.GetTranspose() * diag.GetVnlMatrix() * 
+  result = (g * eigenVectors.GetTranspose() * diag.GetVnlMatrix() *
             eigenVectors.GetVnlMatrix() * g.transpose());
 
   MatrixToTensor(result, tensor);
@@ -145,18 +145,18 @@ SymmetricSpaceTensorGeometry<T, dimension>
 
   // If det is negative, swap first two eigenvectors/values
   if(dimension >= 2 && vnl_det(eigenVectors.GetVnlMatrix()) < 0)
-  {
+    {
     tempVal = eigenValues[0];
     eigenValues[0] = eigenValues[1];
     eigenValues[1] = tempVal;
 
     for(i = 0; i < dimension; i++)
-    {
+      {
       tempVal = eigenVectors[0][i];
       eigenVectors[0][i] = eigenVectors[1][i];
       eigenVectors[1][i] = tempVal;
+      }
     }
-  }
 }
 
 template<class T, unsigned int dimension>
@@ -189,13 +189,13 @@ SymmetricSpaceTensorGeometry<T, dimension>
 
   k = 0;
   for(i = 0; i < dimension; i++)
-  {
-    for(j = i; j < dimension; j++, k++)
     {
+    for(j = i; j < dimension; j++, k++)
+      {
       m(i, j) = p[k];
       m(j, i) = p[k];
+      }
     }
-  }
 }
 
 template<class T, unsigned int dimension>
@@ -207,10 +207,10 @@ SymmetricSpaceTensorGeometry<T, dimension>
 
   k = 0;
   for(i = 0; i < dimension; i++)
-  {
-    for(j = i; j < dimension; j++, k++)
     {
+    for(j = i; j < dimension; j++, k++)
+      {
       p[k] = 0.5 * (m(i, j) + m(j, i));
+      }
     }
-  }
 }

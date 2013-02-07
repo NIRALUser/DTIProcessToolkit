@@ -121,12 +121,12 @@ public:
   typedef SmartPointer<Self>                      Pointer;
   typedef SmartPointer<const Self>                ConstPointer;
   typedef ImageToImageFilter< VectorImage< TGradientImagePixelType, 3 >,
-                              Image< DiffusionTensor3D< TTensorPrecision >, 3 > >
-                                                  Superclass;
+    Image< DiffusionTensor3D< TTensorPrecision >, 3 > >
+    Superclass;
 
   /** Runtime information support. */
   itkTypeMacro(DiffusionTensor3DReconstructionImageFilterBase,
-                                                      ImageToImageFilter);
+               ImageToImageFilter);
 
   typedef TGradientImagePixelType                  GradientPixelType;
 
@@ -137,7 +137,7 @@ public:
   typedef OutputImageType                          TensorImageType;
 
   typedef typename Superclass::OutputImageRegionType
-                                                   OutputImageRegionType;
+    OutputImageRegionType;
 
   /** Typedef defining one (of the many) gradient images.  */
   typedef Image< GradientPixelType, 3 >            ScalarImageType;
@@ -153,7 +153,7 @@ public:
 
   /** Container to hold gradient directions of the 'n' DW measurements */
   typedef VectorContainer< unsigned int,
-          GradientDirectionType >                  GradientDirectionContainerType;
+    GradientDirectionType >                  GradientDirectionContainerType;
 
 
   /** Another set method to add a gradient directions and its corresponding
@@ -167,13 +167,13 @@ public:
 
   /** Return the gradient direction. idx is 0 based */
   virtual GradientDirectionType GetGradientDirection( unsigned int idx) const
-    {
+  {
     if( idx >= m_NumberOfGradientDirections )
       {
       itkExceptionMacro( << "Gradient direction " << idx << "does not exist" );
       }
     return m_GradientDirectionContainer->ElementAt( idx+1 );
-    }
+  }
 
   /** Threshold on the reference image data. The output tensor will be a null
    * tensor for pixels in the reference image that have a value less than this
@@ -205,20 +205,20 @@ public:
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
   itkConceptMacro(ReferenceEqualityComparableCheck,
-    (Concept::EqualityComparable<GradientPixelType>));
+                  (Concept::EqualityComparable<GradientPixelType>));
   itkConceptMacro(TensorEqualityComparableCheck,
-    (Concept::EqualityComparable<TensorPixelType>));
+                  (Concept::EqualityComparable<TensorPixelType>));
   itkConceptMacro(GradientConvertibleToDoubleCheck,
-    (Concept::Convertible<GradientPixelType, TTensorPrecision>));
+                  (Concept::Convertible<GradientPixelType, TTensorPrecision>));
   itkConceptMacro(DoubleConvertibleToTensorCheck,
-    (Concept::Convertible<TTensorPrecision, TensorPixelType>));
+                  (Concept::Convertible<TTensorPrecision, TensorPixelType>));
   itkConceptMacro(GradientReferenceAdditiveOperatorsCheck,
-    (Concept::AdditiveOperators<GradientPixelType, GradientPixelType,
-                                GradientPixelType>));
+                  (Concept::AdditiveOperators<GradientPixelType, GradientPixelType,
+                   GradientPixelType>));
   itkConceptMacro(ReferenceOStreamWritableCheck,
-    (Concept::OStreamWritable<GradientPixelType>));
+                  (Concept::OStreamWritable<GradientPixelType>));
   itkConceptMacro(TensorOStreamWritableCheck,
-    (Concept::OStreamWritable<TensorPixelType>));
+                  (Concept::OStreamWritable<TensorPixelType>));
   /** End concept checking */
 #endif
 
@@ -232,7 +232,7 @@ protected:
   virtual void BeforeThreadedGenerateData();
 
   virtual void ThreadedGenerateData( const
-      OutputImageRegionType &outputRegionForThread, ThreadIdType);
+                                     OutputImageRegionType &outputRegionForThread, ThreadIdType);
 
   /** Derived classes should override this method to estimate the
   tensor from the diffusion weighted signal.  The gradient directions,

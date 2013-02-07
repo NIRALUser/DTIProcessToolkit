@@ -58,21 +58,21 @@ void validate(boost::any& v,
   const std::string& s = validators::get_single_string(values);
 
   if(s ==  "nearestneighbor")
-  {
+    {
     v = any(NearestNeighbor);
-  }
+    }
   else if (s == "linear")
-  {
+    {
     v = any(Linear);
-  } 
+    }
   else if (s == "cubic")
-  {
+    {
     v = any(Cubic);
-  }
+    }
   else
-  {
+    {
     throw validation_error("Interpolation type invalid.  Only \"nearestneighbor\", \"linear\", and \"cubic\" allowed.");
-  }
+    }
 }
 
 void validate(boost::any& v,
@@ -89,17 +89,17 @@ void validate(boost::any& v,
   const std::string& s = validators::get_single_string(values);
 
   if(s == "fs")
-  {
+    {
     v = any(FiniteStrain);
-  }
+    }
   else if(s == "ppd")
-  {
+    {
     v = any(PreservationPrincipalDirection);
-  }
+    }
   else
-  {
+    {
     throw validation_error("Reorientation type invalid.  Only \"fs\" or \"ppd\"");
-  }
+    }
 }
 #endif
 
@@ -170,30 +170,30 @@ int main(int argc, char* argv[])
   po::variables_map vm;
 
   try
-  {
+    {
     po::store(po::command_line_parser(argc, argv).
               options(all).positional(p).run(), vm);
-    po::notify(vm);     
-  } 
+    po::notify(vm);
+    }
   catch (const po::error &e)
-  {
+    {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
-  }
+    }
 
   // Display help if asked or program improperly called
   if(vm.count("help") || !vm.count("dti-image"))
-  {
+    {
     std::cout << config << std::endl;
     if(vm.count("help"))
-    {
+      {
       std::cout << "$Date: 2009/01/21 21:11:49 $ $Revision: 1.7 $" << std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
-    }
+      }
     else
       return EXIT_FAILURE;
-  }
+    }
   // End option reading configuration
 #endif
 
@@ -219,14 +219,14 @@ int main(int argc, char* argv[])
     }
   dtireader->SetFileName(dtiImage.c_str());
   try
-  {
+    {
     dtireader->Update();
-  }
+    }
   catch (itk::ExceptionObject & e)
-  {
+    {
     std::cerr << e <<std::endl;
     return EXIT_FAILURE;
-  }
+    }
 
   // Parse gradient directions from image header as specified by the
   // namic conventions defined at http://wiki.na-mic.org/Wiki/index.php/NAMIC_Wiki:DTI:Nrrd_format
@@ -238,9 +238,9 @@ int main(int argc, char* argv[])
   std::vector<std::string> keys = dict.GetKeys();
   for(std::vector<std::string>::const_iterator it = keys.begin();
       it != keys.end(); ++it)
-  {
-    if( it->find("DWMRI_gradient") != std::string::npos)
     {
+    if( it->find("DWMRI_gradient") != std::string::npos)
+      {
       std::string value;
 
       itk::ExposeMetaData<std::string>(dict, *it, value);
@@ -251,15 +251,15 @@ int main(int argc, char* argv[])
       unsigned int ind;
       std::string temp = it->substr(it->find_last_of('_')+1);
       ind = atoi(temp.c_str());
-      
+
       gradientContainer->InsertElement(ind,g);
+      }
     }
-  }
   for(std::vector<std::string>::const_iterator it = keys.begin();
       it != keys.end(); ++it)
-  {
-    if( it->find("DWMRI_NEX") != std::string::npos)
     {
+    if( it->find("DWMRI_NEX") != std::string::npos)
+      {
       std::string numrepstr;
 
       itk::ExposeMetaData<std::string>(dict, *it, numrepstr);
@@ -272,18 +272,18 @@ int main(int argc, char* argv[])
 
       for(unsigned int i = indtorep+1; i < indtorep+numreps; i++)
         gradientContainer->InsertElement(i,g);
-    }
+      }
 
-  }
+    }
 
   // Debugging
   if(VERBOSE)
-  {
-  std::cout << "Interpolation type: " << // vm["interpolation"].as<InterpolationType>() << std::endl;
-    interpolation << std::endl;
-  std::cout << "reorientation type: " << // vm["reorientation"].as<TensorReorientationType>() << std::endl;
-    reorientation << std::endl;
-  }
+    {
+    std::cout << "Interpolation type: " << // vm["interpolation"].as<InterpolationType>() << std::endl;
+      interpolation << std::endl;
+    std::cout << "reorientation type: " << // vm["reorientation"].as<TensorReorientationType>() << std::endl;
+      reorientation << std::endl;
+    }
 
   TensorImageType::Pointer tensors = dtireader->GetOutput();
   //  if(vm.count("mask"))
@@ -309,7 +309,7 @@ int main(int argc, char* argv[])
       }
 
     tensors = _mask->GetOutput();
-    //If the outmask option is specified, the masked tensor field is saved 
+    //If the outmask option is specified, the masked tensor field is saved
     if(outmask != "" )
       {
       typedef itk::ImageFileWriter<TensorImageType> FileWriterType;
@@ -324,165 +324,165 @@ int main(int argc, char* argv[])
         {
         std::cerr << e <<std::endl;
         return EXIT_FAILURE;
-        }       
+        }
       }
     }
 
   // sigma set in PARSE_ARGS
   // double sigma = vm["sigma"].as<double>();
-    
+
 
   // Compute FA image
   //  if(vm.count("fa-output"))
   if(faOutput != "")
-  {
+    {
     if(scale)
       writeImage(faOutput,
                  createFA<unsigned short>(tensors));
     else
       writeImage(faOutput,
                  createFA<double>(tensors));
-  }
+    }
 
 
   //  if(vm.count("fa-gradient-output"))
   if(faGradientOutput != "")
-  {
-  writeImage(faGradientOutput,
-             createFAGradient(tensors, sigma));
-  }
+    {
+    writeImage(faGradientOutput,
+               createFAGradient(tensors, sigma));
+    }
 
   //  if(vm.count("fa-gradmag-output"))
   if(faGradientMagOutput != "")
-  {
-  writeImage(faGradientMagOutput,
-             createFAGradMag(tensors, sigma));
-  }
+    {
+    writeImage(faGradientMagOutput,
+               createFAGradMag(tensors, sigma));
+    }
 
   if(colorFAOutput != "")
-  {
-  writeImage(colorFAOutput,
-             createColorFA(tensors));
-  }
+    {
+    writeImage(colorFAOutput,
+               createColorFA(tensors));
+    }
 
   if(principalEigenvectorOutput != "")
 //     vm.count("closest-dotproduct-output"))
-  {
-  writeImage(principalEigenvectorOutput,
-             createPrincipalEigenvector(tensors));
-  }
+    {
+    writeImage(principalEigenvectorOutput,
+               createPrincipalEigenvector(tensors));
+    }
 
   //  if(vm.count("md-output"))
   if(mdOutput != "")
-  {
+    {
     if(scale)
       writeImage(mdOutput,
                  createMD<unsigned short>(tensors));
     else
       writeImage(mdOutput,
                  createMD<double>(tensors));
-  }
+    }
 
   if(lambda1Output != "")
-  {
+    {
     if(scale)
       writeImage(lambda1Output,
                  createLambda<unsigned short>(tensors, Lambda1));
     else
       writeImage(lambda1Output,
                  createLambda<double>(tensors, Lambda1));
-  }
+    }
 
   if(lambda2Output != "")
-  {
+    {
     if(scale)
       writeImage(lambda2Output,
                  createLambda<unsigned short>(tensors, Lambda2));
     else
       writeImage(lambda2Output,
                  createLambda<double>(tensors, Lambda2));
-  }
+    }
 
   if(lambda3Output != "")
-  {
+    {
     if(scale)
       writeImage(lambda3Output,
                  createLambda<unsigned short>(tensors, Lambda3));
     else
       writeImage(lambda3Output,
                  createLambda<double>(tensors, Lambda3));
-  }
-  
+    }
+
   if(RDOutput != "")
-  {
+    {
     if(scale)
       writeImage(RDOutput,
                  createRD<unsigned short>(tensors));
     else
       writeImage(RDOutput,
                  createRD<double>(tensors));
-  }
+    }
 
   if(frobeniusNormOutput != "")
-  {
+    {
     if(scale)
       writeImage(frobeniusNormOutput,
                  createFro<unsigned short>(tensors));
     else
       writeImage(frobeniusNormOutput,
                  createFro<double>(tensors));
-  }
+    }
 
   if(negativeEigenvectorOutput != "")
-  {
-  writeImage(negativeEigenvectorOutput,
-             createNegativeEigenValueLabel(tensors));
-  }
+    {
+    writeImage(negativeEigenvectorOutput,
+               createNegativeEigenValueLabel(tensors));
+    }
 
 
   if(rotOutput != "")
-  {
-  if(dofFile == "")
     {
-    std::cerr << "Tensor rotation requested, but dof file not specified" << std::endl;
-    return EXIT_FAILURE;
-    }
+    if(dofFile == "")
+      {
+      std::cerr << "Tensor rotation requested, but dof file not specified" << std::endl;
+      return EXIT_FAILURE;
+      }
     //If the input affine file is a dof file from rview
     else if(dofFile != "")
       {
       writeImage(rotOutput,
-        createROT(tensors,dofFile,0));
+                 createROT(tensors,dofFile,0));
       }
     //If the input affine file is a new dof file (output of dof2mat)
     else if(newdof_file != "")
       {
       writeImage(rotOutput,
-        createROT(tensors, newdof_file, 1));
+                 createROT(tensors, newdof_file, 1));
       }
-    //If the input affine file is an itk compatible file   
+    //If the input affine file is an itk compatible file
     else if(affineitk_file != "")
       {
       writeImage(rotOutput,
-        createROT(tensors, affineitk_file, 2));
+                 createROT(tensors, affineitk_file, 2));
       }
-  }
+    }
 
 
   if(deformationOutput != "")
-  {
-  if(forwardTransformation == "")
     {
+    if(forwardTransformation == "")
+      {
       std::cerr << "Deformation field info not fully specified" << std::endl;
       return EXIT_FAILURE;
-    }
+      }
     DeformationImageType::Pointer forward;
-    
+
     DeformationFieldType dftype = Displacement;
     if(hField)
       {
       dftype = HField;
       }
-    
+
     forward = readDeformationField(forwardTransformation, dftype);
 
     writeImage(deformationOutput,
@@ -495,21 +495,21 @@ int main(int argc, char* argv[])
                           (interpolation == "linear" ? Linear :
                            (interpolation == "nearestneightbor" ? NearestNeighbor :
                             Cubic))));
-  }
+    }
 
 #if 0 //
   if(vm.count("stats"))
-  {
-    if(!vm.count("mask"))
     {
+    if(!vm.count("mask"))
+      {
       std::cerr << "WARNING: No mask specified.  Computing whole brain statistics" << std::endl;
-    }
+      }
     if(VERBOSE)
       std::cout << "Computing tensor stats" << std::endl;
-    
+
 //    TensorRegionStatistics tstat = computeTensorStatistics(tensors);
-    
-  }
+
+    }
 #endif
   return EXIT_SUCCESS;
 }

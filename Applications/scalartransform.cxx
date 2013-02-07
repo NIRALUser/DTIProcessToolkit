@@ -60,7 +60,7 @@ void validate(boost::any& v,
   else if (s == "linear")
     {
     v = any(Linear);
-    } 
+    }
   else if (s == "cubic")
     {
     v = any(Cubic);
@@ -111,13 +111,13 @@ int main(int argc, char* argv[])
     ;
 
   po::variables_map vm;
-  
+
   try
     {
     po::store(po::command_line_parser(argc, argv).
-            options(config).run(), vm);
-    po::notify(vm);     
-    } 
+              options(config).run(), vm);
+    po::notify(vm);
+    }
   catch (const po::error &e)
     {
     std::cout << config << std::endl;
@@ -145,9 +145,9 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
     }
   typedef itk::ImageFileReader<IntImageType> ImageReader;
-  
+
   ImageReader::Pointer reader = ImageReader::New();
-  
+
   reader->SetFileName( inputImage );
 
   try
@@ -166,21 +166,21 @@ int main(int argc, char* argv[])
   IntImageType::Pointer result = NULL;
   InterpolatorType::Pointer interp = createInterpolater(interpType);
   if(transformation != "")
-  {
+    {
     typedef itk::TransformFileReader TransformReader;
     TransformReader::Pointer treader = TransformReader::New();
 
     treader->SetFileName(transformation);
 
     try
-    {
+      {
       treader->Update();
-    }
+      }
     catch (itk::ExceptionObject & e)
-    {
+      {
       std::cerr << e << std::endl;
       return EXIT_FAILURE;
-    }
+      }
 
     typedef itk::ResampleImageFilter<IntImageType, IntImageType, double> ResampleFilter;
     ResampleFilter::Pointer  resampler = ResampleFilter::New();
@@ -197,9 +197,9 @@ int main(int argc, char* argv[])
     resampler->SetTransform( transform );
     resampler->Update();
     result = resampler->GetOutput();
-  }
+    }
   else if(deformation != "")
-  {
+    {
     DeformationImageType::Pointer defimage = DeformationImageType::New();
     defimage = readDeformationField(deformation,
                                     hField ? HField : Displacement);
@@ -215,14 +215,14 @@ int main(int argc, char* argv[])
     warpresampler->Update();
 
     result = warpresampler->GetOutput();
-                                       
-  }
+
+    }
   else
-  {
+    {
     std::cerr << "Unknown transformation type" << std::endl;
     return EXIT_FAILURE;
-  }
-     
+    }
+
   typedef itk::ImageFileWriter<IntImageType > ImageWriter;
   ImageWriter::Pointer writer = ImageWriter::New();
   writer->UseCompressionOn();

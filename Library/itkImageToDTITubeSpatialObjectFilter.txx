@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -33,7 +33,7 @@ ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
   this->ProcessObject::SetNumberOfRequiredInputs(1);
 
   OutputDTITubeSpatialObjectPointer output
-    = dynamic_cast<OutputDTITubeSpatialObjectType*>(this->MakeOutput(0).GetPointer()); 
+    = dynamic_cast<OutputDTITubeSpatialObjectType*>(this->MakeOutput(0).GetPointer());
 
   this->ProcessObject::SetNumberOfRequiredOutputs(1);
   this->ProcessObject::SetNthOutput(0, output.GetPointer());
@@ -48,7 +48,7 @@ ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
 ::~ImageToDTITubeSpatialObjectFilter()
 {
 }
-  
+
 
 /**
  *   Make Ouput
@@ -69,18 +69,18 @@ ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
  *
  */
 template <class TInputImage, class TOutputDTITubeSpatialObject>
-void 
+void
 ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
 ::SetInput(unsigned int idx,const InputImageType *input)
 {
   // process object is not const-correct, the const_cast
   // is required here.
-  this->ProcessObject::SetNthInput(idx, 
+  this->ProcessObject::SetNthInput(idx,
                                    const_cast< InputImageType * >(input) );
 }
 
 
-  
+
 /**
  *
  */
@@ -99,13 +99,13 @@ ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
 template <class TInputImage, class TOutputDTITubeSpatialObject>
 typename ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>::InputImageType *
 ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
-::GetInput(unsigned int idx) 
+::GetInput(unsigned int idx)
 {
   return dynamic_cast<InputImageType*>
     (this->ProcessObject::GetInput(idx));
 }
 
- 
+
 /**
  *
  */
@@ -124,7 +124,7 @@ ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
 template <class TInputImage, class TOutputDTITubeSpatialObject>
 typename ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>::OutputDTITubeSpatialObjectType *
 ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
-::GetOutput(void) 
+::GetOutput(void)
 {
   return dynamic_cast<OutputDTITubeSpatialObjectType*>
     (this->ProcessObject::GetOutput(0));
@@ -135,7 +135,7 @@ ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
  *
  */
 template <class TInputImage, class TOutputDTITubeSpatialObject>
-void 
+void
 ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
@@ -146,11 +146,11 @@ ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
 
 /**
  * copy information from first input to all outputs
- * This is a void implementation to prevent the 
+ * This is a void implementation to prevent the
  * ProcessObject version to be called
  */
 template <class TInputImage, class TOutputDTITubeSpatialObject>
-void 
+void
 ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
 ::GenerateOutputInformation()
 {

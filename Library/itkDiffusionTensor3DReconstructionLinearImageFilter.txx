@@ -20,18 +20,18 @@ namespace itk
 
 template< class TGradientImagePixelType, class TTensorPrecision >
 vnl_vector<TTensorPrecision>
-DiffusionTensor3DReconstructionLinearImageFilter< TGradientImagePixelType, 
+DiffusionTensor3DReconstructionLinearImageFilter< TGradientImagePixelType,
                                                   TTensorPrecision >
 ::EstimateTensor(const vnl_vector<TTensorPrecision>& S) const
 {
   vnl_vector< TTensorPrecision > B(this->m_NumberOfGradientDirections);
   for(unsigned int i = 0; i < S.size(); ++i)
-  {
+    {
     if(S[i] == 0)
       B[i] = 0;
     else
       B[i] = log(S[i]);
-  }
+    }
 
   return this->m_TensorBasis * B;
 }

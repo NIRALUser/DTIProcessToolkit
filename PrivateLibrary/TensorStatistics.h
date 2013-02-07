@@ -37,16 +37,16 @@ public:
   typedef typename ScalarListType::Pointer ScalarListPointerType;
 
   typedef itk::SymmetricSecondRankTensor<T, dimension * (dimension + 1) / 2>
-    CovarianceType;
+  CovarianceType;
   typedef typename CovarianceType::EigenValuesArrayType PGAVariancesArrayType;
   typedef typename CovarianceType::EigenVectorsMatrixType PGAVectorsMatrixType;
 
   TensorStatistics(TensorGeometry<T, dimension> * _tensGeometry,
                    const T & _stepSize = 1.0)
-  {
-    tensGeometry = _tensGeometry;
-    stepSize = _stepSize;
-  }
+    {
+      tensGeometry = _tensGeometry;
+      stepSize = _stepSize;
+    }
 
   void ComputeMean(const TensorListPointerType tensorList,
                    TensorType & mean) const;

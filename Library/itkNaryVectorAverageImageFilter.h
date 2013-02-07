@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -23,7 +23,7 @@
 
 namespace itk
 {
-  
+
 /** \class NaryVectorAverageImageFilter
  * \brief Implements an operator computing the pixel-wise maximum of several images.
  *
@@ -38,12 +38,12 @@ namespace itk
  *    const OutputPixelType query_value = static_cast<OutputPixelType>(pixel_from_input_n);
  *    if(current_maximum < query_value)
  *      {
- *      current_maximum = query_value; 
+ *      current_maximum = query_value;
  *      }
  * (where current_maximum is also of type OutputPixelType)
- * 
+ *
  * for each of the n input images.
- * 
+ *
  * For example, this filter could be used directly to find a "maximum projection"
  * of a series of images, often used in preliminary analysis of time-series data.
  *
@@ -56,15 +56,15 @@ namespace itk
  * \ingroup IntensityImageFilters  Multithreaded
  */
 
-namespace Functor {  
-  
+namespace Functor {
+
 template< class TInput, class TOutput >
 class VectorAverage
 {
 public:
-  typedef typename NumericTraits< TOutput >::ValueType OutputValueType; 
+  typedef typename NumericTraits< TOutput >::ValueType OutputValueType;
   // not sure if this typedef really makes things more clear... could just use TOutput?
-  
+
   VectorAverage() {}
   ~VectorAverage() {}
   TOutput operator()( const typename VectorContainer<unsigned int, TInput >::Pointer & B)
@@ -79,37 +79,37 @@ public:
 
       return mean;
     }
-  
+
   bool operator== (const VectorAverage&) const
-  {
-    return true;
-  }
+    {
+      return true;
+    }
   bool operator!= (const VectorAverage&) const
-  {
-    return false;
-  }
+    {
+      return false;
+    }
 };
 
 }
 template <class TInputImage, class TOutputImage>
 class ITK_EXPORT NaryVectorAverageImageFilter :
     public
-VectorNaryFunctorImageFilter<TInputImage,TOutputImage, 
-                             Functor::VectorAverage<  typename TInputImage::PixelType, 
-                                                      typename TInputImage::PixelType > > 
+VectorNaryFunctorImageFilter<TInputImage,TOutputImage,
+                             Functor::VectorAverage<  typename TInputImage::PixelType,
+                                                      typename TInputImage::PixelType > >
 {
 public:
   /** Standard class typedefs. */
   typedef NaryVectorAverageImageFilter  Self;
-  typedef VectorNaryFunctorImageFilter<TInputImage,TOutputImage, 
-                                       Functor::VectorAverage< typename TInputImage::PixelType, 
+  typedef VectorNaryFunctorImageFilter<TInputImage,TOutputImage,
+                                       Functor::VectorAverage< typename TInputImage::PixelType,
                                                                typename TInputImage::PixelType > >  Superclass;
   typedef SmartPointer<Self>   Pointer;
   typedef SmartPointer<const Self>  ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
-  
+
 protected:
   NaryVectorAverageImageFilter() {}
   virtual ~NaryVectorAverageImageFilter() {}

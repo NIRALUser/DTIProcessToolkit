@@ -20,7 +20,7 @@
 #include <itkImageFileWriter.h>
 
 template<typename TImage>
-void writeImage(const std::string & filename, 
+void writeImage(const std::string & filename,
                 typename itk::SmartPointer<TImage> image)
 {
   typedef itk::ImageFileWriter<TImage> ImageWriterType;

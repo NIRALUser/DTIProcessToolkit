@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -61,7 +61,7 @@ DeformationFieldJacobianFilter<TInputImage, TRealType, TOutputImage>
 }
 
 template <typename TInputImage, typename TRealType, typename TOutputImage>
-void 
+void
 DeformationFieldJacobianFilter<TInputImage, TRealType, TOutputImage>
 ::SetUseImageSpacing(bool f)
 {
@@ -82,20 +82,20 @@ DeformationFieldJacobianFilter<TInputImage, TRealType, TOutputImage>
 
   m_UseImageSpacing = f;
 }
-  
+
 template <typename TInputImage, typename TRealType, typename TOutputImage>
-void 
+void
 DeformationFieldJacobianFilter<TInputImage, TRealType, TOutputImage>
 ::GenerateInputRequestedRegion() throw(InvalidRequestedRegionError)
 {
   // call the superclass' implementation of this method
   Superclass::GenerateInputRequestedRegion();
-  
+
   // get pointers to the input and output
-  InputImagePointer  inputPtr = 
+  InputImagePointer  inputPtr =
     const_cast< InputImageType * >( this->GetInput());
   OutputImagePointer outputPtr = this->GetOutput();
-  
+
   if ( !inputPtr || !outputPtr )
     {
     return;
@@ -122,7 +122,7 @@ DeformationFieldJacobianFilter<TInputImage, TRealType, TOutputImage>
 
     // store what we tried to request (prior to trying to crop)
     inputPtr->SetRequestedRegion( inputRequestedRegion );
-    
+
     // build an exception
     InvalidRequestedRegionError e(__FILE__, __LINE__);
     e.SetLocation(ITK_LOCATION);
@@ -173,7 +173,7 @@ DeformationFieldJacobianFilter<TInputImage, TRealType, TOutputImage>
     m_RealValuedInputImage
       = dynamic_cast<const ImageBase<ImageDimension> *>(this->GetInput());
     }
-  
+
 }
 
 template< typename TInputImage, typename TRealType, typename TOutputImage >
@@ -186,7 +186,7 @@ DeformationFieldJacobianFilter< TInputImage, TRealType, TOutputImage >
   ZeroFluxNeumannBoundaryCondition<RealVectorImageType> nbc;
   ConstNeighborhoodIteratorType bit;
   ImageRegionIterator<TOutputImage> it;
-  
+
   // Find the data-set boundary "faces"
   typename NeighborhoodAlgorithm::ImageBoundaryFacesCalculator<RealVectorImageType>::
     FaceListType faceList;
@@ -205,7 +205,7 @@ DeformationFieldJacobianFilter< TInputImage, TRealType, TOutputImage >
   // face so that it can determine whether or not to check for boundary
   // conditions.
   for (fit=faceList.begin(); fit != faceList.end(); ++fit)
-    { 
+    {
     bit = ConstNeighborhoodIteratorType(m_NeighborhoodRadius,
                                         dynamic_cast<const RealVectorImageType *>(m_RealValuedInputImage.GetPointer()),
                                         *fit);
@@ -243,7 +243,7 @@ DeformationFieldJacobianFilter<TInputImage, TRealType, TOutputImage>
   os << indent << "m_RealValuedInputImage = "          << m_RealValuedInputImage.GetPointer()
      << std::endl;
 }
-  
+
 } // end namespace itk
 
 #endif

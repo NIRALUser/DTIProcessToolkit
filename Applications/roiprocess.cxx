@@ -64,7 +64,7 @@ void validate(boost::any& v,
   else if (s == "linear")
     {
     v = any(Linear);
-    } 
+    }
   else
     {
     throw validation_error("Interpolation type invalid.  Only \"nearestneighbor\" and \"linear\"\"cubic\" allowed.");
@@ -103,26 +103,26 @@ int main(int argc, char* argv[])
   po::variables_map vm;
 
   try
-  {
+    {
     po::store(po::command_line_parser(argc, argv).
               options(all).positional(p).run(), vm);
-    po::notify(vm);     
-  } 
+    po::notify(vm);
+    }
   catch (const po::error &e)
-  {
+    {
     std::cout << config << std::endl;
     return EXIT_FAILURE;
-  }
-  
+    }
+
   if(vm.count("help") || !vm.count("roi-file") ||
      !vm.count("roi-output") || !vm.count("h-field"))
-  {
+    {
     std::cout << config << std::endl;
     if(vm.count("help"))
       return EXIT_SUCCESS;
     else
       return EXIT_FAILURE;
-  }
+    }
 
   // Reading roi image
   std::string roifile(vm["roi-file"].as<std::string>());
@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
   DeformationImageReader::Pointer defreader = DeformationImageReader::New();
   defreader->SetFileName(warpfile);
   defreader->Update();
-  
+
   typedef itk::LinearInterpolateImageFunction<ROIImageType, double> DeformationInterpolateType;
   DeformationInterpolateType::Pointer definterp = DeformationInterpolateType::New();
   definterp->SetInputImage(roireader->GetOutput());
@@ -168,13 +168,13 @@ int main(int argc, char* argv[])
   outputIt.GoToBegin();
   hfieldIt.GoToBegin();
   for( ; !outputIt.IsAtEnd(); ++outputIt, ++hfieldIt)
-  {
+    {
     ROIInterpolateType::ContinuousIndexType ci;
     DeformationImageType::PixelType h = hfieldIt.Get();
     ci[0] = h[0];
     ci[1] = h[1];
     ci[2] = h[2];
-    
+
     ROIPixelType result = 0;
     if(!output->GetLargestPossibleRegion().IsInside(ci))
       result = 0;
@@ -184,11 +184,11 @@ int main(int argc, char* argv[])
       result = definterp->EvaluateAtContinuousIndex(ci) > vm["threshold"].as<double>() ? 1 : 0;
     else
       throw std::logic_error("Invalid interpolation type");
-  }
+    }
   if(!hfieldIt.IsAtEnd())
-  {
+    {
     std::cerr << "Image and hfield of different size" << std::endl;
-  }
+    }
 
   typedef itk::ImageFileWriter<ROIImageType> ImageWriterType;
   ImageWriterType::Pointer writer =  ImageWriterType::New();

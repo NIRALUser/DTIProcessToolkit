@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -26,8 +26,8 @@ namespace itk
 
 // This functor class invokes the computation of fractional anisotropy from
 // every pixel.
-namespace Functor {  
- 
+namespace Functor {
+
 template< typename TInput , typename TOutput>
 class VectorClosestDotProductFunction
 {
@@ -38,46 +38,46 @@ public:
   VectorClosestDotProductFunction() {}
   ~VectorClosestDotProductFunction() {}
   bool operator!=( const VectorClosestDotProductFunction & ) const
-  {
-    return false;
-  }
+    {
+      return false;
+    }
   bool operator==( const VectorClosestDotProductFunction & other ) const
-  {
-    return !(*this != other);
-  }
+    {
+      return !(*this != other);
+    }
   TOutput operator()( const TInput & x )
-  {
-    TOutput max = NumericTraits<TOutput>::min();
+    {
+      TOutput max = NumericTraits<TOutput>::min();
 
-    for(unsigned int i = 0; i < m_GradientList->Size(); ++i)
-      {
-      TOutput dot = fabs(dot_product(x.GetVnlVector(), m_GradientList->ElementAt(i)));
-      if(dot > max)
-        max = dot;
-      }
-    
-    return max;
-  }
+      for(unsigned int i = 0; i < m_GradientList->Size(); ++i)
+        {
+        TOutput dot = fabs(dot_product(x.GetVnlVector(), m_GradientList->ElementAt(i)));
+        if(dot > max)
+          max = dot;
+        }
+
+      return max;
+    }
 
   void SetGradientList(typename GradientListType::Pointer g)
-  {
-    m_GradientList = GradientListType::New();
+    {
+      m_GradientList = GradientListType::New();
 
-    unsigned int ind = 0;
-    for(unsigned int i = 0; i < g->Size(); ++i)
-      {
-      if(g->ElementAt(i).one_norm() != 0.0)
+      unsigned int ind = 0;
+      for(unsigned int i = 0; i < g->Size(); ++i)
         {
-        m_GradientList->InsertElement(ind,g->ElementAt(i));
-        ind++;
+        if(g->ElementAt(i).one_norm() != 0.0)
+          {
+          m_GradientList->InsertElement(ind,g->ElementAt(i));
+          ind++;
+          }
         }
-      }
-  }
+    }
 
 private:
   typename GradientListType::Pointer m_GradientList;
 
-}; 
+};
 
 }  // end namespace functor
 
@@ -89,11 +89,11 @@ private:
  * computing the mean diffusivity of every pixel. The pixel type of the
  * input image is expected to implement a method GetTrace(), and
  * to specify its return type as RealValueType.
- * 
+ *
  * \sa TensorRelativeAnisotropyImageFilter
  * \sa TensorFractionalAnisotropyImageFilter
  * \sa DiffusionTensor3D
- * 
+ *
  * \ingroup IntensityImageFilters  Multithreaded  TensorObjects
  *
  */
@@ -101,18 +101,18 @@ template <typename TInputImage,
           typename TOutputImage>
 class ITK_EXPORT VectorClosestDotProductImageFilter :
     public
-UnaryFunctorImageFilter<TInputImage,TOutputImage, 
+UnaryFunctorImageFilter<TInputImage,TOutputImage,
                         Functor::VectorClosestDotProductFunction<
-                              typename TInputImage::PixelType,
-                              typename TOutputImage::PixelType> > 
+                          typename TInputImage::PixelType,
+                          typename TOutputImage::PixelType> >
 {
 public:
   /** Standard class typedefs. */
   typedef VectorClosestDotProductImageFilter  Self;
-  typedef UnaryFunctorImageFilter<TInputImage,TOutputImage, 
-                                  Functor::VectorClosestDotProductFunction< 
-                                    typename TInputImage::PixelType,
-                                    typename TOutputImage::PixelType> >  Superclass;
+  typedef UnaryFunctorImageFilter<TInputImage,TOutputImage,
+    Functor::VectorClosestDotProductFunction<
+    typename TInputImage::PixelType,
+    typename TOutputImage::PixelType> >  Superclass;
 
   typedef SmartPointer<Self>   Pointer;
   typedef SmartPointer<const Self>  ConstPointer;
@@ -121,7 +121,7 @@ public:
   typedef typename TOutputImage::PixelType        OutputPixelType;
   typedef typename TInputImage::PixelType         InputPixelType;
 
-  typedef typename Functor::VectorClosestDotProductFunction< 
+  typedef typename Functor::VectorClosestDotProductFunction<
     typename TInputImage::PixelType,
     typename TOutputImage::PixelType>  FunctorType;
 
@@ -137,11 +137,11 @@ public:
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
-  
+
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
-    { this->Superclass::PrintSelf( os, indent ); }
-  
+  { this->Superclass::PrintSelf( os, indent ); }
+
 
 protected:
   VectorClosestDotProductImageFilter() {};
@@ -154,7 +154,7 @@ private:
 };
 
 
-  
+
 } // end namespace itk
-  
+
 #endif

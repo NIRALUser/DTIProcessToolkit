@@ -64,21 +64,21 @@ void validate(boost::any& v,
   const std::string& s = validators::get_single_string(values);
 
   if(s == "euclid" || s == "euclidean")
-  {
+    {
     v = any(Euclidean);
-  }
+    }
   else if (s == "le" || s == "log-euclidean")
-  {
+    {
     v = any(LogEuclidean);
-  }
+    }
   else if (s == "pga")
-  {
+    {
     v = any(PGA);
-  }
+    }
   else
-  {
+    {
     throw validation_error("Statistics type invalid.  Only \"euclidean\", \"log-euclidean\", and \"pga\" allowed.");
-  }
+    }
 }
 #endif
 
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
     ("tensor-output", po::value<std::string>(), "Averaged tensor volume.")
     ("inputs", po::value<std::vector<std::string> >(), "Tensor inputs.")
     ;
-  
+
   po::options_description all;
   all.add(config).add(hidden);
 
@@ -113,26 +113,26 @@ int main(int argc, char* argv[])
   po::variables_map vm;
 
   try
-  {
+    {
     po::store(po::command_line_parser(argc, argv).
               options(all).positional(p).run(), vm);
-    po::notify(vm);     
-  } 
+    po::notify(vm);
+    }
   catch (const po::error &e)
-  {
+    {
     std::cerr << "Error parsing arguments" << std::endl;
     std::cerr << e.what() << std::endl;
     std::cerr << config << std::endl;
     return EXIT_FAILURE;
-  }
+    }
 
   if(vm.count("help"))
-  {
+    {
     std::cout << config << std::endl;
     std::cout << "Version: $Date: 2009/01/09 15:39:51 $ $Revision: 1.5 $" << std::endl;
     std::cout << ITK_SOURCE_VERSION << std::endl;
     return EXIT_SUCCESS;
-  }
+    }
 #endif
 
   PARSE_ARGS;
@@ -151,64 +151,64 @@ int main(int argc, char* argv[])
   typedef itk::ImageDuplicator<LogTensorImageType> DuplicateImageFilter;
 
   //  const std::vector<std::string> sources = vm["inputs"].as<std::vector<std::string> >();
-  
+
   const int numberofinputs = inputs.size();
   if(numberofinputs > 0)
     {
-      TensorFileReader::Pointer reader = TensorFileReader::New();
-      AddImageFilter::Pointer adder = AddImageFilter::New();
-      LogEuclideanFilter::Pointer logfilt = LogEuclideanFilter::New();
-      
-      DuplicateImageFilter::Pointer dup = DuplicateImageFilter::New();
-      std::cout << "lbl1" << std::endl;
+    TensorFileReader::Pointer reader = TensorFileReader::New();
+    AddImageFilter::Pointer adder = AddImageFilter::New();
+    LogEuclideanFilter::Pointer logfilt = LogEuclideanFilter::New();
+
+    DuplicateImageFilter::Pointer dup = DuplicateImageFilter::New();
+    std::cout << "lbl1" << std::endl;
+    if(verbose)
+      std::cout << "Loading: " <<  inputs[0] << std::endl;
+
+    reader->SetFileName(inputs[0]);
+    reader->Update();
+    logfilt->SetInput(reader->GetOutput());
+    logfilt->Update();
+
+    dup->SetInputImage(logfilt->GetOutput());
+    dup->Update();
+    LogTensorImageType::Pointer average = dup->GetOutput();
+
+    for(int i = 1; i < numberofinputs; ++i)
+      {
       if(verbose)
-	std::cout << "Loading: " <<  inputs[0] << std::endl;
-      
-      reader->SetFileName(inputs[0]);
-      reader->Update();
-      logfilt->SetInput(reader->GetOutput());
-      logfilt->Update();
-      
-      dup->SetInputImage(logfilt->GetOutput());
+        std::cout << "Loading: " <<  inputs[i] << std::endl;
+      reader->SetFileName(inputs[i].c_str());
+
+      adder->SetInput1(average);
+      adder->SetInput2(logfilt->GetOutput());
+      adder->Update();
+
+      dup->SetInputImage(adder->GetOutput());
       dup->Update();
-      LogTensorImageType::Pointer average = dup->GetOutput();
-      
-      for(int i = 1; i < numberofinputs; ++i)
-	{
-	  if(verbose)
-	    std::cout << "Loading: " <<  inputs[i] << std::endl;
-	  reader->SetFileName(inputs[i].c_str());
-	  
-	  adder->SetInput1(average);
-	  adder->SetInput2(logfilt->GetOutput());
-	  adder->Update();
-	  
-	  dup->SetInputImage(adder->GetOutput());
-	  dup->Update();
-	  average = dup->GetOutput();
-	  
-	}
+      average = dup->GetOutput();
 
-      DivideImageFilter::Pointer divide = DivideImageFilter::New();
-      divide->SetFunctor(PixelDivider<LogTensorPixelType>(numberofinputs));
-      divide->SetInput(average);
-      divide->Update();
+      }
 
-      typedef itk::ExpEuclideanTensorImageFilter<RealType> ExpEuclideanFilter;
-      ExpEuclideanFilter::Pointer expf = ExpEuclideanFilter::New();
-      expf->SetInput(divide->GetOutput());
-      
-      typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;
-      TensorFileWriterType::Pointer twrit = TensorFileWriterType::New();
-      twrit->SetUseCompression(true);
-      twrit->SetInput(expf->GetOutput());
-      twrit->SetFileName(tensorOutput);
-      twrit->Update();
+    DivideImageFilter::Pointer divide = DivideImageFilter::New();
+    divide->SetFunctor(PixelDivider<LogTensorPixelType>(numberofinputs));
+    divide->SetInput(average);
+    divide->Update();
+
+    typedef itk::ExpEuclideanTensorImageFilter<RealType> ExpEuclideanFilter;
+    ExpEuclideanFilter::Pointer expf = ExpEuclideanFilter::New();
+    expf->SetInput(divide->GetOutput());
+
+    typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;
+    TensorFileWriterType::Pointer twrit = TensorFileWriterType::New();
+    twrit->SetUseCompression(true);
+    twrit->SetInput(expf->GetOutput());
+    twrit->SetFileName(tensorOutput);
+    twrit->Update();
     }
   else
     {
-      std::cout << "At least one tensor field has to be specified" << std::endl;
-      return EXIT_FAILURE;
+    std::cout << "At least one tensor field has to be specified" << std::endl;
+    return EXIT_FAILURE;
     }
   return EXIT_SUCCESS;
 }

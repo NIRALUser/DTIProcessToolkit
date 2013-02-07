@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -28,7 +28,7 @@ namespace itk {
 
 template< class TGradientImagePixelType,
           class TTensorPrecision >
-DiffusionTensor3DReconstructionWeightedImageFilter< TGradientImagePixelType, 
+DiffusionTensor3DReconstructionWeightedImageFilter< TGradientImagePixelType,
                                                     TTensorPrecision >
 ::DiffusionTensor3DReconstructionWeightedImageFilter() :  m_NumberOfIterations(1)
 {
@@ -36,38 +36,38 @@ DiffusionTensor3DReconstructionWeightedImageFilter< TGradientImagePixelType,
 
 template< class TGradientImagePixelType, class TTensorPrecision >
 vnl_vector<TTensorPrecision>
-DiffusionTensor3DReconstructionWeightedImageFilter< TGradientImagePixelType, 
+DiffusionTensor3DReconstructionWeightedImageFilter< TGradientImagePixelType,
                                                     TTensorPrecision >
 ::EstimateTensor(const vnl_vector<TTensorPrecision>& S) const
 {
   // setup log signals
   vnl_vector< TTensorPrecision > B(this->m_NumberOfGradientDirections);
   for(unsigned int i = 0; i < S.size(); ++i)
-  {
+    {
     if(S[i] == 0)
       B[i] = 0;
     else
       B[i] = log(S[i]);
-  }
+    }
 
   vnl_vector<double> prevestimate = this->m_TensorBasis * B;
   for(unsigned int iter = 0; iter < this->m_NumberOfIterations; ++iter)
-  {
+    {
     vnl_vector<double> phi(this->m_NumberOfGradientDirections);
     phi = this->m_BMatrix * prevestimate;
-    
+
     for(unsigned int i = 0; i < this->m_NumberOfGradientDirections; ++i)
-    {
+      {
       phi[i] = exp(phi[i]);
       phi[i] *= phi[i];
-    }           
-    
+      }
+
     vnl_diag_matrix<double> W2(phi);
-    
-    prevestimate = 
+
+    prevestimate =
       vnl_svd<double>(this->m_BMatrix.transpose() * W2 * this->m_BMatrix).solve(this->m_BMatrix.transpose() * W2 * B);
-    
-  }
+
+    }
 
   return prevestimate;
 }

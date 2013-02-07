@@ -28,7 +28,7 @@ public:
 
   typedef TOutputSpatialObject                        OutputGroupSpatialObjectType;
   typedef typename
-          OutputGroupSpatialObjectType::Pointer       OutputGroupSpatialObjectPointer;
+    OutputGroupSpatialObjectType::Pointer       OutputGroupSpatialObjectPointer;
 
   // Image Types
 
@@ -59,7 +59,7 @@ public:
 
   itkGetMacro( StepSize, double );
   itkSetMacro( StepSize, double );
-  
+
   itkGetMacro( MinimumFractionalAnisotropy, double );
   itkSetMacro( MinimumFractionalAnisotropy, double );
 
@@ -87,7 +87,7 @@ public:
 
   virtual void Update() { this->GenerateData(); }
   virtual OutputGroupSpatialObjectType * GetOutput() {return m_TubeGroup.GetPointer();}
-  
+
 protected:
 
   virtual void GenerateData();
@@ -101,26 +101,26 @@ protected:
   virtual PointType IntegrateOneStep(const PointType& pt,
                                      const EigenVectorType& vec,
                                      double stepsize) const;
-  
+
   // Preprocess tensor field to extract necessary information
   virtual void PreprocessTensorImage();
 
   virtual EigenVectorType EvaluatePrincipalDiffusionDirectionAt(const PointType& pt,
-                                                          const EigenVectorType& vec) const;
+                                                                const EigenVectorType& vec) const;
 
   ImageToDTIStreamlineTractographyFilter();
   virtual ~ImageToDTIStreamlineTractographyFilter() {};
 
 private:
   ImageToDTIStreamlineTractographyFilter(const Self&); // purposely
-                                                            // not
-                                                            // implemented
+  // not
+  // implemented
   void operator=(const Self&); // purposely not implemented
 
   double                                 m_StepSize;
   double                                 m_MinimumFractionalAnisotropy;
   double                                 m_MaximumAngleChange;
-  
+
   ROIPixelType                           m_SourceLabel;
   ROIPixelType                           m_TargetLabel;
   ROIPixelType                           m_ForbiddenLabel;

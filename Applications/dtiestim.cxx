@@ -79,25 +79,25 @@ void validate(boost::any& v,
   const std::string& s = validators::get_single_string(values);
 
   if(s == "lls" || s == "linear")
-  {
+    {
     v = any(LinearEstimate);
-  }
+    }
   else if (s == "nls" || s == "nonlinear")
-  {
+    {
     v = any(NonlinearEstimate);
-  }
+    }
   else if (s == "wls" || s == "weighted")
-  {
+    {
     v = any(WeightedEstimate);
-  }
+    }
   else if (s == "ml")
-  {
+    {
     v = any(MaximumLikelihoodEstimate);
-  }
+    }
   else
-  {
+    {
     throw validation_error("Estimation type invalid.  Only \"lls\", \"nls\", \"wls\", and \"ml\" allowed.");
-  }
+    }
 }
 #endif
 
@@ -160,22 +160,22 @@ int main(int argc, char* argv[])
   po::variables_map vm;
 
   try
-  {
+    {
     po::store(po::command_line_parser(argc, argv).
               options(all).positional(p).run(), vm);
-    po::notify(vm);     
-  } 
+    po::notify(vm);
+    }
   catch (const po::error &e)
-  {
+    {
     std::cout << config << std::endl;
     return EXIT_FAILURE;
-  }
+    }
 #endif
   // End option reading configuration
 
   // Display help if asked or program improperly called
   if(dwiImage == "" || tensorOutput == "")
-  {
+    {
     /*   if(help == true)
     {
       std::cout << "Version: $Date: 2009-03-03 15:15:31 $ $Revision: 1.10 $" << std::endl;
@@ -184,23 +184,23 @@ int main(int argc, char* argv[])
     }
     else
     {*/
-      std::cerr << "DWI image and output tensor filename needs to be specified." << std::endl;
-      return EXIT_FAILURE;
-      /* }
+    std::cerr << "DWI image and output tensor filename needs to be specified." << std::endl;
+    return EXIT_FAILURE;
+    /* }
     */
-  }
+    }
 
   bool VERBOSE(verbose);
   if(stepSize < 0.0)
-  {
+    {
 //   if(vm["method"].as<EstimationType>() == NonlinearEstimate ||
 //      vm["method"].as<EstimationType>() == MaximumLikelihoodEstimate)
-  if(method == "nls" || method == "ml")
-    {
+    if(method == "nls" || method == "ml")
+      {
       std::cerr << "Step size not set for optimization method" << std::endl;
       return EXIT_FAILURE;
-    }    
-  }
+      }
+    }
   if(sigma < 0.0)
     {
     //    if(vm["method"].as<EstimationType>() == MaximumLikelihoodEstimate)
@@ -208,8 +208,8 @@ int main(int argc, char* argv[])
       {
       std::cerr << "Noise level not set for optimization method" << std::endl;
       return EXIT_FAILURE;
-      }    
-    }    
+      }
+    }
   // Read diffusion weighted MR
 
   typedef itk::ImageFileReader<VectorImageType> FileReaderType;
@@ -217,16 +217,16 @@ int main(int argc, char* argv[])
   dwireader->SetFileName(dwiImage.c_str());
 
   try
-  {
+    {
     if(VERBOSE)
       std::cout << "Reading Data" << std::endl;
     dwireader->Update();
-  }
+    }
   catch (itk::ExceptionObject & e)
-  {
+    {
     std::cerr << e <<std::endl;
     return EXIT_FAILURE;
-  }
+    }
 
   VectorImageType::Pointer dwi = dwireader->GetOutput();
 
@@ -248,9 +248,9 @@ int main(int argc, char* argv[])
     WLDiffusionEstimationFilterType;
 
 
-  DiffusionEstimationFilterType::GradientDirectionContainerType::Pointer gradientContainer = 
+  DiffusionEstimationFilterType::GradientDirectionContainerType::Pointer gradientContainer =
     DiffusionEstimationFilterType::GradientDirectionContainerType::New();
-  
+
   typedef DiffusionEstimationFilterType::GradientDirectionType GradientType;
 
   itk::MetaDataDictionary & dict = dwi->GetMetaDataDictionary();
@@ -260,7 +260,7 @@ int main(int argc, char* argv[])
 
   // Apply measurement frame if it exists
   if(dict.HasKey(NRRD_MEASUREMENT_KEY))
-  {
+    {
     if(VERBOSE)
       std::cout << "Reorienting gradient directions to image coordinate frame" << std::endl;
 
@@ -273,26 +273,26 @@ int main(int argc, char* argv[])
 
     imgf = dwi->GetDirection().GetVnlMatrix();
     if(VERBOSE)
-    {
+      {
       std::cout << "Image frame: " << std::endl;
       std::cout << imgf << std::endl;
-    }
+      }
 
     for(unsigned int i = 0; i < 3; ++i)
-    {
-      for(unsigned int j = 0; j < 3; ++j)
       {
+      for(unsigned int j = 0; j < 3; ++j)
+        {
         mf(i,j) = nrrdmf[j][i];
 
         nrrdmf[j][i] = imgf(i,j);
+        }
       }
-    }
 
     if(VERBOSE)
-    {
+      {
       std::cout << "Meausurement frame: " << std::endl;
       std::cout << mf << std::endl;
-    }
+      }
 
     itk::EncapsulateMetaData<std::vector<std::vector<double> > >(dict,NRRD_MEASUREMENT_KEY,nrrdmf);
     // prevent slicer error
@@ -300,31 +300,31 @@ int main(int argc, char* argv[])
     transform = vnl_svd<double>(imgf).inverse()*mf;
 
     if(VERBOSE)
-    {
+      {
       std::cout << "Transform: " << std::endl;
       std::cout << transform << std::endl;
+      }
+
     }
 
-  }
-
   if(dict.HasKey("modality"))
-  {
+    {
     itk::EncapsulateMetaData<std::string>(dict,"modality","DTMRI");
-  }
+    }
 
   std::vector<std::string> keys = dict.GetKeys();
   for(std::vector<std::string>::const_iterator it = keys.begin();
       it != keys.end(); ++it)
-  {
-    if( it->find("DWMRI_b-value") != std::string::npos)
     {
+    if( it->find("DWMRI_b-value") != std::string::npos)
+      {
       std::string t;
       itk::ExposeMetaData<std::string>(dict, *it, t);
       readbvalue = true;
       b0 = atof(t.c_str());
-    }
+      }
     else if( it->find("DWMRI_gradient") != std::string::npos)
-    {
+      {
       std::string value;
 
       itk::ExposeMetaData<std::string>(dict, *it, value);
@@ -337,15 +337,15 @@ int main(int argc, char* argv[])
       unsigned int ind;
       std::string temp = it->substr(it->find_last_of('_')+1);
       ind = atoi(temp.c_str());
-      
+
       gradientContainer->InsertElement(ind,g);
+      }
     }
-  }
   for(std::vector<std::string>::const_iterator it = keys.begin();
       it != keys.end(); ++it)
-  {
-    if( it->find("DWMRI_NEX") != std::string::npos)
     {
+    if( it->find("DWMRI_NEX") != std::string::npos)
+      {
       std::string numrepstr;
 
       itk::ExposeMetaData<std::string>(dict, *it, numrepstr);
@@ -358,50 +358,50 @@ int main(int argc, char* argv[])
 
       for(unsigned int i = indtorep+1; i < indtorep+numreps; i++)
         gradientContainer->InsertElement(i,g);
-    }
+      }
 
-  }
+    }
 
   if(VERBOSE)
-  {
+    {
     std::cout << "NGrads: " << gradientContainer->Size() << std::endl;
     for(unsigned int i = 0; i < gradientContainer->Size(); ++i)
-    {
+      {
       std::cout << gradientContainer->GetElement(i) << std::endl;
+      }
     }
-  }
 
   if(!readbvalue)
-  {
+    {
     std::cerr << "BValue not specified in header file" << std::endl;
     return EXIT_FAILURE;
-  }
+    }
 
   if(VERBOSE)
     std::cout << "BValue: " << b0 << std::endl;
 
   if(VERBOSE)
-  {
+    {
     std::cout << "Effective b-value per-direction" << std::endl;
     for(unsigned int i = 0; i < gradientContainer->Size(); ++i)
-    {
+      {
       const double gsqnorm = gradientContainer->GetElement(i).squared_magnitude();
       std::cout << "G[" << std::setw(4) << std::setfill('0') << i << "]: " << b0 * gsqnorm << std::endl;
+      }
+
     }
 
-  }
-
-  // Read brain mask if it is specified.  
+  // Read brain mask if it is specified.
   if(brainMask != "")
-  {
+    {
     typedef itk::ImageFileReader<LabelImageType> MaskFileReaderType;
     MaskFileReaderType::Pointer maskreader = MaskFileReaderType::New();
     maskreader->SetFileName(brainMask.c_str());
 
     try
-    {
+      {
       maskreader->Update();
-      
+
       if(VERBOSE)
         std::cout << "Masking Data" << std::endl;
 
@@ -413,30 +413,30 @@ int main(int argc, char* argv[])
       mask->Update();
 
       dwi = mask->GetOutput();
-    }
+      }
     catch (itk::ExceptionObject & e)
-    {
+      {
       std::cerr << e <<std::endl;
       return EXIT_FAILURE;
+      }
+
     }
 
-  }
-  
   // Read negative mask
   if(badRegionMask != "")
-  {
+    {
     typedef itk::ImageFileReader<LabelImageType> MaskFileReaderType;
     MaskFileReaderType::Pointer maskreader = MaskFileReaderType::New();
     maskreader->SetFileName(badRegionMask);
-    
+
     //  Go ahead and read data so we can use adaptors as necessary
     try
-    {
+      {
       if(VERBOSE)
         std::cout << "Masking Bad Regions" << std::endl;
 
       maskreader->Update();
-      
+
       typedef itk::VectorMaskNegatedImageFilter<VectorImageType,LabelImageType,VectorImageType> MaskFilterType;
       MaskFilterType::Pointer mask = MaskFilterType::New();
 //      mask->ReleaseDataFlagOn();
@@ -445,39 +445,39 @@ int main(int argc, char* argv[])
       mask->Update();
 
       dwi = mask->GetOutput();
-    }
+      }
     catch (itk::ExceptionObject & e)
-    {
+      {
       std::cerr << e <<std::endl;
       return EXIT_FAILURE;
+      }
     }
-  }
 
-  // Compute average B0 image 
+  // Compute average B0 image
   typedef itk::VectorIndexSelectionCastImageFilter<VectorImageType,RealImageType> VectorSelectionFilterType;
   VectorSelectionFilterType::Pointer biextract = VectorSelectionFilterType::New();
   biextract->SetInput(dwi);
   int numberB0Directions = 0;
-  
-  RealImageType::Pointer B0Image; 
-  
+
+  RealImageType::Pointer B0Image;
+
   for (unsigned int directionIndex = 0 ; directionIndex < gradientContainer->Size(); directionIndex++)
     {
     // get information whether image is b0 or not
     GradientType g = gradientContainer->GetElement(directionIndex);
-    if ( g[0] == 0 && g[1] == 0 && g[2] == 0 ) 
+    if ( g[0] == 0 && g[1] == 0 && g[2] == 0 )
       {
       // image is not b0 image
       biextract->SetIndex(directionIndex);
-       
-      if (numberB0Directions == 0) 
+
+      if (numberB0Directions == 0)
         {
-	  B0Image = biextract->GetOutput();
-	} 
-      else 
+        B0Image = biextract->GetOutput();
+	}
+      else
 	{
 	// add it to the current B0 image
-	try 
+	try
 	  {
 	  typedef itk::AddImageFilter<RealImageType> AddImageFilterType;
 	  AddImageFilterType::Pointer addfilter = AddImageFilterType::New();
@@ -491,27 +491,27 @@ int main(int argc, char* argv[])
 	  std::cerr << "Error in addition for B0 computation" << std::endl;
 	  std::cerr << e << std::endl;
 	  }
-	      
+
 	}
-	  
+
       numberB0Directions++;
       }
     }
-  
+
   if (numberB0Directions == 0) {
-    if (VERBOSE)
-      std::cout << "No B0 image, setting first gradient image as B0 image (rather random behavior though)" << std::endl;
-    biextract->SetIndex(0);
-    B0Image = biextract->GetOutput();
-  } 
+  if (VERBOSE)
+    std::cout << "No B0 image, setting first gradient image as B0 image (rather random behavior though)" << std::endl;
+  biextract->SetIndex(0);
+  B0Image = biextract->GetOutput();
+  }
   else
     {
-      typedef itk::ImageRegionIterator< RealImageType > RealIterator;
-      RealIterator iterImage (B0Image, B0Image->GetBufferedRegion());
-      while ( !iterImage.IsAtEnd() )  {
-	iterImage.Set(iterImage.Get() / numberB0Directions);
-	++iterImage;
-      }
+    typedef itk::ImageRegionIterator< RealImageType > RealIterator;
+    RealIterator iterImage (B0Image, B0Image->GetBufferedRegion());
+    while ( !iterImage.IsAtEnd() )  {
+    iterImage.Set(iterImage.Get() / numberB0Directions);
+    ++iterImage;
+    }
     }
 
   if(VERBOSE)
@@ -519,24 +519,24 @@ int main(int argc, char* argv[])
 
   // Output B0 image if requested
   if(B0 != "")
-  { 
-    try 
+    {
+    try
       {
-	if(VERBOSE)
-	  std::cout << "Writing B0" << std::endl;
-	typedef itk::ImageFileWriter<RealImageType> RealImageFileWriterType;
-	RealImageFileWriterType::Pointer realwriter = RealImageFileWriterType::New();
-	realwriter->SetInput(B0Image);
-	realwriter->SetUseCompression(true);
-	realwriter->SetFileName(B0.c_str());
-	realwriter->Update();
+      if(VERBOSE)
+        std::cout << "Writing B0" << std::endl;
+      typedef itk::ImageFileWriter<RealImageType> RealImageFileWriterType;
+      RealImageFileWriterType::Pointer realwriter = RealImageFileWriterType::New();
+      realwriter->SetInput(B0Image);
+      realwriter->SetUseCompression(true);
+      realwriter->SetFileName(B0.c_str());
+      realwriter->Update();
       }
     catch (itk::ExceptionObject & e)
       {
-	std::cerr << "Could not write B0 file" << std::endl;
-	std::cerr << e << std::endl;
+      std::cerr << "Could not write B0 file" << std::endl;
+      std::cerr << e << std::endl;
       }
-  }
+    }
 
   // If we didnt specify a threshold compute it as the ostu threshold
   // of the baseline image
@@ -548,12 +548,12 @@ int main(int argc, char* argv[])
   //  So it's 'safe' to initialize threshold to -1 and use that as a sentinel
   //  value indicating that no threshold was specified on the command line.
   if(threshold >= 0)
-  {
-  _threshold = static_cast<ScalarPixelType>(threshold);
-  }
+    {
+    _threshold = static_cast<ScalarPixelType>(threshold);
+    }
   else
-  {
-    typedef itk::OtsuThresholdImageCalculator<RealImageType> 
+    {
+    typedef itk::OtsuThresholdImageCalculator<RealImageType>
       OtsuThresholdCalculatorType;
 
     OtsuThresholdCalculatorType::Pointer  otsucalculator = OtsuThresholdCalculatorType::New();
@@ -563,14 +563,14 @@ int main(int argc, char* argv[])
 
     if(VERBOSE)
       std::cout << "Otsu threshold: " << threshold << std::endl;
-  }
+    }
 
 
   // Output b0 threshold mask if requested
   // BUG in original -- looked for "threshold-mask" tag in command line, when
   // it was really named B0
   if(B0MaskOutput != "")
-  {
+    {
     // Will take last B0 image in sequence
 
     typedef itk::BinaryThresholdImageFilter<RealImageType,LabelImageType> ThresholdFilterType;
@@ -580,8 +580,8 @@ int main(int argc, char* argv[])
     thresholdfilter->SetUpperThreshold(itk::NumericTraits<ScalarPixelType>::max());
     thresholdfilter->Update();
 
-    try 
-    {
+    try
+      {
       if(VERBOSE)
 	std::cout << "Writing mask B0" << std::endl;
       typedef itk::ImageFileWriter<LabelImageType> MaskImageFileWriterType;
@@ -589,58 +589,58 @@ int main(int argc, char* argv[])
       maskwriter->SetInput(thresholdfilter->GetOutput());
       maskwriter->SetFileName(B0MaskOutput.c_str());
       maskwriter->Update();
-    }
+      }
     catch (itk::ExceptionObject & e)
-    {
+      {
       std::cerr << "Could not write threshold mask file" << std::endl;
       std::cerr << e << std::endl;
-    }
+      }
 
-  }
+    }
 
   // Output idwi image if requested
   if(IDWI != "")
-  { 
+    {
     typedef itk::VectorIndexSelectionCastImageFilter<VectorImageType,RealImageType> VectorSelectionFilterType;
     VectorSelectionFilterType::Pointer _biextract = VectorSelectionFilterType::New();
     _biextract->SetInput(dwi);
     int numberNonB0Directions = 0;
 
-    RealImageType::Pointer idwiImage; 
+    RealImageType::Pointer idwiImage;
 
     typedef itk::LogImageFilter<RealImageType,RealImageType> LogImageFilterType;
 
     for (unsigned int directionIndex = 0 ; directionIndex < gradientContainer->Size(); directionIndex++)
-    {
+      {
       // get information whether image is b0 or not
       GradientType g = gradientContainer->GetElement(directionIndex);
-      if ( g[0] != 0 || g[1] != 0 || g[2] != 0 ) 
-      {
+      if ( g[0] != 0 || g[1] != 0 || g[2] != 0 )
+        {
 	// image is not b0 image
 	_biextract->SetIndex(directionIndex);
 
-	if (numberNonB0Directions == 0) 
-	{
+	if (numberNonB0Directions == 0)
+          {
 	  // log of the first image and set it as current idwi image
-	  try 
-	  {
+	  try
+            {
 	    LogImageFilterType::Pointer logfilter = LogImageFilterType::New();
 	    logfilter->SetInput(_biextract->GetOutput());
 	    logfilter->Update();
 	    idwiImage = logfilter->GetOutput();
-	  }
+            }
 	  catch (itk::ExceptionObject & e)
-	  {
+            {
 	    std::cerr << "Error in log computation" << std::endl;
 	    std::cerr << e << std::endl;
-	  }
+            }
 
-	} 
-	else 
-	{
+          }
+	else
+          {
 	  // log of the image and add it to the current idwi image
-	  try 
-	  {
+	  try
+            {
 	    LogImageFilterType::Pointer logfilter = LogImageFilterType::New();
 	    logfilter->SetInput(_biextract->GetOutput());
 	    logfilter->Update();
@@ -650,18 +650,18 @@ int main(int argc, char* argv[])
 	    addfilter->SetInput2(idwiImage);
 	    addfilter->Update();
 	    idwiImage = addfilter->GetOutput();
-	  }
+            }
 	  catch (itk::ExceptionObject & e)
-	  {
+            {
 	    std::cerr << "Error in log computation" << std::endl;
 	    std::cerr << e << std::endl;
-	  }
-	  
-	}
-	
+            }
+
+          }
+
 	numberNonB0Directions++;
+        }
       }
-    }
 
     // idwiImage contains the sum of all log transformed directional images
     // need to divide by numberNonB0Directions and compute exponential image
@@ -672,39 +672,39 @@ int main(int argc, char* argv[])
     typedef itk::ImageRegionIterator< RealImageType > RealIterator;
     RealIterator iterImage (idwiImage, idwiImage->GetBufferedRegion());
     while ( !iterImage.IsAtEnd() )  {
-      iterImage.Set(iterImage.Get() / numberNonB0Directions);
-      ++iterImage;
+    iterImage.Set(iterImage.Get() / numberNonB0Directions);
+    ++iterImage;
     }
 
     typedef itk::ExpImageFilter<RealImageType,RealImageType> ExpFilterType;
     ExpFilterType::Pointer expfilter = ExpFilterType::New();
     expfilter->SetInput(idwiImage);
 
-    try 
-    {
+    try
+      {
       typedef itk::ImageFileWriter<RealImageType> RealImageFileWriterType;
       RealImageFileWriterType::Pointer realwriter = RealImageFileWriterType::New();
       realwriter->SetInput(expfilter->GetOutput());
       realwriter->SetUseCompression(true);
       realwriter->SetFileName(IDWI.c_str());
       realwriter->Update();
-    }
+      }
     catch (itk::ExceptionObject & e)
-    {
+      {
       std::cerr << "Could not write idwi file" << std::endl;
       std::cerr << e << std::endl;
+      }
+
     }
 
-  }
-  
   // Estimate tensors
   typedef itk::ImageToImageFilter<VectorImageType, TensorImageType> DiffusionEstimationBaseType;
   TensorImageType::Pointer tensors;
 
   if(VERBOSE)
-  {
+    {
     std::cout << "Estimation method: " << method << std::endl;
-  }
+    }
 
   DiffusionEstimationFilterType::Pointer llsestimator = DiffusionEstimationFilterType::New();
   llsestimator->ReleaseDataFlagOn();
@@ -723,7 +723,7 @@ int main(int argc, char* argv[])
     {
     NLDiffusionEstimationFilterType::Pointer estimator = NLDiffusionEstimationFilterType::New();
     estimator->ReleaseDataFlagOn();
-    
+
     TensorImageType::Pointer llstensors = tensors;
 
     estimator->SetGradientImage(gradientContainer,dwi);
@@ -772,20 +772,20 @@ int main(int argc, char* argv[])
     estimator->SetSigma(sigma);
     estimator->Update();
     tensors = estimator->GetOutput();
-  }
+    }
   else
-  {
+    {
     std::cerr << "Invalid estimation method"  << std::endl;
     return EXIT_FAILURE;
-  }
-      
+    }
+
   // wp = D*x
   // wv = M*x
   // wv' = D'M*x
 
   // Write tensor file if requested
   try
-  {
+    {
     typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;
 
     TensorFileWriterType::Pointer tensorWriter = TensorFileWriterType::New();
@@ -794,13 +794,13 @@ int main(int argc, char* argv[])
     tensorWriter->SetInput(tensors);
     tensorWriter->SetUseCompression(true);
     tensorWriter->Update();
-       
-  } 
-  catch (itk::ExceptionObject e) 
-  {
+
+    }
+  catch (itk::ExceptionObject e)
+    {
     std::cerr << e << std::endl;
     return EXIT_FAILURE;
-  }   
-       
+    }
+
   return EXIT_SUCCESS;
 }

@@ -35,7 +35,7 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
 ::SetROIImage(const TROIImage* roiimage)
 {
   this->ProcessObject::SetNthInput(1, const_cast<TROIImage *>( roiimage ));
-  
+
 }
 
 template <class TTensorImage, class TROIImage, class TOutputSpatialObject>
@@ -61,7 +61,7 @@ void
 ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObject>
 ::GenerateData()
 {
-  // Preprocessing: 
+  // Preprocessing:
   this->PreprocessTensorImage();
 
   // Loop over ROI image
@@ -92,7 +92,7 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
 
       EigenVectorType evec;
       try
-      {        
+      {
          evec = Functor::TensorPrincipalEigenvectorFunction<TensorType, double>()(tens);
       }
       catch( const ExceptionObject & e)
@@ -100,7 +100,7 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
         // Abort tracking fiber if we start in an elliptical region
         continue;
       }
-      
+
       typename DTITubeSpatialObjectType::Pointer fiba, fibb, fib;
 
       // Track in first direction
@@ -141,7 +141,7 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
         cind[2] = it->GetPosition()[2];
         PointType ptest;
         this->GetTensorImage()->TransformContinuousIndexToPhysicalPoint(cind, ptest);
-        
+
         sawtarget = sawtarget || (m_ROIInterpolator->Evaluate(ptest) == m_TargetLabel);
         sawsource = sawsource || (m_ROIInterpolator->Evaluate(ptest) == m_SourceLabel);
       }
@@ -172,14 +172,14 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
 
   std::vector<DTITubeSpatialObjectPointType> pointlist;
   DTITubeSpatialObjectTypePointer tube = DTITubeSpatialObjectType::New();
-  
+
   bool stoppingcond = false;
 
   EigenVectorType nextvec;
-  
+
   DTITubeSpatialObjectPointType tubept;
   ContinuousIndex<double, 3> nextpointind;
-  
+
   this->GetTensorImage()->TransformPhysicalPointToContinuousIndex(pt, nextpointind);
   // Since this point came from an ROI label it ought to be guaranteed
   // to be in the image buffer.
@@ -190,8 +190,8 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
   tubept.SetTensorMatrix(t);
   tubept.AddField("fa", t.GetFractionalAnisotropy());
   tubept.AddField("md", t.GetTrace() / 3.0);
-  tubept.AddField("fro", sqrt(t[0]*t[0] + 2*t[1]*t[1] + 
-                              2*t[2]*t[2] + t[3]*t[3] + 
+  tubept.AddField("fro", sqrt(t[0]*t[0] + 2*t[1]*t[1] +
+                              2*t[2]*t[2] + t[3]*t[3] +
                               2*t[4]*t[4] + t[5]*t[5]));
   pointlist.push_back(tubept);
 
@@ -210,35 +210,35 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
 
     typedef typename TensorInterpolateType::OutputType ArrayType;
     TensorType t = m_TensorInterpolator->Evaluate(nextpt);
-    
+
     // Anisotropy too low
-    if(t.GetFractionalAnisotropy() < m_MinimumFractionalAnisotropy || 
+    if(t.GetFractionalAnisotropy() < m_MinimumFractionalAnisotropy ||
        // Angle changes too much
        dot_product(nextvec.GetVnlVector().normalize(), vec.GetVnlVector().normalize()) < maxdotprod ||
        // Forbidden label is not zero and point is in the forbidden region
        (m_ForbiddenLabel && m_ROIInterpolator->Evaluate(nextpt) == m_ForbiddenLabel))
-    {
+      {
       stoppingcond = true;
-    }
+      }
     else
-    {
+      {
       this->GetTensorImage()->TransformPhysicalPointToContinuousIndex(nextpt, nextpointind);
 
       tubept.SetPosition(nextpointind[0], nextpointind[1], nextpointind[2]);
       tubept.SetTensorMatrix(t);
       tubept.SetField("fa", t.GetFractionalAnisotropy());
       tubept.SetField("md", t.GetTrace() / 3.0);
-      tubept.SetField("fro", sqrt(t[0]*t[0] + 2*t[1]*t[1] + 
-                                  2*t[2]*t[2] + t[3]*t[3] + 
+      tubept.SetField("fro", sqrt(t[0]*t[0] + 2*t[1]*t[1] +
+                                  2*t[2]*t[2] + t[3]*t[3] +
                                   2*t[4]*t[4] + t[5]*t[5]));
       pointlist.push_back(tubept);
       pt = nextpt;
       vec = nextvec;
-    }
+      }
 
     if(pointlist.size() > 20000)
       std::cerr << "*WARNING*: Creating fiber with a large number of points" << std::endl;
-    
+
   }
   while(!stoppingcond);
 
@@ -264,38 +264,38 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
   k1 = this->EvaluatePrincipalDiffusionDirectionAt(pt, vec);
 
   for(unsigned int i = 0; i < PointType::Dimension; ++i)
-  {
+    {
     testpoint[i] = pt[i] + m_StepSize*k1[i]/2;
-  }
+    }
   if(!m_TensorInterpolator->IsInsideBuffer(testpoint))
     throw itk::ExceptionObject("Tracked outside image buffer");
 
   k2 = this->EvaluatePrincipalDiffusionDirectionAt(testpoint, vec);
 
   for(unsigned int i = 0; i < PointType::Dimension; ++i)
-  {
+    {
     testpoint[i] = pt[i] + m_StepSize*k2[i]/2;
-  }
+    }
   if(!m_TensorInterpolator->IsInsideBuffer(testpoint))
     throw itk::ExceptionObject("Tracked outside image buffer");
 
   k3 = this->EvaluatePrincipalDiffusionDirectionAt(testpoint, vec);
 
   for(unsigned int i = 0; i < PointType::Dimension; ++i)
-  {
+    {
     testpoint[i] = pt[i] + m_StepSize*k3[i];
-  }
+    }
   if(!m_TensorInterpolator->IsInsideBuffer(testpoint))
     throw itk::ExceptionObject("Tracked outside image buffer");
 
   k4 = this->EvaluatePrincipalDiffusionDirectionAt(testpoint, vec);
-  
+
   PointType geompoint;
   for(unsigned int i = 0; i < PointType::Dimension; ++i)
-  {
-  geompoint[i] = pt[i] + m_StepSize*(k1[i]/6 + k2[i]/3 + k3[i]/3 + k4[i]/6);
+    {
+    geompoint[i] = pt[i] + m_StepSize*(k1[i]/6 + k2[i]/3 + k3[i]/3 + k4[i]/6);
 //   geompoint[i] = pt[i] + m_StepSize*k1[i];
-  }
+    }
 
   if(!m_TensorInterpolator->IsInsideBuffer(geompoint))
     throw itk::ExceptionObject("Tracked outside image buffer");
@@ -310,13 +310,13 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
                                         const EigenVectorType& vec) const
 {
   TensorType tens = m_TensorInterpolator->Evaluate(pt);
-  
+
   EigenVectorType pdd = Functor::TensorPrincipalEigenvectorFunction<TensorType, double>()(tens);
 
   if(pdd[0]*vec[0] + pdd[1]*vec[1] + pdd[2]*vec[2] < 0)
-  {
+    {
     pdd = -pdd;
-  }
+    }
 
   return pdd;
 }
@@ -332,7 +332,7 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
   // TODO: this should not be here
   m_TubeGroup->SetSpacing(this->GetTensorImage()->GetSpacing().GetDataPointer());
   m_TubeGroup->GetObjectToParentTransform()->SetOffset(this->GetTensorImage()->GetOrigin().GetDataPointer());
-  
+
 }
 
 // template <class TTensorImage, class TROIImage, class TOutputSpatialObject>

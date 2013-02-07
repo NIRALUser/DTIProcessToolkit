@@ -29,15 +29,15 @@ namespace itk{
  * DiffusionTensor3DReconstructionImageFilterBase to implement a
  * non-linear least-squares tensor estimation.  This requires an
  * optimization and this implementation uses levenberg-marquardt.
- * 
+ *
  * \note
- * This work is part of the National Alliance for Medical image Computing 
+ * This work is part of the National Alliance for Medical image Computing
  * (NAMIC), funded by the National Institutes of Health through the NIH Roadmap
  * for Medical Research, Grant U54 EB005149.
  *
  * \author Casey Goodlett.  Thanks to Xiaodong Tao, GE, for contributing the original
  * version of this class.
- * 
+ *
  * \sa DiffusionTensor3D SymmetricSecondRankTensor
  * DiffusionTensor3DReconstructionImageFilterBase
  * DiffusionTensor3DReconstructionLinearImageFilter
@@ -48,8 +48,8 @@ namespace itk{
 template< class TGradientImagePixelType,
           class TTensorPrecision=double >
 class ITK_EXPORT DiffusionTensor3DReconstructionNonlinearImageFilter :
-  public DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
-                                                                TTensorPrecision>
+    public DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
+                                                           TTensorPrecision>
 {
 public:
   typedef DiffusionTensor3DReconstructionNonlinearImageFilter       Self;
@@ -76,10 +76,10 @@ public:
 protected:
   DiffusionTensor3DReconstructionNonlinearImageFilter() : m_Step(1.0e-10) {};
   virtual ~DiffusionTensor3DReconstructionNonlinearImageFilter() {};
-  
-  virtual vnl_vector< TTensorPrecision > 
+
+  virtual vnl_vector< TTensorPrecision >
     EstimateTensor(const vnl_vector<TTensorPrecision>& S) const;
-  
+
   double                                                 m_Step;
 };
 

@@ -27,7 +27,7 @@
 int PrincipalEigenvectorFunctionTest(int /*argc */, char* /*argv */[])
 {
   std::cout << "running Principal Eigenvector test" << std::endl;
-  
+
   typedef itk::DiffusionTensor3D<double> TensorType;
   TensorType a(0.0);
   a[0] = 3; a[3] = 1.5; a[5] = 1.0;
@@ -43,15 +43,15 @@ int PrincipalEigenvectorFunctionTest(int /*argc */, char* /*argv */[])
   correctx[0] = 1; correctx[1] = 0; correctx[2] = 0;
 
   for(unsigned int i = 0; i < 3; i++)
-  {
-    if(fabs(x[i] - correctx[i]) > 1e-6)
     {
+    if(fabs(x[i] - correctx[i]) > 1e-6)
+      {
       std::cout << "Principal eigenvector incorrect [FAILED]" << std::endl;
       std::cout << "Correct: " << correctx << std::endl;
       std::cout << "Found  : " << x << std::endl;
       return EXIT_FAILURE;
+      }
     }
-  }
 
 
   std::cout << "Test [PASSED]." << std::endl;

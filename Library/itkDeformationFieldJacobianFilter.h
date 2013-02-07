@@ -210,7 +210,7 @@ protected:
 
 
   OutputPixelType EvaluateAtNeighborhood
-  (const ConstNeighborhoodIteratorType &it) const
+    (const ConstNeighborhoodIteratorType &it) const
   {
     unsigned i, j;
     Matrix<TRealType,ImageDimension,VectorDimension> J;
@@ -220,7 +220,7 @@ protected:
       for (j = 0; j < VectorDimension; ++j)
         {
         J(j,i) = m_DerivativeWeights[i]
-                  * 0.5 * (it.GetNext(i)[j] - it.GetPrevious(i)[j]);
+          * 0.5 * (it.GetNext(i)[j] - it.GetPrevious(i)[j]);
         }
       }
 

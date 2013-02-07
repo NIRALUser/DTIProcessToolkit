@@ -15,7 +15,7 @@ void TensorFAGradientImageFilter<T>::GenerateData()
   typedef OutputImageType ComponentGradientImageType;
 
   typedef itk::GradientRecursiveGaussianImageFilter<ElementAdaptorType,
-                 ComponentGradientImageType>                                       TensorComponentGradientType;
+                                                    ComponentGradientImageType>                                       TensorComponentGradientType;
   typedef typename TensorComponentGradientType::Pointer                            TensorComponentGradientPointer;
 
   std::vector<ElementAdaptorPointer> componentadaptors(6);
@@ -29,7 +29,7 @@ void TensorFAGradientImageFilter<T>::GenerateData()
     componentadaptors[i]->SetImage(input);
     componentadaptors[i]->SelectNthElement(i);
     componentadaptors[i]->Update();
-    
+
     componentgradientfilters[i] = TensorComponentGradientType::New();
     componentgradientfilters[i]->SetInput(componentadaptors[i]);
     componentgradientfilters[i]->SetSigma(m_Sigma);
@@ -38,7 +38,7 @@ void TensorFAGradientImageFilter<T>::GenerateData()
     }
 
   typename OutputImageType::Pointer output(this->GetOutput());
-  
+
   typename InputImageType::RegionType inputRequestedRegion(input->GetRequestedRegion());
 
   typename OutputImageType::RegionType outputRequestedRegion(output->GetRequestedRegion());
@@ -47,7 +47,7 @@ void TensorFAGradientImageFilter<T>::GenerateData()
     input, inputRequestedRegion);
 
   typedef ImageRegionConstIterator<ComponentGradientImageType> ComponentGradientIterator;
-  
+
   std::vector<ComponentGradientIterator> git(6);
 
   for(int i = 0; i < 6; ++i)
@@ -56,13 +56,13 @@ void TensorFAGradientImageFilter<T>::GenerateData()
 
     git[i].GoToBegin();
     }
-  
+
   ImageRegionIterator<OutputImageType> oit = ImageRegionIterator<OutputImageType>(
     output, outputRequestedRegion);
-  
+
   for(it.GoToBegin(), oit.GoToBegin();!it.IsAtEnd(); ++it, ++oit)
     {
-    
+
     InputPixelType D = it.Get();
 
     T & Dxx = D[0];

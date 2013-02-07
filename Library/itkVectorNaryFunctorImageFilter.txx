@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -48,9 +48,9 @@ VectorNaryFunctorImageFilter<TInputImage, TOutputImage, TFunction>
                         ThreadIdType threadId)
 {
 
-  const unsigned int numberOfInputImages = 
+  const unsigned int numberOfInputImages =
     static_cast< unsigned int >( this->GetNumberOfInputs() );
-  
+
   OutputImagePointer outputPtr = this->GetOutput(0);
   ImageRegionIterator<TOutputImage> outputIt(outputPtr, outputRegionForThread);
 
@@ -62,12 +62,12 @@ VectorNaryFunctorImageFilter<TInputImage, TOutputImage, TFunction>
 //     outputIt.Set( itk::NumericTraits< OutputImagePixelType >::Zero );
 //     ++outputIt;
 //     }
-  
+
   typedef ImageRegionConstIterator<TInputImage> ImageRegionConstIteratorType;
   std::vector< ImageRegionConstIteratorType * > inputItrVector;
   inputItrVector.reserve(numberOfInputImages);
   //Array< ImageRegionConstIteratorType > inputItrVector(numberOfInputImages);
-  
+
   // support progress methods/callbacks.
   // count the number of inputs that are non-null
   unsigned int numberOfValidInputImages = 0;
@@ -92,20 +92,20 @@ VectorNaryFunctorImageFilter<TInputImage, TOutputImage, TFunction>
   ProgressReporter progress(this, threadId,
                             numberOfValidInputImages
                             *outputRegionForThread.GetNumberOfPixels());
-     
+
   if( !inputItrVector[lastValidImage] )
-    { 
+    {
     //No valid regions in the thread
     return;
     }
-  
-    
+
+
   typename VectorNaryArrayType::Pointer naryInputArray = VectorNaryArrayType::New();
-  naryInputArray->Reserve ( numberOfInputImages ); 
-    
+  naryInputArray->Reserve ( numberOfInputImages );
+
   outputIt.GoToBegin();
-  
-  while( !inputItrVector[lastValidImage]->IsAtEnd())  
+
+  while( !inputItrVector[lastValidImage]->IsAtEnd())
     {
     for (unsigned int inputNumber=0; inputNumber < numberOfInputImages; inputNumber++)
       {
@@ -114,10 +114,10 @@ VectorNaryFunctorImageFilter<TInputImage, TOutputImage, TFunction>
       }
     outputIt.Set( m_Functor( naryInputArray ) );
     ++outputIt;
-    
+
     progress.CompletedPixel();
     }
-  
+
   for (unsigned int i=0; i < numberOfInputImages; ++i)
     {
     if (inputItrVector[i])

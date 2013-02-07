@@ -253,7 +253,7 @@ public:
     if( m_GradientImageTypeEnumeration == GradientIsInASingleImage)
       {
       itkExceptionMacro( << "Cannot call both methods:"
-      << "AddGradientImage and SetGradientImage. Please call only one of them.");
+                         << "AddGradientImage and SetGradientImage. Please call only one of them.");
       }
 
     this->ProcessObject::SetNthInput( 0, referenceImage );
@@ -263,10 +263,10 @@ public:
 
   /** Set B value to estimator **/
   //virtual void SetBValue(const TTensorType _bValue){ m_BValue = _bValue;}
-   void SetStep(const TTensorType _step){ m_Step = _step;}
+  void SetStep(const TTensorType _step){ m_Step = _step;}
 
   /** Set Sigma **/
-   void SetSigma(const TTensorType _sigma){ m_Sigma = _sigma;}
+  void SetSigma(const TTensorType _sigma){ m_Sigma = _sigma;}
 
   /** Get reference image */
   virtual ReferenceImageType * GetReferenceImage()
@@ -274,13 +274,13 @@ public:
 
   /** Return the gradient direction. idx is 0 based */
   virtual GradientDirectionType GetGradientDirection( unsigned int idx) const
-    {
+  {
     if( idx >= m_NumberOfGradientDirections )
       {
       itkExceptionMacro( << "Gradient direction " << idx << "does not exist" );
       }
     return m_GradientDirectionContainer->ElementAt( idx+1 );
-    }
+  }
 
   /** Threshold on the reference image data. The output tensor will be a null
    * tensor for pixels in the reference image that have a value less than this
@@ -304,20 +304,20 @@ public:
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
   itkConceptMacro(ReferenceEqualityComparableCheck,
-    (Concept::EqualityComparable<ReferencePixelType>));
+                  (Concept::EqualityComparable<ReferencePixelType>));
   itkConceptMacro(TensorEqualityComparableCheck,
-    (Concept::EqualityComparable<TensorType>));
+                  (Concept::EqualityComparable<TensorType>));
   itkConceptMacro(GradientConvertibleToDoubleCheck,
-    (Concept::Convertible<GradientPixelType, double>));
+                  (Concept::Convertible<GradientPixelType, double>));
   itkConceptMacro(DoubleConvertibleToTensorCheck,
-    (Concept::Convertible<double, TensorType>));
+                  (Concept::Convertible<double, TensorType>));
   itkConceptMacro(GradientReferenceAdditiveOperatorsCheck,
-    (Concept::AdditiveOperators<GradientPixelType, GradientPixelType,
-                                ReferencePixelType>));
+                  (Concept::AdditiveOperators<GradientPixelType, GradientPixelType,
+                   ReferencePixelType>));
   itkConceptMacro(ReferenceOStreamWritableCheck,
-    (Concept::OStreamWritable<ReferencePixelType>));
+                  (Concept::OStreamWritable<ReferencePixelType>));
   itkConceptMacro(TensorOStreamWritableCheck,
-    (Concept::OStreamWritable<TensorType>));
+                  (Concept::OStreamWritable<TensorType>));
   /** End concept checking */
 #endif
 
@@ -331,20 +331,20 @@ protected:
   //void EstimateTensor
   //double calGuessS(const TensorType & _tensor, int index);
   double ComputeGuessValue( const TensorType &_tensor, typename
-         NumericTraits<ReferencePixelType>::AccumulateType cleanValue, int index );
+                            NumericTraits<ReferencePixelType>::AccumulateType cleanValue, int index );
 
   void BeforeThreadedGenerateData();
   virtual void ThreadedGenerateData( const
-                             OutputImageRegionType &outputRegionForThread, ThreadIdType);
+                                     OutputImageRegionType &outputRegionForThread, ThreadIdType);
 
   /** enum to indicate if the gradient image is specified as a single multi-
    * component image or as several separate images */
   typedef enum
-    {
+  {
     GradientIsInASingleImage = 1,
     GradientIsInManyImages,
     Else
-    } GradientImageTypeEnumeration;
+  } GradientImageTypeEnumeration;
 
 private:
 

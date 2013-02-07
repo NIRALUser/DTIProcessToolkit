@@ -10,10 +10,10 @@ void TensorFAHessianImageFilter<T>::GenerateData()
   typedef typename ElementAdaptorType::Pointer                                     ElementAdaptorPointer;
 
   typedef itk::GradientRecursiveGaussianImageFilter<TensorComponentAdaptorType,
-                 ComponentGradientImageType>                                       TensorComponentGradientType;
+    ComponentGradientImageType>                                       TensorComponentGradientType;
   typedef typename TensorComponentGradientType::Pointer                            TensorComponentGradientPointer;
-  typedef itk::HessianRecursiveGaussianImageFilter<TensorComponentAdaptorType, 
-                 ComponentHessianImageType>                                        TensorComponentHessianType;
+  typedef itk::HessianRecursiveGaussianImageFilter<TensorComponentAdaptorType,
+                                                   ComponentHessianImageType>                                        TensorComponentHessianType;
   typedef typename TensorComponentHessianType::Pointer                             TensorComponentHessianPointer;
 
   std::vector<TensorComponentAdaptorPointer> componentadaptors(6);
@@ -27,7 +27,7 @@ void TensorFAHessianImageFilter<T>::GenerateData()
     componentadaptors[i] = NthElementImageAdaptor::New();
     componentadaptors[i]->SelectNthElement(i);
     componentadpators[i]->SetInput(input);
-    
+
     componentgradientfilters[i]->SetInput(componentadaptors[i]->GetOutput());
     componentgradientfilters[i]->SetSigma(m_Sigma);
     componentgradientfilters[i]->Update();
@@ -35,11 +35,11 @@ void TensorFAHessianImageFilter<T>::GenerateData()
     componenthessianfilters[i]->SetInput(componentadaptors[i]->GetOutput());
     componenthessianfilters[i]->SetSigma(m_Sigma);
     componenthessianfilters[i]->Update();
-    
+
     }
 
   typename OutputImageType::Pointer output(this->GetOutput());
-  
+
   typename InputImageType::RegionType inputRequestedRegion(input->GetRequestedRegion());
 
   typename OutputImageType::RegionType outputRequestedRegion(output->GetRequestedRegion());
@@ -48,7 +48,7 @@ void TensorFAHessianImageFilter<T>::GenerateData()
     input, inputRequestedRegion);
 
   typedef ImageRegionConstIterator<ComponentGradientImageType> ComponentGradientIterator;
-  
+
   typedef ImageRegionConstIterator<ComponentHessianImageType> ComponentHessianIterator;
 
   std::vector<ComponentGradientIterator> git(6);
@@ -62,14 +62,14 @@ void TensorFAHessianImageFilter<T>::GenerateData()
     git.GoToBegin();
     hit.GoToBegin();
     }
-  
+
   ImageRegionIterator<OutputImageType> oit = ImageRegionIterator<OutputImageType>(
     output, outputRequestedRegion);
-  
+
   for(it.GoToBegin(), oit.GoToBegin();!it.IsAtEnd(); ++it, ++oit)
     {
-    
-    
+
+
 
     for(int i = 0; i < 6; ++i)
       {
