@@ -117,27 +117,24 @@ cart2sph(vnl_matrix<RealType> &gvectors, vnl_matrix<RealType> &sgvectors )
 //multiplication by sin or cos (for rpart or ipart) taken care of in calling function
 template <class RealType>
 RealType
-getSphericalHarmonic(int l, int m, RealType theta, RealType phi)
+getSphericalHarmonic(int l, int m, RealType theta)
 {
-  int m_abs = (int)fabs(m);
+  const int local_abs = (int)fabs(m);
 
-  ////m_abs + 1 for matlab indexing (starting at 1)
-  RealType Plmx = boost::math::legendre_p(l, m_abs, cos(theta)); //m_abs + 1 for matlab indexing (starting at 1)
+  ////local_abs + 1 for matlab indexing (starting at 1)
+  RealType Plmx = boost::math::legendre_p(l, local_abs, cos(theta)); //local_abs + 1 for matlab indexing (starting at 1)
 
-  //double SR = sqrt(((2.0*l + 1.0)/4.0*PI)*((factorial(l -
-  //m_abs))/(factorial(l + m_abs))));
+  //double SR = sqrt(((2.0*l + 1.0)/4.0*PI)*((factorial(l - local_abs))/(factorial(l + local_abs))));
 
   // TODO: make sure that this returns the correct values
 
-  //RealType SR = sqrt(((2.0*l +
-  //1.0)/4.0*(RealType)PI)*((boost::math::unchecked_factorial<int>(l-m_abs))/(boost::math::unchecked_factorial<int>(l+m_abs))));
+  //RealType SR = sqrt(((2.0*l + //1.0)/4.0*(RealType)PI)*((boost::math::unchecked_factorial<int>(l-local_abs))/(boost::math::unchecked_factorial<int>(l+local_abs))));
 
   // TODO: Check if it is possible to use an int version of boost's
   // factorial function, seems like it crashes when I try to do this
 
-  RealType SR = (RealType)(sqrt(((2.0*l + 1.0)/4.0*PI)*((boost::math::factorial<double>(l-m_abs))/(boost::math::factorial<double>(l+m_abs)))));
-
-  RealType factor = SR * Plmx;
+  const RealType SR = (RealType)(sqrt(((2.0*l + 1.0)/4.0*PI)*((boost::math::factorial<double>(l-local_abs))/(boost::math::factorial<double>(l+local_abs)))));
+  const RealType factor = SR * Plmx;
 
   return factor;
 }
@@ -198,16 +195,16 @@ getBasisMatrixValue(int curterm, RealType theta, RealType phi)
     if ((-k <= m) && (m < 0))
     {
         //real part
-        Yj = sqrt(2.0) * getSphericalHarmonic<RealType>(k, m, theta, phi) * cos(m*phi);
+        Yj = sqrt(2.0) * getSphericalHarmonic<RealType>(k, m, theta) * cos(m*phi);
     }
     else if (m == 0)
     {
-        Yj = getSphericalHarmonic<RealType>(k, 0, theta, phi);
+        Yj = getSphericalHarmonic<RealType>(k, 0, theta);
     }
     else // (m > 0 && m <= k)
     {
         //imaginary part
-        Yj = sqrt(2.0) * getSphericalHarmonic<RealType>(k, m, theta, phi) * sin(m*phi);
+        Yj = sqrt(2.0) * getSphericalHarmonic<RealType>(k, m, theta) * sin(m*phi);
     }
 
     return Yj;

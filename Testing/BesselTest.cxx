@@ -9,7 +9,7 @@
 //double args[] = {};
 //double results[] = {};
 
-int BesselTest(int argc, char* argv[])
+int BesselTest(int , char* [])
 {
   std::cout << "running Bessel Test" << std::endl;
 

@@ -53,7 +53,7 @@ public:
   itkNewMacro( Self );
 
 protected:
-  ConsoleProgressCommand(): m_MaxProgress(100), m_NumTicks(50), m_Progress(0) { m_LastPercent = 0; firstRun = true; };
+  ConsoleProgressCommand(): m_MaxProgress(100), m_Progress(0) { m_LastPercent = 0; firstRun = true; };
 
 public:
 
@@ -67,15 +67,13 @@ public:
     m_MaxProgress = mP;
   }
 
-  void Execute(const itk::Object * object, const itk::EventObject & event)
+  void Execute(const itk::Object * , const itk::EventObject & event)
   {
     if( itk::StartEvent().CheckEvent( &event ) )
       {
       std::cout << "Running" << std::endl;
       std::cout << "0%                    50%                    100%" << std::endl;
       std::cout << "=================================================" << std::endl;
-
-
       }
     else if( itk::EndEvent().CheckEvent( &event ))
       {
@@ -95,7 +93,6 @@ public:
   }
 private:
   unsigned long m_MaxProgress;
-  unsigned long m_NumTicks;
   unsigned long m_Progress;
   unsigned int m_LastPercent;
   bool firstRun;
@@ -173,6 +170,7 @@ DiffusionEstimationFilterType;
   /** Set/Get the input of this process object.  */
   /* We have text files as input here for data that needs to be loaded */
 
+  using Superclass::SetInput;
   virtual void SetInput( const std::string* sCaseFile ); // TODO: Change
 
   /** Set the spacing (size of a pixel) of the image.
@@ -271,7 +269,7 @@ protected:
   void LoadDataAndInitialize();
 
   vnl_matrix<MyRealType>
-  rotateGradients( typename GradientDirectionContainerType::Pointer gradientContainer, itk::Matrix<MyRealType, 3, 3> jacobian, std::vector<bool>& isBaseline, unsigned int &iNrOfBaselines, bool bypassRotation = false );
+  rotateGradients( typename GradientDirectionContainerType::Pointer gradientContainer, itk::Matrix<MyRealType, 3, 3> jacobian, std::vector<bool>& isBaseline, unsigned int &iNrOfBaselines );
 
   void getGradients( typename DiffusionEstimationFilterType::GradientDirectionContainerType & gradientContainer, itk::MetaDataDictionary & dict,  vnl_matrix<MyRealType> imgf, unsigned int& iNrOfBaselines, std::vector<unsigned int> &vecBaselineIndices, bool bVERBOSE=false );
 

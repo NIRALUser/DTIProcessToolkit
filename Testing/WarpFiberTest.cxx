@@ -8,7 +8,7 @@
 #include <itkSpatialObjectReader.h>
 #include <itkSpatialObjectWriter.h>
 
-int WarpFiberTest(int argc, char * argv[])
+int WarpFiberTest(int , char * [])
 {
   // 1: Tensor Volume
   // 2: Output Initial Fiber File

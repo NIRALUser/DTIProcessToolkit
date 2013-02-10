@@ -93,9 +93,12 @@ template <class TOutputImage, class TPrecision>
 void
 DeformationFieldFromTransform<TOutputImage, TPrecision>
 ::ThreadedGenerateData(const OutputImageRegionType& outputRegion,
-                       ThreadIdType)
+                       ThreadIdType threadId)
 {
-
+  if( threadId != 0 )
+    {
+    throw itk::ExceptionObject("This file not instrumented for multi-threading!");
+    }
   itkDebugMacro(<<"Actually executing");
 
   // Get the output pointers
@@ -103,7 +106,7 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
 
   // Create an iterator that will walk the output region for this thread.
   typedef ImageRegionIteratorWithIndex<
-    TOutputImage> OutputIterator;
+                                  TOutputImage> OutputIterator;
 
   OutputIterator outIt( outputPtr, outputRegion );
 

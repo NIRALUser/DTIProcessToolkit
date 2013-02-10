@@ -11,17 +11,17 @@
 
 #include "transforms.h"
 
-int ScalarDeformationApplyTest(int argc, char* argv[])
+int ScalarDeformationApplyTest(int argc, char* argv [])
 {
-  // 1: input file
-  // 2: transform
-  // 3: transform image
-  // 4: warped image
-  if(argc < 5)
+  if (argc < 4 )
     {
-    std::cerr << argv[0] << ": input transform transformImage warpedImage" << std::endl;
-    return 1;
+    std::cout << "1: input file" << std::endl;
+    std::cout << "2: transform" << std::endl;
+    std::cout << "3: transform image" << std::endl;
+    std::cout << "4: warped image" << std::endl;
+    return EXIT_FAILURE;
     }
+
   typedef double TransformRealType;
   typedef unsigned short PixelType;
   typedef itk::Image<PixelType,3> ImageType;

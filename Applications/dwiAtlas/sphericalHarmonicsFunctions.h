@@ -25,7 +25,7 @@ template <class RealType>
 void cart2sph(vnl_matrix<RealType> &gvectors, vnl_matrix<RealType> &sgvectors );
 
 template <class RealType>
-RealType getSphericalHarmonic(int l, int m, RealType theta, RealType phi);
+RealType getSphericalHarmonic(int l, int m, RealType theta);
 
 template <class RealType>
 RealType getBasisMatrixValue(int curterm, RealType theta, RealType phi);

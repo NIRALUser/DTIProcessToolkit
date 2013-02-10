@@ -127,17 +127,16 @@ int main(int argc, char* argv[])
 
       typedef DTIPointType::FieldListType FieldList;
       const FieldList & fl = pit->GetFields();
-      for(FieldList::const_iterator it = fl.begin();
-          it != fl.end(); ++it)
+      for(FieldList::const_iterator flit = fl.begin();
+          flit != fl.end(); ++flit)
       {
-        if(bundlestats.count(it->first))
+        if(bundlestats.count(flit->first))
         {
-          bundlestats[it->first].push_back(it->second);
+          bundlestats[flit->first].push_back(flit->second);
         }
       }
 
     } // end point loop
-
   } // end fiber loop
 
 
@@ -145,23 +144,23 @@ int main(int argc, char* argv[])
   std::cout << "Volume (mm^3): " << seenvoxels.size() * voxelsize << std::endl;
 
   //std::cout << "Measure statistics" << std::endl;
-  for(SampleMap::const_iterator it = bundlestats.begin();
-      it != bundlestats.end(); ++it)
-    {
-    const std::string statname = it->first;
+  for(SampleMap::const_iterator smit = bundlestats.begin();
+      smit != bundlestats.end(); ++smit)
+  {
+    const std::string statname = smit->first;
 
-    double mean = std::accumulate(it->second.begin(), it->second.end(), 0.0) / it->second.size();
+    double mean = std::accumulate(smit->second.begin(), smit->second.end(), 0.0) / smit->second.size();
     std::cout << statname << " mean: " << mean << std::endl;
-    double var = 0.0; //= std::accumulate(it->second.begin(), it->second.end(), 0.0,
-    //                                 (_1 - mean)*(_1 - mean)) / (it->second.size() - 1);
-    for(MeasureSample::const_iterator it2 = it->second.begin();
-        it2 != it->second.end(); it2++)
+    double var = 0.0; //= std::accumulate(smit->second.begin(), smit->second.end(), 0.0,
+      //                                 (_1 - mean)*(_1 - mean)) / (smit->second.size() - 1);
+    for(MeasureSample::const_iterator it2 = smit->second.begin();
+        it2 != smit->second.end(); it2++)
       {
       double minusMean((*it2) - mean);
-      var += (minusMean * minusMean) / (it->second.size() - 1);
+      var += (minusMean * minusMean) / (smit->second.size() - 1);
       }
     std::cout << statname << " std: " << std::sqrt(var) << std::endl;
-    }
+  }
 
   delete children;
   return EXIT_SUCCESS;

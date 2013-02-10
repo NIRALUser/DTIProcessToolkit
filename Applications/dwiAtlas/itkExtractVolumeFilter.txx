@@ -127,7 +127,7 @@ ExtractVolumeFilter< TInputImage, TOutputImage >
 
   for ( nit.GoToBegin(), it.GoToBegin(); !nit.IsAtEnd() && !it.IsAtEnd(); ++nit, ++it ) {
 
-    OutputPixelType dVal = static_cast<OutputPixelType>(dFactor*((nit.Get())[iVolumeNr]));
+    OutputPixelType dVal = static_cast<OutputPixelType>(m_dFactor*((nit.Get())[m_iVolumeNr]));
 
     it.Set( dVal );
 

@@ -19,8 +19,12 @@
 
 #include <itkAffineTransform.h>
 
-int ReadITKAffineTest(int argc, char* argv[])
+int ReadITKAffineTest(int argc , char* argv[])
 {
+  if ( argc < 3 )
+    {
+    return EXIT_FAILURE;
+    }
   const std::string floatfile(argv[1]);
   const std::string doublefile(argv[2]);
 

@@ -4,10 +4,7 @@
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
 
-int WarpTensorTest(int argc, char * argv[])
+int WarpTensorTest(int , char * [])
 {
-
-
-
   return EXIT_FAILURE;
 }

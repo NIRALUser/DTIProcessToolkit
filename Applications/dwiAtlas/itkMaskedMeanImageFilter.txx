@@ -91,7 +91,7 @@ template< class TInputImage, class TOutputImage>
 void
 MaskedMeanImageFilter< TInputImage, TOutputImage>
 ::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-                       int threadId)
+                       ThreadIdType threadId)
 {
 
   unsigned int i;

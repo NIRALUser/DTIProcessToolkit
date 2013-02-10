@@ -209,10 +209,10 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
     }
 
     typedef typename TensorInterpolateType::OutputType ArrayType;
-    TensorType t = m_TensorInterpolator->Evaluate(nextpt);
+    const TensorType nextt = m_TensorInterpolator->Evaluate(nextpt);
 
     // Anisotropy too low
-    if(t.GetFractionalAnisotropy() < m_MinimumFractionalAnisotropy ||
+    if(nextt.GetFractionalAnisotropy() < m_MinimumFractionalAnisotropy ||
        // Angle changes too much
        dot_product(nextvec.GetVnlVector().normalize(), vec.GetVnlVector().normalize()) < maxdotprod ||
        // Forbidden label is not zero and point is in the forbidden region
@@ -225,12 +225,12 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage,TROIImage,TOutputSpatialObje
       this->GetTensorImage()->TransformPhysicalPointToContinuousIndex(nextpt, nextpointind);
 
       tubept.SetPosition(nextpointind[0], nextpointind[1], nextpointind[2]);
-      tubept.SetTensorMatrix(t);
-      tubept.SetField("fa", t.GetFractionalAnisotropy());
-      tubept.SetField("md", t.GetTrace() / 3.0);
-      tubept.SetField("fro", sqrt(t[0]*t[0] + 2*t[1]*t[1] +
-                                  2*t[2]*t[2] + t[3]*t[3] +
-                                  2*t[4]*t[4] + t[5]*t[5]));
+      tubept.SetTensorMatrix(nextt);
+      tubept.SetField("fa", nextt.GetFractionalAnisotropy());
+      tubept.SetField("md", nextt.GetTrace() / 3.0);
+      tubept.SetField("fro", sqrt(nextt[0]*nextt[0] + 2*nextt[1]*nextt[1] +
+                                  2*nextt[2]*nextt[2] + nextt[3]*nextt[3] +
+                                  2*nextt[4]*nextt[4] + nextt[5]*nextt[5]));
       pointlist.push_back(tubept);
       pt = nextpt;
       vec = nextvec;

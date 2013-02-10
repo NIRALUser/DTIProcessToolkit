@@ -456,12 +456,12 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
 template <class MyRealType, class DWIPixelType>
 vnl_matrix<MyRealType>
 DWIAtlasBuilder<MyRealType, DWIPixelType>
-::rotateGradients( typename GradientDirectionContainerType::Pointer gradientContainer, itk::Matrix<MyRealType, 3, 3> jacobian, std::vector<bool>& isBaseline, unsigned int &iNrOfBaselines, bool bypassRotation )
+::rotateGradients( typename GradientDirectionContainerType::Pointer gradientContainer, itk::Matrix<MyRealType, 3, 3> local_jacobian, std::vector<bool>& isBaseline, unsigned int &iNrOfBaselines)
 {
   const unsigned int numgrads = gradientContainer->Size();
   vnl_matrix_fixed<MyRealType, 3, 3> iden;
   iden.set_identity();
-  vnl_matrix_fixed<MyRealType, 3, 3> localt = vnl_inverse(jacobian.GetVnlMatrix() + iden);
+  vnl_matrix_fixed<MyRealType, 3, 3> localt = vnl_inverse(local_jacobian.GetVnlMatrix() + iden);
 
 
   // use polar decompostion to get the rotation matrix out of localt
@@ -533,7 +533,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
 template <class MyRealType, class DWIPixelType>
 void
 DWIAtlasBuilder<MyRealType, DWIPixelType>
-::getGradients(  typename DiffusionEstimationFilterType::GradientDirectionContainerType & gradientContainer, itk::MetaDataDictionary & dict,  vnl_matrix<MyRealType> imgf, unsigned int& iNrOfBaselines, std::vector<unsigned int> &vecBaselineIndices, bool m_Verbose )
+::getGradients(  typename DiffusionEstimationFilterType::GradientDirectionContainerType & gradientContainer, itk::MetaDataDictionary & dict,  vnl_matrix<MyRealType> /* NOTE USED imgf */, unsigned int& iNrOfBaselines, std::vector<unsigned int> &vecBaselineIndices, bool local_Verbose )
 {
 
   vecBaselineIndices.clear();
@@ -549,7 +549,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
 
   // read into gradientContainer the gradients
 
-  //if ( m_Verbose )
+  //if ( local_Verbose )
   //  dict.Print( std::cout );
 
   vnl_matrix<MyRealType> transform(3,3);
@@ -564,7 +564,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
 
   /*if(dict.HasKey(NRRD_MEASUREMENT_KEY))
   {
-    if(m_Verbose)
+    if(local_Verbose)
       std::cout << "Reorienting gradient directions to image coordinate frame" << std::endl;
 
     // measurement frame
@@ -577,7 +577,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
     std::vector<std::vector<double> > nrrdmf;
     itk::ExposeMetaData<std::vector<std::vector<double> > >(dict,NRRD_MEASUREMENT_KEY,nrrdmf);
 
-    //if(m_Verbose)
+    //if(local_Verbose)
     //{
     //  std::cout << "Image frame: " << std::endl;
     //  std::cout << imgf << std::endl;
@@ -593,7 +593,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
       }
     }
 
-    //if(m_Verbose)
+    //if(local_Verbose)
     //{
     //  std::cout << "Measurement frame: " << std::endl;
     //  std::cout << mf << std::endl;
@@ -608,7 +608,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
 
     transform = vnl_svd<MyRealType>(imgf).inverse()*mf;
 
-    //if(m_Verbose)
+    //if(local_Verbose)
     //{
     //  std::cout << "Transform: " << std::endl;
     //  std::cout << transform << std::endl;
@@ -619,7 +619,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
   if(dict.HasKey("modality"))
   {
     itk::EncapsulateMetaData<std::string>(dict,"modality","DWMRI");
-    if ( m_Verbose ) std::cout << "modality = DWMRI"<< std::endl;
+    if ( local_Verbose ) std::cout << "modality = DWMRI"<< std::endl;
   }
 
   std::vector<std::string> keys = dict.GetKeys();
@@ -637,10 +637,10 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
       }
     else if( it->find("DWMRI_gradient") != std::string::npos)
       {
-      std::string value;
+      std::string local_value;
 
-      itk::ExposeMetaData<std::string>(dict, *it, value);
-      std::istringstream iss(value);
+      itk::ExposeMetaData<std::string>(dict, *it, local_value);
+      std::istringstream iss(local_value);
       MyGradientType g;
       iss >> g[0] >> g[1] >> g[2];
 
@@ -686,9 +686,8 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
     //abort/return something meaningful
   }
 
-  if(m_Verbose)
+  if(local_Verbose)
     std::cout << "BValue: " << bvalue << std::endl;
-
 }
 
 template <class MyRealType, class DWIPixelType>
@@ -889,7 +888,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
 template <class MyRealType, class DWIPixelType>
 void
 DWIAtlasBuilder<MyRealType, DWIPixelType>
-::extractDesiredBaselinesAndDWIs( STransformedGradientInformationType& allBaselines, STransformedGradientInformationType& allDWIs, const STransformedGradientInformationType* transformedInformation, unsigned int nrOfDataSets , unsigned int interpolationType, unsigned int averagingType )
+::extractDesiredBaselinesAndDWIs( STransformedGradientInformationType& allBaselines, STransformedGradientInformationType& allDWIs, const STransformedGradientInformationType* transformedInformation, unsigned int nrOfDataSets , unsigned int interpolationType, unsigned int /* NOT USED averagingType */ )
 {
   // implements different methods of information extraction
   // ignores all measurements which would require the use of invalid
@@ -1535,12 +1534,13 @@ DWIAtlasBuilder< MyRealType, DWIPixelType >
     if ( m_JustDoResampling )
       {
       // do not apply the rotation, this can be used for debugging
-      rotatedGradientDirections = rotateGradients( gradientContainers[iI], j, transformedInformation[iI].isBaseline, iNrOfBaselines, true );
+            // NOTE:  THIS LOOKS WRONG!  j=identity during first iteration, but is the value from
+            // the pevious iteration otherwise.  It seems that the m_JustDoResampling option was not fully implmeented.
+      rotatedGradientDirections = rotateGradients( gradientContainers[iI], j, transformedInformation[iI].isBaseline, iNrOfBaselines );
       }
     else
       {
       j = jacobian[iI]->GetOutput()->GetPixel(cpi);
-
       rotatedGradientDirections = rotateGradients( gradientContainers[iI], j, transformedInformation[iI].isBaseline, iNrOfBaselines );
       }
 

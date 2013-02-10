@@ -51,8 +51,8 @@ public:
   typedef SmartPointer<Self> Pointer;
   typedef SmartPointer<const Self>  ConstPointer;
 
-  void SetVolumeNr( int iNr ) { iVolumeNr = iNr; std::cout << "Setting volume nr to " << iNr << std::endl; };
-  void SetMultiplyFactor( double dFactor ) { this->dFactor = dFactor; };
+  void SetVolumeNr( int iNr ) { m_iVolumeNr = iNr; std::cout << "Setting volume nr to " << iNr << std::endl; };
+  void SetMultiplyFactor( double local_dFactor ) { this->m_dFactor = local_dFactor; };
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -85,8 +85,8 @@ public:
 protected:
   ExtractVolumeFilter()
     {
-      iVolumeNr = 0;
-      dFactor = 1;
+      m_iVolumeNr = 0;
+      m_dFactor = 1;
     }
   virtual ~ExtractVolumeFilter() {}
   void PrintSelf(std::ostream& os, Indent indent) const;
@@ -99,8 +99,8 @@ private:
   ExtractVolumeFilter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
 
-  int iVolumeNr;
-  double dFactor;
+  int m_iVolumeNr;
+  double m_dFactor;
 };
 
 } // end namespace itk

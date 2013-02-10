@@ -44,7 +44,7 @@ public:
   itkTypeMacro(ImageToDTITubeSpatialObjectFilter, DTITubeSpatialObjectSource);
 
   /** Create a valid output. */
-  DataObject::Pointer  MakeOutput(DataObject::DataObjectPointerArraySizeType idx);
+  virtual DataObject::Pointer MakeOutput(DataObjectPointerArraySizeType idx);
 
   /** Some Image related typedefs. */
   typedef   TInputImage                             InputImageType;
@@ -58,7 +58,7 @@ public:
   typedef   typename OutputDTITubeSpatialObjectType::Pointer        OutputDTITubeSpatialObjectPointer;
 
   /** Set the input image of this process object.  */
-  using ProcessObject::SetInput;
+  using Superclass::SetInput;
   void SetInput(unsigned int idx, const InputImageType *input);
 
   /** Get the input image of this process object.  */
