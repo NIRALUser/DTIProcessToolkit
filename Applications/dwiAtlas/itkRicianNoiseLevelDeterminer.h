@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -36,12 +36,12 @@
 
 namespace itk {
 
-/** \class RicianNoiseLevelDeterminer 
+/** \class RicianNoiseLevelDeterminer
 *  \brief Computes the Rician noise level given a baseline image
 *
 * Author: Marc Niethammer
 */
-    
+
 template< class TImageType, class RealType >
 class RicianNoiseLevelDeterminer : public Object
 {
@@ -51,27 +51,27 @@ public:
   typedef Object Superclass;
   typedef SmartPointer<Self> Pointer;
   typedef SmartPointer<const Self> ConstPointer;
-  
+
   itkStaticConstMacro(ImageDimension, unsigned int,
                       TImageType::ImageDimension);
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(RicianNoiseLevelDeterminer, Object);
-  
+
   /** standard New() method support */
   itkNewMacro(Self) ;
 
   typedef TImageType ScalarImageType;
-  typedef typename itk::Image<RealType,ImageDimension> ScalarRealImageType;  
+  typedef typename itk::Image<RealType,ImageDimension> ScalarRealImageType;
 
   typedef typename ScalarImageType::ConstPointer                ImageConstPointer;
   typedef typename ScalarImageType::SizeType                    RadiusType;
 
   typedef itk::ThresholdImageFilter<ScalarImageType> ThresholdImageFilterType;
-  
+
   /** Triggers the Computation of Rician noise level */
   void Compute( void );
-  
+
   /** Connects the input image for which the histogram is going to be computed */
   itkSetConstObjectMacro( Input, ScalarImageType );
   itkGetConstObjectMacro( Input, ScalarImageType );
@@ -86,7 +86,7 @@ public:
 
   itkSetMacro( MaximumNoiseSTD, RealType );
   itkGetMacro( MaximumNoiseSTD, RealType );
-  
+
   itkSetMacro( MinimumNumberOfUsedVoxelsEstimation, unsigned int );
   itkGetMacro( MinimumNumberOfUsedVoxelsEstimation, unsigned int );
 
@@ -101,17 +101,17 @@ public:
   itkGetMacro( HistogramFilename, std::string );
 
   /** Return the noise level
-      \warning This output is only valid after the Compute() method has been invoked 
+      \warning This output is only valid after the Compute() method has been invoked
       \sa Compute */
   RealType GetOutput() { return m_Output; };
-  
+
 protected:
   RicianNoiseLevelDeterminer();
   virtual ~RicianNoiseLevelDeterminer() {};
   void PrintSelf(std::ostream& os, Indent indent) const;
-  
+
 private:
-  
+
   ImageConstPointer        m_Input;
   RealType                 m_Output;
 
@@ -134,7 +134,7 @@ private:
 };
 
 
-} // end of namespace itk 
+} // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "itkRicianNoiseLevelDeterminer.txx"

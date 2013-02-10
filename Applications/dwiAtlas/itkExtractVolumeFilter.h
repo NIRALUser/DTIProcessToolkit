@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -59,14 +59,14 @@ public:
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ExtractVolumeFilter, ImageToImageFilter);
-  
+
   /** Image typedef support. */
   typedef typename InputImageType::PixelType InputPixelType;
   typedef typename OutputImageType::PixelType OutputPixelType;
 
   typedef typename InputImageType::RegionType InputImageRegionType;
   typedef typename OutputImageType::RegionType OutputImageRegionType;
-  
+
   /** Typedef to describe the output and input image index and size types. */
   typedef typename TOutputImage::IndexType OutputImageIndexType;
   typedef typename TInputImage::IndexType  InputImageIndexType;
@@ -102,7 +102,7 @@ private:
   int iVolumeNr;
   double dFactor;
 };
-  
+
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION

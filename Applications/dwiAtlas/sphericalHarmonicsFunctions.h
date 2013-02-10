@@ -37,7 +37,7 @@ template <class RealType>
 void generateSHBasisMatrixPseudoInverse( vnl_matrix<RealType>& cart_gradients, const RealType lambda, const unsigned int num_terms, const unsigned int order, vnl_matrix<RealType>& sh_basis_mat_pi );
 
 template <class RealType>
-void 
+void
 generateWeightedSHBasisMatrixPseudoInverse( vnl_matrix<RealType>& cart_gradients, const vnl_diag_matrix<RealType>& W, const RealType lambda, const unsigned int num_terms, const unsigned int order, vnl_matrix<RealType>& sh_basis_mat_pi );
 
 template <class RealType>

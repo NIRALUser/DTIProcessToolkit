@@ -755,9 +755,9 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
     {
     averagedBaselines[iI]/= iNrOfMeasurementsForAveraging;
     }
-  
+
   // now take the exponential
-  
+
   for ( unsigned int iI=0; iI<iNrOfBaselines; iI++ )
     {
     // this is now the geometric mean: exp(1/n\sum_{i=1}^n log S_i)
@@ -766,7 +766,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
   }
       else // do weighted least squares, by iteration, supports robust function
   {
-  
+
   // get initial value by computing an unweighted version as
   // above
 
@@ -805,7 +805,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
 
   // now iterate to obtain updated versions for all of these
   // do it averaged volume by averaged volume
-  
+
   bool isOutlier;
 
   for ( unsigned int iJ=0; iJ<iNrOfBaselines; iJ++ )
@@ -871,7 +871,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
 
       if ( averagingType==ALGEBRAIC )
   {
-  
+
   }
       else if ( averagingType==GEOMETRIC )
   {
@@ -967,7 +967,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
     typename std::vector<MyRealType>::const_iterator min_it = min_element( transformedInformation[iI].interpolationWeights.begin(), transformedInformation[iI].interpolationWeights.begin() );
     // now get which index this corresponds to
     unsigned int iIndex = min_it-transformedInformation[iI].interpolationWeights.begin();
-  
+
     // now enter all the information at this index
 
     for ( unsigned int iJ=0; iJ<NDWI; iJ++ )
@@ -1038,7 +1038,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
   const unsigned int NDWI = transformedInformation[iI].NDWI;
   if ( transformedInformation[iI].goodVoxel )
     {
-  
+
     // now do the weighting
     // set everything to zero first
 
@@ -1061,16 +1061,16 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
         }
       }
     allDWIs.gradients.fill( 0 );  // intialize to zero gradients
-  
+
     // now do the averaging
 
     if ( averagingType==ALGEBRAIC )
       {
       // just add based on weighted sum
-  
+
       iNumberOfStoredBaseline = 0;
       iNumberOfStoredDWI = 0;
-  
+
       for ( unsigned int iJ=0; iJ<NDWI; iJ++ )
         {
         if ( transformedInformation[iI].isBaseline[iJ] )
@@ -1094,7 +1094,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
     // now give the summed up gradient of norm one
     // TODO: add support for gradient directions which are
     // not unit length!
-    
+
     MyRealType currentNorm = allDWIs.gradients.get_row( iNumberOfStoredDWI ).two_norm();
     allDWIs.gradients.scale_row( iNumberOfStoredDWI,  1.0/currentNorm );
 
@@ -1111,7 +1111,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
 
       iNumberOfStoredBaseline = 0;
       iNumberOfStoredDWI = 0;
-  
+
       for ( unsigned int iJ=0; iJ<NDWI; iJ++ )
         {
         if ( transformedInformation[iI].isBaseline[iJ] )
@@ -1134,7 +1134,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
     // now give the summed up gradient of norm one
     // TODO: add support for gradient directions which are
     // not unit length!
-    
+
     MyRealType currentNorm = allDWIs.gradients.get_row( iNumberOfStoredDWI ).two_norm();
     allDWIs.gradients.scale_row( iNumberOfStoredDWI,  1.0/currentNorm );
 
@@ -1161,7 +1161,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
     allDWIs.dwiVals[iNumberOfStoredDWI] = (DWIPixelType)round(exp( allDWIs.dwiVals[iNumberOfStoredDWI] ));
     iNumberOfStoredDWI++;
     }
-        }  
+        }
       }
     }
   }*/
@@ -1280,8 +1280,8 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
 
   outputImage->SetSpacing( dwireader[0]->GetOutput()->GetSpacing() );
   outputImage->SetOrigin(  dwireader[0]->GetOutput()->GetOrigin() );
-    
-                  
+
+
   outputImage->SetNumberOfComponentsPerPixel( m_NrOfBaselines + m_numnewgvectors );
   outputImage->Allocate();
 
@@ -1446,18 +1446,18 @@ DWIAtlasBuilder< MyRealType, DWIPixelType >
 
       for ( unsigned int iI=0; iI<nrOfDatasets; iI++ )
   {
-  
+
   itk::Index<3> pind;
   DeformationPixelType arggh;
   itk::ContinuousIndex<MyRealType, 3u> ci;
-  
+
   transformedInformation[iI].dwiVals.clear();
   transformedInformation[iI].interpolationWeights.clear();
   transformedInformation[iI].isBaseline.clear();
-  
+
   // TODO: Assume same spacing for now, adapt to different spacing
   // for images
-  
+
   const typename VectorImageType::SpacingType spacing = dwireader[iI]->GetOutput()->GetSpacing();
 
   if ( m_JustDoResampling )
@@ -1472,12 +1472,12 @@ DWIAtlasBuilder< MyRealType, DWIPixelType >
     ci[1] = arggh[1] / spacing[1] + pind[1];
     ci[2] = arggh[2] / spacing[2] + pind[2];
     }
-  
+
   // now get all the DWIs for this particular location and surrounding
-  
+
   std::vector<MyRealType> weight(8, 1.0);
   MyRealType tweight = 0.0;
-  
+
   // max, max, max
   // max, max, min
   // max, min, max
@@ -1487,15 +1487,15 @@ DWIAtlasBuilder< MyRealType, DWIPixelType >
   // min, min, max
   // min, min, min
   transformedInformation[iI].goodVoxel = true;
-  
+
   const unsigned int NDWI = dwiits[iI].Get().GetSize();
   transformedInformation[iI].NDWI = NDWI;
-  
+
   transformedInformation[iI].gradients.set_size(NCONTROLPOINTS*NDWI,DIM);
-  
+
   for(unsigned int iJ = 0; iJ < NCONTROLPOINTS; ++iJ)
     {
-  
+
     itk::Index<3u> cpi;
     for(unsigned int mask = 0; mask < DIM; ++mask)
       {
@@ -1511,7 +1511,7 @@ DWIAtlasBuilder< MyRealType, DWIPixelType >
         }
       }
     tweight += weight[iJ];
-  
+
     if(!dwireader[iI]->GetOutput()->GetLargestPossibleRegion().IsInside(cpi))
       {
       transformedInformation[iI].goodVoxel = false;
@@ -1519,19 +1519,19 @@ DWIAtlasBuilder< MyRealType, DWIPixelType >
       // with the calculation of the baselines by dividing
       // by the number of control points
       }
-  
+
     itk::VariableLengthVector<DWIPixelType> dwi = dwireader[iI]->GetOutput()->GetPixel(cpi);
-  
+
     // store the dwi values
     for (unsigned int iK=0; iK<NDWI; iK++)
       {
       transformedInformation[iI].dwiVals.push_back( dwi[iK] );
       }
     //std::copy(dwi.GetDataPointer(), dwi.GetDataPointer()+NDWI, transformedInformation[iI].dwiVals.begin() + iJ*NDWI );
-  
-  
+
+
     vnl_matrix<MyRealType> rotatedGradientDirections;
-  
+
     if ( m_JustDoResampling )
       {
       // do not apply the rotation, this can be used for debugging
@@ -1543,25 +1543,25 @@ DWIAtlasBuilder< MyRealType, DWIPixelType >
 
       rotatedGradientDirections = rotateGradients( gradientContainers[iI], j, transformedInformation[iI].isBaseline, iNrOfBaselines );
       }
-  
+
     transformedInformation[iI].iNrOfBaselinesPerVolume = iNrOfBaselines;
-  
+
     /*if ( m_Verbose )
     std::cout << "Setting baselines to " << iNrOfBaselines << std::endl;*/
-  
+
     // store the gradient directions into the matrix
-  
+
     transformedInformation[iI].gradients.update( rotatedGradientDirections, iJ*NDWI,0 );
-  
+
     } // end loop over control points
 
   // add the normalized weights
-  
+
   for(unsigned int iJ = 0; iJ < NCONTROLPOINTS; ++iJ)
     {
     transformedInformation[iI].interpolationWeights.push_back( weight[iJ]/tweight );
     }
-  
+
   } /// end loop over datasets
 
       }
@@ -1613,44 +1613,44 @@ DWIAtlasBuilder< MyRealType, DWIPixelType >
       if ( !m_DoWeightedLS )
   {
   sh::generateSHBasisMatrixPseudoInverse<MyRealType>( allDWIs.gradients, m_Lambda, m_NumTerms, m_UsedOrder, sh_basis_mat_pi );
-  
+
   //generate intensity values
-  
+
   s_values_new = m_sh_basis_mat_new * sh_basis_mat_pi * dwiVals;
-  
+
   }
       else  // do the weighted least squares approximation with Huber
   // function instead
   {
   // need to make the matrices the correct size first
-  
+
   unsigned int numoriggvectors = allDWIs.gradients.rows();
-  
+
   B.set_size( numoriggvectors, m_NumTerms );
   sh::computeSHOrigBasisMat<MyRealType>( B, allDWIs.gradients, m_NumTerms );
-  
+
   L.set_size( m_NumTerms );
   sh::computeSHRegularizationMatrix( L, m_NumTerms, m_UsedOrder );
-  
+
   W.set_size( numoriggvectors );
-  
+
   sh_basis_mat_pi.set_size( m_NumTerms, m_NumTerms );
-  
+
   sh::generateSHBasisMatrixPseudoInversePrecomputed<MyRealType>( B, L, m_Lambda, sh_basis_mat_pi );
   // first compute a solution for the unweighted problem then do
   // some iterations for the weighting step
-  
+
   vnl_vector<MyRealType> shCoeffs = sh_basis_mat_pi * dwiVals;
-  
+
   for ( unsigned int iIter=0; iIter<m_NrOfWLSIterations; iIter++ )
     {
     sh::computeSHHuberWeightMatrix<MyRealType>( W, numoriggvectors, shCoeffs, B, dwiVals, m_HuberC, m_RiceSigma, nrOfDWIOutliers );
     sh::generateWeightedSHBasisMatrixPseudoInversePrecomputed( B, L, W, m_Lambda, sh_basis_mat_pi );
     shCoeffs = sh_basis_mat_pi*dwiVals;
     }
-  
+
   s_values_new = m_sh_basis_mat_new * sh_basis_mat_pi * dwiVals;
-  
+
   }
       }
     else

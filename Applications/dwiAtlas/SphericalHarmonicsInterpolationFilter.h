@@ -48,7 +48,7 @@ public:
     /** Convenient typedefs for simplifying declarations. */
     typedef TInputImage InputImageType;
     typedef typename    InputImageType::Pointer    InputImagePointer;
-    typedef typename    InputImageType::RegionType InputImageRegionType; 
+    typedef typename    InputImageType::RegionType InputImageRegionType;
     typedef typename    InputImageType::PixelType  InputImagePixelType; //variable sized vector of valuetype
     typedef typename    InputImageType::PixelType::ValueType ImageValueType; //USE THIS TO DETERMINE INDIVIDUAL VECTOR VALUES
     typedef TOutputImage OutputImageType;
@@ -57,7 +57,7 @@ public:
     typedef typename     OutputImageType::PixelType  OutputImagePixelType;
 
     /** Standard class typedefs. */
-    typedef SphericalHarmonicsInterpolationFilter Self;    
+    typedef SphericalHarmonicsInterpolationFilter Self;
     typedef ImageToImageFilter<InputImageType, OutputImageType> Superclass;
     typedef SmartPointer<Self> Pointer;
     typedef SmartPointer<const Self>  ConstPointer;
@@ -68,14 +68,14 @@ public:
     typedef typename TOutputImage::SizeType  OutputImageSizeType;
     typedef typename TInputImage::SizeType   InputImageSizeType;
     typedef InputImageSizeType SizeType;
-  
+
     /** Method for creation through the object factory. */
     itkNewMacro(Self);
 
     /** Run-time type information (and related methods). */
     itkTypeMacro(SphericalHarmonicsInterpolationFilter, ImageToImageFilter);
 
-    //TODO:    
+    //TODO:
     /** Extra public functions go here */
     void SetOrder(int neworder) { order = neworder; };
     void SetLambda(double lmbda) { lambda = lmbda; };
@@ -135,7 +135,7 @@ private:
     std::set<int> baseline_indices;
 
 };
-  
+
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION

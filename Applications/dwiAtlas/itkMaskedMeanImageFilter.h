@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -30,13 +30,13 @@ namespace itk
  * the pixels in a neighborhood about the corresponding input pixel.
  * Only uses pixels with values greater than zero!
  *
- * A mean filter is one of the family of linear filters.  
+ * A mean filter is one of the family of linear filters.
  *
  * \sa Image
  * \sa Neighborhood
  * \sa NeighborhoodOperator
  * \sa NeighborhoodIterator
- * 
+ *
  * \ingroup IntensityImageFilters
  */
 template <class TInputImage, class TOutputImage>
@@ -65,7 +65,7 @@ public:
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(MaskedMeanImageFilter, ImageToImageFilter);
-  
+
   /** Set the number of filter iterations. */
   itkSetMacro(MinimumNumberOfUsedVoxels, unsigned int );
 
@@ -76,7 +76,7 @@ public:
   typedef typename InputImageType::PixelType InputPixelType;
   typedef typename OutputImageType::PixelType OutputPixelType;
   typedef typename NumericTraits<InputPixelType>::RealType InputRealType;
-  
+
   typedef typename InputImageType::RegionType InputImageRegionType;
   typedef typename OutputImageType::RegionType OutputImageRegionType;
 
@@ -87,7 +87,7 @@ public:
 
   /** Get the radius of the neighborhood used to compute the mean */
   itkGetConstReferenceMacro(Radius, InputSizeType);
-  
+
   /** MaskedMeanImageFilter needs a larger input requested region than
    * the output requested region.  As such, MaskedMeanImageFilter needs
    * to provide an implementation for GenerateInputRequestedRegion()
@@ -129,7 +129,7 @@ private:
   unsigned int m_MinimumNumberOfUsedVoxels;
 
 };
-  
+
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION

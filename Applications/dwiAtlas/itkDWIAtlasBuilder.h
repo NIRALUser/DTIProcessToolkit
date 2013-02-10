@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -44,7 +44,7 @@ namespace itk
 {
 
 // Currently not used
-class ConsoleProgressCommand : public itk::Command 
+class ConsoleProgressCommand : public itk::Command
 {
 public:
   typedef  ConsoleProgressCommand   Self;
@@ -54,15 +54,15 @@ public:
 
 protected:
   ConsoleProgressCommand(): m_MaxProgress(100), m_NumTicks(50), m_Progress(0) { m_LastPercent = 0; firstRun = true; };
-  
+
 public:
-  
+
   void Execute(itk::Object *caller, const itk::EventObject & event)
   {
     Execute( (const itk::Object *)caller, event);
   }
-  
-  void SetMaxProgress( unsigned long mP ) 
+
+  void SetMaxProgress( unsigned long mP )
   {
     m_MaxProgress = mP;
   }
@@ -74,14 +74,14 @@ public:
       std::cout << "Running" << std::endl;
       std::cout << "0%                    50%                    100%" << std::endl;
       std::cout << "=================================================" << std::endl;
-      
+
 
       }
-    else if( itk::EndEvent().CheckEvent( &event )) 
+    else if( itk::EndEvent().CheckEvent( &event ))
       {
       std::cout << std::endl;
       }
-    else if( itk::ProgressEvent().CheckEvent( &event )) 
+    else if( itk::ProgressEvent().CheckEvent( &event ))
       {
       ++m_Progress;
       unsigned int currentPerc = (unsigned int)round(100*((double)m_Progress)/m_MaxProgress);
@@ -121,16 +121,16 @@ public:
   typedef ImageSource< VectorImage< DWIPixelType,  DIM > > Superclass;
   typedef SmartPointer<Self>                   Pointer;
   typedef SmartPointer<const Self>             ConstPointer;
-  
-  typedef VectorImage< DWIPixelType, DIM > OutputImageType; 
+
+  typedef VectorImage< DWIPixelType, DIM > OutputImageType;
   typedef typename Superclass::Pointer    OutputImagePointer;
   typedef typename OutputImageType::SpacingType SpacingType;
   typedef typename OutputImageType::PointType   PointType;
 
-  
+
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
-  
+
   /** Run-time type information (and related methods). */
   itkTypeMacro(DWIAtlasBuilder,ImageSource);
 
@@ -164,27 +164,27 @@ DiffusionEstimationFilterType;
   typedef typename ConsoleProgressCommand::Pointer ProgressCommandPointer;
 
   /** Since a string is not a dataobject, we use the decorator to push
-   *  it down the pipeline */ 
-  typedef SimpleDataObjectDecorator< std::string*  > InputStringObjectType; 
-  
+   *  it down the pipeline */
+  typedef SimpleDataObjectDecorator< std::string*  > InputStringObjectType;
+
   /** Determine the image dimension. */
   itkStaticConstMacro(ImageDimension, unsigned int, DIM );
-  
+
   /** Set/Get the input of this process object.  */
   /* We have text files as input here for data that needs to be loaded */
 
   virtual void SetInput( const std::string* sCaseFile ); // TODO: Change
 
-  /** Set the spacing (size of a pixel) of the image. 
+  /** Set the spacing (size of a pixel) of the image.
    *  \sa GetSpacing() */
   itkSetMacro(Spacing,SpacingType);
   virtual void SetSpacing(const double* values);
 
-  /** Get the spacing (size of a pixel) of the image. 
+  /** Get the spacing (size of a pixel) of the image.
    * For ImageBase and Image, the default data spacing is unity. */
   itkGetConstReferenceMacro(Spacing,SpacingType);
 
-  /** Set the origin of the image. 
+  /** Set the origin of the image.
    * \sa GetOrigin() */
   itkSetMacro(Origin,PointType);
   virtual void SetOrigin(const double* values);
@@ -253,7 +253,7 @@ DiffusionEstimationFilterType;
  /** Get the origin of the image.  */
   itkGetConstReferenceMacro(Origin,PointType);
 
-  
+
 protected:
   DWIAtlasBuilder();
   ~DWIAtlasBuilder();
@@ -289,7 +289,7 @@ protected:
   SizeType        m_Size;
   SpacingType     m_Spacing;
   PointType       m_Origin;
-  
+
   virtual void PrintSelf(std::ostream& os, Indent indent) const;
 
 private:
@@ -297,7 +297,7 @@ private:
   std::vector<std::string> dwiFiles;
   std::vector<std::string> deformationFiles;
   unsigned int nrOfDatasets;
-  
+
   typename FileReaderType::Pointer *dwireader;
   DeformationImageType::Pointer *deformation;
   typename DiffusionEstimationFilterType::GradientDirectionContainerType::Pointer *gradientContainers;
@@ -361,7 +361,7 @@ private:
 
   MyRealType m_RiceSigma;
   unsigned int m_NrOfWLSIterations;
-  
+
   // end robust estimation parameters
 
   ProgressCommandPointer m_ConsoleProgressCommandPointer;
