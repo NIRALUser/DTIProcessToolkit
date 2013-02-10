@@ -18,7 +18,7 @@ TARGET_LINK_LIBRARIES(morph ${ITK_LIBRARIES})
 
 if(BUILD_dwiAtlas)
   ADD_SUBDIRECTORY(dwiAtlas)
-  ADD_DEPENDENCIES(dwiAtlas dwiprocess DTIIO)	
+  ADD_DEPENDENCIES(dwiAtlas dwiprocess DTIIO)  
 endif(BUILD_dwiAtlas)
 
 
@@ -30,7 +30,7 @@ TARGET_LINK_LIBRARIES(dtiprocess TensorOperations DTIIO ${ITK_LIBRARIES})
 set(dtiestim_SRC dtiestim.cxx)
 GENERATECLP(dtiestim_SRC dtiestim.xml)
 ADD_EXECUTABLE(dtiestim ${dtiestim_SRC})
-TARGET_LINK_LIBRARIES(dtiestim DWIPrivateLibrary ${ITK_LIBRARIES} cephes)
+TARGET_LINK_LIBRARIES(dtiestim ${ITK_LIBRARIES} cephes)
 
 set(scalartransform_SRC scalartransform.cxx)
 GENERATECLP(scalartransform_SRC scalartransform.xml)

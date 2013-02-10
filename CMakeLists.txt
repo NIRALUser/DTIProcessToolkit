@@ -89,7 +89,6 @@ ${DTIProcess_SOURCE_DIR}
 )
 
 ## Replace bessel(FORTRAN) with cephes(C)
-SET(BESSEL_LIB cephes)
 ADD_SUBDIRECTORY(cephes)
 
 ADD_SUBDIRECTORY(Library)
