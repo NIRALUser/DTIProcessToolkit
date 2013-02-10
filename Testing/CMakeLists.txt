@@ -1,6 +1,6 @@
 
 # Unit tests
-SET(DTIProcessTestHarness_SRCS
+set(DTIProcessTestHarness_SRCS
 BesselTest.cxx
 ScalarDeformationApplyTest.cxx
 WarpFiberTest.cxx
@@ -11,15 +11,15 @@ PrincipalEigenvectorFunctionTest.cxx
 ReadITKAffineTest.cxx
 )
 
-ADD_EXECUTABLE(DTIProcessTestHarness DTIProcessTestHarness.cxx ${DTIProcessTestHarness_SRCS})
-TARGET_LINK_LIBRARIES(DTIProcessTestHarness ${ITK_LIBRARIES} cephes)
+add_executable(DTIProcessTestHarness DTIProcessTestHarness.cxx ${DTIProcessTestHarness_SRCS})
+target_link_libraries(DTIProcessTestHarness ${ITK_LIBRARIES} cephes)
 
-#SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
+#set(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
 
-SET(TESTING_DATA_DIR ${CMAKE_SOURCE_DIR}/Testing/Data)
-SET(TESTING_RESULTS_DIR ${CMAKE_BINARY_DIR}/Testing/Data)
+set(TESTING_DATA_DIR ${CMAKE_SOURCE_DIR}/Testing/Data)
+set(TESTING_RESULTS_DIR ${CMAKE_BINARY_DIR}/Testing/Data)
 
-FILE(MAKE_DIRECTORY ${TESTING_RESULTS_DIR})
+file(MAKE_DIRECTORY ${TESTING_RESULTS_DIR})
 
 # Unit tests
 

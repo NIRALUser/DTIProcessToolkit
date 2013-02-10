@@ -1,9 +1,9 @@
 
-ADD_LIBRARY(TensorOperations tensorscalars.cxx tensordeformation.cxx)
-ADD_LIBRARY(DTIIO tensorio.cxx fiberio.cxx deformationfieldio.cxx)
-TARGET_LINK_LIBRARIES(DTIIO vtkIO ${ITK_LIBRARIES})
-TARGET_LINK_LIBRARIES(TensorOperations vtkIO ${ITK_LIBRARIES})
+add_library(TensorOperations tensorscalars.cxx tensordeformation.cxx)
+add_library(DTIIO tensorio.cxx fiberio.cxx deformationfieldio.cxx)
+target_link_libraries(DTIIO vtkIO ${ITK_LIBRARIES})
+target_link_libraries(TensorOperations vtkIO ${ITK_LIBRARIES})
 
-INSTALL(TARGETS TensorOperations DTIIO
+install(TARGETS TensorOperations DTIIO
 LIBRARY DESTINATION lib
 ARCHIVE DESTINATION lib)

@@ -1,69 +1,69 @@
-ADD_EXECUTABLE(nrrdvtk nrrdvtk.cxx)
-TARGET_LINK_LIBRARIES(nrrdvtk ${ITK_LIBRARIES})
+add_executable(nrrdvtk nrrdvtk.cxx)
+target_link_libraries(nrrdvtk ${ITK_LIBRARIES})
 
-ADD_EXECUTABLE(dwiprocess dwiprocess.cxx)
-TARGET_LINK_LIBRARIES(dwiprocess ${ITK_LIBRARIES})
+add_executable(dwiprocess dwiprocess.cxx)
+target_link_libraries(dwiprocess ${ITK_LIBRARIES})
 
-ADD_EXECUTABLE(labeltable labeltable.cxx)
-TARGET_LINK_LIBRARIES(labeltable ${ITK_LIBRARIES})
+add_executable(labeltable labeltable.cxx)
+target_link_libraries(labeltable ${ITK_LIBRARIES})
 
-ADD_EXECUTABLE(hfieldtodeformation  hfieldtodeformation.cxx)
-TARGET_LINK_LIBRARIES(hfieldtodeformation TensorOperations DTIIO ${ITK_LIBRARIES})
+add_executable(hfieldtodeformation  hfieldtodeformation.cxx)
+target_link_libraries(hfieldtodeformation TensorOperations DTIIO ${ITK_LIBRARIES})
 
-ADD_EXECUTABLE(tio tio.cxx)
-TARGET_LINK_LIBRARIES(tio ${ITK_LIBRARIES})
+add_executable(tio tio.cxx)
+target_link_libraries(tio ${ITK_LIBRARIES})
 
-ADD_EXECUTABLE(morph morph.cxx)
-TARGET_LINK_LIBRARIES(morph ${ITK_LIBRARIES})
+add_executable(morph morph.cxx)
+target_link_libraries(morph ${ITK_LIBRARIES})
 
 if(BUILD_dwiAtlas)
-  ADD_SUBDIRECTORY(dwiAtlas)
-  ADD_DEPENDENCIES(dwiAtlas dwiprocess DTIIO)  
+  add_subdirectory(dwiAtlas)
+  add_dependencies(dwiAtlas dwiprocess DTIIO)
 endif(BUILD_dwiAtlas)
 
 
 set(dtiprocess_SRC dtiprocess.cxx)
 GENERATECLP(dtiprocess_SRC dtiprocess.xml)
-ADD_EXECUTABLE(dtiprocess ${dtiprocess_SRC})
-TARGET_LINK_LIBRARIES(dtiprocess TensorOperations DTIIO ${ITK_LIBRARIES})
+add_executable(dtiprocess ${dtiprocess_SRC})
+target_link_libraries(dtiprocess TensorOperations DTIIO ${ITK_LIBRARIES})
 
 set(dtiestim_SRC dtiestim.cxx)
 GENERATECLP(dtiestim_SRC dtiestim.xml)
-ADD_EXECUTABLE(dtiestim ${dtiestim_SRC})
-TARGET_LINK_LIBRARIES(dtiestim ${ITK_LIBRARIES} cephes)
+add_executable(dtiestim ${dtiestim_SRC})
+target_link_libraries(dtiestim ${ITK_LIBRARIES} cephes)
 
 set(scalartransform_SRC scalartransform.cxx)
 GENERATECLP(scalartransform_SRC scalartransform.xml)
-ADD_EXECUTABLE(scalartransform ${scalartransform_SRC})
-TARGET_LINK_LIBRARIES(scalartransform DTIIO ${ITK_LIBRARIES} )
+add_executable(scalartransform ${scalartransform_SRC})
+target_link_libraries(scalartransform DTIIO ${ITK_LIBRARIES} )
 
 set(fiberprocess_SRC fiberprocess.cxx)
 GENERATECLP(fiberprocess_SRC fiberprocess.xml)
-ADD_EXECUTABLE(fiberprocess ${fiberprocess_SRC})
-TARGET_LINK_LIBRARIES(fiberprocess DTIIO ${ITK_LIBRARIES} ${ITK_LIBRARIES} )
+add_executable(fiberprocess ${fiberprocess_SRC})
+target_link_libraries(fiberprocess DTIIO ${ITK_LIBRARIES} ${ITK_LIBRARIES} )
 
 set(dtiaverage_SRC dtiaverage.cxx)
 GENERATECLP(dtiaverage_SRC dtiaverage.xml)
-ADD_EXECUTABLE(dtiaverage ${dtiaverage_SRC})
-TARGET_LINK_LIBRARIES(dtiaverage TensorOperations DTIIO )
+add_executable(dtiaverage ${dtiaverage_SRC})
+target_link_libraries(dtiaverage TensorOperations DTIIO )
 
 set(fibertrack_SRC fibertrack.cxx)
 GENERATECLP(fibertrack fibertrack.xml)
-ADD_EXECUTABLE(fibertrack ${fibertrack_SRC})
-TARGET_LINK_LIBRARIES(fibertrack DTIIO TensorOperations ${ITK_LIBRARIES} ${ITK_LIBRARIES})
+add_executable(fibertrack ${fibertrack_SRC})
+target_link_libraries(fibertrack DTIIO TensorOperations ${ITK_LIBRARIES} ${ITK_LIBRARIES})
 
 set(fiberstats_SRC fiberstats.cxx)
 GENERATECLP(fiberstats_SRC fiberstats.xml)
-ADD_EXECUTABLE(fiberstats fiberstats.cxx)
-TARGET_LINK_LIBRARIES(fiberstats DTIIO )
+add_executable(fiberstats fiberstats.cxx)
+target_link_libraries(fiberstats DTIIO )
 
 set(maxcurvature_SRC maxcurvature.cxx)
 GENERATECLP(maxcurvature_SRC maxcurvature.xml)
-ADD_EXECUTABLE(maxcurvature ${maxcurvature_SRC})
-TARGET_LINK_LIBRARIES(maxcurvature ${ITK_LIBRARIES} ${ITK_LIBRARIES} )
+add_executable(maxcurvature ${maxcurvature_SRC})
+target_link_libraries(maxcurvature ${ITK_LIBRARIES} ${ITK_LIBRARIES} )
 
 
-INSTALL(TARGETS dtiprocess 
+install(TARGETS dtiprocess
                 dtiestim
                 scalartransform
                 #                fiberprocess

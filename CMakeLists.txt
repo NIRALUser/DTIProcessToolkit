@@ -3,7 +3,7 @@ set(LOCAL_PROJECT_NAME DTIProcess)
 cmake_minimum_required(VERSION 2.8)
 cmake_policy(VERSION 2.8)
 
-ENABLE_TESTING()
+enable_testing()
 include(Dart)
 #include(CPack)
 
@@ -82,20 +82,20 @@ endmacro(ADDFIRSTINSTANCE_DIRECTORY)
 endif(NOT ADDFIRSTINSTANCE_DIRECTORY)
 ###
 
-INCLUDE_DIRECTORIES(
+include_directories(
 ${DTIProcess_SOURCE_DIR}/Library
 ${DTIProcess_SOURCE_DIR}/PrivateLibrary
 ${DTIProcess_SOURCE_DIR}
 )
 
 ## Replace bessel(FORTRAN) with cephes(C)
-ADD_SUBDIRECTORY(cephes)
+add_subdirectory(cephes)
 
-ADD_SUBDIRECTORY(Library)
-ADD_SUBDIRECTORY(PrivateLibrary)
-ADD_SUBDIRECTORY(Applications)
+add_subdirectory(Library)
+add_subdirectory(PrivateLibrary)
+add_subdirectory(Applications)
 
-IF(BUILD_TESTING)
-  ADD_SUBDIRECTORY(Testing)
-ENDIF(BUILD_TESTING)
+if(BUILD_TESTING)
+  add_subdirectory(Testing)
+endif(BUILD_TESTING)
 
