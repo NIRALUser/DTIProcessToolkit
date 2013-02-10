@@ -226,18 +226,18 @@ int main(int argc, char* argv[])
 
       DTIPointType newpoint;
       if(noDataChange==true)
-	newpoint = *pit;
+  newpoint = *pit;
       // Should not have to do this
       if(noWarp)
         {
 //        std::cout<<"no warp"<<std::endl;
-	newpoint.SetPosition(p);
+  newpoint.SetPosition(p);
         }
       else
         {
-	//set the point to world coordinate system and set the spacing to 1
+  //set the point to world coordinate system and set the spacing to 1
 //        std::cout<<"warp"<<std::endl;
-	newpoint.SetPosition(pt_trans);
+  newpoint.SetPosition(pt_trans);
         }
 
 
@@ -250,31 +250,31 @@ int main(int argc, char* argv[])
       // Attribute tensor data if provided
       if(tensorVolume != "" && fiberOutput != "" && !noDataChange)
         {
-	tensorreader->GetOutput()->TransformPhysicalPointToContinuousIndex(pt_trans, tensor_ci);
-	itk::DiffusionTensor3D<double> tensor(tensorinterp->EvaluateAtContinuousIndex(tensor_ci).GetDataPointer());
+  tensorreader->GetOutput()->TransformPhysicalPointToContinuousIndex(pt_trans, tensor_ci);
+  itk::DiffusionTensor3D<double> tensor(tensorinterp->EvaluateAtContinuousIndex(tensor_ci).GetDataPointer());
 
-	// TODO: Change SpatialObject interface to accept DiffusionTensor3D
-	float sotensor[6];
-	for(unsigned int i = 0; i < 6; ++i)
-	  sotensor[i] = tensor[i];
+  // TODO: Change SpatialObject interface to accept DiffusionTensor3D
+  float sotensor[6];
+  for(unsigned int i = 0; i < 6; ++i)
+    sotensor[i] = tensor[i];
 
-	typedef itk::DiffusionTensor3D<double>::EigenValuesArrayType EigenValuesType;
-	EigenValuesType eigenvalues;
-	tensor.ComputeEigenValues(eigenvalues);
+  typedef itk::DiffusionTensor3D<double>::EigenValuesArrayType EigenValuesType;
+  EigenValuesType eigenvalues;
+  tensor.ComputeEigenValues(eigenvalues);
 
-	newpoint.SetRadius(0.5);
-	newpoint.SetTensorMatrix(sotensor);
-	newpoint.AddField(itk::DTITubeSpatialObjectPoint<3>::FA, tensor.GetFractionalAnisotropy());
-	newpoint.AddField("md", tensor.GetTrace()/3);
-	newpoint.AddField("fro", sqrt(tensor[0]*tensor[0] +
-				      2*tensor[1]*tensor[1] +
-				      2*tensor[2]*tensor[2] +
-				      tensor[3]*tensor[3] +
-				      2*tensor[4]*tensor[4] +
-				      tensor[5]*tensor[5]));
-	newpoint.AddField("l1", eigenvalues[2]);
-	newpoint.AddField("l2", eigenvalues[1]);
-	newpoint.AddField("l3", eigenvalues[0]);
+  newpoint.SetRadius(0.5);
+  newpoint.SetTensorMatrix(sotensor);
+  newpoint.AddField(itk::DTITubeSpatialObjectPoint<3>::FA, tensor.GetFractionalAnisotropy());
+  newpoint.AddField("md", tensor.GetTrace()/3);
+  newpoint.AddField("fro", sqrt(tensor[0]*tensor[0] +
+  			      2*tensor[1]*tensor[1] +
+  			      2*tensor[2]*tensor[2] +
+  			      tensor[3]*tensor[3] +
+  			      2*tensor[4]*tensor[4] +
+  			      tensor[5]*tensor[5]));
+  newpoint.AddField("l1", eigenvalues[2]);
+  newpoint.AddField("l2", eigenvalues[1]);
+  newpoint.AddField("l3", eigenvalues[0]);
         }
 
       newpoints.push_back(newpoint);

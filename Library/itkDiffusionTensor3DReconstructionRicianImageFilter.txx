@@ -172,7 +172,7 @@ void DiffusionTensor3DReconstructionRicianImageFilter< TReferenceImagePixelType,
       // Average the baseline image pixels
       for(unsigned int i = 0; i < baselineind.size(); ++i)
         {
-        b0 += b[baselineind[i]];	//baseline
+        b0 += b[baselineind[i]];  //baseline
         }
       b0 /= this->m_NumberOfBaselineImages;
 

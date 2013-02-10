@@ -106,7 +106,7 @@ typedef itk::DWIAtlasBuilder< MyRealType, DWIPixelType > DWIAtlasBuilderType;
 int outputAllSettings(int argc, char* argv[] )
 {
   PARSE_ARGS;
-  
+
   std::cout << "Parameter settings:" << std::endl;
   std::cout << "-----------------------------------------" << std::endl;
   std::cout << "output volume        = " << dwiOutputVolume << std::endl;
@@ -149,10 +149,10 @@ int main(int argc, char* argv[])
   DWIAtlasBuilderType::Pointer pAtlasBuilder = DWIAtlasBuilderType::New();
 
   // Set all the command-line arguments we specified
-  
+
   // the case file is the input; the filter takes care of loading and
   // processing everything
-  pAtlasBuilder->SetInput( &sCaseFile );  
+  pAtlasBuilder->SetInput( &sCaseFile );
 
   pAtlasBuilder->SetVerbose( bVERBOSE );
   pAtlasBuilder->SetIsHField( bHField );
@@ -197,24 +197,24 @@ int main(int argc, char* argv[])
   if (bVERBOSE)
     std::cerr << "Writing the final result to: " << dwiOutputVolume << std::endl;
 
-  // Write reconstructed DWI file 
+  // Write reconstructed DWI file
   try
   {
     typedef itk::ImageFileWriter<VectorImageType> VectorFileWriterType;
 
     VectorFileWriterType::Pointer dwiWriter = VectorFileWriterType::New();
     dwiWriter->SetFileName( dwiOutputVolume.c_str() );
-  
+
     dwiWriter->SetInput( pAtlasBuilder->GetOutput() );
     dwiWriter->SetUseCompression(true);
     dwiWriter->Update();
-       
-  } 
-  catch (itk::ExceptionObject e) 
+
+  }
+  catch (itk::ExceptionObject e)
   {
     std::cerr << e << std::endl;
     return EXIT_FAILURE;
-  }  
+  }
 
   if ( outlierImageName.compare("None")!=0 )
     {

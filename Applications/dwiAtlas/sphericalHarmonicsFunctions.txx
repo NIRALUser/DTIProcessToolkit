@@ -23,7 +23,7 @@ void createSHLookupMaps()
   int maxJ = (MAXK*MAXK + MAXK + 2)/2 + MAXK;
 
   jtokmap.resize( maxJ+1 ); // needs to be +1, because we index
-			    // directly with the j-value
+  		    // directly with the j-value
   jtommap.resize( maxJ+1 );
 
   for (int k = 0; k <= MAXK; k += 2)
@@ -31,7 +31,7 @@ void createSHLookupMaps()
     for (int m = -k; m <= k; m++)
       {
       int jval = (k*k + k + 2)/2 + m;
-      
+
       jtokmap[jval] = k;
       jtommap[jval] = m;
 
@@ -47,7 +47,7 @@ factorial(unsigned int n)
 {
     if (n <= 1)
         return 1;
-    else 
+    else
         return n * factorial(n-1);
 }*/
 
@@ -58,7 +58,7 @@ findMaxOrder(unsigned int numgvectors)
 {
     unsigned int numterms = 0;
     unsigned int order = 0;
-    
+
     for (unsigned int ord = 2; ord <= 50; ord += 2)
     {
          numterms = (ord + 1)*(ord + 2) / 2;
@@ -71,7 +71,7 @@ findMaxOrder(unsigned int numgvectors)
             order = ord;
         }
     }
-    
+
     return order;
 }
 
@@ -104,14 +104,14 @@ cart2sph(vnl_matrix<RealType> &gvectors, vnl_matrix<RealType> &sgvectors )
         //compute elev
         phi = atan2(z, hypotxy);
 
-        //compute az 
+        //compute az
         theta = atan2(y,x);
 
         //end up modifying and reversing names to fit our needs (physics notation)
         sgvectors(v,0) = (-1 * phi) + ((RealType)PI/2); //theta (physics)
         sgvectors(v,1) = theta; //phi (physics)
     }
-}   
+}
 
 //return the appropriate spherical harmonic based on Legendre polynomials
 //multiplication by sin or cos (for rpart or ipart) taken care of in calling function
@@ -119,7 +119,7 @@ template <class RealType>
 RealType
 getSphericalHarmonic(int l, int m, RealType theta, RealType phi)
 {
-  int m_abs = (int)fabs(m);    
+  int m_abs = (int)fabs(m);
 
   ////m_abs + 1 for matlab indexing (starting at 1)
   RealType Plmx = boost::math::legendre_p(l, m_abs, cos(theta)); //m_abs + 1 for matlab indexing (starting at 1)
@@ -136,10 +136,10 @@ getSphericalHarmonic(int l, int m, RealType theta, RealType phi)
   // factorial function, seems like it crashes when I try to do this
 
   RealType SR = (RealType)(sqrt(((2.0*l + 1.0)/4.0*PI)*((boost::math::factorial<double>(l-m_abs))/(boost::math::factorial<double>(l+m_abs)))));
-  
+
   RealType factor = SR * Plmx;
-  
-  return factor;     
+
+  return factor;
 }
 
 //returns a value for a particular element of the SH basis matrix
@@ -154,8 +154,8 @@ getBasisMatrixValue(int curterm, RealType theta, RealType phi)
     //then m = -k, ..., 0, ..., k
 
     //examples: (l = 4, in this case)
-    //k = 0, m = 0; 
-    //k = 2, m = {-2, -1, 0, 1, 2}; 
+    //k = 0, m = 0;
+    //k = 2, m = {-2, -1, 0, 1, 2};
     //k = 4, m = {-4, -3, -2, -1, 0, 1, 2, 3, 4}
 
     //new indexing convention
@@ -226,7 +226,7 @@ generateSHBasisMatrix(int numterms, int numgradients, vnl_matrix<RealType> &sgra
         //extract current gradient
         curgrad(0, 0) = sgradients(i, 0); //theta
         curgrad(0, 1) = sgradients(i, 1); //phi
-        
+
         for (int j = 1; j <= numterms; j++)
         {
             //fill in (i,j)th position in the basismat with the appropriate term
@@ -239,11 +239,11 @@ generateSHBasisMatrix(int numterms, int numgradients, vnl_matrix<RealType> &sgra
 unsigned int getNumTermsAndCheckOrder( unsigned int order, unsigned int numoriggvectors, unsigned int & usedOrder )
 {
   unsigned int max_order = findMaxOrder(numoriggvectors);
-  
+
   //use max order if no order is provided at runtime (provide warning)
   //also use max order if provided order is too large.
   if (order <= 0)
-    {    
+    {
     order = max_order - 2;
     std::cout << "WARNING: Using maxOrder-2 of Spherical harmonic basis\n functions, as no order was provided.\n";
     }
@@ -255,11 +255,11 @@ unsigned int getNumTermsAndCheckOrder( unsigned int order, unsigned int numorigg
   else if (order == max_order)
     {
     std::cout << "Note: The order you provided (" << order << ") is the maximum allowable order.\n";
-    }    
+    }
 
   usedOrder = order;
-  
-  //# of terms per row of the SH basis matrix    
+
+  //# of terms per row of the SH basis matrix
 
   return getNumTerms(order);
 }
@@ -269,12 +269,12 @@ void
 computeSHRegularizationMatrix( vnl_diag_matrix<RealType> &regdiag, const unsigned int num_terms, const unsigned int order )
 {
   // TODO: this could be optimized by just computing it once
-  //std::cout << "Regularization term is being used. Lambda = " << lambda << std::endl;        
+  //std::cout << "Regularization term is being used. Lambda = " << lambda << std::endl;
 
   //use the regularization term, if necessary
   vnl_vector<RealType> regvec(num_terms, 0.0);
-    
-  int currentOffset = 0;        
+
+  int currentOffset = 0;
   for (unsigned int i = 0; i <= order; i+= 2)
     {
     int mult = 2*i + 1;
@@ -285,7 +285,7 @@ computeSHRegularizationMatrix( vnl_diag_matrix<RealType> &regdiag, const unsigne
       }
     currentOffset = currentOffset + mult;
     }
-  
+
   vnl_vector<RealType> regvecsq(num_terms, 0.0);
   vnl_vector<RealType> regvecplus1sq(num_terms, 0.0);
   //square the vectors
@@ -294,47 +294,47 @@ computeSHRegularizationMatrix( vnl_diag_matrix<RealType> &regdiag, const unsigne
     regvecsq(i) = regvec(i) * regvec(i);
     regvecplus1sq = (regvec(i) + 1) * (regvec(i) + 1);
     }
-  vnl_vector<RealType> regvecfinal(num_terms, 0.0);    
+  vnl_vector<RealType> regvecfinal(num_terms, 0.0);
   //multiply
   for (unsigned int i = 0; i < regvec.size(); i++)
     {
     regvecfinal(i) = regvecsq(i) * regvecplus1sq(i);
     }
-  
+
   //vnl_diag_matrix<RealType> regdiag(regvecfinal);
   regdiag.set(regvecfinal);
-  
+
 }
 
 template <class RealType>
-void 
+void
 generateSHBasisMatrixPseudoInverse( vnl_matrix<RealType>& cart_gradients, const RealType lambda, const unsigned int num_terms, const unsigned int order, vnl_matrix<RealType>& sh_basis_mat_pi )
 {
   unsigned int numoriggvectors = cart_gradients.rows();
 
   //determine size of SH basis matrix
   vnl_matrix<RealType> sh_basis_mat(numoriggvectors, num_terms, 0.0);
-  
+
   computeSHOrigBasisMat( sh_basis_mat, cart_gradients, num_terms );
 
   //determine size of SH basis mat pseudoinverse, and calculate it
-  
+
   sh_basis_mat_pi.set_size(num_terms, num_terms);
   sh_basis_mat_pi = sh_basis_mat.transpose() * sh_basis_mat;
-  
+
   if (lambda != 0)
     {
 
     vnl_diag_matrix<RealType> regdiag( num_terms );
     computeSHRegularizationMatrix( regdiag, num_terms, order );
-    
+
     //add regularization term
     sh_basis_mat_pi = sh_basis_mat_pi + (regdiag.asMatrix() * lambda);
     }
-  
+
   sh_basis_mat_pi = vnl_matrix_inverse<RealType>(sh_basis_mat_pi);
-  sh_basis_mat_pi = sh_basis_mat_pi * sh_basis_mat.transpose(); 
-  
+  sh_basis_mat_pi = sh_basis_mat_pi * sh_basis_mat.transpose();
+
 }
 
 template <class RealType>
@@ -365,7 +365,7 @@ computeSHHuberWeightMatrix( vnl_diag_matrix<RealType> &W, const unsigned int num
 
   vnl_vector<RealType> SE(numoriggvectors, 0.0);
   SE = B*shCoeffs;  // shCoeffs are the current spherical harmonics
-		    // coefficients
+  	    // coefficients
   // now compute the residuals
 
   vnl_vector<RealType> residuals(numoriggvectors, 0.0 );
@@ -385,7 +385,7 @@ computeSHHuberWeightMatrix( vnl_diag_matrix<RealType> &W, const unsigned int num
     wV = SOrig*SOrig/(sigma*sigma)*huberWeightFcn(SOrig/sigma*residuals(iI), C, isOutlier );
     if ( isOutlier ) nrOfOutliers++;
     }
-  
+
   W.set( wV );  // fill the entries of the weight matrix
 
 }
@@ -396,10 +396,10 @@ computeSHOrigBasisMat( vnl_matrix<RealType>& sh_basis_mat, vnl_matrix<RealType>&
 {
   unsigned int numoriggvectors = cart_gradients.rows();
 
-  vnl_matrix<RealType> sph_gradients(numoriggvectors, 2);    
-  //convert cartesian gradients to spherical coordinates    
+  vnl_matrix<RealType> sph_gradients(numoriggvectors, 2);
+  //convert cartesian gradients to spherical coordinates
   cart2sph<RealType>(cart_gradients, sph_gradients);
-  
+
   //generate the SH basis matrix
   generateSHBasisMatrix<RealType>(num_terms, numoriggvectors, sph_gradients, sh_basis_mat);
 }
@@ -410,7 +410,7 @@ generateWeightedSHBasisMatrixPseudoInversePrecomputed( const vnl_matrix<RealType
 {
   sh_basis_mat_pi = B.transpose() * W * B + L.asMatrix() * lambda;
   sh_basis_mat_pi = vnl_matrix_inverse<RealType>(sh_basis_mat_pi);
-  sh_basis_mat_pi = sh_basis_mat_pi * B.transpose()*W; 
+  sh_basis_mat_pi = sh_basis_mat_pi * B.transpose()*W;
 }
 
 template <class RealType>
@@ -419,38 +419,38 @@ generateSHBasisMatrixPseudoInversePrecomputed( const vnl_matrix<RealType> &B, co
 {
   sh_basis_mat_pi = B.transpose() * B + L.asMatrix() * lambda;
   sh_basis_mat_pi = vnl_matrix_inverse<RealType>(sh_basis_mat_pi);
-  sh_basis_mat_pi = sh_basis_mat_pi * B.transpose(); 
+  sh_basis_mat_pi = sh_basis_mat_pi * B.transpose();
 }
 
 template <class RealType>
-void 
+void
 generateWeightedSHBasisMatrixPseudoInverse( vnl_matrix<RealType>& cart_gradients, const vnl_diag_matrix<RealType>& W, const RealType lambda, const unsigned int num_terms, const unsigned int order, vnl_matrix<RealType>& sh_basis_mat_pi )
 {
   unsigned int numoriggvectors = cart_gradients.rows();
-  
+
   //determine size of SH basis matrix
   vnl_matrix<RealType> sh_basis_mat(numoriggvectors, num_terms, 0.0);
-  
+
   computeSHOrigBasisMat( sh_basis_mat, cart_gradients, num_terms );
-  
+
   //determine size of SH basis mat pseudoinverse, and calculate it
-  
+
   sh_basis_mat_pi.set_size(num_terms, num_terms);
   sh_basis_mat_pi = sh_basis_mat.transpose() * W * sh_basis_mat;
-  
+
   if (lambda != 0)
     {
 
     vnl_diag_matrix<RealType> regdiag( num_terms );
     computeSHRegularizationMatrix( regdiag, num_terms, order );
-    
+
     //add regularization term
     sh_basis_mat_pi = sh_basis_mat_pi + (regdiag.asMatrix() * lambda);
     }
-  
+
   sh_basis_mat_pi = vnl_matrix_inverse<RealType>(sh_basis_mat_pi);
-  sh_basis_mat_pi = sh_basis_mat_pi * sh_basis_mat.transpose()*W; 
-  
+  sh_basis_mat_pi = sh_basis_mat_pi * sh_basis_mat.transpose()*W;
+
 }
 
 }

@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -30,12 +30,12 @@ void
 ExtractVolumeFilter<TInputImage,TOutputImage>
 ::GenerateInputRequestedRegion()
 {
-  
+
   Superclass::GenerateInputRequestedRegion();
 
   // get pointer to the input
 
-  typename Superclass::InputImagePointer  inputPtr  = 
+  typename Superclass::InputImagePointer  inputPtr  =
     const_cast< TInputImage * >( this->GetInput());
 
   if ( !inputPtr )
@@ -51,20 +51,20 @@ ExtractVolumeFilter<TInputImage,TOutputImage>
     }
 
   OutputImageRegionType outputRegion;
-  
+
   OutputImageSizeType output_sz =
     outputPtr->GetLargestPossibleRegion().GetSize();
 
   OutputImageIndexType output_idx =
-    outputPtr->GetLargestPossibleRegion().GetIndex();  
+    outputPtr->GetLargestPossibleRegion().GetIndex();
 
   // compute the requested region
 
   InputImageRegionType inputRegion;
-  
+
   InputImageSizeType input_sz = output_sz;
   InputImageIndexType input_idx =output_idx;
-  
+
   inputRegion.SetSize( input_sz );
   inputRegion.SetIndex( input_idx );
   inputPtr->SetRequestedRegion( inputRegion );

@@ -35,7 +35,7 @@ int main()
   // now determine the Rician noise level
 
   RicianNoiseLevelDeterminerType::Pointer ricianNoiseLevelDeterminer = RicianNoiseLevelDeterminerType::New();
-  
+
   ricianNoiseLevelDeterminer->SetInput( fileReader->GetOutput() );
   ricianNoiseLevelDeterminer->Compute();
 

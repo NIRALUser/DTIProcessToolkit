@@ -21,9 +21,9 @@ namespace itk
 {
 
 template <class TInputImage, class TOutputImage>
-void 
+void
 SphericalHarmonicsInterpolationFilter<TInputImage, TOutputImage>
-::GenerateOutputInformation() 
+::GenerateOutputInformation()
 {
     Superclass::GenerateOutputInformation();
 
@@ -45,17 +45,17 @@ SphericalHarmonicsInterpolationFilter<TInputImage, TOutputImage>
 
 
 template <class TInputImage, class TOutputImage>
-void 
+void
 SphericalHarmonicsInterpolationFilter<TInputImage, TOutputImage>
 ::GenerateInputRequestedRegion() throw (InvalidRequestedRegionError)
 {
     // call the superclass' implementation of this method
     Superclass::GenerateInputRequestedRegion();
-  
+
     // get pointers to the input and output
     typename Superclass::InputImagePointer inputPtr = const_cast< TInputImage * >( this->GetInput() );
     typename Superclass::OutputImagePointer outputPtr = this->GetOutput();
-  
+
     if ( !inputPtr || !outputPtr )
     {
         return;
@@ -79,7 +79,7 @@ SphericalHarmonicsInterpolationFilter<TInputImage, TOutputImage>
 
         // store what we tried to request (prior to trying to crop)
         inputPtr->SetRequestedRegion( inputRequestedRegion );
-    
+
         // build an exception
         InvalidRequestedRegionError e(__FILE__, __LINE__);
         e.SetLocation(ITK_LOCATION);
@@ -98,7 +98,7 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
 {
     if (n <= 1)
         return 1;
-    else 
+    else
         return n * factorial(n-1);
 }
 
@@ -112,7 +112,7 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
 {
     int numterms = 0;
     int order = 0;
-    
+
     for (int ord = 2; ord <= 50; ord += 2)
     {
          numterms = (ord + 1)*(ord + 2) / 2;
@@ -162,14 +162,14 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
         //compute elev
         phi = atan2(z, hypotxy);
 
-        //compute az 
+        //compute az
         theta = atan2(y,x);
 
         //end up modifying and reversing names to fit our needs (physics notation)
         sgvectors(v,0) = (-1 * phi) + (PI/2); //theta (physics)
         sgvectors(v,1) = theta; //phi (physics)
     }
-}   
+}
 
 
 //return the appropriate spherical harmonic based on Legendre polynomials
@@ -179,19 +179,19 @@ double
 SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
 ::getSphericalHarmonic(int l, int m, double theta, double phi)
 {
-  int m_abs = (int)fabs(m);    
+  int m_abs = (int)fabs(m);
 
   //double Plmx = gsl_sf_legendre_Plm(l, m_abs, cos(theta)); //m_abs + 1 for matlab indexing (starting at 1)
-  
+
   //double Plmx = std::tr1::assoc_legendre(l, m_abs, cos(theta));
   ////m_abs + 1 for matlab indexing (starting at 1)
   double Plmx = boost::math::legendre_p(l, m_abs, cos(theta)); //m_abs + 1 for matlab indexing (starting at 1)
 
   double SR = sqrt(((2.0*l + 1.0)/4.0*PI)*((factorial(l - m_abs))/(factorial(l + m_abs))));
-  
+
   double factor = SR * Plmx;
-  
-  return factor;     
+
+  return factor;
 }
 
 
@@ -208,8 +208,8 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
     //then m = -k, ..., 0, ..., k
 
     //examples: (l = 4, in this case)
-    //k = 0, m = 0; 
-    //k = 2, m = {-2, -1, 0, 1, 2}; 
+    //k = 0, m = 0;
+    //k = 2, m = {-2, -1, 0, 1, 2};
     //k = 4, m = {-4, -3, -2, -1, 0, 1, 2, 3, 4}
 
     //new indexing convention
@@ -276,7 +276,7 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
         //extract current gradient
         curgrad(0, 0) = sgradients(i, 0); //theta
         curgrad(0, 1) = sgradients(i, 1); //phi
-        
+
         for (int j = 1; j <= numterms; j++)
         {
             //fill in (i,j)th position in the basismat with the appropriate term
@@ -291,7 +291,7 @@ int
 SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage>
 ::countBaselines()
 {
-    int numbaselines = 0;    
+    int numbaselines = 0;
 
     typename InputImageType::ConstPointer inputimg  = this->GetInput();
 
@@ -301,7 +301,7 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage>
     //get all the keys from the dictionary (ids for the attributes)
     std::vector<std::string> keys = inputdict.GetKeys();
 
-    //get relevant information out of the metadata dictionary    
+    //get relevant information out of the metadata dictionary
     for(std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
     {
         //count baselines
@@ -333,27 +333,27 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
     //**************************************************************
     // Get original gradient vectors out of the input image metadata
     //
-    //**************************************************************    
+    //**************************************************************
     // Parse gradient directions from image header as specified by the
     // namic conventions defined at http://wiki.na-mic.org/Wiki/index.php/NAMIC_Wiki:DTI:Nrrd_format
-    typedef vnl_vector_fixed<double, 3> GradientType;  
+    typedef vnl_vector_fixed<double, 3> GradientType;
     typedef itk::VectorContainer<unsigned int, GradientType> GradientListType;
     typename GradientListType::Pointer gradientContainer = GradientListType::New();
-    
+
     //get access to the metadata dictionary
     itk::MetaDataDictionary inputdict = inputimg->GetMetaDataDictionary();
-    std::vector<std::string> keys = inputdict.GetKeys();   
+    std::vector<std::string> keys = inputdict.GetKeys();
     for(std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
     {
-        //obtain the b-value        
+        //obtain the b-value
         if (it->find("DWMRI_b-value") != std::string::npos) //we found the b value
         {
-            std::string bstr; 
+            std::string bstr;
             itk::ExposeMetaData<std::string>(inputdict, *it, bstr);
-            std::istringstream iss(bstr); 
-            iss >> bvalue; 
+            std::istringstream iss(bstr);
+            iss >> bvalue;
         }
-        
+
         //obtain all the gradient vectors
         if( it->find("DWMRI_gradient") != std::string::npos) //we found a gradient vector
         {
@@ -366,7 +366,7 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
             std::string temp = it->substr(it->find_last_of('_')+1);
             ind = atoi(temp.c_str());
             //ind is the current gradient vector index
-            gradientContainer->InsertElement(ind,g); 
+            gradientContainer->InsertElement(ind,g);
         }
     }
     //*****************************************************************
@@ -384,7 +384,7 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
             baseline_indices.insert(v);
             baselinecounter++;
         }
-        
+
     }
 
     int numoriggvectors = num_detected_vectors - baselinecounter;
@@ -395,22 +395,22 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
 
     //create matrices for gradients
     vnl_matrix<double> cart_gradients(numoriggvectors, 3);
-    vnl_matrix<double> sph_gradients(numoriggvectors, 2);    
+    vnl_matrix<double> sph_gradients(numoriggvectors, 2);
 
     //fill up the cart_gradients with real values
     int insertioncounter = 0;
     for (int v = 0; v < num_detected_vectors; v++)
     {
         if (baseline_indices.count(v) == 0) //actual gradient, not baseline
-        {        
+        {
             GradientType curgrad = gradientContainer->GetElement(v);
             cart_gradients(insertioncounter,0) = curgrad[0];
             cart_gradients(insertioncounter,1) = curgrad[1];
             cart_gradients(insertioncounter,2) = curgrad[2];
             insertioncounter++;
-        }        
-    } 
-    
+        }
+    }
+
     //verify minimum number of gradient directions is present
     if (baselinecounter < 1 || numoriggvectors < 6)
     {
@@ -420,18 +420,18 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
         std::cerr << "Your input volume has only " << numoriggvectors << " non-baseline directions, and " << baselinecounter << "baselines.\n";
         exit(0); //TODO
     }
-    
+
     //*********************************************************
     // Use original gradients to calculate pseudoinverse matrix
     //
-    //*********************************************************    
-    
+    //*********************************************************
+
     int max_order = findMaxOrder(numoriggvectors);
 
     //use max order if no order is provided at runtime (provide warning)
     //also use max order if provided order is too large.
     if (order <= 0)
-    {    
+    {
         order = max_order - 2;
         std::cout << "WARNING: Using maxOrder-2 of Spherical harmonic basis\n functions, as no order was provided.\n";
     }
@@ -443,9 +443,9 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
     else if (order == max_order)
     {
         std::cout << "Note: The order you provided (" << order << ") is the maximum allowable order.\n";
-    }    
+    }
 
-    //# of terms per row of the SH basis matrix    
+    //# of terms per row of the SH basis matrix
     int num_terms = getNumTerms(order);
 
     std::cout << numoriggvectors << " gradient directions provided w/input image (not including baselines):\n";
@@ -455,7 +455,7 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
     std::cout << "b-value: " << bvalue << std::endl;
     std::cout << "Order for spherical harmonics interpolation: " << order << std::endl << std::endl;
 
-    //convert cartesian gradients to spherical coordinates    
+    //convert cartesian gradients to spherical coordinates
     cart2sph(cart_gradients, sph_gradients);
 
     //determine size of SH basis matrix
@@ -465,7 +465,7 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
     generateSHBasisMatrix(num_terms, numoriggvectors, sph_gradients, sh_basis_mat);
 
     //determine size of SH basis mat pseudoinverse, and calculate it
-    
+
     //use the regularization term, if necessary
     vnl_vector<double> regvec(num_terms, 0.0);
 
@@ -474,9 +474,9 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
 
     if (lambda != 0)
     {
-        std::cout << "Regularization term is being used. Lambda = " << lambda << std::endl;        
-        
-        int currentOffset = 0;        
+        std::cout << "Regularization term is being used. Lambda = " << lambda << std::endl;
+
+        int currentOffset = 0;
         for (int i = 0; i <= order; i+= 2)
         {
             int mult = 2*i + 1;
@@ -487,7 +487,7 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
             }
             currentOffset = currentOffset + mult;
         }
-        
+
         vnl_vector<double> regvecsq(num_terms, 0.0);
         vnl_vector<double> regvecplus1sq(num_terms, 0.0);
         //square the vectors
@@ -496,7 +496,7 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
             regvecsq(i) = regvec(i) * regvec(i);
             regvecplus1sq = (regvec(i) + 1) * (regvec(i) + 1);
         }
-        vnl_vector<double> regvecfinal(num_terms, 0.0);    
+        vnl_vector<double> regvecfinal(num_terms, 0.0);
         //multiply
         for (unsigned int i = 0; i < regvec.size(); i++)
         {
@@ -504,17 +504,17 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
         }
 
         vnl_diag_matrix<double> regdiag(regvecfinal);
-        
+
         //add regularization term
         sh_basis_mat_pi = sh_basis_mat_pi + (regdiag.asMatrix() * lambda);
     }
-        
+
     sh_basis_mat_pi = vnl_matrix_inverse<double>(sh_basis_mat_pi);
-    sh_basis_mat_pi = sh_basis_mat_pi * sh_basis_mat.transpose();   
+    sh_basis_mat_pi = sh_basis_mat_pi * sh_basis_mat.transpose();
     //************************************************************
     // End pseudoinverse matrix calculation
     //
-    //************************************************************ 
+    //************************************************************
 
     //create iterators to iterate over the vector elements of the 3-d images
     typedef itk::ImageRegionConstIterator< TInputImage > ConstIteratorType;
@@ -533,41 +533,41 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
 
     //create a matrix C for the coefficients
     vnl_matrix<double> C(num_terms, 1, 0.0);
-    
-    //create matrix to hold s_values (input image)    
+
+    //create matrix to hold s_values (input image)
     vnl_matrix<double> s_values(numoriggvectors, 1, 0.0);
-    
+
     //create matrix to hold s_values (output image)
     vnl_matrix<double> s_values_new(numnewgvectors, 1, 0.0);
-    
+
     //initialize a place to keep the baseline value at each element
     std::vector<ImageValueType> baselines;
     for (int i = 0; i < num_baselines; i++)
         baselines.push_back(0);
-    
-    //length of a vector element in the output image   
+
+    //length of a vector element in the output image
     int outputimg_vectorlength = numnewgvectors + baselinecounter;
-    outputimg->SetVectorLength(outputimg_vectorlength); //TODO: does this actually do anything useful? 
+    outputimg->SetVectorLength(outputimg_vectorlength); //TODO: does this actually do anything useful?
 
     int blinsertioncounter = 0;
 
-    std::cout << "Constructing output image...\n";  
+    std::cout << "Constructing output image...\n";
 
-    //input and output images are the same size, vector elements might be different sizes    
-    for (iit.GoToBegin(), oit.GoToBegin(); !iit.IsAtEnd() && !oit.IsAtEnd(); ++iit, ++oit)    
+    //input and output images are the same size, vector elements might be different sizes
+    for (iit.GoToBegin(), oit.GoToBegin(); !iit.IsAtEnd() && !oit.IsAtEnd(); ++iit, ++oit)
     {
-        //get current vector element from input image        
-        InputImagePixelType this_in_element = iit.Get();     
-        
+        //get current vector element from input image
+        InputImagePixelType this_in_element = iit.Get();
+
         //create new vector element for output image (size it correctly)
-        OutputImagePixelType this_out_element(outputimg_vectorlength);        
+        OutputImagePixelType this_out_element(outputimg_vectorlength);
 
         //store baselines and add input s values into s values vector
         insertioncounter = 0;
         blinsertioncounter = 0;
         for (int v = 0; v < num_detected_vectors; v++)
         {
-            if (baseline_indices.count(v) > 0) //baseline value, not gradient     
+            if (baseline_indices.count(v) > 0) //baseline value, not gradient
             {
                 baselines[blinsertioncounter] = this_in_element[v];
                 blinsertioncounter++;
@@ -576,7 +576,7 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
             {
                 s_values(insertioncounter, 0) = this_in_element[v];
                 insertioncounter++;
-            }     
+            }
         }
 
         //solve for C
@@ -590,14 +590,14 @@ SphericalHarmonicsInterpolationFilter< TInputImage, TOutputImage >
         {
             this_out_element[v] = baselines[v];
         }
-        insertioncounter = 0;        
+        insertioncounter = 0;
         for (int v = baselines.size(); v < outputimg_vectorlength; v++)
         {
-            double current_val = s_values_new(insertioncounter,0);           
+            double current_val = s_values_new(insertioncounter,0);
             this_out_element[v] = (ImageValueType) current_val;
             insertioncounter++;
         }
-        
+
         //place output vector element into output image
         oit.Set(this_out_element);
     }

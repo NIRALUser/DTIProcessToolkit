@@ -473,26 +473,26 @@ int main(int argc, char* argv[])
       if (numberB0Directions == 0)
         {
         B0Image = biextract->GetOutput();
-	}
+  }
       else
-	{
-	// add it to the current B0 image
-	try
-	  {
-	  typedef itk::AddImageFilter<RealImageType> AddImageFilterType;
-	  AddImageFilterType::Pointer addfilter = AddImageFilterType::New();
-	  addfilter->SetInput1(biextract->GetOutput());
-	  addfilter->SetInput2(B0Image);
-	  addfilter->Update();
-	  B0Image = addfilter->GetOutput();
-	  }
-	catch (itk::ExceptionObject & e)
-	  {
-	  std::cerr << "Error in addition for B0 computation" << std::endl;
-	  std::cerr << e << std::endl;
-	  }
+  {
+  // add it to the current B0 image
+  try
+    {
+    typedef itk::AddImageFilter<RealImageType> AddImageFilterType;
+    AddImageFilterType::Pointer addfilter = AddImageFilterType::New();
+    addfilter->SetInput1(biextract->GetOutput());
+    addfilter->SetInput2(B0Image);
+    addfilter->Update();
+    B0Image = addfilter->GetOutput();
+    }
+  catch (itk::ExceptionObject & e)
+    {
+    std::cerr << "Error in addition for B0 computation" << std::endl;
+    std::cerr << e << std::endl;
+    }
 
-	}
+  }
 
       numberB0Directions++;
       }
@@ -583,7 +583,7 @@ int main(int argc, char* argv[])
     try
       {
       if(VERBOSE)
-	std::cout << "Writing mask B0" << std::endl;
+  std::cout << "Writing mask B0" << std::endl;
       typedef itk::ImageFileWriter<LabelImageType> MaskImageFileWriterType;
       MaskImageFileWriterType::Pointer maskwriter = MaskImageFileWriterType::New();
       maskwriter->SetInput(thresholdfilter->GetOutput());
@@ -616,50 +616,50 @@ int main(int argc, char* argv[])
       GradientType g = gradientContainer->GetElement(directionIndex);
       if ( g[0] != 0 || g[1] != 0 || g[2] != 0 )
         {
-	// image is not b0 image
-	_biextract->SetIndex(directionIndex);
+  // image is not b0 image
+  _biextract->SetIndex(directionIndex);
 
-	if (numberNonB0Directions == 0)
+  if (numberNonB0Directions == 0)
           {
-	  // log of the first image and set it as current idwi image
-	  try
+    // log of the first image and set it as current idwi image
+    try
             {
-	    LogImageFilterType::Pointer logfilter = LogImageFilterType::New();
-	    logfilter->SetInput(_biextract->GetOutput());
-	    logfilter->Update();
-	    idwiImage = logfilter->GetOutput();
+      LogImageFilterType::Pointer logfilter = LogImageFilterType::New();
+      logfilter->SetInput(_biextract->GetOutput());
+      logfilter->Update();
+      idwiImage = logfilter->GetOutput();
             }
-	  catch (itk::ExceptionObject & e)
+    catch (itk::ExceptionObject & e)
             {
-	    std::cerr << "Error in log computation" << std::endl;
-	    std::cerr << e << std::endl;
+      std::cerr << "Error in log computation" << std::endl;
+      std::cerr << e << std::endl;
             }
 
           }
-	else
+  else
           {
-	  // log of the image and add it to the current idwi image
-	  try
+    // log of the image and add it to the current idwi image
+    try
             {
-	    LogImageFilterType::Pointer logfilter = LogImageFilterType::New();
-	    logfilter->SetInput(_biextract->GetOutput());
-	    logfilter->Update();
-	    typedef itk::AddImageFilter<RealImageType> AddImageFilterType;
-	    AddImageFilterType::Pointer addfilter = AddImageFilterType::New();
-	    addfilter->SetInput1(logfilter->GetOutput());
-	    addfilter->SetInput2(idwiImage);
-	    addfilter->Update();
-	    idwiImage = addfilter->GetOutput();
+      LogImageFilterType::Pointer logfilter = LogImageFilterType::New();
+      logfilter->SetInput(_biextract->GetOutput());
+      logfilter->Update();
+      typedef itk::AddImageFilter<RealImageType> AddImageFilterType;
+      AddImageFilterType::Pointer addfilter = AddImageFilterType::New();
+      addfilter->SetInput1(logfilter->GetOutput());
+      addfilter->SetInput2(idwiImage);
+      addfilter->Update();
+      idwiImage = addfilter->GetOutput();
             }
-	  catch (itk::ExceptionObject & e)
+    catch (itk::ExceptionObject & e)
             {
-	    std::cerr << "Error in log computation" << std::endl;
-	    std::cerr << e << std::endl;
+      std::cerr << "Error in log computation" << std::endl;
+      std::cerr << e << std::endl;
             }
 
           }
 
-	numberNonB0Directions++;
+  numberNonB0Directions++;
         }
       }
 

@@ -37,9 +37,9 @@ void ConstructOutputMetaDataDictionary( itk::MetaDataDictionary & newDictionary,
       std::string curVal = std::string(entryvalue->GetMetaDataObjectValue());
 
       if ( !(curKey.substr(0, std::string("DWMRI_gradient").length()).compare(std::string("DWMRI_gradient")) == 0))
-	{
-	itk::EncapsulateMetaData<std::string>(newDictionary, curKey, curVal);
-	}
+  {
+  itk::EncapsulateMetaData<std::string>(newDictionary, curKey, curVal);
+  }
       }
 
     ++itr;
@@ -85,23 +85,23 @@ int getNumOutputGradients(const std::string &gfname)
     int count = 0;
 
     std::ifstream inFile;
-	inFile.open(gfname.c_str(), std::ios::in);
+  inFile.open(gfname.c_str(), std::ios::in);
 
-	if (!inFile)
-	{
-		std::cout << "Could not find gradient direction input file. Quitting.\n";
-		exit(0);
-	}
-	else
-	{
-		std::string currentLine;
+  if (!inFile)
+  {
+  	std::cout << "Could not find gradient direction input file. Quitting.\n";
+  	exit(0);
+  }
+  else
+  {
+  	std::string currentLine;
 
-		while (!inFile.eof())
-		{
-			std::getline(inFile, currentLine);
+  	while (!inFile.eof())
+  	{
+  		std::getline(inFile, currentLine);
 
-			if ((currentLine.length() > 0) && !(currentLine.at(0) == '#')) //check if it's a comment line
-			{
+  		if ((currentLine.length() > 0) && !(currentLine.at(0) == '#')) //check if it's a comment line
+  		{
                 count++;
             }
         }
@@ -119,24 +119,24 @@ void parseGradientFile(const std::string &gfname, vnl_matrix<RealType> &newgradi
     int total = newgradients.rows();
 
     std::ifstream inFile;
-	inFile.open(gfname.c_str(), std::ios::in);
-	if (!inFile)
-	{
-		std::cout << "Could not find gradient direction input file. Quitting.\n";
-		exit(0);
-	}
-	else
-	{
-		std::cout << "Reading new gradient directions...\n\n";
+  inFile.open(gfname.c_str(), std::ios::in);
+  if (!inFile)
+  {
+  	std::cout << "Could not find gradient direction input file. Quitting.\n";
+  	exit(0);
+  }
+  else
+  {
+  	std::cout << "Reading new gradient directions...\n\n";
 
-		std::string currentLine;
+  	std::string currentLine;
 
-		while (!inFile.eof() && count < total)
-		{
-			std::getline(inFile, currentLine);
+  	while (!inFile.eof() && count < total)
+  	{
+  		std::getline(inFile, currentLine);
 
-			if ((currentLine.length() > 0) && !(currentLine.at(0) == '#')) //check if it's a comment line
-			{
+  		if ((currentLine.length() > 0) && !(currentLine.at(0) == '#')) //check if it's a comment line
+  		{
                 std::istringstream iss(currentLine);
                 iss >> newgradients(count, 0) >> newgradients(count, 1) >> newgradients(count, 2);
                 count++;
@@ -168,25 +168,25 @@ void getFiles( const std::string& sCaseFile, std::vector<std::string>& dwiFiles,
       std::string::size_type iI = line.find_first_not_of ( " \t\n\v" );
 
       if ( iI != std::string::npos && line[iI] != '#'  )
-	{
-	// found something that needs to be processed, read it
-	std::istringstream ins;
-	std::string sub;
+  {
+  // found something that needs to be processed, read it
+  std::istringstream ins;
+  std::string sub;
 
-	ins.str( line );
+  ins.str( line );
 
-	ins >> sub;
-	dwiFiles.push_back( sub );
-	std::cout << "DWI = " << sub << "; ";
+  ins >> sub;
+  dwiFiles.push_back( sub );
+  std::cout << "DWI = " << sub << "; ";
 
-	if ( !bNoDeformations )
-	  {
-	  ins >> sub;
-	  deformationFiles.push_back( sub );
-	  std::cout << "DF = " << sub << std::endl;
-	  }
+  if ( !bNoDeformations )
+    {
+    ins >> sub;
+    deformationFiles.push_back( sub );
+    std::cout << "DF = " << sub << std::endl;
+    }
 
-	}
+  }
       }
     }
   else
