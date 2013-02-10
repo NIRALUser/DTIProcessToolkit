@@ -1074,32 +1074,32 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
       for ( unsigned int iJ=0; iJ<NDWI; iJ++ )
         {
         if ( transformedInformation[iI].isBaseline[iJ] )
-  	{
-  	for ( unsigned int iK=0; iK<NCONTROLPOINTS; iK++ )
-  	  {
-  	  // FIMXE: cast is not appropriate
-  	  allBaselines.dwiVals[iNumberOfStoredBaseline] += transformedInformation[iI].interpolationWeights[iK]*transformedInformation[iI].dwiVals[iK*NDWI+iJ];
-  	  }
-  	iNumberOfStoredBaseline++;
-  	}
+    {
+    for ( unsigned int iK=0; iK<NCONTROLPOINTS; iK++ )
+      {
+      // FIMXE: cast is not appropriate
+      allBaselines.dwiVals[iNumberOfStoredBaseline] += transformedInformation[iI].interpolationWeights[iK]*transformedInformation[iI].dwiVals[iK*NDWI+iJ];
+      }
+    iNumberOfStoredBaseline++;
+    }
         else
-  	{
-  	for ( unsigned int iK=0; iK<NCONTROLPOINTS; iK++ )
-  	  {
-  	  allDWIs.dwiVals[iNumberOfStoredDWI] += transformedInformation[iI].interpolationWeights[iK]*transformedInformation[iI].dwiVals[iK*NDWI+iJ];
-  	  // CHOICE: how do we average the gradient direction?
-  	  // Simply add, normalize afterwards
-  	  allDWIs.gradients.set_row( iNumberOfStoredDWI, allDWIs.gradients.get_row( iNumberOfStoredDWI ) + transformedInformation[iI].gradients.get_row( iK*NDWI+iJ ) );
-  	  }
-  	// now give the summed up gradient of norm one
-  	// TODO: add support for gradient directions which are
-  	// not unit length!
-  	
-  	MyRealType currentNorm = allDWIs.gradients.get_row( iNumberOfStoredDWI ).two_norm();
-  	allDWIs.gradients.scale_row( iNumberOfStoredDWI,  1.0/currentNorm );
+    {
+    for ( unsigned int iK=0; iK<NCONTROLPOINTS; iK++ )
+      {
+      allDWIs.dwiVals[iNumberOfStoredDWI] += transformedInformation[iI].interpolationWeights[iK]*transformedInformation[iI].dwiVals[iK*NDWI+iJ];
+      // CHOICE: how do we average the gradient direction?
+      // Simply add, normalize afterwards
+      allDWIs.gradients.set_row( iNumberOfStoredDWI, allDWIs.gradients.get_row( iNumberOfStoredDWI ) + transformedInformation[iI].gradients.get_row( iK*NDWI+iJ ) );
+      }
+    // now give the summed up gradient of norm one
+    // TODO: add support for gradient directions which are
+    // not unit length!
+    
+    MyRealType currentNorm = allDWIs.gradients.get_row( iNumberOfStoredDWI ).two_norm();
+    allDWIs.gradients.scale_row( iNumberOfStoredDWI,  1.0/currentNorm );
 
-  	iNumberOfStoredDWI++;
-  	}
+    iNumberOfStoredDWI++;
+    }
         }
       // there is no averaging necessary, because the weights
       // are such that they sum to one! (CHECK THIS)
@@ -1115,31 +1115,31 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
       for ( unsigned int iJ=0; iJ<NDWI; iJ++ )
         {
         if ( transformedInformation[iI].isBaseline[iJ] )
-  	{
-  	for ( unsigned int iK=0; iK<NCONTROLPOINTS; iK++ )
-  	  {
-  	  allBaselines.dwiVals[iNumberOfStoredBaseline] += transformedInformation[iI].interpolationWeights[iK]*log( std::max( transformedInformation[iI].dwiVals[iK*NDWI+iJ], m_LogMinArgumentValue ) );
-  	  }
-  	iNumberOfStoredBaseline++;
-  	}
+    {
+    for ( unsigned int iK=0; iK<NCONTROLPOINTS; iK++ )
+      {
+      allBaselines.dwiVals[iNumberOfStoredBaseline] += transformedInformation[iI].interpolationWeights[iK]*log( std::max( transformedInformation[iI].dwiVals[iK*NDWI+iJ], m_LogMinArgumentValue ) );
+      }
+    iNumberOfStoredBaseline++;
+    }
         else
-  	{
-  	for ( unsigned int iK=0; iK<NCONTROLPOINTS; iK++ )
-  	  {
-  	  allDWIs.dwiVals[iNumberOfStoredDWI] += transformedInformation[iI].interpolationWeights[iK]*log( std::max( transformedInformation[iI].dwiVals[iK*NDWI+iJ], m_LogMinArgumentValue ) );
-  	  // CHOICE: how do we average the gradient direction?
-  	  // Simply add, normalize afterwards
-  	  allDWIs.gradients.set_row( iNumberOfStoredDWI, allDWIs.gradients.get_row( iNumberOfStoredDWI ) + transformedInformation[iI].gradients.get_row( iK*NDWI+iJ ) );
-  	  }
-  	// now give the summed up gradient of norm one
-  	// TODO: add support for gradient directions which are
-  	// not unit length!
-  	
-  	MyRealType currentNorm = allDWIs.gradients.get_row( iNumberOfStoredDWI ).two_norm();
-  	allDWIs.gradients.scale_row( iNumberOfStoredDWI,  1.0/currentNorm );
+    {
+    for ( unsigned int iK=0; iK<NCONTROLPOINTS; iK++ )
+      {
+      allDWIs.dwiVals[iNumberOfStoredDWI] += transformedInformation[iI].interpolationWeights[iK]*log( std::max( transformedInformation[iI].dwiVals[iK*NDWI+iJ], m_LogMinArgumentValue ) );
+      // CHOICE: how do we average the gradient direction?
+      // Simply add, normalize afterwards
+      allDWIs.gradients.set_row( iNumberOfStoredDWI, allDWIs.gradients.get_row( iNumberOfStoredDWI ) + transformedInformation[iI].gradients.get_row( iK*NDWI+iJ ) );
+      }
+    // now give the summed up gradient of norm one
+    // TODO: add support for gradient directions which are
+    // not unit length!
+    
+    MyRealType currentNorm = allDWIs.gradients.get_row( iNumberOfStoredDWI ).two_norm();
+    allDWIs.gradients.scale_row( iNumberOfStoredDWI,  1.0/currentNorm );
 
-  	iNumberOfStoredDWI++;
-  	}
+    iNumberOfStoredDWI++;
+    }
         }
       // there is no averaging necessary, because the weights
       // are such that they sum to one! (CHECK THIS)
@@ -1152,16 +1152,16 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
       for ( unsigned int iJ=0; iJ<NDWI; iJ++ )
         {
         if ( transformedInformation[iI].isBaseline[iJ] )
-  	{
-  	allBaselines.dwiVals[iNumberOfStoredBaseline] = (DWIPixelType)round( exp( allBaselines.dwiVals[iNumberOfStoredBaseline] ) );
-  	iNumberOfStoredBaseline++;
-  	}
+    {
+    allBaselines.dwiVals[iNumberOfStoredBaseline] = (DWIPixelType)round( exp( allBaselines.dwiVals[iNumberOfStoredBaseline] ) );
+    iNumberOfStoredBaseline++;
+    }
         else
-  	{
-  	allDWIs.dwiVals[iNumberOfStoredDWI] = (DWIPixelType)round(exp( allDWIs.dwiVals[iNumberOfStoredDWI] ));
-  	iNumberOfStoredDWI++;
-  	}
-        }	
+    {
+    allDWIs.dwiVals[iNumberOfStoredDWI] = (DWIPixelType)round(exp( allDWIs.dwiVals[iNumberOfStoredDWI] ));
+    iNumberOfStoredDWI++;
+    }
+        }  
       }
     }
   }*/
@@ -1280,8 +1280,8 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
 
   outputImage->SetSpacing( dwireader[0]->GetOutput()->GetSpacing() );
   outputImage->SetOrigin(  dwireader[0]->GetOutput()->GetOrigin() );
-  	
-  								
+    
+                  
   outputImage->SetNumberOfComponentsPerPixel( m_NrOfBaselines + m_numnewgvectors );
   outputImage->Allocate();
 
@@ -1465,7 +1465,7 @@ DWIAtlasBuilder< MyRealType, DWIPixelType >
     ci = maskit.GetIndex();
     }
   else
-    {	// need to look at the deformation field
+    {  // need to look at the deformation field
     pind = hfieldits[iI].GetIndex();
     arggh = hfieldits[iI].Get();
     ci[0] = arggh[0] / spacing[0] + pind[0];

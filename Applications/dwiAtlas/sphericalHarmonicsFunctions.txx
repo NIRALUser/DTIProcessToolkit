@@ -23,7 +23,7 @@ void createSHLookupMaps()
   int maxJ = (MAXK*MAXK + MAXK + 2)/2 + MAXK;
 
   jtokmap.resize( maxJ+1 ); // needs to be +1, because we index
-  		    // directly with the j-value
+          // directly with the j-value
   jtommap.resize( maxJ+1 );
 
   for (int k = 0; k <= MAXK; k += 2)
@@ -365,7 +365,7 @@ computeSHHuberWeightMatrix( vnl_diag_matrix<RealType> &W, const unsigned int num
 
   vnl_vector<RealType> SE(numoriggvectors, 0.0);
   SE = B*shCoeffs;  // shCoeffs are the current spherical harmonics
-  	    // coefficients
+        // coefficients
   // now compute the residuals
 
   vnl_vector<RealType> residuals(numoriggvectors, 0.0 );

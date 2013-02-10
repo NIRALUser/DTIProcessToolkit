@@ -267,11 +267,11 @@ int main(int argc, char* argv[])
   newpoint.AddField(itk::DTITubeSpatialObjectPoint<3>::FA, tensor.GetFractionalAnisotropy());
   newpoint.AddField("md", tensor.GetTrace()/3);
   newpoint.AddField("fro", sqrt(tensor[0]*tensor[0] +
-  			      2*tensor[1]*tensor[1] +
-  			      2*tensor[2]*tensor[2] +
-  			      tensor[3]*tensor[3] +
-  			      2*tensor[4]*tensor[4] +
-  			      tensor[5]*tensor[5]));
+              2*tensor[1]*tensor[1] +
+              2*tensor[2]*tensor[2] +
+              tensor[3]*tensor[3] +
+              2*tensor[4]*tensor[4] +
+              tensor[5]*tensor[5]));
   newpoint.AddField("l1", eigenvalues[2]);
   newpoint.AddField("l2", eigenvalues[1]);
   newpoint.AddField("l3", eigenvalues[0]);

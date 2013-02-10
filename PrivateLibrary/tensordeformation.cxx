@@ -21,7 +21,7 @@
 
 TensorImageType::Pointer createROT(TensorImageType::Pointer timg,
                                    const std::string &doffile,
-  			   int doffiletype)
+           int doffiletype)
 {
   //Depending on which kind of input is given for the transformation we adapt the readers:
   // doffiletype = 0 -> Old dof file, = 1 -> New dof file (dof2mat), = 2 -> itk format.
@@ -34,9 +34,9 @@ TensorImageType::Pointer createROT(TensorImageType::Pointer timg,
     //AffineTransformType::Pointer transform =
     AffineTransformType::Pointer transform_tmp =
       createITKAffine(dof,
-  	      timg->GetLargestPossibleRegion().GetSize(),
-  	      timg->GetSpacing(),
-  	      timg->GetOrigin());
+          timg->GetLargestPossibleRegion().GetSize(),
+          timg->GetSpacing(),
+          timg->GetOrigin());
     transform = transform_tmp;
     }
   if(doffiletype == 1)

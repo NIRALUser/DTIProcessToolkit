@@ -324,19 +324,19 @@ private:
   MyRealType m_Lambda;
 
   MyRealType m_ScalingFactor; // factor to scale up reconstructed
-  		      // measurements before they are put into
-  		      // the original datatype again; this is
-  		      // useful to make full use of the range
-  		      // of the output data for mis-scaled
-  		      // data acquisitions
+            // measurements before they are put into
+            // the original datatype again; this is
+            // useful to make full use of the range
+            // of the output data for mis-scaled
+            // data acquisitions
 
   DWIPixelType m_LogMinArgumentValue; // minimum value for logarithm
-  		      // computations; ideally there should
-  		      // never be any zeros in the
-  		      // computations, if so replace the
-  		      // values (only for the log computations)
-  		      // by this value (default 1) to make the
-  		      // transformation work
+            // computations; ideally there should
+            // never be any zeros in the
+            // computations, if so replace the
+            // values (only for the log computations)
+            // by this value (default 1) to make the
+            // transformation work
 
   int m_NumberOfThreads;
 
@@ -356,8 +356,8 @@ private:
   // robust estimation parameters
 
   MyRealType m_HuberC;   // coefficient which specifies the switch
-  	       // between quadratic and magnitude loss
-  	       // function
+           // between quadratic and magnitude loss
+           // function
 
   MyRealType m_RiceSigma;
   unsigned int m_NrOfWLSIterations;

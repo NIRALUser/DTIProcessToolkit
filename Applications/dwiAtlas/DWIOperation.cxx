@@ -65,19 +65,19 @@ int getNumOutputGradients(const std::string &gfname)
 
   if (!inFile)
   {
-  	std::cout << "Could not find gradient direction input file. Quitting.\n";
-  	exit(0);
+    std::cout << "Could not find gradient direction input file. Quitting.\n";
+    exit(0);
   }
   else
   {
-  	std::string currentLine;
+    std::string currentLine;
 
-  	while (!inFile.eof())
-  	{
-  		std::getline(inFile, currentLine);
+    while (!inFile.eof())
+    {
+      std::getline(inFile, currentLine);
 
-  		if ((currentLine.length() > 0) && !(currentLine.at(0) == '#')) //check if it's a comment line
-  		{
+      if ((currentLine.length() > 0) && !(currentLine.at(0) == '#')) //check if it's a comment line
+      {
                 count++;
             }
         }
@@ -98,21 +98,21 @@ void parseGradientFile(const std::string &gfname, vnl_matrix<double> &newgradien
   inFile.open(gfname.c_str(), std::ios::in);
   if (!inFile)
   {
-  	std::cout << "Could not find gradient direction input file. Quitting.\n";
-  	exit(0);
+    std::cout << "Could not find gradient direction input file. Quitting.\n";
+    exit(0);
   }
   else
   {
-  	std::cout << "Reading new gradient directions...\n\n";
+    std::cout << "Reading new gradient directions...\n\n";
 
-  	std::string currentLine;
+    std::string currentLine;
 
-  	while (!inFile.eof() && count < total)
-  	{
-  		std::getline(inFile, currentLine);
+    while (!inFile.eof() && count < total)
+    {
+      std::getline(inFile, currentLine);
 
-  		if ((currentLine.length() > 0) && !(currentLine.at(0) == '#')) //check if it's a comment line
-  		{
+      if ((currentLine.length() > 0) && !(currentLine.at(0) == '#')) //check if it's a comment line
+      {
                 std::istringstream iss(currentLine);
                 iss >> newgradients(count, 0) >> newgradients(count, 1) >> newgradients(count, 2);
                 count++;
