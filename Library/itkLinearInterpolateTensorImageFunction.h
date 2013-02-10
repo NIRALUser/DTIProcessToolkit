@@ -41,14 +41,14 @@ namespace itk
  */
 template <class TInputImage, class TCoordRep = float>
 class ITK_EXPORT LinearInterpolateTensorImageFunction :
-    public InterpolateTensorImageFunction<TInputImage,TCoordRep>
+  public         InterpolateTensorImageFunction<TInputImage, TCoordRep>
 {
 public:
   /** Standard class typedefs. */
-  typedef LinearInterpolateTensorImageFunction Self;
-  typedef InterpolateTensorImageFunction<TInputImage,TCoordRep> Superclass;
-  typedef SmartPointer<Self> Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef LinearInterpolateTensorImageFunction                   Self;
+  typedef InterpolateTensorImageFunction<TInputImage, TCoordRep> Superclass;
+  typedef SmartPointer<Self>                                     Pointer;
+  typedef SmartPointer<const Self>                               ConstPointer;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(LinearInterpolateTensorImageFunction, InterpolateTensorImageFunction);
@@ -63,13 +63,13 @@ public:
   typedef typename Superclass::InputImageType InputImageType;
 
   /** PixelType typedef supprt. */
-  typedef typename InputImageType::PixelType;
+  typedef typename InputImageType:: PixelType;
 
   /** RealType typedef support. */
   typedef typename Superclass::RealType RealType;
 
   /** Dimension underlying input image. */
-  itkStaticConstMacro(ImageDimension, unsigned int,Superclass::ImageDimension);
+  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
 
   /** Index typedef support. */
   typedef typename Superclass::IndexType IndexType;
@@ -85,20 +85,21 @@ public:
    *
    * ImageFunction::IsInsideBuffer() can be used to check bounds before
    * calling the method. */
-  virtual OutputType EvaluateAtContinuousIndex(
-    const ContinuousIndexType & index ) const;
+  virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index ) const;
 
 protected:
   LinearInterpolateTensorImageFunction();
-  ~LinearInterpolateTensorImageFunction(){};
+  ~LinearInterpolateTensorImageFunction()
+  {
+  };
   void PrintSelf(std::ostream& os, Indent indent) const;
 
 private:
-  LinearInterpolateTensorImageFunction( const Self& ); //purposely not implemented
-  void operator=( const Self& ); //purposely not implemented
+  LinearInterpolateTensorImageFunction( const Self & ); // purposely not implemented
+  void operator=( const Self & );                       // purposely not implemented
 
   /** Number of neighbors used in the interpolation */
-  static const unsigned long  m_Neighbors;
+  static const unsigned long m_Neighbors;
 
 };
 

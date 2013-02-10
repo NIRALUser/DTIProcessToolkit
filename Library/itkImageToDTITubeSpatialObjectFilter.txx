@@ -18,7 +18,6 @@
 #define _itkImageToDTITubeSpatialObjectFilter_txx
 #include "itkImageToDTITubeSpatialObjectFilter.h"
 
-
 namespace itk
 {
 
@@ -26,17 +25,17 @@ namespace itk
  *
  */
 template <class TInputImage, class TOutputDTITubeSpatialObject>
-ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
+ImageToDTITubeSpatialObjectFilter<TInputImage, TOutputDTITubeSpatialObject>
 ::ImageToDTITubeSpatialObjectFilter()
 {
 
   this->ProcessObject::SetNumberOfRequiredInputs(1);
 
   OutputDTITubeSpatialObjectPointer output
-    = dynamic_cast<OutputDTITubeSpatialObjectType*>(this->MakeOutput(0).GetPointer());
+    = dynamic_cast<OutputDTITubeSpatialObjectType *>(this->MakeOutput(0).GetPointer() );
 
   this->ProcessObject::SetNumberOfRequiredOutputs(1);
-  this->ProcessObject::SetNthOutput(0, output.GetPointer());
+  this->ProcessObject::SetNthOutput(0, output.GetPointer() );
 
 }
 
@@ -44,105 +43,97 @@ ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
  *
  */
 template <class TInputImage, class TOutputDTITubeSpatialObject>
-ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
+ImageToDTITubeSpatialObjectFilter<TInputImage, TOutputDTITubeSpatialObject>
 ::~ImageToDTITubeSpatialObjectFilter()
 {
 }
-
 
 /**
  *   Make Ouput
  */
 template <class TInputImage, class TOutputDTITubeSpatialObject>
 DataObject::Pointer
-ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
+ImageToDTITubeSpatialObjectFilter<TInputImage, TOutputDTITubeSpatialObject>
 ::MakeOutput(DataObjectPointerArraySizeType)
 {
-  OutputDTITubeSpatialObjectPointer  outputDTITubeSpatialObject = OutputDTITubeSpatialObjectType::New();
-  return dynamic_cast< DataObject *>( outputDTITubeSpatialObject.GetPointer() );
+  OutputDTITubeSpatialObjectPointer outputDTITubeSpatialObject = OutputDTITubeSpatialObjectType::New();
+
+  return dynamic_cast<DataObject *>( outputDTITubeSpatialObject.GetPointer() );
 }
-
-
-
 
 /**
  *
  */
 template <class TInputImage, class TOutputDTITubeSpatialObject>
 void
-ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
-::SetInput(unsigned int idx,const InputImageType *input)
+ImageToDTITubeSpatialObjectFilter<TInputImage, TOutputDTITubeSpatialObject>
+::SetInput(unsigned int idx, const InputImageType *input)
 {
   // process object is not const-correct, the const_cast
   // is required here.
   this->ProcessObject::SetNthInput(idx,
-                                   const_cast< InputImageType * >(input) );
+                                   const_cast<InputImageType *>(input) );
 }
-
-
 
 /**
  *
  */
 template <class TInputImage, class TOutputDTITubeSpatialObject>
-const typename ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>::InputImageType *
-ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
+const typename ImageToDTITubeSpatialObjectFilter<TInputImage, TOutputDTITubeSpatialObject>::InputImageType
+* ImageToDTITubeSpatialObjectFilter<TInputImage, TOutputDTITubeSpatialObject>
 ::GetInput(unsigned int idx)  const
-{
-  return dynamic_cast<const InputImageType*>
-    (this->ProcessObject::GetInput(idx));
-}
+  {
+  return dynamic_cast<const InputImageType *>
+         (this->ProcessObject::GetInput(idx) );
+  }
 
 /**
  *
  */
 template <class TInputImage, class TOutputDTITubeSpatialObject>
-typename ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>::InputImageType *
-ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
+typename ImageToDTITubeSpatialObjectFilter<TInputImage, TOutputDTITubeSpatialObject>::InputImageType
+* ImageToDTITubeSpatialObjectFilter<TInputImage, TOutputDTITubeSpatialObject>
 ::GetInput(unsigned int idx)
-{
-  return dynamic_cast<InputImageType*>
-    (this->ProcessObject::GetInput(idx));
-}
-
+  {
+  return dynamic_cast<InputImageType *>
+         (this->ProcessObject::GetInput(idx) );
+  }
 
 /**
  *
  */
 template <class TInputImage, class TOutputDTITubeSpatialObject>
-const typename ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>::OutputDTITubeSpatialObjectType *
-ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
+const typename ImageToDTITubeSpatialObjectFilter<TInputImage,
+                                                 TOutputDTITubeSpatialObject>::OutputDTITubeSpatialObjectType
+* ImageToDTITubeSpatialObjectFilter<TInputImage, TOutputDTITubeSpatialObject>
 ::GetOutput(void)  const
-{
-  return dynamic_cast<const OutputDTITubeSpatialObjectType*>
-    (this->ProcessObject::GetOutput(0));
-}
+  {
+  return dynamic_cast<const OutputDTITubeSpatialObjectType *>
+         (this->ProcessObject::GetOutput(0) );
+  }
 
 /**
  *
  */
 template <class TInputImage, class TOutputDTITubeSpatialObject>
-typename ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>::OutputDTITubeSpatialObjectType *
-ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
+typename ImageToDTITubeSpatialObjectFilter<TInputImage, TOutputDTITubeSpatialObject>::OutputDTITubeSpatialObjectType
+* ImageToDTITubeSpatialObjectFilter<TInputImage, TOutputDTITubeSpatialObject>
 ::GetOutput(void)
-{
-  return dynamic_cast<OutputDTITubeSpatialObjectType*>
-    (this->ProcessObject::GetOutput(0));
-}
-
+  {
+  return dynamic_cast<OutputDTITubeSpatialObjectType *>
+         (this->ProcessObject::GetOutput(0) );
+  }
 
 /**
  *
  */
 template <class TInputImage, class TOutputDTITubeSpatialObject>
 void
-ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
+ImageToDTITubeSpatialObjectFilter<TInputImage, TOutputDTITubeSpatialObject>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
-  Superclass::PrintSelf(os,indent);
+  Superclass::PrintSelf(os, indent);
 }
-
-
 
 /**
  * copy information from first input to all outputs
@@ -151,11 +142,10 @@ ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
  */
 template <class TInputImage, class TOutputDTITubeSpatialObject>
 void
-ImageToDTITubeSpatialObjectFilter<TInputImage,TOutputDTITubeSpatialObject>
+ImageToDTITubeSpatialObjectFilter<TInputImage, TOutputDTITubeSpatialObject>
 ::GenerateOutputInformation()
 {
 }
-
 
 } // end namespace itk
 

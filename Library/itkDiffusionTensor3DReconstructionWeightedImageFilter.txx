@@ -24,39 +24,43 @@
 #include "vnl/vnl_vector.h"
 #include "vnl/algo/vnl_svd.h"
 
-namespace itk {
+namespace itk
+{
 
-template< class TGradientImagePixelType,
-          class TTensorPrecision >
-DiffusionTensor3DReconstructionWeightedImageFilter< TGradientImagePixelType,
-                                                    TTensorPrecision >
+template <class TGradientImagePixelType,
+          class TTensorPrecision>
+DiffusionTensor3DReconstructionWeightedImageFilter<TGradientImagePixelType,
+                                                   TTensorPrecision>
 ::DiffusionTensor3DReconstructionWeightedImageFilter() :  m_NumberOfIterations(1)
 {
 }
 
-template< class TGradientImagePixelType, class TTensorPrecision >
+template <class TGradientImagePixelType, class TTensorPrecision>
 vnl_vector<TTensorPrecision>
-DiffusionTensor3DReconstructionWeightedImageFilter< TGradientImagePixelType,
-                                                    TTensorPrecision >
+DiffusionTensor3DReconstructionWeightedImageFilter<TGradientImagePixelType,
+                                                   TTensorPrecision>
 ::EstimateTensor(const vnl_vector<TTensorPrecision>& S) const
 {
   // setup log signals
-  vnl_vector< TTensorPrecision > B(this->m_NumberOfGradientDirections);
-  for(unsigned int i = 0; i < S.size(); ++i)
+  vnl_vector<TTensorPrecision> B(this->m_NumberOfGradientDirections);
+  for( unsigned int i = 0; i < S.size(); ++i )
     {
-    if(S[i] == 0)
+    if( S[i] == 0 )
+      {
       B[i] = 0;
+      }
     else
+      {
       B[i] = log(S[i]);
+      }
     }
 
   vnl_vector<double> prevestimate = this->m_TensorBasis * B;
-  for(unsigned int iter = 0; iter < this->m_NumberOfIterations; ++iter)
+  for( unsigned int iter = 0; iter < this->m_NumberOfIterations; ++iter )
     {
     vnl_vector<double> phi(this->m_NumberOfGradientDirections);
     phi = this->m_BMatrix * prevestimate;
-
-    for(unsigned int i = 0; i < this->m_NumberOfGradientDirections; ++i)
+    for( unsigned int i = 0; i < this->m_NumberOfGradientDirections; ++i )
       {
       phi[i] = exp(phi[i]);
       phi[i] *= phi[i];

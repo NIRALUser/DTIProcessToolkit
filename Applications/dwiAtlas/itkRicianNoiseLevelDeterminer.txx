@@ -22,11 +22,11 @@
 #include "itkConstNeighborhoodIterator.h"
 #include "vnl/vnl_math.h"
 
+namespace itk
+{
 
-namespace itk {
-
-template< class TImageType, class RealType >
-RicianNoiseLevelDeterminer< TImageType, RealType >
+template <class TImageType, class RealType>
+RicianNoiseLevelDeterminer<TImageType, RealType>
 ::RicianNoiseLevelDeterminer()
 {
   m_RadiusEstimation.Fill(3);
@@ -38,11 +38,9 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
   m_HistogramFilename = "None";
 }
 
-
-
-template< class TImageType, class RealType >
+template <class TImageType, class RealType>
 void
-RicianNoiseLevelDeterminer< TImageType, RealType >
+RicianNoiseLevelDeterminer<TImageType, RealType>
 ::Compute( void )
 {
 
@@ -51,10 +49,10 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
   typename ThresholdImageFilterType::Pointer zeroMaskImageFilter = ThresholdImageFilterType::New();
 
   zeroMaskImageFilter->SetInput( m_Input );
-  zeroMaskImageFilter->ThresholdOutside(0,0);
+  zeroMaskImageFilter->ThresholdOutside(0, 0);
   zeroMaskImageFilter->SetOutsideValue( 1 );
 
- // Compute the mean image for the input (which needs to be a baseline image)
+  // Compute the mean image for the input (which needs to be a baseline image)
 
   typedef itk::MaskedMeanImageFilter<ScalarImageType, ScalarRealImageType> MaskedMeanImageFilterType;
 
@@ -65,7 +63,7 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
 
   // now generate the restricted mask, based on the mean of the filtered values and standard deviations
 
-  typedef itk::LabelStatisticsImageFilter< ScalarRealImageType, ScalarImageType > LabelStatisticsImageFilterType;
+  typedef itk::LabelStatisticsImageFilter<ScalarRealImageType, ScalarImageType> LabelStatisticsImageFilterType;
 
   typename LabelStatisticsImageFilterType::Pointer labelStatisticsImageFilter = LabelStatisticsImageFilterType::New();
   labelStatisticsImageFilter->SetInput( maskedMeanImageFilter->GetOutput() );
@@ -78,7 +76,7 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
   RealType dMin = labelStatisticsImageFilter->GetMinimum( 1 );
   RealType dMax = labelStatisticsImageFilter->GetMaximum( 1 );
 
-  if ( m_Verbose )
+  if( m_Verbose )
     {
     std::cout << "labelStatisticsImageFilter: " << std::endl;
     std::cout << "mean = " << dMean << std::endl;
@@ -91,16 +89,25 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
 
   RealType dSigmaFac = 2.0;
 
-  RealType dDesiredMin = dMean-dSigmaFac*dSTD-0.5;
-  if ( dDesiredMin<dMin ) dDesiredMin = dMin-0.5;
-  if ( dDesiredMin<=0 ) dDesiredMin = 0;
+  RealType dDesiredMin = dMean - dSigmaFac * dSTD - 0.5;
+  if( dDesiredMin < dMin )
+    {
+    dDesiredMin = dMin - 0.5;
+    }
+  if( dDesiredMin <= 0 )
+    {
+    dDesiredMin = 0;
+    }
 
-  RealType dDesiredMax = dMean+dSigmaFac*dSTD;
-  if ( dDesiredMax>dMax ) dDesiredMax = dMax;
+  RealType dDesiredMax = dMean + dSigmaFac * dSTD;
+  if( dDesiredMax > dMax )
+    {
+    dDesiredMax = dMax;
+    }
 
   // and extract values only within this range
 
-  typedef itk::BinaryThresholdImageFilter<ScalarRealImageType,ScalarImageType> BinaryThresholdImageFilterType;
+  typedef itk::BinaryThresholdImageFilter<ScalarRealImageType, ScalarImageType> BinaryThresholdImageFilterType;
 
   typename BinaryThresholdImageFilterType::Pointer binaryRestrictedMask = BinaryThresholdImageFilterType::New();
 
@@ -110,28 +117,30 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
   binaryRestrictedMask->SetInsideValue( 1 );
   binaryRestrictedMask->SetOutsideValue( 0 );
 
-  typedef itk::AndImageFilter<ScalarImageType,ScalarImageType,ScalarImageType> AndImageFilterType;
+  typedef itk::AndImageFilter<ScalarImageType, ScalarImageType, ScalarImageType> AndImageFilterType;
 
   typename AndImageFilterType::Pointer combinedMaskFilter = AndImageFilterType::New();
 
   combinedMaskFilter->SetInput1( binaryRestrictedMask->GetOutput() );
   combinedMaskFilter->SetInput2( zeroMaskImageFilter->GetOutput() );
 
-  typedef itk::LabelStatisticsImageFilter< ScalarRealImageType, ScalarImageType > LabelStatisticsImageFilterType;
+  typedef itk::LabelStatisticsImageFilter<ScalarRealImageType, ScalarImageType> LabelStatisticsImageFilterType;
 
-  typename LabelStatisticsImageFilterType::Pointer labelStatisticsImageFilterRestricted = LabelStatisticsImageFilterType::New();
+  typename LabelStatisticsImageFilterType::Pointer labelStatisticsImageFilterRestricted =
+    LabelStatisticsImageFilterType::New();
 
   labelStatisticsImageFilterRestricted->SetInput( maskedMeanImageFilter->GetOutput() );
   labelStatisticsImageFilterRestricted->SetLabelInput( combinedMaskFilter->GetOutput() );
   dLowerBound = dDesiredMin;
   dUpperBound = dDesiredMax;
 
-  iNumBins = (int)round( (dUpperBound-dLowerBound)*m_HistogramResolutionFactor );
+  iNumBins = (int)round( (dUpperBound - dLowerBound) * m_HistogramResolutionFactor );
 
-  if ( m_Verbose )
+  if( m_Verbose )
     {
     std::cout << "number of bins = " << iNumBins << std::endl;
-    std::cout << "Histogram settings: iNumBins = " << iNumBins << "  dLowerBound = " << dLowerBound << "  dUpperBound = " << dUpperBound << std::endl;
+    std::cout << "Histogram settings: iNumBins = " << iNumBins << "  dLowerBound = " << dLowerBound
+              << "  dUpperBound = " << dUpperBound << std::endl;
     }
 
   labelStatisticsImageFilterRestricted->UseHistogramsOn();
@@ -144,7 +153,7 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
   RealType dMinR = labelStatisticsImageFilterRestricted->GetMinimum( 1 );
   RealType dMaxR = labelStatisticsImageFilterRestricted->GetMaximum( 1 );
 
-  if ( m_Verbose )
+  if( m_Verbose )
     {
     std::cout << "Restricted values:" << std::endl;
     std::cout << "mean = " << dMeanR << std::endl;
@@ -157,46 +166,46 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
   // get the histogram
 
   typedef typename LabelStatisticsImageFilterType::HistogramPointer HistogramPointer;
-  typedef typename LabelStatisticsImageFilterType::HistogramType HistogramType;
+  typedef typename LabelStatisticsImageFilterType::HistogramType    HistogramType;
 
   HistogramPointer hp =    labelStatisticsImageFilterRestricted->GetHistogram( 1 );
 
   // iterate through this thing
 
-  unsigned int iSize = (hp->GetSize())[0]; // this is a one-dimensional histogram
+  unsigned int iSize = (hp->GetSize() )[0]; // this is a one-dimensional histogram
 
   int iCurrentMaxIndex = 0;
   int iCurrentMaxFrequency = 0;
 
   std::ofstream outputStream;
-  std::string histogramFileName = "histogram.dat";
+  std::string   histogramFileName = "histogram.dat";
 
-  if ( m_HistogramFilename.compare("None")!=0 )
+  if( m_HistogramFilename.compare("None") != 0 )
     {
     outputStream.open( histogramFileName.c_str() );
     }
-
-  for ( unsigned int iI=0; iI<iSize; iI++ )
+  for( unsigned int iI = 0; iI < iSize; iI++ )
     {
 
-    RealType dCurrentBinValue = (hp->GetMeasurementVector( iI ))[0];
+    RealType dCurrentBinValue = (hp->GetMeasurementVector( iI ) )[0];
 
-    if ( (int)(hp->GetFrequency( iI ))>iCurrentMaxFrequency && (dCurrentBinValue<=m_MaximumNoiseSTD) && (dCurrentBinValue>=m_MinimumNoiseSTD) )
+    if( (int)(hp->GetFrequency( iI ) ) > iCurrentMaxFrequency && (dCurrentBinValue <= m_MaximumNoiseSTD) &&
+        (dCurrentBinValue >= m_MinimumNoiseSTD) )
       {
       iCurrentMaxIndex = iI;
       iCurrentMaxFrequency = (int)hp->GetFrequency( iI );
       }
 
-    if ( m_HistogramFilename.compare("None")!=0 )
+    if( m_HistogramFilename.compare("None") != 0 )
       {
       outputStream << std::setprecision(17) << std::scientific
                    << hp->GetFrequency( iI ) << " "
-                   << (hp->GetMeasurementVector( iI ))[0] << std::endl;
+                   << (hp->GetMeasurementVector( iI ) )[0] << std::endl;
       }
 
     }
 
-  if ( m_HistogramFilename.compare("None")!=0 )
+  if( m_HistogramFilename.compare("None") != 0 )
     {
     outputStream.close();
     }
@@ -207,26 +216,26 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
   std::cout << "dUpperBound = " << dUpperBound << std::endl;
   std::cout << "dStep = " << dStep << std::endl;*/
 
-  RealType dNoiseSTD_Estimated = sqrt(2/M_PI)*((hp->GetMeasurementVector( iCurrentMaxIndex ))[0]);
+  RealType dNoiseSTD_Estimated = sqrt(2 / M_PI) * ( (hp->GetMeasurementVector( iCurrentMaxIndex ) )[0]);
 
-  if ( m_Verbose )
+  if( m_Verbose )
     {
     std::cout << "Estimated noise standard deviation is = " << dNoiseSTD_Estimated << std::endl;
     }
-
 
   m_Output = dNoiseSTD_Estimated;
 
 }
 
-template< class TImageType, class RealType >
+template <class TImageType, class RealType>
 void
-RicianNoiseLevelDeterminer< TImageType, RealType >
+RicianNoiseLevelDeterminer<TImageType, RealType>
 ::PrintSelf(
   std::ostream& os,
   Indent indent) const
 {
   Superclass::PrintSelf( os, indent );
+
   os << indent << "Radius estimation: " << m_RadiusEstimation << std::endl;
   os << indent << "Histogram resolution factor: " << m_HistogramResolutionFactor << std::endl;
   os << indent << "Minimum number of used voxels estimation: " << m_MinimumNumberOfUsedVoxelsEstimation << std::endl;
@@ -234,8 +243,6 @@ RicianNoiseLevelDeterminer< TImageType, RealType >
 
 }
 
-
 } // end of namespace itk
-
 
 #endif

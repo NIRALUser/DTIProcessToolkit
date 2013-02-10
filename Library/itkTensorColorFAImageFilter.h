@@ -26,62 +26,75 @@ namespace itk
 // This functor class invokes the eigendecomposition of a tensor
 // pixel.  The returned value is the major eigenvector in RGB space
 // weighted by the FA value.
-namespace Functor {
+namespace Functor
+{
 
-template< typename TInput , typename RGBPixelComponentType>
+template <typename TInput, typename RGBPixelComponentType>
 class TensorColorFAFunction
 {
 public:
-  typedef typename TInput::RealValueType  RealValueType;
+  typedef typename TInput::RealValueType          RealValueType;
   typedef typename TInput::EigenVectorsMatrixType EigenVectorsType;
-  typedef typename TInput::EigenValuesArrayType EigenValuesType;
-  typedef RGBPixel<RGBPixelComponentType> PixelType;
+  typedef typename TInput::EigenValuesArrayType   EigenValuesType;
+  typedef RGBPixel<RGBPixelComponentType>         PixelType;
 
-  TensorColorFAFunction() {}
-  ~TensorColorFAFunction() {}
+  TensorColorFAFunction()
+  {
+  }
+
+  ~TensorColorFAFunction()
+  {
+  }
+
   bool operator!=( const TensorColorFAFunction & ) const
-    {
-      return false;
-    }
+  {
+    return false;
+  }
+
   bool operator==( const TensorColorFAFunction & other ) const
-    {
-      return !(*this != other);
-    }
+  {
+    return !(*this != other);
+  }
+
   PixelType operator()( const TInput & x )
-    {
-      RealValueType fa = x.GetFractionalAnisotropy();
-      // Clamp FA
-      if(fa > 1.0) fa = 1.0;
+  {
+    RealValueType fa = x.GetFractionalAnisotropy();
 
-      PixelType color;
-      EigenVectorsType mat;
-      EigenValuesType e;
-      RealValueType ev1[3];
+    // Clamp FA
+    if( fa > 1.0 )
+      {
+      fa = 1.0;
+      }
 
-      x.ComputeEigenAnalysis(e,mat);
+    PixelType        color;
+    EigenVectorsType mat;
+    EigenValuesType  e;
+    RealValueType    ev1[3];
 
-      if(e[1] > e[0] && e[1] > e[2])
-        {
-        ev1[0] = mat(1,0); ev1[1] = mat(1,1); ev1[2] = mat(1,2);
-        }
-      else if(e[2] > e[0] && e[2] > e[1])
-        {
-        ev1[0] = mat(2,0); ev1[1] = mat(2,1); ev1[2] = mat(2,2);
-        }
-      else
-        {
-        ev1[0] = mat(0,0); ev1[1] = mat(0,1); ev1[2] = mat(0,2);
-        }
+    x.ComputeEigenAnalysis(e, mat);
 
-      color.Set(static_cast<RGBPixelComponentType>(fabs(ev1[0]) * fa * NumericTraits<RGBPixelComponentType>::max()),
-                static_cast<RGBPixelComponentType>(fabs(ev1[1]) * fa * NumericTraits<RGBPixelComponentType>::max()),
-                static_cast<RGBPixelComponentType>(fabs(ev1[2]) * fa * NumericTraits<RGBPixelComponentType>::max()));
-      return color;
-    }
+    if( e[1] > e[0] && e[1] > e[2] )
+      {
+      ev1[0] = mat(1, 0); ev1[1] = mat(1, 1); ev1[2] = mat(1, 2);
+      }
+    else if( e[2] > e[0] && e[2] > e[1] )
+      {
+      ev1[0] = mat(2, 0); ev1[1] = mat(2, 1); ev1[2] = mat(2, 2);
+      }
+    else
+      {
+      ev1[0] = mat(0, 0); ev1[1] = mat(0, 1); ev1[2] = mat(0, 2);
+      }
+
+    color.Set(static_cast<RGBPixelComponentType>(fabs(ev1[0]) * fa * NumericTraits<RGBPixelComponentType>::max() ),
+              static_cast<RGBPixelComponentType>(fabs(ev1[1]) * fa * NumericTraits<RGBPixelComponentType>::max() ),
+              static_cast<RGBPixelComponentType>(fabs(ev1[2]) * fa * NumericTraits<RGBPixelComponentType>::max() ) );
+    return color;
+  }
+
 };
 
 }  // end namespace functor
-
 
 /** \class TensorColorFAImageFilter
  * \brief Computes the color FA value for every pixel of an input tensor image.
@@ -102,48 +115,49 @@ public:
 template <typename TInputImage,
           typename TOutputImage>
 class ITK_EXPORT TensorColorFAImageFilter :
-    public
-UnaryFunctorImageFilter<TInputImage,TOutputImage,
-                        Functor::TensorColorFAFunction<
-                          typename TInputImage::PixelType,
-                          typename TOutputImage::PixelType::ComponentType> >
+  public
+  UnaryFunctorImageFilter<TInputImage, TOutputImage,
+                          Functor::TensorColorFAFunction<
+                            typename TInputImage::PixelType,
+                            typename TOutputImage::PixelType::ComponentType> >
 {
 public:
   /** Standard class typedefs. */
-  typedef TensorColorFAImageFilter  Self;
-  typedef UnaryFunctorImageFilter<TInputImage,TOutputImage,
-    Functor::TensorColorFAFunction<
-    typename TInputImage::PixelType,
-    typename TOutputImage::PixelType::ComponentType> >  Superclass;
+  typedef TensorColorFAImageFilter Self;
+  typedef UnaryFunctorImageFilter<TInputImage, TOutputImage,
+                                  Functor::TensorColorFAFunction<
+                                    typename TInputImage::PixelType,
+                                    typename TOutputImage::PixelType::ComponentType> >  Superclass;
 
-  typedef SmartPointer<Self>   Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
-  typedef typename Superclass::OutputImageType    OutputImageType;
-  typedef typename TOutputImage::PixelType        OutputPixelType;
-  typedef typename TInputImage::PixelType         InputPixelType;
-  typedef typename InputPixelType::ValueType      InputValueType;
-
+  typedef typename Superclass::OutputImageType OutputImageType;
+  typedef typename TOutputImage::PixelType     OutputPixelType;
+  typedef typename TInputImage::PixelType      InputPixelType;
+  typedef typename InputPixelType::ValueType   InputValueType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
-  { this->Superclass::PrintSelf( os, indent ); }
-
+  {
+    this->Superclass::PrintSelf( os, indent );
+  }
 
 protected:
-  TensorColorFAImageFilter() {};
-  virtual ~TensorColorFAImageFilter() {};
-
+  TensorColorFAImageFilter()
+  {
+  };
+  virtual ~TensorColorFAImageFilter()
+  {
+  };
 private:
-  TensorColorFAImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  TensorColorFAImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);           // purposely not implemented
 
 };
-
-
 
 } // end namespace itk
 

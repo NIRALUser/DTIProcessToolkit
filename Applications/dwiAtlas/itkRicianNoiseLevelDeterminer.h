@@ -34,7 +34,8 @@
 
 #include <fstream>
 
-namespace itk {
+namespace itk
+{
 
 /** \class RicianNoiseLevelDeterminer
 *  \brief Computes the Rician noise level given a baseline image
@@ -42,15 +43,15 @@ namespace itk {
 * Author: Marc Niethammer
 */
 
-template< class TImageType, class RealType >
+template <class TImageType, class RealType>
 class RicianNoiseLevelDeterminer : public Object
 {
 public:
   /** Standard typedefs */
   typedef RicianNoiseLevelDeterminer Self;
-  typedef Object Superclass;
-  typedef SmartPointer<Self> Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  typedef Object                     Superclass;
+  typedef SmartPointer<Self>         Pointer;
+  typedef SmartPointer<const Self>   ConstPointer;
 
   itkStaticConstMacro(ImageDimension, unsigned int,
                       TImageType::ImageDimension);
@@ -59,13 +60,13 @@ public:
   itkTypeMacro(RicianNoiseLevelDeterminer, Object);
 
   /** standard New() method support */
-  itkNewMacro(Self) ;
+  itkNewMacro(Self);
 
-  typedef TImageType ScalarImageType;
-  typedef typename itk::Image<RealType,ImageDimension> ScalarRealImageType;
+  typedef TImageType                                    ScalarImageType;
+  typedef typename itk::Image<RealType, ImageDimension> ScalarRealImageType;
 
-  typedef typename ScalarImageType::ConstPointer                ImageConstPointer;
-  typedef typename ScalarImageType::SizeType                    RadiusType;
+  typedef typename ScalarImageType::ConstPointer ImageConstPointer;
+  typedef typename ScalarImageType::SizeType     RadiusType;
 
   typedef itk::ThresholdImageFilter<ScalarImageType> ThresholdImageFilterType;
 
@@ -78,7 +79,10 @@ public:
 
   // some macros
 
-  void SetRadiusEstimation( unsigned int iRE ) { m_RadiusEstimation.Fill( iRE ); };
+  void SetRadiusEstimation( unsigned int iRE )
+  {
+    m_RadiusEstimation.Fill( iRE );
+  };
   itkGetMacro( RadiusEstimation, RadiusType );
 
   itkSetMacro( MinimumNoiseSTD, RealType );
@@ -103,17 +107,21 @@ public:
   /** Return the noise level
       \warning This output is only valid after the Compute() method has been invoked
       \sa Compute */
-  RealType GetOutput() { return m_Output; };
-
+  RealType GetOutput()
+  {
+    return m_Output;
+  };
 protected:
   RicianNoiseLevelDeterminer();
-  virtual ~RicianNoiseLevelDeterminer() {};
+  virtual ~RicianNoiseLevelDeterminer()
+  {
+  };
   void PrintSelf(std::ostream& os, Indent indent) const;
 
 private:
 
-  ImageConstPointer        m_Input;
-  RealType                 m_Output;
+  ImageConstPointer m_Input;
+  RealType          m_Output;
 
   unsigned int m_MinimumNumberOfUsedVoxelsEstimation;
 
@@ -122,7 +130,7 @@ private:
 
   RealType dLowerBound;
   RealType dUpperBound;
-  int iNumBins;
+  int      iNumBins;
 
   std::string m_HistogramFilename;
 
@@ -132,7 +140,6 @@ private:
 
   RadiusType m_RadiusEstimation;
 };
-
 
 } // end of namespace itk
 

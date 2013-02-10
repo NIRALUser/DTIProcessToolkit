@@ -16,25 +16,34 @@
 class DTIPointModifier
 {
 public:
-  virtual ~DTIPointModifier() {}
+  virtual ~DTIPointModifier()
+  {
+  }
 
-  virtual itk::DTITubeSpatialObjectPoint<3> ComputeNewPoint(const itk::DTITubeSpatialObjectPoint<3>& oldpoint) const = 0;
+  virtual itk::DTITubeSpatialObjectPoint<3> ComputeNewPoint(const itk::DTITubeSpatialObjectPoint<3>& oldpoint) const =
+    0;
+
 };
 
 // Point modifier to update the position of a point given a warp field
-class DTIPointWarper: public DTIPointModifier
+class DTIPointWarper : public DTIPointModifier
 {
 private:
   typedef itk::VectorInterpolateImageFunction<DeformationImageType> WarpInterpolateType;
 public:
   explicit DTIPointWarper(WarpInterpolateType::Pointer wimage) : m_WarpInterpolate(wimage),
-                                                                 m_Spacing(wimage->GetInputImage()->GetSpacing()) {}
-  virtual ~DTIPointWarper() {}
+    m_Spacing(wimage->GetInputImage()->GetSpacing() )
+  {
+  }
+
+  virtual ~DTIPointWarper()
+  {
+  }
 
   virtual itk::DTITubeSpatialObjectPoint<3> ComputeNewPoint(const itk::DTITubeSpatialObjectPoint<3>& oldpoint) const;
 
 private:
-  WarpInterpolateType::Pointer m_WarpInterpolate;
+  WarpInterpolateType::Pointer      m_WarpInterpolate;
   DeformationImageType::SpacingType m_Spacing;
 };
 
@@ -55,9 +64,12 @@ private:
 class DTIPointClearData : public DTIPointModifier
 {
 public:
-  virtual ~DTIPointClearData() {}
+  virtual ~DTIPointClearData()
+  {
+  }
 
   virtual itk::DTITubeSpatialObjectPoint<3> ComputeNewPoint(const itk::DTITubeSpatialObjectPoint<3>& oldpoint) const;
+
 };
 
 // Class to perform modification to a fiber bundle based on a set of
@@ -67,12 +79,21 @@ public:
 class FiberCalculator
 {
 public:
-  FiberCalculator(): m_OldGroup(NULL), m_NewGroup(NULL), m_PointOperationChain() {}
-  explicit FiberCalculator(GroupType::Pointer basegroup): m_OldGroup(basegroup), m_NewGroup(basegroup), m_PointOperationChain() {}
+  FiberCalculator() : m_OldGroup(NULL), m_NewGroup(NULL), m_PointOperationChain()
+  {
+  }
+
+  explicit FiberCalculator(GroupType::Pointer basegroup) : m_OldGroup(basegroup), m_NewGroup(basegroup),
+    m_PointOperationChain()
+  {
+  }
 
   void AddOperation(boost::shared_ptr<DTIPointModifier> operation);
+
   void ClearOperations();
+
   void Revert();
+
   void Update();
 
 private:

@@ -28,7 +28,7 @@ namespace itk
  */
 template <class TInputImage, class TOutputImage>
 class ITK_EXPORT ExtractVolumeFilter :
-    public ImageToImageFilter< TInputImage, TOutputImage >
+  public         ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
   /** Extract dimension from input image. */
@@ -41,18 +41,24 @@ public:
   typedef ExtractVolumeFilter Self;
 
   /** Convenient typedefs for simplifying declarations. */
-  typedef TInputImage InputImageType;
-  typedef typename InputImageType::Pointer InputImagePointer;
-  typedef TOutputImage OutputImageType;
+  typedef TInputImage                       InputImageType;
+  typedef typename InputImageType::Pointer  InputImagePointer;
+  typedef TOutputImage                      OutputImageType;
   typedef typename OutputImageType::Pointer OutputImagePointer;
 
   /** Standard class typedefs. */
-  typedef ImageToImageFilter< InputImageType, OutputImageType> Superclass;
-  typedef SmartPointer<Self> Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef ImageToImageFilter<InputImageType, OutputImageType> Superclass;
+  typedef SmartPointer<Self>                                  Pointer;
+  typedef SmartPointer<const Self>                            ConstPointer;
 
-  void SetVolumeNr( int iNr ) { m_iVolumeNr = iNr; std::cout << "Setting volume nr to " << iNr << std::endl; };
-  void SetMultiplyFactor( double local_dFactor ) { this->m_dFactor = local_dFactor; };
+  void SetVolumeNr( int iNr )
+  {
+    m_iVolumeNr = iNr; std::cout << "Setting volume nr to " << iNr << std::endl;
+  };
+  void SetMultiplyFactor( double local_dFactor )
+  {
+    this->m_dFactor = local_dFactor;
+  };
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -61,10 +67,10 @@ public:
   itkTypeMacro(ExtractVolumeFilter, ImageToImageFilter);
 
   /** Image typedef support. */
-  typedef typename InputImageType::PixelType InputPixelType;
+  typedef typename InputImageType::PixelType  InputPixelType;
   typedef typename OutputImageType::PixelType OutputPixelType;
 
-  typedef typename InputImageType::RegionType InputImageRegionType;
+  typedef typename InputImageType::RegionType  InputImageRegionType;
   typedef typename OutputImageType::RegionType OutputImageRegionType;
 
   /** Typedef to describe the output and input image index and size types. */
@@ -72,8 +78,7 @@ public:
   typedef typename TInputImage::IndexType  InputImageIndexType;
   typedef typename TOutputImage::SizeType  OutputImageSizeType;
   typedef typename TInputImage::SizeType   InputImageSizeType;
-  typedef InputImageSizeType SizeType;
-
+  typedef InputImageSizeType               SizeType;
 
   /** ExtractVolumeFilter needs a larger input requested region than
    * the output requested region.  As such, ExtractVolumeFilter needs
@@ -81,25 +86,30 @@ public:
    * in order to inform the pipeline execution model.
    *
    * \sa ImageToImageFilter::GenerateInputRequestedRegion() */
-
 protected:
   ExtractVolumeFilter()
-    {
-      m_iVolumeNr = 0;
-      m_dFactor = 1;
-    }
-  virtual ~ExtractVolumeFilter() {}
+  {
+    m_iVolumeNr = 0;
+    m_dFactor = 1;
+  }
+
+  virtual ~ExtractVolumeFilter()
+  {
+  }
+
   void PrintSelf(std::ostream& os, Indent indent) const;
 
   void GenerateOutputInformation();
+
   void GenerateInputRequestedRegion();
+
   void GenerateData();
 
 private:
-  ExtractVolumeFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  ExtractVolumeFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);      // purposely not implemented
 
-  int m_iVolumeNr;
+  int    m_iVolumeNr;
   double m_dFactor;
 };
 

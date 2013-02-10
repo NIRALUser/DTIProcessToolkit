@@ -18,7 +18,6 @@
 #include <string>
 #include <iostream>
 
-
 // ITK includes
 // datastructures
 #include <itkMetaDataObject.h>
@@ -37,7 +36,7 @@
 #include "dtiprocessCLP.h"
 
 // Bad global variables.  TODO: remove these
-bool VERBOSE=false;
+bool VERBOSE = false;
 
 #if 0
 // Validates the interpolation type option string to the the allowed
@@ -57,15 +56,15 @@ void validate(boost::any& v,
   // one string, it's an error, and exception will be thrown.
   const std::string& s = validators::get_single_string(values);
 
-  if(s ==  "nearestneighbor")
+  if( s ==  "nearestneighbor" )
     {
     v = any(NearestNeighbor);
     }
-  else if (s == "linear")
+  else if( s == "linear" )
     {
     v = any(Linear);
     }
-  else if (s == "cubic")
+  else if( s == "cubic" )
     {
     v = any(Cubic);
     }
@@ -88,11 +87,11 @@ void validate(boost::any& v,
   // one string, it's an error, and exception will be thrown.
   const std::string& s = validators::get_single_string(values);
 
-  if(s == "fs")
+  if( s == "fs" )
     {
     v = any(FiniteStrain);
     }
-  else if(s == "ppd")
+  else if( s == "ppd" )
     {
     v = any(PreservationPrincipalDirection);
     }
@@ -101,6 +100,7 @@ void validate(boost::any& v,
     throw validation_error("Reorientation type invalid.  Only \"fs\" or \"ppd\"");
     }
 }
+
 #endif
 
 int main(int argc, char* argv[])
@@ -111,12 +111,12 @@ int main(int argc, char* argv[])
   // Read program options/configuration
   po::options_description config("Usage: dtiprocess tensor-image [options]");
   config.add_options()
-    // General options
+  // General options
     ("help,h", "produce this help message")
-    ("verbose,v","produces verbose output")
+    ("verbose,v", "produces verbose output")
     ("mask", po::value<std::string>(), "Masks tensors")
 
-    // Derived outputs
+  // Derived outputs
     ("fa-output,f", po::value<std::string>(), "FA output file")
     ("md-output,m", po::value<std::string>(), "MD output file")
     ("fa-gradient-output", po::value<std::string>(), "FA gradient")
@@ -124,7 +124,8 @@ int main(int argc, char* argv[])
     ("fa-gradmag-output", po::value<std::string>(), "FA gradient magnitude")
     ("color-fa-output,c", po::value<std::string>(), "Color FA output file")
     ("principal-eigenvector-output,V", po::value<std::string>(), "Principal Eigenvector of tensor field")
-//    ("closest-dotproduct-output,D", po::value<std::string>(),  "Closes dot product of principal eigenvector to all gradient directions")
+//    ("closest-dotproduct-output,D", po::value<std::string>(),  "Closes dot product of principal eigenvector to all
+// gradient directions")
     ("negative-eig-output,n", po::value<std::string>(), "Negative eigenvalue binary image output file")
     ("frobenius-norm-output", po::value<std::string>(), "Frobenius norm output")
 
@@ -133,39 +134,46 @@ int main(int argc, char* argv[])
     ("lambda3-output", po::value<std::string>(), "Lambda 3 (smallest eigenvalue) output")
     ("RD-output", po::value<std::string>(), "RD (1/2*(Lambda2+Lambda3)) output")
 
-    // derived output options
+  // derived output options
     ("scalar-float", "Write scalar [FA,MD] as unscaled float.  Also causes FA to be unscaled [0..1].")
-    // ("double", "Writes output in double precisision") // *Currently Default *
+  // ("double", "Writes output in double precisision") // *Currently Default *
 
-    // tensor transformations
-    // affine
-    ("rotOutput,r", po::value<std::string>(),"Rotated tensor output file.  Must also specify the dof file.")
-    ("dof-file,d", po::value<std::string>(),"Transformation file for affine transformation.  This can be RView or ITK format.")
+  // tensor transformations
+  // affine
+    ("rotOutput,r", po::value<std::string>(), "Rotated tensor output file.  Must also specify the dof file.")
+    ("dof-file,d", po::value<std::string>(),
+    "Transformation file for affine transformation.  This can be RView or ITK format.")
 
-    // deformation
-    ("deformation-output,w", po::value<std::string>(), "Warped tensor field based on a deformation field.  This option requires the --forward,-F transformation to be specified.")
-    ("forward,F", po::value<std::string>(), "Forward transformation.  Assumed to be a deformation field in world coordinates, unless the --h-field option is specified.")
+  // deformation
+    ("deformation-output,w", po::value<std::string>(),
+    "Warped tensor field based on a deformation field.  This option requires the --forward,-F transformation to be specified.")
+    ("forward,F", po::value<std::string>(),
+    "Forward transformation.  Assumed to be a deformation field in world coordinates, unless the --h-field option is specified.")
     ("inverse,I", po::value<std::string>(), "Inverse of warp (DEPRECATED: NO LONGER REQUIRED)")
     ("h-field", "forward and inverse transformations are h-fields instead of displacement fields")
 
-    // transformation options
-    ("interpolation,i", po::value<InterpolationType>()->default_value(Linear,"linear"), "Interpolation type (nearestneighbor, linear, cubic)")
-    ("reorientation", po::value<TensorReorientationType>()->default_value(FiniteStrain,"fs (Finite Strain)"), "Reorientation type (fs, ppd)")
+  // transformation options
+    ("interpolation,i",
+    po::value<InterpolationType>()->default_value(Linear,
+                                                  "linear"), "Interpolation type (nearestneighbor, linear, cubic)")
+    ("reorientation",
+    po::value<TensorReorientationType>()->default_value(FiniteStrain,
+                                                        "fs (Finite Strain)"), "Reorientation type (fs, ppd)")
 
-    // statistics options
-    // ("stats", po::value<std::string>(), "Compute statistics")
-    ;
+  // statistics options
+  // ("stats", po::value<std::string>(), "Compute statistics")
+  ;
 
   po::options_description hidden("Hidden options");
   hidden.add_options()
     ("dti-image", po::value<std::string>(), "DTI tensor volume")
-    ;
+  ;
 
   po::options_description all;
   all.add(config).add(hidden);
 
   po::positional_options_description p;
-  p.add("dti-image",1);
+  p.add("dti-image", 1);
 
   po::variables_map vm;
 
@@ -175,24 +183,26 @@ int main(int argc, char* argv[])
               options(all).positional(p).run(), vm);
     po::notify(vm);
     }
-  catch (const po::error &e)
+  catch( const po::error & e )
     {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
     }
 
   // Display help if asked or program improperly called
-  if(vm.count("help") || !vm.count("dti-image"))
+  if( vm.count("help") || !vm.count("dti-image") )
     {
     std::cout << config << std::endl;
-    if(vm.count("help"))
+    if( vm.count("help") )
       {
       std::cout << "$Date: 2009/01/21 21:11:49 $ $Revision: 1.7 $" << std::endl;
       std::cout << ITK_SOURCE_VERSION << std::endl;
       return EXIT_SUCCESS;
       }
     else
+      {
       return EXIT_FAILURE;
+      }
     }
   // End option reading configuration
 #endif
@@ -212,19 +222,19 @@ int main(int argc, char* argv[])
   // Read tensor image
   typedef itk::ImageFileReader<TensorImageType> FileReaderType;
   FileReaderType::Pointer dtireader = FileReaderType::New();
-  if(dtiImage == "")
+  if( dtiImage == "" )
     {
     std::cerr << "Missing DTI Image filename" << std::endl;
     exit(1);
     }
-  dtireader->SetFileName(dtiImage.c_str());
+  dtireader->SetFileName(dtiImage.c_str() );
   try
     {
     dtireader->Update();
     }
-  catch (itk::ExceptionObject & e)
+  catch( itk::ExceptionObject & e )
     {
-    std::cerr << e <<std::endl;
+    std::cerr << e << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -234,95 +244,95 @@ int main(int argc, char* argv[])
 
   itk::MetaDataDictionary & dict = dtireader->GetOutput()->GetMetaDataDictionary();
 
-
   std::vector<std::string> keys = dict.GetKeys();
-  for(std::vector<std::string>::const_iterator it = keys.begin();
-      it != keys.end(); ++it)
+  for( std::vector<std::string>::const_iterator it = keys.begin();
+       it != keys.end(); ++it )
     {
-    if( it->find("DWMRI_gradient") != std::string::npos)
+    if( it->find("DWMRI_gradient") != std::string::npos )
       {
       std::string value;
 
       itk::ExposeMetaData<std::string>(dict, *it, value);
       std::istringstream iss(value);
-      GradientType g;
+      GradientType       g;
       iss >> g[0] >> g[1] >> g[2];
 
       unsigned int ind;
-      std::string temp = it->substr(it->find_last_of('_')+1);
-      ind = atoi(temp.c_str());
+      std::string  temp = it->substr(it->find_last_of('_') + 1);
+      ind = atoi(temp.c_str() );
 
-      gradientContainer->InsertElement(ind,g);
+      gradientContainer->InsertElement(ind, g);
       }
     }
-  for(std::vector<std::string>::const_iterator it = keys.begin();
-      it != keys.end(); ++it)
+  for( std::vector<std::string>::const_iterator it = keys.begin();
+       it != keys.end(); ++it )
     {
-    if( it->find("DWMRI_NEX") != std::string::npos)
+    if( it->find("DWMRI_NEX") != std::string::npos )
       {
       std::string numrepstr;
 
       itk::ExposeMetaData<std::string>(dict, *it, numrepstr);
-      unsigned int numreps = atoi(numrepstr.c_str());
+      unsigned int numreps = atoi(numrepstr.c_str() );
 
-      std::string indtorepstr = it->substr(it->find_last_of('_')+1);
-      unsigned int indtorep =  atoi(indtorepstr.c_str());
+      std::string  indtorepstr = it->substr(it->find_last_of('_') + 1);
+      unsigned int indtorep =  atoi(indtorepstr.c_str() );
 
       GradientType g = gradientContainer->GetElement(indtorep);
-
-      for(unsigned int i = indtorep+1; i < indtorep+numreps; i++)
-        gradientContainer->InsertElement(i,g);
+      for( unsigned int i = indtorep + 1; i < indtorep + numreps; i++ )
+        {
+        gradientContainer->InsertElement(i, g);
+        }
       }
 
     }
 
   // Debugging
-  if(VERBOSE)
+  if( VERBOSE )
     {
-    std::cout << "Interpolation type: " << // vm["interpolation"].as<InterpolationType>() << std::endl;
-      interpolation << std::endl;
-    std::cout << "reorientation type: " << // vm["reorientation"].as<TensorReorientationType>() << std::endl;
-      reorientation << std::endl;
+    std::cout << "Interpolation type: "    // vm["interpolation"].as<InterpolationType>() << std::endl;
+              << interpolation << std::endl;
+    std::cout << "reorientation type: "    // vm["reorientation"].as<TensorReorientationType>() << std::endl;
+              << reorientation << std::endl;
     }
 
   TensorImageType::Pointer tensors = dtireader->GetOutput();
   //  if(vm.count("mask"))
-  if(mask != "")
+  if( mask != "" )
     {
     typedef itk::ImageFileReader<LabelImageType> MaskFileReaderType;
     MaskFileReaderType::Pointer maskreader = MaskFileReaderType::New();
     //    maskreader->SetFileName(vm["mask"].as<std::string>());
-    maskreader->SetFileName(mask.c_str());
-    typedef itk::VectorMaskImageFilter<TensorImageType,LabelImageType,TensorImageType> MaskFilterType;
+    maskreader->SetFileName(mask.c_str() );
+    typedef itk::VectorMaskImageFilter<TensorImageType, LabelImageType, TensorImageType> MaskFilterType;
     MaskFilterType::Pointer _mask = MaskFilterType::New();
     _mask->SetInput1(tensors);
-    _mask->SetInput2(maskreader->GetOutput());
+    _mask->SetInput2(maskreader->GetOutput() );
 
     try
       {
       _mask->Update();
       }
-    catch (itk::ExceptionObject & e)
+    catch( itk::ExceptionObject & e )
       {
-      std::cerr << e <<std::endl;
+      std::cerr << e << std::endl;
       return EXIT_FAILURE;
       }
 
     tensors = _mask->GetOutput();
-    //If the outmask option is specified, the masked tensor field is saved
-    if(outmask != "" )
+    // If the outmask option is specified, the masked tensor field is saved
+    if( outmask != "" )
       {
       typedef itk::ImageFileWriter<TensorImageType> FileWriterType;
       FileWriterType::Pointer dtiwriter = FileWriterType::New();
-      dtiwriter->SetFileName(outmask.c_str());
+      dtiwriter->SetFileName(outmask.c_str() );
       dtiwriter->SetInput(tensors);
       try
         {
         dtiwriter->Update();
         }
-      catch (itk::ExceptionObject & e)
+      catch( itk::ExceptionObject & e )
         {
-        std::cerr << e <<std::endl;
+        std::cerr << e << std::endl;
         return EXIT_FAILURE;
         }
       }
@@ -331,146 +341,170 @@ int main(int argc, char* argv[])
   // sigma set in PARSE_ARGS
   // double sigma = vm["sigma"].as<double>();
 
-
   // Compute FA image
   //  if(vm.count("fa-output"))
-  if(faOutput != "")
+  if( faOutput != "" )
     {
-    if(scale)
+    if( scale )
+      {
       writeImage(faOutput,
-                 createFA<unsigned short>(tensors));
+                 createFA<unsigned short>(tensors) );
+      }
     else
+      {
       writeImage(faOutput,
-                 createFA<double>(tensors));
+                 createFA<double>(tensors) );
+      }
     }
 
-
   //  if(vm.count("fa-gradient-output"))
-  if(faGradientOutput != "")
+  if( faGradientOutput != "" )
     {
     writeImage(faGradientOutput,
-               createFAGradient(tensors, sigma));
+               createFAGradient(tensors, sigma) );
     }
 
   //  if(vm.count("fa-gradmag-output"))
-  if(faGradientMagOutput != "")
+  if( faGradientMagOutput != "" )
     {
     writeImage(faGradientMagOutput,
-               createFAGradMag(tensors, sigma));
+               createFAGradMag(tensors, sigma) );
     }
 
-  if(colorFAOutput != "")
+  if( colorFAOutput != "" )
     {
     writeImage(colorFAOutput,
-               createColorFA(tensors));
+               createColorFA(tensors) );
     }
 
-  if(principalEigenvectorOutput != "")
+  if( principalEigenvectorOutput != "" )
 //     vm.count("closest-dotproduct-output"))
     {
     writeImage(principalEigenvectorOutput,
-               createPrincipalEigenvector(tensors));
+               createPrincipalEigenvector(tensors) );
     }
 
   //  if(vm.count("md-output"))
-  if(mdOutput != "")
+  if( mdOutput != "" )
     {
-    if(scale)
+    if( scale )
+      {
       writeImage(mdOutput,
-                 createMD<unsigned short>(tensors));
+                 createMD<unsigned short>(tensors) );
+      }
     else
+      {
       writeImage(mdOutput,
-                 createMD<double>(tensors));
+                 createMD<double>(tensors) );
+      }
     }
 
-  if(lambda1Output != "")
+  if( lambda1Output != "" )
     {
-    if(scale)
+    if( scale )
+      {
       writeImage(lambda1Output,
-                 createLambda<unsigned short>(tensors, Lambda1));
+                 createLambda<unsigned short>(tensors, Lambda1) );
+      }
     else
+      {
       writeImage(lambda1Output,
-                 createLambda<double>(tensors, Lambda1));
+                 createLambda<double>(tensors, Lambda1) );
+      }
     }
 
-  if(lambda2Output != "")
+  if( lambda2Output != "" )
     {
-    if(scale)
+    if( scale )
+      {
       writeImage(lambda2Output,
-                 createLambda<unsigned short>(tensors, Lambda2));
+                 createLambda<unsigned short>(tensors, Lambda2) );
+      }
     else
+      {
       writeImage(lambda2Output,
-                 createLambda<double>(tensors, Lambda2));
+                 createLambda<double>(tensors, Lambda2) );
+      }
     }
 
-  if(lambda3Output != "")
+  if( lambda3Output != "" )
     {
-    if(scale)
+    if( scale )
+      {
       writeImage(lambda3Output,
-                 createLambda<unsigned short>(tensors, Lambda3));
+                 createLambda<unsigned short>(tensors, Lambda3) );
+      }
     else
+      {
       writeImage(lambda3Output,
-                 createLambda<double>(tensors, Lambda3));
+                 createLambda<double>(tensors, Lambda3) );
+      }
     }
 
-  if(RDOutput != "")
+  if( RDOutput != "" )
     {
-    if(scale)
+    if( scale )
+      {
       writeImage(RDOutput,
-                 createRD<unsigned short>(tensors));
+                 createRD<unsigned short>(tensors) );
+      }
     else
+      {
       writeImage(RDOutput,
-                 createRD<double>(tensors));
+                 createRD<double>(tensors) );
+      }
     }
 
-  if(frobeniusNormOutput != "")
+  if( frobeniusNormOutput != "" )
     {
-    if(scale)
+    if( scale )
+      {
       writeImage(frobeniusNormOutput,
-                 createFro<unsigned short>(tensors));
+                 createFro<unsigned short>(tensors) );
+      }
     else
+      {
       writeImage(frobeniusNormOutput,
-                 createFro<double>(tensors));
+                 createFro<double>(tensors) );
+      }
     }
 
-  if(negativeEigenvectorOutput != "")
+  if( negativeEigenvectorOutput != "" )
     {
     writeImage(negativeEigenvectorOutput,
-               createNegativeEigenValueLabel(tensors));
+               createNegativeEigenValueLabel(tensors) );
     }
 
-
-  if(rotOutput != "")
+  if( rotOutput != "" )
     {
-    if(dofFile == "")
+    if( dofFile == "" )
       {
       std::cerr << "Tensor rotation requested, but dof file not specified" << std::endl;
       return EXIT_FAILURE;
       }
-    //If the input affine file is a dof file from rview
-    else if(dofFile != "")
+    // If the input affine file is a dof file from rview
+    else if( dofFile != "" )
       {
       writeImage(rotOutput,
-                 createROT(tensors,dofFile,0));
+                 createROT(tensors, dofFile, 0) );
       }
-    //If the input affine file is a new dof file (output of dof2mat)
-    else if(newdof_file != "")
+    // If the input affine file is a new dof file (output of dof2mat)
+    else if( newdof_file != "" )
       {
       writeImage(rotOutput,
-                 createROT(tensors, newdof_file, 1));
+                 createROT(tensors, newdof_file, 1) );
       }
-    //If the input affine file is an itk compatible file
-    else if(affineitk_file != "")
+    // If the input affine file is an itk compatible file
+    else if( affineitk_file != "" )
       {
       writeImage(rotOutput,
-                 createROT(tensors, affineitk_file, 2));
+                 createROT(tensors, affineitk_file, 2) );
       }
     }
 
-
-  if(deformationOutput != "")
+  if( deformationOutput != "" )
     {
-    if(forwardTransformation == "")
+    if( forwardTransformation == "" )
       {
       std::cerr << "Deformation field info not fully specified" << std::endl;
       return EXIT_FAILURE;
@@ -478,7 +512,7 @@ int main(int argc, char* argv[])
     DeformationImageType::Pointer forward;
 
     DeformationFieldType dftype = Displacement;
-    if(hField)
+    if( hField )
       {
       dftype = HField;
       }
@@ -488,24 +522,26 @@ int main(int argc, char* argv[])
     writeImage(deformationOutput,
                createWarp(tensors,
                           forward,
-                          //vm["reorientation"].as<TensorReorientationType>(),
+                          // vm["reorientation"].as<TensorReorientationType>(),
                           (reorientation == "fs" ? FiniteStrain :
                            PreservationPrincipalDirection),
-                          //vm["interpolation"].as<InterpolationType>()));
+                          // vm["interpolation"].as<InterpolationType>()));
                           (interpolation == "linear" ? Linear :
                            (interpolation == "nearestneightbor" ? NearestNeighbor :
-                            Cubic))));
+                            Cubic) ) ) );
     }
 
 #if 0 //
-  if(vm.count("stats"))
+  if( vm.count("stats") )
     {
-    if(!vm.count("mask"))
+    if( !vm.count("mask") )
       {
       std::cerr << "WARNING: No mask specified.  Computing whole brain statistics" << std::endl;
       }
-    if(VERBOSE)
+    if( VERBOSE )
+      {
       std::cout << "Computing tensor stats" << std::endl;
+      }
 
 //    TensorRegionStatistics tstat = computeTensorStatistics(tensors);
 
@@ -513,5 +549,3 @@ int main(int argc, char* argv[])
 #endif
   return EXIT_SUCCESS;
 }
-
-

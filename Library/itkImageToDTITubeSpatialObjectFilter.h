@@ -34,11 +34,10 @@ class ITK_EXPORT ImageToDTITubeSpatialObjectFilter : public ProcessObject
 {
 public:
   /** Standard class typedefs. */
-  typedef ImageToDTITubeSpatialObjectFilter  Self;
-  typedef ProcessObject  Superclass;
-  typedef SmartPointer<Self>  Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
-
+  typedef ImageToDTITubeSpatialObjectFilter Self;
+  typedef ProcessObject                     Superclass;
+  typedef SmartPointer<Self>                Pointer;
+  typedef SmartPointer<const Self>          ConstPointer;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ImageToDTITubeSpatialObjectFilter, DTITubeSpatialObjectSource);
@@ -47,15 +46,15 @@ public:
   virtual DataObject::Pointer MakeOutput(DataObjectPointerArraySizeType idx);
 
   /** Some Image related typedefs. */
-  typedef   TInputImage                             InputImageType;
-  typedef   typename InputImageType::Pointer        InputImagePointer;
-  typedef   typename InputImageType::ConstPointer   InputImageConstPointer;
-  typedef   typename InputImageType::RegionType     InputImageRegionType;
-  typedef   typename InputImageType::PixelType      InputImagePixelType;
+  typedef   TInputImage                           InputImageType;
+  typedef   typename InputImageType::Pointer      InputImagePointer;
+  typedef   typename InputImageType::ConstPointer InputImageConstPointer;
+  typedef   typename InputImageType::RegionType   InputImageRegionType;
+  typedef   typename InputImageType::PixelType    InputImagePixelType;
 
   /** Some DTITubeSpatialObject related typedefs. */
-  typedef   TOutputDTITubeSpatialObject                             OutputDTITubeSpatialObjectType;
-  typedef   typename OutputDTITubeSpatialObjectType::Pointer        OutputDTITubeSpatialObjectPointer;
+  typedef   TOutputDTITubeSpatialObject                      OutputDTITubeSpatialObjectType;
+  typedef   typename OutputDTITubeSpatialObjectType::Pointer OutputDTITubeSpatialObjectPointer;
 
   /** Set the input image of this process object.  */
   using Superclass::SetInput;
@@ -63,10 +62,12 @@ public:
 
   /** Get the input image of this process object.  */
   const InputImageType * GetInput(unsigned int idx) const;
+
   InputImageType * GetInput(unsigned int idx);
 
   /** Get the output DTITubeSpatialObject of this process object.  */
   const OutputDTITubeSpatialObjectType * GetOutput(void) const;
+
   OutputDTITubeSpatialObjectType * GetOutput(void);
 
   /** Prepare the output */
@@ -78,8 +79,8 @@ protected:
   void PrintSelf(std::ostream& os, Indent indent) const;
 
 private:
-  ImageToDTITubeSpatialObjectFilter(const ImageToDTITubeSpatialObjectFilter&); //purposely not implemented
-  void operator=(const ImageToDTITubeSpatialObjectFilter&); //purposely not implemented
+  ImageToDTITubeSpatialObjectFilter(const ImageToDTITubeSpatialObjectFilter &); // purposely not implemented
+  void operator=(const ImageToDTITubeSpatialObjectFilter &);                    // purposely not implemented
 
 };
 

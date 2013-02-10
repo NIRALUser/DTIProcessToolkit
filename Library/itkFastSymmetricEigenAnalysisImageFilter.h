@@ -31,62 +31,69 @@ namespace itk
 // The default operation is to order eigen values in ascending order.
 // You may also use OrderEigenValuesBy( ) to order eigen values by
 // magnitude as is common with use of tensors in vessel extraction.
-namespace Functor {
+namespace Functor
+{
 
-template< typename TInput, typename TOutput >
+template <typename TInput, typename TOutput>
 class SymmetricEigenAnalysisFunction
 {
 public:
-  typedef typename TInput::RealValueType  RealValueType;
-  SymmetricEigenAnalysisFunction() {}
-  ~SymmetricEigenAnalysisFunction() {}
+  typedef typename TInput::RealValueType RealValueType;
+  SymmetricEigenAnalysisFunction()
+  {
+  }
+
+  ~SymmetricEigenAnalysisFunction()
+  {
+  }
 
   bool operator!=( const SymmetricEigenAnalysisFunction & ) const
-    {
-      return false;
-    }
+  {
+    return false;
+  }
+
   bool operator==( const SymmetricEigenAnalysisFunction & other ) const
-    {
-      return !(*this != other);
-    }
+  {
+    return !(*this != other);
+  }
 
   inline TOutput operator()( const TInput & x )
-    {
-      double lambdas[3];
+  {
+    double lambdas[3];
 
-      vnl_symmetric_eigensystem_compute_eigenvals(x[0], x[1], x[2],
-                                                  x[3], x[4],
-                                                  x[5],
-                                                  lambdas[0],
-                                                  lambdas[1],
-                                                  lambdas[2]);
-      return TOutput(lambdas);
-    }
+    vnl_symmetric_eigensystem_compute_eigenvals(x[0], x[1], x[2],
+                                                x[3], x[4],
+                                                x[5],
+                                                lambdas[0],
+                                                lambdas[1],
+                                                lambdas[2]);
+    return TOutput(lambdas);
+  }
 
   /** Typdedefs to order eigen values.
    * OrderByValue:      lambda_1 < lambda_2 < ....
    * OrderByMagnitude:  |lambda_1| < |lambda_2| < .....
    * DoNotOrder:        Default order of eigen values obtained after QL method
    */
-  typedef enum {
-    OrderByValue=1,
+  typedef enum
+    {
+    OrderByValue = 1,
     OrderByMagnitude,
     DoNotOrder
-  } EigenValueOrderType;
+    } EigenValueOrderType;
 
   /** Order eigen values. Default is to OrderByValue:  lambda_1 <
    * lambda_2 < .... */
   void OrderEigenValuesBy( EigenValueOrderType order )
-    {
-      m_Order = order;
-    }
+  {
+    m_Order = order;
+  }
 
 private:
   EigenValueOrderType m_Order;
 };
 
 }  // end namespace functor
-
 
 /** \class SymmetricEigenAnalysisImageFilter
  * \brief Computes the Fractional Anisotropy for every pixel of a input tensor image.
@@ -111,37 +118,37 @@ private:
  * \ingroup IntensityImageFilters  Multithreaded  TensorObjects
  *
  */
-template <typename  TInputImage, typename  TOutputImage=TInputImage>
+template <typename  TInputImage, typename  TOutputImage = TInputImage>
 class ITK_EXPORT FastSymmetricEigenAnalysisImageFilter :
-    public
-UnaryFunctorImageFilter<TInputImage,TOutputImage,
-                        Functor::SymmetricEigenAnalysisFunction<
-                          typename TInputImage::PixelType,
-                          typename TOutputImage::PixelType > >
+  public
+  UnaryFunctorImageFilter<TInputImage, TOutputImage,
+                          Functor::SymmetricEigenAnalysisFunction<
+                            typename TInputImage::PixelType,
+                            typename TOutputImage::PixelType> >
 {
 public:
   /** Standard class typedefs. */
-  typedef FastSymmetricEigenAnalysisImageFilter  Self;
+  typedef FastSymmetricEigenAnalysisImageFilter Self;
   typedef UnaryFunctorImageFilter<
-    TInputImage,TOutputImage,
-    Functor::SymmetricEigenAnalysisFunction<
-    typename TInputImage::PixelType,
-    typename TOutputImage::PixelType > >   Superclass;
-  typedef SmartPointer<Self>                 Pointer;
-  typedef SmartPointer<const Self>           ConstPointer;
+      TInputImage, TOutputImage,
+      Functor::SymmetricEigenAnalysisFunction<
+        typename TInputImage::PixelType,
+        typename TOutputImage::PixelType> >   Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
-  typedef typename Superclass::OutputImageType    OutputImageType;
-  typedef typename TOutputImage::PixelType        OutputPixelType;
-  typedef typename TInputImage::PixelType         InputPixelType;
-  typedef typename InputPixelType::ValueType      InputValueType;
-  typedef typename Superclass::FunctorType        FunctorType;
+  typedef typename Superclass::OutputImageType OutputImageType;
+  typedef typename TOutputImage::PixelType     OutputPixelType;
+  typedef typename TInputImage::PixelType      InputPixelType;
+  typedef typename InputPixelType::ValueType   InputValueType;
+  typedef typename Superclass::FunctorType     FunctorType;
 
   /** Typdedefs to order eigen values.
    * OrderByValue:      lambda_1 < lambda_2 < ....
    * OrderByMagnitude:  |lambda_1| < |lambda_2| < .....
    * DoNotOrder:        Default order of eigen values obtained after QL method
    */
-  typedef typename FunctorType::EigenValueOrderType         EigenValueOrderType;
+  typedef typename FunctorType::EigenValueOrderType EigenValueOrderType;
 
   /** Order eigen values. Default is to OrderByValue:  lambda_1 <
    * lambda_2 < .... */
@@ -158,26 +165,28 @@ public:
 
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
-  { this->Superclass::PrintSelf( os, indent ); }
+  {
+    this->Superclass::PrintSelf( os, indent );
+  }
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
   itkConceptMacro(InputHasNumericTraitsCheck,
-                  (Concept::HasNumericTraits<InputValueType>));
+                  (Concept::HasNumericTraits<InputValueType> ) );
   /** End concept checking */
 #endif
-
 protected:
-  FastSymmetricEigenAnalysisImageFilter() {};
-  virtual ~FastSymmetricEigenAnalysisImageFilter() {};
-
+  FastSymmetricEigenAnalysisImageFilter()
+  {
+  };
+  virtual ~FastSymmetricEigenAnalysisImageFilter()
+  {
+  };
 private:
-  FastSymmetricEigenAnalysisImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  FastSymmetricEigenAnalysisImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);                        // purposely not implemented
 
 };
-
-
 
 } // end namespace itk
 

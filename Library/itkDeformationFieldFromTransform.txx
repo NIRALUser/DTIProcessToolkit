@@ -15,7 +15,6 @@
 
 =========================================================================*/
 
-
 #ifndef _itkDeformationFieldFromTransform_txx
 #define _itkDeformationFieldFromTransform_txx
 
@@ -38,7 +37,6 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
 
 }
 
-
 /**
  * Print out a description of self
  *
@@ -49,14 +47,12 @@ void
 DeformationFieldFromTransform<TOutputImage, TPrecision>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
-  Superclass::PrintSelf(os,indent);
+  Superclass::PrintSelf(os, indent);
 
   os << indent << "OutputRegion:    " << m_OutputRegion << std::endl;
   os << indent << "OutputSpacing:   " << m_OutputSpacing << std::endl;
   os << indent << "OutputOrigin:    " << m_OutputOrigin << std::endl;
 }
-
-
 
 /**
  * Set the output image spacing.
@@ -68,9 +64,9 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
   const double* spacing)
 {
   SpacingType s(spacing);
+
   this->SetOutputSpacing( s );
 }
-
 
 /**
  * Set the output image origin.
@@ -82,9 +78,9 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
   const double* origin)
 {
   OriginPointType p(origin);
+
   this->SetOutputOrigin( p );
 }
-
 
 /**
  * ThreadedGenerateData
@@ -99,14 +95,14 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
     {
     throw itk::ExceptionObject("This file not instrumented for multi-threading!");
     }
-  itkDebugMacro(<<"Actually executing");
+  itkDebugMacro(<< "Actually executing");
 
   // Get the output pointers
-  OutputImageType *  outputPtr = this->GetOutput();
+  OutputImageType * outputPtr = this->GetOutput();
 
   // Create an iterator that will walk the output region for this thread.
   typedef ImageRegionIteratorWithIndex<
-                                  TOutputImage> OutputIterator;
+      TOutputImage> OutputIterator;
 
   OutputIterator outIt( outputPtr, outputRegion );
 
@@ -125,7 +121,7 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
   outIt.GoToBegin();
 
   // Walk the output region
-  while ( !outIt.IsAtEnd() )
+  while( !outIt.IsAtEnd() )
     {
     // Determine the index of the current output pixel
     outputIndex = outIt.GetIndex();
@@ -136,7 +132,7 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
       m_Transform->TransformPoint( outputPoint );
 
     OutputPixelType displacement;
-    for( unsigned int i=0; i < ImageDimension; i++)
+    for( unsigned int i = 0; i < ImageDimension; i++ )
       {
       displacement[i] = interpolatedDeformation[i] - outputPoint[i];
 
@@ -149,7 +145,6 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
 
   return;
 }
-
 
 /**
  * Inform pipeline of required output region
@@ -164,7 +159,8 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
 
   // get pointers to the input and output
   OutputImagePointer outputPtr = this->GetOutput();
-  if ( !outputPtr )
+
+  if( !outputPtr )
     {
     return;
     }
@@ -179,8 +175,6 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
   return;
 }
 
-
-
 /**
  * Verify if any of the components has been modified.
  */
@@ -193,8 +187,6 @@ DeformationFieldFromTransform<TOutputImage, TPrecision>
 
   return latestTime;
 }
-
-
 
 } // end namespace itk
 

@@ -20,38 +20,40 @@
 #include <vnl/vnl_trace.h>
 #include "TensorGeometry.h"
 
-template<class T, unsigned int dimension=3>
+template <class T, unsigned int dimension = 3>
 class SymmetricSpaceTensorGeometry : public TensorGeometry<T, dimension>
 {
 public:
-  typedef TensorGeometry<T, dimension> SuperClass;
-  typedef typename SuperClass::TensorType TensorType;
+  typedef TensorGeometry<T, dimension>     SuperClass;
+  typedef typename SuperClass::TensorType  TensorType;
   typedef typename SuperClass::TangentType TangentType;
 
-  typedef itk::Matrix<T, dimension> MatrixType;
-  typedef typename TensorType::EigenValuesArrayType EigenValuesArrayType;
+  typedef itk::Matrix<T, dimension>                   MatrixType;
+  typedef typename TensorType::EigenValuesArrayType   EigenValuesArrayType;
   typedef typename TensorType::EigenVectorsMatrixType EigenVectorsMatrixType;
 
-  SymmetricSpaceTensorGeometry() {}
+  SymmetricSpaceTensorGeometry()
+  {
+  }
 
-  virtual T InnerProduct(const TensorType & base,
-                         const TangentType & v,
-                         const TangentType & w);
+  virtual T InnerProduct(const TensorType & base, const TangentType & v, const TangentType & w);
 
   virtual TensorType ExpMap(const TensorType & base, const TangentType & v);
+
   virtual TangentType LogMap(const TensorType & base, const TensorType & p);
 
   TensorType GroupAction(const TensorType & p, const MatrixType & g);
 
 private:
   // Computes eigensystem where the eigenvector matrix is determinant 1.
-  void OrientedEigensystem(const TensorType & p,
-                           EigenValuesArrayType & eigenValues,
+  void OrientedEigensystem(const TensorType & p, EigenValuesArrayType & eigenValues,
                            EigenVectorsMatrixType & eigenVectors);
 
   // Perhaps these routines should be part of SymmetricSecondRankTensor?
   void TensorToMatrix(const TensorType & p, MatrixType & m);
+
   void MatrixToTensor(const MatrixType & m, TensorType & p);
+
 };
 
 #include "SymmetricSpaceTensorGeometry.txx"

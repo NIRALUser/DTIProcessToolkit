@@ -20,7 +20,6 @@
 #include "itkBinaryFunctorImageFilter.h"
 #include "itkNumericTraits.h"
 
-
 namespace itk
 {
 
@@ -50,77 +49,87 @@ namespace itk
  * \sa DotProductImageFilter
  * \ingroup IntensityImageFilters  Multithreaded
  */
-namespace Functor {
+namespace Functor
+{
 
-template< class TInput1, class TInput2, class TOutput >
+template <class TInput1, class TInput2, class TOutput>
 class VectorDotProductInput
 {
 public:
-  typedef typename NumericTraits< TInput1 >::AccumulateType AccumulatorType;
+  typedef typename NumericTraits<TInput1>::AccumulateType AccumulatorType;
 
-  VectorDotProductInput() {};
-  ~VectorDotProductInput() {};
+  VectorDotProductInput()
+  {
+  };
+  ~VectorDotProductInput()
+  {
+  };
   bool operator!=( const VectorDotProductInput & ) const
-    {
-      return false;
-    }
+  {
+    return false;
+  }
+
   bool operator==( const VectorDotProductInput & other ) const
-    {
-      return !(*this != other);
-    }
+  {
+    return !(*this != other);
+  }
+
   TOutput operator()( const TInput1 & A, const TInput2 & B)
-    {
-      if (B == NumericTraits< TInput2 >::Zero )
-        {
-        TInput1 R = A;
-        R.Fill(0);
-        return R;
-        }
-      else
-        {
-        return static_cast<TOutput>( A );
-        }
-    }
+  {
+    if( B == NumericTraits<TInput2>::Zero )
+      {
+      TInput1 R = A;
+      R.Fill(0);
+      return R;
+      }
+    else
+      {
+      return static_cast<TOutput>( A );
+      }
+  }
+
 };
 
 }
 template <class TInput1Image, class TInput2Image, class TOutputImage>
 class ITK_EXPORT VectorDotProductImageFilter :
-    public
-BinaryFunctorImageFilter<TInput1Image,TInput2Image,TOutputImage,
-                         Functor::VectorDotProductInput<
-                           typename TInput1Image::PixelType,
-                           typename TInput2Image::PixelType,
-                           typename TOutputImage::PixelType>   >
-
+  public
+  BinaryFunctorImageFilter<TInput1Image, TInput2Image, TOutputImage,
+                           Functor::VectorDotProductInput<
+                             typename TInput1Image::PixelType,
+                             typename TInput2Image::PixelType,
+                             typename TOutputImage::PixelType>   >
 
 {
 public:
   /** Standard class typedefs. */
-  typedef VectorDotProductImageFilter  Self;
-  typedef BinaryFunctorImageFilter<TInput1Image,TInput2Image,TOutputImage,
+  typedef VectorDotProductImageFilter Self;
+  typedef BinaryFunctorImageFilter<TInput1Image, TInput2Image, TOutputImage,
                                    Functor::VectorDotProductInput<
                                      typename TInput1Image::PixelType,
                                      typename TInput2Image::PixelType,
                                      typename TOutputImage::PixelType>
                                    >  Superclass;
-typedef SmartPointer<Self>   Pointer;
-typedef SmartPointer<const Self>  ConstPointer;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
 /** Method for creation through the object factory. */
-itkNewMacro(Self);
-
+  itkNewMacro(Self);
 protected:
-VectorDotProductImageFilter() {}
-virtual ~VectorDotProductImageFilter() {}
+  VectorDotProductImageFilter()
+  {
+  }
+
+  virtual ~VectorDotProductImageFilter()
+  {
+  }
 
 private:
-VectorDotProductImageFilter(const Self&); //purposely not implemented
-void operator=(const Self&); //purposely not implemented
+  VectorDotProductImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);              // purposely not implemented
 
 };
 
 } // end namespace itk
-
 
 #endif

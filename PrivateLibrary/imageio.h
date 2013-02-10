@@ -21,9 +21,8 @@
 #include <string>
 #include <itkSmartPointer.h>
 
-template<typename TImage>
-void writeImage(const std::string & filename,
-                itk::SmartPointer<TImage> image);
+template <typename TImage>
+void writeImage(const std::string & filename, itk::SmartPointer<TImage> image);
 
 #include "imageio.txx"
 

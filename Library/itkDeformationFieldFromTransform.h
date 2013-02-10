@@ -32,19 +32,19 @@ namespace itk
  * \ingroup ImageSource
  */
 template <class TOutputImage, class TPrecision>
-class ITK_EXPORT DeformationFieldFromTransform:
-    public ImageSource<TOutputImage>
+class ITK_EXPORT DeformationFieldFromTransform :
+  public         ImageSource<TOutputImage>
 {
 public:
   /** Standard class typedefs. */
-  typedef DeformationFieldFromTransform         Self;
-  typedef ImageSource<TOutputImage>      Superclass;
-  typedef SmartPointer<Self>             Pointer;
-  typedef SmartPointer<const Self>       ConstPointer;
+  typedef DeformationFieldFromTransform Self;
+  typedef ImageSource<TOutputImage>     Superclass;
+  typedef SmartPointer<Self>            Pointer;
+  typedef SmartPointer<const Self>      ConstPointer;
 
-  typedef TOutputImage OutputImageType;
-  typedef typename OutputImageType::Pointer     OutputImagePointer;
-  typedef typename OutputImageType::RegionType  OutputImageRegionType;
+  typedef TOutputImage                         OutputImageType;
+  typedef typename OutputImageType::Pointer    OutputImagePointer;
+  typedef typename OutputImageType::RegionType OutputImageRegionType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -57,18 +57,18 @@ public:
                       TOutputImage::ImageDimension);
 
   /** Image size typedef. */
-  typedef typename OutputImageType::SizeType      OutputSizeType;
+  typedef typename OutputImageType::SizeType OutputSizeType;
 
   /** Image index typedef. */
-  typedef typename OutputImageType::IndexType     OutputIndexType;
+  typedef typename OutputImageType::IndexType OutputIndexType;
 
   /** Image pixel value typedef. */
-  typedef typename TOutputImage::PixelType        OutputPixelType;
-  typedef typename OutputPixelType::ValueType     OutputPixelComponentType;
+  typedef typename TOutputImage::PixelType    OutputPixelType;
+  typedef typename OutputPixelType::ValueType OutputPixelComponentType;
 
   /** Image spacing typedef */
-  typedef typename TOutputImage::SpacingType      SpacingType;
-  typedef typename TOutputImage::PointType        OriginPointType;
+  typedef typename TOutputImage::SpacingType SpacingType;
+  typedef typename TOutputImage::PointType   OriginPointType;
 
   /** Precision used for transform */
   typedef TPrecision PrecisionType;
@@ -110,33 +110,32 @@ public:
    * below. \sa ProcessObject::GenerateOutputInformaton() */
   virtual void GenerateOutputInformation();
 
-
   /** Method Compute the Modified Time based on changed to the components. */
   unsigned long GetMTime( void ) const;
 
 protected:
   DeformationFieldFromTransform();
-  ~DeformationFieldFromTransform() {};
+  ~DeformationFieldFromTransform()
+  {
+  };
   void PrintSelf(std::ostream& os, Indent indent) const;
 
   /**
    * ThreadedGenerateData() iterates over all pixels and computes the
    * local deformation vector from the transform.
    */
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegion,
-                            ThreadIdType threadId);
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegion, ThreadIdType threadId);
 
 private:
-  DeformationFieldFromTransform(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  DeformationFieldFromTransform(const Self &); // purposely not implemented
+  void operator=(const Self &);                // purposely not implemented
 
-  OutputImageRegionType         m_OutputRegion;      // Region of the output image
-  SpacingType                   m_OutputSpacing;     // output image spacing
-  OriginPointType               m_OutputOrigin;      // output image origin
+  OutputImageRegionType m_OutputRegion;              // Region of the output image
+  SpacingType           m_OutputSpacing;             // output image spacing
+  OriginPointType       m_OutputOrigin;              // output image origin
 
   typename TransformType::Pointer  m_Transform;         // transform object
 };
-
 
 } // end namespace itk
 

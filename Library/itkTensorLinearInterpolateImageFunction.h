@@ -40,14 +40,14 @@ namespace itk
  */
 template <class TInputImage, class TCoordRep = float>
 class ITK_EXPORT TensorLinearInterpolateImageFunction :
-    public TensorInterpolateImageFunction<TInputImage,TCoordRep>
+  public         TensorInterpolateImageFunction<TInputImage, TCoordRep>
 {
 public:
   /** Standard class typedefs. */
-  typedef TensorLinearInterpolateImageFunction Self;
-  typedef TensorInterpolateImageFunction<TInputImage,TCoordRep> Superclass;
-  typedef SmartPointer<Self> Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef TensorLinearInterpolateImageFunction                   Self;
+  typedef TensorInterpolateImageFunction<TInputImage, TCoordRep> Superclass;
+  typedef SmartPointer<Self>                                     Pointer;
+  typedef SmartPointer<const Self>                               ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -67,7 +67,7 @@ public:
                       Superclass::Dimension);
 
   /** Dimension underlying input image. */
-  itkStaticConstMacro(ImageDimension, unsigned int,Superclass::ImageDimension);
+  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
 
   /** Index typedef support. */
   typedef typename Superclass::IndexType IndexType;
@@ -86,20 +86,21 @@ public:
    *
    * ImageFunction::IsInsideBuffer() can be used to check bounds before
    * calling the method. */
-  virtual OutputType EvaluateAtContinuousIndex(
-    const ContinuousIndexType & index ) const;
+  virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index ) const;
 
 protected:
   TensorLinearInterpolateImageFunction();
-  ~TensorLinearInterpolateImageFunction(){};
+  ~TensorLinearInterpolateImageFunction()
+  {
+  };
   void PrintSelf(std::ostream& os, Indent indent) const;
 
 private:
-  TensorLinearInterpolateImageFunction(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  TensorLinearInterpolateImageFunction(const Self &); // purposely not implemented
+  void operator=(const Self &);                       // purposely not implemented
 
   /** Number of neighbors used in the interpolation */
-  static const unsigned long  m_Neighbors;
+  static const unsigned long m_Neighbors;
 
 };
 
@@ -107,17 +108,17 @@ private:
 
 // Define instantiation macro for this template.
 #define ITK_TEMPLATE_TensorLinearInterpolateImageFunction(_, EXPORT, x, y) namespace itk { \
-                                                                           _(2(class EXPORT TensorLinearInterpolateImageFunction< ITK_TEMPLATE_2 x >)) \
-                                                                           namespace Templates { typedef TensorLinearInterpolateImageFunction< ITK_TEMPLATE_2 x > \
-                                                                             TensorLinearInterpolateImageFunction##y; } \
+  _(2 (class EXPORT TensorLinearInterpolateImageFunction<ITK_TEMPLATE_2 x> ) ) \
+  namespace Templates { typedef TensorLinearInterpolateImageFunction<ITK_TEMPLATE_2 x> \
+                          TensorLinearInterpolateImageFunction##y; } \
   }
 
 #if ITK_TEMPLATE_EXPLICIT
-# include "Templates/itkTensorLinearInterpolateImageFunction+-.h"
+#include "Templates/itkTensorLinearInterpolateImageFunction+-.h"
 #endif
 
 #if ITK_TEMPLATE_TXX
-# include "itkTensorLinearInterpolateImageFunction.txx"
+#include "itkTensorLinearInterpolateImageFunction.txx"
 #endif
 
 #endif

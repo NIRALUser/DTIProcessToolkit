@@ -24,31 +24,40 @@ namespace itk
 
 // This functor class invokes the computation of mean diffusivity from
 // every pixel.
-namespace Functor {
+namespace Functor
+{
 
-template< typename TInput >
+template <typename TInput>
 class TensorMeanDiffusivityFunction
 {
 public:
-  typedef typename TInput::RealValueType  RealValueType;
-  TensorMeanDiffusivityFunction() {}
-  ~TensorMeanDiffusivityFunction() {}
+  typedef typename TInput::RealValueType RealValueType;
+  TensorMeanDiffusivityFunction()
+  {
+  }
+
+  ~TensorMeanDiffusivityFunction()
+  {
+  }
+
   bool operator!=( const TensorMeanDiffusivityFunction & ) const
-    {
-      return false;
-    }
+  {
+    return false;
+  }
+
   bool operator==( const TensorMeanDiffusivityFunction & other ) const
-    {
-      return !(*this != other);
-    }
+  {
+    return !(*this != other);
+  }
+
   inline RealValueType operator()( const TInput & x )
-    {
-      return x.GetTrace() / 3.0;
-    }
+  {
+    return x.GetTrace() / 3.0;
+  }
+
 };
 
 }  // end namespace functor
-
 
 /** \class TensorMeanDiffusivityImageFilter
  * \brief Computes the Mean Diffusivity for every pixel of a input tensor image.
@@ -67,48 +76,50 @@ public:
  *
  */
 template <typename TInputImage,
-          typename TOutputImage=itk::Image<typename TInputImage::PixelType::RealValueType, TInputImage::ImageDimension > >
+          typename TOutputImage =
+            itk::Image<typename TInputImage::PixelType::RealValueType, TInputImage::ImageDimension> >
 class ITK_EXPORT TensorMeanDiffusivityImageFilter :
-    public
-UnaryFunctorImageFilter<TInputImage,TOutputImage,
-                        Functor::TensorMeanDiffusivityFunction<
-                          typename TInputImage::PixelType> >
+  public
+  UnaryFunctorImageFilter<TInputImage, TOutputImage,
+                          Functor::TensorMeanDiffusivityFunction<
+                            typename TInputImage::PixelType> >
 {
 public:
   /** Standard class typedefs. */
-  typedef TensorMeanDiffusivityImageFilter  Self;
-  typedef UnaryFunctorImageFilter<TInputImage,TOutputImage,
-    Functor::TensorMeanDiffusivityFunction<
-    typename TInputImage::PixelType> >  Superclass;
+  typedef TensorMeanDiffusivityImageFilter Self;
+  typedef UnaryFunctorImageFilter<TInputImage, TOutputImage,
+                                  Functor::TensorMeanDiffusivityFunction<
+                                    typename TInputImage::PixelType> >  Superclass;
 
-  typedef SmartPointer<Self>   Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
-  typedef typename Superclass::OutputImageType    OutputImageType;
-  typedef typename TOutputImage::PixelType        OutputPixelType;
-  typedef typename TInputImage::PixelType         InputPixelType;
-  typedef typename InputPixelType::ValueType      InputValueType;
-
+  typedef typename Superclass::OutputImageType OutputImageType;
+  typedef typename TOutputImage::PixelType     OutputPixelType;
+  typedef typename TInputImage::PixelType      InputPixelType;
+  typedef typename InputPixelType::ValueType   InputValueType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
-  { this->Superclass::PrintSelf( os, indent ); }
-
+  {
+    this->Superclass::PrintSelf( os, indent );
+  }
 
 protected:
-  TensorMeanDiffusivityImageFilter() {};
-  virtual ~TensorMeanDiffusivityImageFilter() {};
-
+  TensorMeanDiffusivityImageFilter()
+  {
+  };
+  virtual ~TensorMeanDiffusivityImageFilter()
+  {
+  };
 private:
-  TensorMeanDiffusivityImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  TensorMeanDiffusivityImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);                   // purposely not implemented
 
 };
-
-
 
 } // end namespace itk
 

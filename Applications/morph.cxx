@@ -27,27 +27,27 @@
 
 int main(int argc, char* argv[])
 {
-  if(argc != 5)
+  if( argc != 5 )
     {
     std::cerr << "Usage: " << argv[0] << " type radius input output" << std::endl;
     return EXIT_FAILURE;
     }
 
-  const std::string type = argv[1];
+  const std::string  type = argv[1];
   const unsigned int radius = atoi(argv[2]);
-  const std::string input = argv[3];
-  const std::string output = argv[4];
+  const std::string  input = argv[3];
+  const std::string  output = argv[4];
 
-  typedef unsigned short Pixel;
-  typedef itk::Image<Pixel, 3> Image;
+  typedef unsigned short                              Pixel;
+  typedef itk::Image<Pixel, 3>                        Image;
   typedef itk::BinaryBallStructuringElement<Pixel, 3> StructuringElement;
 
   itk::ImageToImageFilter<Image, Image>::Pointer filter;
-  StructuringElement ball;
+  StructuringElement                             ball;
   ball.SetRadius(radius);
   ball.CreateStructuringElement();
 
-  if(type == "open")
+  if( type == "open" )
     {
     typedef itk::BinaryMorphologicalOpeningImageFilter<Image, Image, StructuringElement> OpeningFilter;
     OpeningFilter::Pointer openingfilter = OpeningFilter::New();
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
     openingfilter->SetForegroundValue(1);
     filter = openingfilter;
     }
-  else if(type == "close")
+  else if( type == "close" )
     {
     typedef itk::BinaryMorphologicalClosingImageFilter<Image, Image, StructuringElement> ClosingFilter;
     ClosingFilter::Pointer closingfilter = ClosingFilter::New();
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
     closingfilter->SetForegroundValue(1);
     filter = closingfilter;
     }
-  else if(type == "dilate")
+  else if( type == "dilate" )
     {
     typedef itk::BinaryDilateImageFilter<Image, Image, StructuringElement> DilateFilter;
     DilateFilter::Pointer dilatefilter = DilateFilter::New();
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
     dilatefilter->SetForegroundValue(1);
     filter = dilatefilter;
     }
-  else if(type == "erode")
+  else if( type == "erode" )
     {
     typedef itk::BinaryErodeImageFilter<Image, Image, StructuringElement> ErodeFilter;
     ErodeFilter::Pointer erodefilter = ErodeFilter::New();
@@ -93,19 +93,18 @@ int main(int argc, char* argv[])
   writer->SetFileName(output);
   writer->UseCompressionOn();
 
-  filter->SetInput(reader->GetOutput());
-  writer->SetInput(filter->GetOutput());
+  filter->SetInput(reader->GetOutput() );
+  writer->SetInput(filter->GetOutput() );
 
   try
     {
     writer->Update();
     }
-  catch (itk::ExceptionObject e)
+  catch( itk::ExceptionObject e )
     {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
     }
-
 
   return EXIT_SUCCESS;
 }

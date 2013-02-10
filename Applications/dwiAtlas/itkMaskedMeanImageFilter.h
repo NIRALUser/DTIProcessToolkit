@@ -41,7 +41,7 @@ namespace itk
  */
 template <class TInputImage, class TOutputImage>
 class ITK_EXPORT MaskedMeanImageFilter :
-    public ImageToImageFilter< TInputImage, TOutputImage >
+  public         ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
   /** Extract dimension from input and output image. */
@@ -51,14 +51,14 @@ public:
                       TOutputImage::ImageDimension);
 
   /** Convenient typedefs for simplifying declarations. */
-  typedef TInputImage InputImageType;
+  typedef TInputImage  InputImageType;
   typedef TOutputImage OutputImageType;
 
   /** Standard class typedefs. */
-  typedef MaskedMeanImageFilter Self;
-  typedef ImageToImageFilter< InputImageType, OutputImageType> Superclass;
-  typedef SmartPointer<Self> Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef MaskedMeanImageFilter                               Self;
+  typedef ImageToImageFilter<InputImageType, OutputImageType> Superclass;
+  typedef SmartPointer<Self>                                  Pointer;
+  typedef SmartPointer<const Self>                            ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -73,11 +73,11 @@ public:
   itkGetMacro(MinimumNumberOfUsedVoxels, unsigned int );
 
   /** Image typedef support. */
-  typedef typename InputImageType::PixelType InputPixelType;
-  typedef typename OutputImageType::PixelType OutputPixelType;
+  typedef typename InputImageType::PixelType               InputPixelType;
+  typedef typename OutputImageType::PixelType              OutputPixelType;
   typedef typename NumericTraits<InputPixelType>::RealType InputRealType;
 
-  typedef typename InputImageType::RegionType InputImageRegionType;
+  typedef typename InputImageType::RegionType  InputImageRegionType;
   typedef typename OutputImageType::RegionType OutputImageRegionType;
 
   typedef typename InputImageType::SizeType InputSizeType;
@@ -94,18 +94,20 @@ public:
    * in order to inform the pipeline execution model.
    *
    * \sa ImageToImageFilter::GenerateInputRequestedRegion() */
-  virtual void GenerateInputRequestedRegion() throw(InvalidRequestedRegionError);
+  virtual void GenerateInputRequestedRegion() throw (InvalidRequestedRegionError);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
   itkConceptMacro(InputHasNumericTraitsCheck,
-                  (Concept::HasNumericTraits<InputPixelType>));
+                  (Concept::HasNumericTraits<InputPixelType> ) );
   /** End concept checking */
 #endif
-
 protected:
   MaskedMeanImageFilter();
-  virtual ~MaskedMeanImageFilter() {}
+  virtual ~MaskedMeanImageFilter()
+  {
+  }
+
   void PrintSelf(std::ostream& os, Indent indent) const;
 
   /** MaskedMeanImageFilter can be implemented as a multithreaded filter.
@@ -118,15 +120,14 @@ protected:
    *
    * \sa ImageToImageFilter::ThreadedGenerateData(),
    *     ImageToImageFilter::GenerateData() */
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-                            ThreadIdType threadId );
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, ThreadIdType threadId );
 
 private:
-  MaskedMeanImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  MaskedMeanImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);        // purposely not implemented
 
   InputSizeType m_Radius;
-  unsigned int m_MinimumNumberOfUsedVoxels;
+  unsigned int  m_MinimumNumberOfUsedVoxels;
 
 };
 

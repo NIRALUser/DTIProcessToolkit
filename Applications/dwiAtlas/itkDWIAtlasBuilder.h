@@ -34,7 +34,6 @@
 #include <vnl/algo/vnl_svd.h>
 #include <vnl/vnl_inverse.h>
 
-
 #include "itkDeformationFieldJacobianFilter.h"
 #include "itkDiffusionTensor3DReconstructionLinearImageFilter.h"
 #include "itkRicianNoiseLevelDeterminer.h"
@@ -47,14 +46,15 @@ namespace itk
 class ConsoleProgressCommand : public itk::Command
 {
 public:
-  typedef  ConsoleProgressCommand   Self;
-  typedef  itk::Command             Superclass;
-  typedef  itk::SmartPointer<Self>  Pointer;
+  typedef  ConsoleProgressCommand  Self;
+  typedef  itk::Command            Superclass;
+  typedef  itk::SmartPointer<Self> Pointer;
   itkNewMacro( Self );
-
 protected:
-  ConsoleProgressCommand(): m_MaxProgress(100), m_Progress(0) { m_LastPercent = 0; firstRun = true; };
-
+  ConsoleProgressCommand() : m_MaxProgress(100), m_Progress(0)
+  {
+    m_LastPercent = 0; firstRun = true;
+  };
 public:
 
   void Execute(itk::Object *caller, const itk::EventObject & event)
@@ -67,7 +67,7 @@ public:
     m_MaxProgress = mP;
   }
 
-  void Execute(const itk::Object * , const itk::EventObject & event)
+  void Execute(const itk::Object *, const itk::EventObject & event)
   {
     if( itk::StartEvent().CheckEvent( &event ) )
       {
@@ -75,29 +75,29 @@ public:
       std::cout << "0%                    50%                    100%" << std::endl;
       std::cout << "=================================================" << std::endl;
       }
-    else if( itk::EndEvent().CheckEvent( &event ))
+    else if( itk::EndEvent().CheckEvent( &event ) )
       {
       std::cout << std::endl;
       }
-    else if( itk::ProgressEvent().CheckEvent( &event ))
+    else if( itk::ProgressEvent().CheckEvent( &event ) )
       {
       ++m_Progress;
-      unsigned int currentPerc = (unsigned int)round(100*((double)m_Progress)/m_MaxProgress);
-      if ( (currentPerc%2==0 && (currentPerc>m_LastPercent)) | firstRun )
-  {
+      unsigned int currentPerc = (unsigned int)round(100 * ( (double)m_Progress) / m_MaxProgress);
+      if( (currentPerc % 2 == 0 && (currentPerc > m_LastPercent) ) | firstRun )
+        {
         std::cout << "*";
-  std::cout.flush();
-  firstRun = false;
-  }
+        std::cout.flush();
+        firstRun = false;
+        }
       }
   }
+
 private:
   unsigned long m_MaxProgress;
   unsigned long m_Progress;
-  unsigned int m_LastPercent;
-  bool firstRun;
+  unsigned int  m_LastPercent;
+  bool          firstRun;
 };
-
 
 /** \class DWIAtlasBuilder
  *  \brief This class takes creates a DWI atlas form a set of DWI images.
@@ -105,64 +105,63 @@ private:
  */
 
 const unsigned int DIM = 3;
-const char* NRRD_MEASUREMENT_KEY = "NRRD_measurement frame";
+const char*        NRRD_MEASUREMENT_KEY = "NRRD_measurement frame";
 
 template <class MyRealType, class DWIPixelType>
 class ITK_EXPORT DWIAtlasBuilder :
-  public ImageSource<VectorImage<  DWIPixelType , DIM > >
+  public         ImageSource<VectorImage<DWIPixelType, DIM> >
 {
 public:
 
   /** Standard class typedefs. */
-  typedef DWIAtlasBuilder                Self;
-  typedef ImageSource< VectorImage< DWIPixelType,  DIM > > Superclass;
-  typedef SmartPointer<Self>                   Pointer;
-  typedef SmartPointer<const Self>             ConstPointer;
+  typedef DWIAtlasBuilder                               Self;
+  typedef ImageSource<VectorImage<DWIPixelType,  DIM> > Superclass;
+  typedef SmartPointer<Self>                            Pointer;
+  typedef SmartPointer<const Self>                      ConstPointer;
 
-  typedef VectorImage< DWIPixelType, DIM > OutputImageType;
-  typedef typename Superclass::Pointer    OutputImagePointer;
+  typedef VectorImage<DWIPixelType, DIM>        OutputImageType;
+  typedef typename Superclass::Pointer          OutputImagePointer;
   typedef typename OutputImageType::SpacingType SpacingType;
   typedef typename OutputImageType::PointType   PointType;
-
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(DWIAtlasBuilder,ImageSource);
+  itkTypeMacro(DWIAtlasBuilder, ImageSource);
 
   /** Superclass typedefs. */
   typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
 
   /** Some convenient typedefs. */
   typedef VectorImage<DWIPixelType, DIM> VectorImageType;
-  typedef Image<DWIPixelType,DIM> ScalarImageType;
+  typedef Image<DWIPixelType, DIM>       ScalarImageType;
 
   typedef ImageFileReader<VectorImageType> FileReaderType;
   typedef ImageFileReader<ScalarImageType> ScalarFileReaderType;
 
-  typedef RicianNoiseLevelDeterminer< ScalarImageType, RealType > RicianNoiseLevelDeterminerType;
-  typedef ExtractVolumeFilter< VectorImageType, ScalarImageType > ExtractInputVolumeFilterType;
+  typedef RicianNoiseLevelDeterminer<ScalarImageType, RealType> RicianNoiseLevelDeterminerType;
+  typedef ExtractVolumeFilter<VectorImageType, ScalarImageType> ExtractInputVolumeFilterType;
 
   typedef DeformationFieldJacobianFilter<DeformationImageType, MyRealType> MyJacobianFilterType;
 
   typedef typename MyJacobianFilterType::OutputImageType MyJacobianImageType;
-  typedef typename MyJacobianImageType::PixelType  MyJacobianType;
+  typedef typename MyJacobianImageType::PixelType        MyJacobianType;
 
   typedef DiffusionTensor3DReconstructionLinearImageFilter<DWIPixelType, MyRealType>
-DiffusionEstimationFilterType;
+    DiffusionEstimationFilterType;
   typedef typename DiffusionEstimationFilterType::GradientDirectionContainerType GradientDirectionContainerType;
 
   typedef vnl_vector_fixed<MyRealType, DIM> MyGradientType;
 
   typedef typename VectorImageType::SizeType SizeType;
 
- /**  Command for observing progress of internal pipeline filters */
+  /**  Command for observing progress of internal pipeline filters */
   typedef typename ConsoleProgressCommand::Pointer ProgressCommandPointer;
 
   /** Since a string is not a dataobject, we use the decorator to push
    *  it down the pipeline */
-  typedef SimpleDataObjectDecorator< std::string*  > InputStringObjectType;
+  typedef SimpleDataObjectDecorator<std::string *> InputStringObjectType;
 
   /** Determine the image dimension. */
   itkStaticConstMacro(ImageDimension, unsigned int, DIM );
@@ -175,21 +174,24 @@ DiffusionEstimationFilterType;
 
   /** Set the spacing (size of a pixel) of the image.
    *  \sa GetSpacing() */
-  itkSetMacro(Spacing,SpacingType);
+  itkSetMacro(Spacing, SpacingType);
   virtual void SetSpacing(const double* values);
 
   /** Get the spacing (size of a pixel) of the image.
    * For ImageBase and Image, the default data spacing is unity. */
-  itkGetConstReferenceMacro(Spacing,SpacingType);
+  itkGetConstReferenceMacro(Spacing, SpacingType);
 
   /** Set the origin of the image.
    * \sa GetOrigin() */
-  itkSetMacro(Origin,PointType);
+  itkSetMacro(Origin, PointType);
   virtual void SetOrigin(const double* values);
 
-  const InputStringObjectType* GetInput( void );
+  const InputStringObjectType * GetInput( void );
 
-  ScalarImageType* GetOutlierImage() { return OutlierImage; };
+  ScalarImageType * GetOutlierImage()
+  {
+    return OutlierImage;
+  };
 
   /** Set verbose mode. */
   itkSetMacro( Verbose, bool);
@@ -240,23 +242,25 @@ DiffusionEstimationFilterType;
   itkGetMacro( NrOfWLSIterations, unsigned int );
 
   void SetInterpolationType( std::string interpolationType );
+
   std::string GetInterpolationType();
 
   void SetAveragingType( std::string averagingType );
+
   std::string GetAveragingType();
 
   void SetNrOfThreads( int iNrOfThreads );
+
   unsigned int GetNrOfThreads();
 
- /** Get the origin of the image.  */
-  itkGetConstReferenceMacro(Origin,PointType);
-
-
+  /** Get the origin of the image.  */
+  itkGetConstReferenceMacro(Origin, PointType);
 protected:
   DWIAtlasBuilder();
   ~DWIAtlasBuilder();
 
-  typedef struct {
+  typedef struct
+    {
     std::vector<DWIPixelType> dwiVals;
     vnl_matrix<MyRealType> gradients;
     std::vector<MyRealType> interpolationWeights;
@@ -264,29 +268,42 @@ protected:
     unsigned int NDWI;
     unsigned int iNrOfBaselinesPerVolume;
     bool goodVoxel;
-  } STransformedGradientInformationType;
+    } STransformedGradientInformationType;
 
   void LoadDataAndInitialize();
 
   vnl_matrix<MyRealType>
-  rotateGradients( typename GradientDirectionContainerType::Pointer gradientContainer, itk::Matrix<MyRealType, 3, 3> jacobian, std::vector<bool>& isBaseline, unsigned int &iNrOfBaselines );
+  rotateGradients( typename GradientDirectionContainerType::Pointer gradientContainer, itk::Matrix<MyRealType, 3,
+                                                                                                   3> jacobian,
+                   std::vector<bool> &isBaseline, unsigned int & iNrOfBaselines );
 
-  void getGradients( typename DiffusionEstimationFilterType::GradientDirectionContainerType & gradientContainer, itk::MetaDataDictionary & dict,  vnl_matrix<MyRealType> imgf, unsigned int& iNrOfBaselines, std::vector<unsigned int> &vecBaselineIndices, bool bVERBOSE=false );
+  void getGradients( typename DiffusionEstimationFilterType::GradientDirectionContainerType & gradientContainer,
+                     itk::MetaDataDictionary & dict,  vnl_matrix<MyRealType> imgf, unsigned int& iNrOfBaselines,
+                     std::vector<unsigned int> &vecBaselineIndices, bool bVERBOSE = false );
 
-  void extractDesiredBaselinesAndDWIs( STransformedGradientInformationType& allBaselines, STransformedGradientInformationType& allDWIs, const STransformedGradientInformationType* transformedInformation, unsigned int nrOfDataSets , unsigned int interpolationType, unsigned int averagingType );
+  void extractDesiredBaselinesAndDWIs( STransformedGradientInformationType& allBaselines,
+                                       STransformedGradientInformationType& allDWIs,
+                                       const STransformedGradientInformationType* transformedInformation,
+                                       unsigned int nrOfDataSets, unsigned int interpolationType,
+                                       unsigned int averagingType );
 
-  void computeAveragedBaselines( std::vector<MyRealType>& averagedBaselines, STransformedGradientInformationType& allBaselines, unsigned int iNrOfBaselines, unsigned int interpolationType, unsigned int averagingType, unsigned int & nrOfBaselineOutliers );
+  void computeAveragedBaselines( std::vector<MyRealType>& averagedBaselines,
+                                 STransformedGradientInformationType& allBaselines, unsigned int iNrOfBaselines,
+                                 unsigned int interpolationType, unsigned int averagingType,
+                                 unsigned int & nrOfBaselineOutliers );
 
   virtual void GenerateOutputInformation();
 
   // threaded version to generate data
   void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, ThreadIdType threadId );
+
   void AfterThreadedGenerateData( void );
+
   void BeforeThreadedGenerateData( void );
 
-  SizeType        m_Size;
-  SpacingType     m_Spacing;
-  PointType       m_Origin;
+  SizeType    m_Size;
+  SpacingType m_Spacing;
+  PointType   m_Origin;
 
   virtual void PrintSelf(std::ostream& os, Indent indent) const;
 
@@ -294,20 +311,20 @@ private:
 
   std::vector<std::string> dwiFiles;
   std::vector<std::string> deformationFiles;
-  unsigned int nrOfDatasets;
+  unsigned int             nrOfDatasets;
 
-  typename FileReaderType::Pointer *dwireader;
+  typename FileReaderType::Pointer * dwireader;
   DeformationImageType::Pointer *deformation;
-  typename DiffusionEstimationFilterType::GradientDirectionContainerType::Pointer *gradientContainers;
-  typename MyJacobianFilterType::Pointer *jacobian;
+  typename DiffusionEstimationFilterType::GradientDirectionContainerType::Pointer * gradientContainers;
+  typename MyJacobianFilterType::Pointer * jacobian;
 
   typename ScalarFileReaderType::Pointer maskReader;
 
   typename ScalarImageType::Pointer OutlierImage;
   typename ScalarImageType::Pointer MaskImage;
 
-  DWIAtlasBuilder(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  DWIAtlasBuilder(const Self &); // purposely not implemented
+  void operator=(const Self &);  // purposely not implemented
 
   bool m_Verbose;
   bool m_IsHField;
@@ -315,26 +332,26 @@ private:
   bool m_DoWeightedLS;
 
   unsigned int m_SHOrder;
-  std::string m_GradientVectorFile;
-  std::string m_MaskImageFileName;
+  std::string  m_GradientVectorFile;
+  std::string  m_MaskImageFileName;
 
-  bool m_JustDoResampling;
+  bool       m_JustDoResampling;
   MyRealType m_Lambda;
 
   MyRealType m_ScalingFactor; // factor to scale up reconstructed
-            // measurements before they are put into
-            // the original datatype again; this is
-            // useful to make full use of the range
-            // of the output data for mis-scaled
-            // data acquisitions
+  // measurements before they are put into
+  // the original datatype again; this is
+  // useful to make full use of the range
+  // of the output data for mis-scaled
+  // data acquisitions
 
   DWIPixelType m_LogMinArgumentValue; // minimum value for logarithm
-            // computations; ideally there should
-            // never be any zeros in the
-            // computations, if so replace the
-            // values (only for the log computations)
-            // by this value (default 1) to make the
-            // transformation work
+  // computations; ideally there should
+  // never be any zeros in the
+  // computations, if so replace the
+  // values (only for the log computations)
+  // by this value (default 1) to make the
+  // transformation work
 
   int m_NumberOfThreads;
 
@@ -350,14 +367,13 @@ private:
   vnl_matrix<MyRealType> m_DesiredGradients;
   vnl_matrix<MyRealType> m_sh_basis_mat_new;
 
-
   // robust estimation parameters
 
   MyRealType m_HuberC;   // coefficient which specifies the switch
-           // between quadratic and magnitude loss
-           // function
+  // between quadratic and magnitude loss
+  // function
 
-  MyRealType m_RiceSigma;
+  MyRealType   m_RiceSigma;
   unsigned int m_NrOfWLSIterations;
 
   // end robust estimation parameters
@@ -366,8 +382,8 @@ private:
 
   const static unsigned int NCONTROLPOINTS = 8;
 
-  enum {NEAREST_NEIGHBOR, LINEAR, USE_ALL_WITH_WEIGHTING};
-  enum {ALGEBRAIC, GEOMETRIC};
+  enum { NEAREST_NEIGHBOR, LINEAR, USE_ALL_WITH_WEIGHTING };
+  enum { ALGEBRAIC, GEOMETRIC };
 };
 
 } // end namespace itk

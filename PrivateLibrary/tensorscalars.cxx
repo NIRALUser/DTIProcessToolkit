@@ -26,10 +26,10 @@
 // Global constants
 const char* NRRD_MEASUREMENT_KEY = "NRRD_measurement frame";
 
-template<>
+template <>
 itk::Image<double, 3>::Pointer createFA<double>(TensorImageType::Pointer timg) // Tensor image
 {
-  typedef itk::TensorFractionalAnisotropyImageFilter<TensorImageType,RealImageType> FAFilterType;
+  typedef itk::TensorFractionalAnisotropyImageFilter<TensorImageType, RealImageType> FAFilterType;
   FAFilterType::Pointer fafilter = FAFilterType::New();
   fafilter->SetInput(timg);
   fafilter->Update();
@@ -37,12 +37,12 @@ itk::Image<double, 3>::Pointer createFA<double>(TensorImageType::Pointer timg) /
   return fafilter->GetOutput();
 }
 
-template<>
+template <>
 itk::Image<unsigned short, 3>::Pointer createFA<unsigned short>(TensorImageType::Pointer timg)      // Tensor image
 {
   RealImageType::Pointer realfa = createFA<double>(timg);
 
-  typedef itk::ShiftScaleImageFilter<RealImageType,IntImageType> ShiftScaleFilterType;
+  typedef itk::ShiftScaleImageFilter<RealImageType, IntImageType> ShiftScaleFilterType;
   ShiftScaleFilterType::Pointer scalefilter = ShiftScaleFilterType::New();
   scalefilter->SetInput(realfa);
   scalefilter->SetShift(0);
@@ -52,10 +52,10 @@ itk::Image<unsigned short, 3>::Pointer createFA<unsigned short>(TensorImageType:
   return scalefilter->GetOutput();
 }
 
-template<>
+template <>
 itk::Image<double, 3>::Pointer createMD<double>(TensorImageType::Pointer timg) // Tensor image
 {
-  typedef itk::TensorMeanDiffusivityImageFilter<TensorImageType,RealImageType> MDFilterType;
+  typedef itk::TensorMeanDiffusivityImageFilter<TensorImageType, RealImageType> MDFilterType;
   MDFilterType::Pointer mdfilter = MDFilterType::New();
   mdfilter->SetInput(timg);
   mdfilter->Update();
@@ -63,12 +63,12 @@ itk::Image<double, 3>::Pointer createMD<double>(TensorImageType::Pointer timg) /
   return mdfilter->GetOutput();
 }
 
-template<>
+template <>
 itk::Image<unsigned short, 3>::Pointer createMD<unsigned short>(TensorImageType::Pointer timg)      // Tensor image
 {
   RealImageType::Pointer realmd = createMD<double>(timg);
 
-  typedef itk::ShiftScaleImageFilter<RealImageType,IntImageType> ShiftScaleFilterType;
+  typedef itk::ShiftScaleImageFilter<RealImageType, IntImageType> ShiftScaleFilterType;
   ShiftScaleFilterType::Pointer scalefilter = ShiftScaleFilterType::New();
   scalefilter->SetInput(realmd);
   scalefilter->SetShift(0);
@@ -78,20 +78,21 @@ itk::Image<unsigned short, 3>::Pointer createMD<unsigned short>(TensorImageType:
   return scalefilter->GetOutput();
 }
 
-template<>
+template <>
 itk::Image<double, 3>::Pointer createLambda<double>(TensorImageType::Pointer timg, // Tensor image
-                                                    EigenValueIndex lambdaind) // Lambda index
+                                                    EigenValueIndex lambdaind)     // Lambda index
 {
   // Not really a deformation image output jsut a 3-vector of doubles.
-  typedef itk::FastSymmetricEigenAnalysisImageFilter<TensorImageType,DeformationImageType> LambdaFilterType;
+  typedef itk::FastSymmetricEigenAnalysisImageFilter<TensorImageType, DeformationImageType> LambdaFilterType;
   LambdaFilterType::Pointer lambdafilter = LambdaFilterType::New();
   lambdafilter->SetInput(timg);
   lambdafilter->OrderEigenValuesBy(LambdaFilterType::FunctorType::OrderByValue);
   lambdafilter->Update();
 
-  typedef itk::VectorIndexSelectionCastImageFilter<LambdaFilterType::OutputImageType, RealImageType> ElementSelectAdaptorType;
+  typedef itk::VectorIndexSelectionCastImageFilter<LambdaFilterType::OutputImageType,
+                                                   RealImageType> ElementSelectAdaptorType;
   ElementSelectAdaptorType::Pointer elementSelect = ElementSelectAdaptorType::New();
-  elementSelect->SetInput(lambdafilter->GetOutput());
+  elementSelect->SetInput(lambdafilter->GetOutput() );
   // Reverse semanatics of lambda_1 from ITK.
   // In our convention lambda_1 is the largest eigenvalue whereas in
   // ITK its the smallest
@@ -101,13 +102,13 @@ itk::Image<double, 3>::Pointer createLambda<double>(TensorImageType::Pointer tim
   return elementSelect->GetOutput();
 }
 
-template<>
-itk::Image<unsigned short, 3>::Pointer createLambda<unsigned short>(TensorImageType::Pointer timg,      // Tensor image
-                                                                    EigenValueIndex lambdaind) // Lambda index
+template <>
+itk::Image<unsigned short, 3>::Pointer createLambda<unsigned short>(TensorImageType::Pointer timg, // Tensor image
+                                                                    EigenValueIndex lambdaind)     // Lambda index
 {
   RealImageType::Pointer reallambda = createLambda<double>(timg, lambdaind);
 
-  typedef itk::ShiftScaleImageFilter<RealImageType,IntImageType> ShiftScaleFilterType;
+  typedef itk::ShiftScaleImageFilter<RealImageType, IntImageType> ShiftScaleFilterType;
   ShiftScaleFilterType::Pointer scalefilter = ShiftScaleFilterType::New();
   scalefilter->SetInput(reallambda);
   scalefilter->SetShift(0);
@@ -117,38 +118,39 @@ itk::Image<unsigned short, 3>::Pointer createLambda<unsigned short>(TensorImageT
   return scalefilter->GetOutput();
 }
 
-template<>
+template <>
 itk::Image<double, 3>::Pointer createRD<double>(TensorImageType::Pointer timg) // Tensor image
 {
-  typedef itk::FastSymmetricEigenAnalysisImageFilter<TensorImageType,DeformationImageType> LambdaFilterType;
+  typedef itk::FastSymmetricEigenAnalysisImageFilter<TensorImageType, DeformationImageType> LambdaFilterType;
   LambdaFilterType::Pointer lambdafilter = LambdaFilterType::New();
   lambdafilter->SetInput(timg);
   lambdafilter->OrderEigenValuesBy(LambdaFilterType::FunctorType::OrderByValue);
   lambdafilter->Update();
 
-  typedef itk::AddImageFilter<RealImageType,RealImageType,RealImageType> RDFilterType;
+  typedef itk::AddImageFilter<RealImageType, RealImageType, RealImageType> RDFilterType;
   RDFilterType::Pointer rdfilter = RDFilterType::New();
 
-  typedef itk::VectorIndexSelectionCastImageFilter<LambdaFilterType::OutputImageType, RealImageType> ElementSelectAdaptorType;
+  typedef itk::VectorIndexSelectionCastImageFilter<LambdaFilterType::OutputImageType,
+                                                   RealImageType> ElementSelectAdaptorType;
   ElementSelectAdaptorType::Pointer elementSelect1 = ElementSelectAdaptorType::New();
-  elementSelect1->SetInput(lambdafilter->GetOutput());
-  //lambda3
+  elementSelect1->SetInput(lambdafilter->GetOutput() );
+  // lambda3
   elementSelect1->SetIndex(0);
   elementSelect1->Update();
-  rdfilter->SetInput1(elementSelect1->GetOutput());
+  rdfilter->SetInput1(elementSelect1->GetOutput() );
 
   ElementSelectAdaptorType::Pointer elementSelect2 = ElementSelectAdaptorType::New();
-  elementSelect2->SetInput(lambdafilter->GetOutput());
-  //lambda2
+  elementSelect2->SetInput(lambdafilter->GetOutput() );
+  // lambda2
   elementSelect2->SetIndex(1);
   elementSelect2->Update();
-  rdfilter->SetInput2(elementSelect2->GetOutput());
+  rdfilter->SetInput2(elementSelect2->GetOutput() );
 
   rdfilter->Update();
 
-  typedef itk::MultiplyByConstantImageFilter<RDFilterType::OutputImageType,float,RealImageType> DivideFilterType;
+  typedef itk::MultiplyByConstantImageFilter<RDFilterType::OutputImageType, float, RealImageType> DivideFilterType;
   DivideFilterType::Pointer dividefilter = DivideFilterType::New();
-  dividefilter->SetInput(rdfilter->GetOutput());
+  dividefilter->SetInput(rdfilter->GetOutput() );
   dividefilter->SetConstant(0.5);
   dividefilter->Update();
 
@@ -156,12 +158,12 @@ itk::Image<double, 3>::Pointer createRD<double>(TensorImageType::Pointer timg) /
 
 }
 
-template<>
+template <>
 itk::Image<unsigned short, 3>::Pointer createRD<unsigned short>(TensorImageType::Pointer timg)      // Tensor image
 {
   RealImageType::Pointer realfro = createRD<double>(timg);
 
-  typedef itk::ShiftScaleImageFilter<RealImageType,IntImageType> ShiftScaleFilterType;
+  typedef itk::ShiftScaleImageFilter<RealImageType, IntImageType> ShiftScaleFilterType;
   ShiftScaleFilterType::Pointer scalefilter = ShiftScaleFilterType::New();
   scalefilter->SetInput(realfro);
   scalefilter->SetShift(0);
@@ -171,10 +173,10 @@ itk::Image<unsigned short, 3>::Pointer createRD<unsigned short>(TensorImageType:
   return scalefilter->GetOutput();
 }
 
-template<>
+template <>
 itk::Image<double, 3>::Pointer createFro<double>(TensorImageType::Pointer timg) // Tensor image
 {
-  typedef itk::TensorFrobeniusNormImageFilter<TensorImageType,RealImageType> MDFilterType;
+  typedef itk::TensorFrobeniusNormImageFilter<TensorImageType, RealImageType> MDFilterType;
   MDFilterType::Pointer mdfilter = MDFilterType::New();
   mdfilter->SetInput(timg);
   mdfilter->Update();
@@ -182,12 +184,12 @@ itk::Image<double, 3>::Pointer createFro<double>(TensorImageType::Pointer timg) 
   return mdfilter->GetOutput();
 }
 
-template<>
+template <>
 itk::Image<unsigned short, 3>::Pointer createFro<unsigned short>(TensorImageType::Pointer timg)      // Tensor image
 {
   RealImageType::Pointer realfro = createFro<double>(timg);
 
-  typedef itk::ShiftScaleImageFilter<RealImageType,IntImageType> ShiftScaleFilterType;
+  typedef itk::ShiftScaleImageFilter<RealImageType, IntImageType> ShiftScaleFilterType;
   ShiftScaleFilterType::Pointer scalefilter = ShiftScaleFilterType::New();
   scalefilter->SetInput(realfro);
   scalefilter->SetShift(0);
@@ -212,22 +214,21 @@ GradientImageType::Pointer createFAGradient(TensorImageType::Pointer timg, // Te
 RealImageType::Pointer createFAGradMag(TensorImageType::Pointer timg,      // Tensor image
                                        double sigma)
 {
-  typedef itk::TensorFractionalAnisotropyImageFilter<TensorImageType,RealImageType> FAFilterType;
+  typedef itk::TensorFractionalAnisotropyImageFilter<TensorImageType, RealImageType> FAFilterType;
   FAFilterType::Pointer fafilter = FAFilterType::New();
   fafilter->SetInput(timg);
 
   // If scale option set scale fa, and write out an integer image
 
-
-  typedef itk::ShiftScaleImageFilter<RealImageType,RealImageType> ShiftScaleFilterType;
+  typedef itk::ShiftScaleImageFilter<RealImageType, RealImageType> ShiftScaleFilterType;
   ShiftScaleFilterType::Pointer scalefilter = ShiftScaleFilterType::New();
-  scalefilter->SetInput(fafilter->GetOutput());
+  scalefilter->SetInput(fafilter->GetOutput() );
   scalefilter->SetShift(0);
   scalefilter->SetScale(10000);
 
-  typedef itk::GradientMagnitudeRecursiveGaussianImageFilter<RealImageType,RealImageType> GradMagFilterType;
+  typedef itk::GradientMagnitudeRecursiveGaussianImageFilter<RealImageType, RealImageType> GradMagFilterType;
   GradMagFilterType::Pointer gradmag = GradMagFilterType::New();
-  gradmag->SetInput(scalefilter->GetOutput());
+  gradmag->SetInput(scalefilter->GetOutput() );
   gradmag->SetSigma(sigma);
   gradmag->SetNormalizeAcrossScale(false);
   gradmag->Update();
@@ -235,12 +236,11 @@ RealImageType::Pointer createFAGradMag(TensorImageType::Pointer timg,      // Te
   return gradmag->GetOutput();
 }
 
-
 RGBImageType::Pointer createColorFA(TensorImageType::Pointer timg)      // Tensor image
 {
-  typedef itk::RGBPixel<unsigned char> RGBPixel;
-  typedef itk::Image<RGBPixel,3> RGBImageType;
-  typedef itk::TensorColorFAImageFilter<TensorImageType,RGBImageType> FAFilterType;
+  typedef itk::RGBPixel<unsigned char>                                 RGBPixel;
+  typedef itk::Image<RGBPixel, 3>                                      RGBImageType;
+  typedef itk::TensorColorFAImageFilter<TensorImageType, RGBImageType> FAFilterType;
   FAFilterType::Pointer fafilter = FAFilterType::New();
   fafilter->SetInput(timg);
   fafilter->Update();
@@ -252,27 +252,31 @@ GradientImageType::Pointer createPrincipalEigenvector(TensorImageType::Pointer t
 {
   itk::MetaDataDictionary & dict = timg->GetMetaDataDictionary();
 
-  if(dict.HasKey(NRRD_MEASUREMENT_KEY))
+  if( dict.HasKey(NRRD_MEASUREMENT_KEY) )
     {
     // measurement frame
-    vnl_matrix<double> mf(3,3);
+    vnl_matrix<double> mf(3, 3);
     // imaging frame
-    vnl_matrix<double> imgf(3,3);
+    vnl_matrix<double> imgf(3, 3);
 
     std::vector<std::vector<double> > nrrdmf;
     itk::ExposeMetaData<std::vector<std::vector<double> > >(dict, NRRD_MEASUREMENT_KEY, nrrdmf);
 
     imgf = timg->GetDirection().GetVnlMatrix();
-    for(unsigned int i = 0; i < 3; ++i)
+    for( unsigned int i = 0; i < 3; ++i )
       {
-      for(unsigned int j = 0; j < 3; ++j)
+      for( unsigned int j = 0; j < 3; ++j )
         {
-        mf(i,j) = nrrdmf[i][j];
+        mf(i, j) = nrrdmf[i][j];
 
-        if(i == j)
+        if( i == j )
+          {
           nrrdmf[i][j] = 1.0;
+          }
         else
+          {
           nrrdmf[i][j] = 0.0;
+          }
         }
       }
 
@@ -287,9 +291,9 @@ GradientImageType::Pointer createPrincipalEigenvector(TensorImageType::Pointer t
 
     }
 
-  typedef itk::CovariantVector<double, 3> VectorPixel;
-  typedef itk::Image<VectorPixel, 3> VectorImageType;
-  typedef itk::TensorPrincipalEigenvectorImageFilter<TensorImageType,VectorImageType> PrincipalEigenvectorFilterType;
+  typedef itk::CovariantVector<double, 3>                                              VectorPixel;
+  typedef itk::Image<VectorPixel, 3>                                                   VectorImageType;
+  typedef itk::TensorPrincipalEigenvectorImageFilter<TensorImageType, VectorImageType> PrincipalEigenvectorFilterType;
 
   PrincipalEigenvectorFilterType::Pointer ppdfilter = PrincipalEigenvectorFilterType::New();
   ppdfilter->SetInput(timg);
@@ -308,4 +312,3 @@ LabelImageType::Pointer createNegativeEigenValueLabel(TensorImageType::Pointer t
 
   return negeigdetect->GetOutput();
 }
-

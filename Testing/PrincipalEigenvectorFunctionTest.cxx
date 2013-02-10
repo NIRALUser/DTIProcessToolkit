@@ -20,11 +20,9 @@
 
 #include <itkDiffusionTensor3D.h>
 
-
 #include "itkTensorPrincipalEigenvectorImageFilter.h"
 
-
-int PrincipalEigenvectorFunctionTest(int /*argc */, char* /*argv */[])
+int PrincipalEigenvectorFunctionTest(int /*argc */, char * /*argv */[])
 {
   std::cout << "running Principal Eigenvector test" << std::endl;
 
@@ -32,7 +30,7 @@ int PrincipalEigenvectorFunctionTest(int /*argc */, char* /*argv */[])
   TensorType a(0.0);
   a[0] = 3; a[3] = 1.5; a[5] = 1.0;
 
-  typedef itk::Functor::TensorPrincipalEigenvectorFunction<TensorType, double>  PrincipalEigenvectorFunctorType;
+  typedef itk::Functor::TensorPrincipalEigenvectorFunction<TensorType, double> PrincipalEigenvectorFunctorType;
 
   PrincipalEigenvectorFunctorType findprineig;
 
@@ -41,10 +39,9 @@ int PrincipalEigenvectorFunctionTest(int /*argc */, char* /*argv */[])
 
   OutputType correctx;
   correctx[0] = 1; correctx[1] = 0; correctx[2] = 0;
-
-  for(unsigned int i = 0; i < 3; i++)
+  for( unsigned int i = 0; i < 3; i++ )
     {
-    if(fabs(x[i] - correctx[i]) > 1e-6)
+    if( fabs(x[i] - correctx[i]) > 1e-6 )
       {
       std::cout << "Principal eigenvector incorrect [FAILED]" << std::endl;
       std::cout << "Correct: " << correctx << std::endl;
@@ -52,7 +49,6 @@ int PrincipalEigenvectorFunctionTest(int /*argc */, char* /*argv */[])
       return EXIT_FAILURE;
       }
     }
-
 
   std::cout << "Test [PASSED]." << std::endl;
   return EXIT_SUCCESS;

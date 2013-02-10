@@ -18,7 +18,7 @@
 #ifndef __itkDifferenceImageFilter_h
 #define __itkDifferenceImageFilter_h
 
-#include "itkConfigure.h" //Needed to determine value of ITKV3_COMPATIBILITY
+#include "itkConfigure.h" // Needed to determine value of ITKV3_COMPATIBILITY
 #ifdef ITKV3_COMPATIBILITY
 
 #include "itkTestingComparisonImageFilter.h"
@@ -32,16 +32,16 @@ namespace itk
  * This class has no implementation, thus no .hxx file is needed.
  * \ingroup ITKTestKernel
  */
-template< class TInputImage, class TOutputImage >
-class ITK_EXPORT DifferenceImageFilter:
-    public Testing::ComparisonImageFilter< TInputImage, TOutputImage >
+template <class TInputImage, class TOutputImage>
+class ITK_EXPORT DifferenceImageFilter :
+  public         Testing::ComparisonImageFilter<TInputImage, TOutputImage>
 {
 public:
   /** Standard class typedefs. */
-  typedef DifferenceImageFilter                                       Self;
-  typedef Testing::ComparisonImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                                        Pointer;
-  typedef SmartPointer< const Self >                                  ConstPointer;
+  typedef DifferenceImageFilter                                     Self;
+  typedef Testing::ComparisonImageFilter<TInputImage, TOutputImage> Superclass;
+  typedef SmartPointer<Self>                                        Pointer;
+  typedef SmartPointer<const Self>                                  ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -50,19 +50,25 @@ public:
   itkTypeMacro(DifferenceImageFilter, Testing::ComparisonImageFilter);
 
   /** Some convenient typedefs. */
-  typedef TInputImage                                         InputImageType;
-  typedef TOutputImage                                        OutputImageType;
-  typedef typename OutputImageType::PixelType                 OutputPixelType;
-  typedef typename OutputImageType::RegionType                OutputImageRegionType;
-  typedef typename NumericTraits< OutputPixelType >::RealType RealType;
-  typedef typename NumericTraits< RealType >::AccumulateType  AccumulateType;
+  typedef TInputImage                                       InputImageType;
+  typedef TOutputImage                                      OutputImageType;
+  typedef typename OutputImageType::PixelType               OutputPixelType;
+  typedef typename OutputImageType::RegionType              OutputImageRegionType;
+  typedef typename NumericTraits<OutputPixelType>::RealType RealType;
+  typedef typename NumericTraits<RealType>::AccumulateType  AccumulateType;
 
-  DifferenceImageFilter() {}
-  virtual ~DifferenceImageFilter() {}
+  DifferenceImageFilter()
+  {
+  }
+
+  virtual ~DifferenceImageFilter()
+  {
+  }
+
 protected:
 private:
-  DifferenceImageFilter(const Self &); //purposely not implemented
-  void operator=(const Self &);        //purposely not implemented
+  DifferenceImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);        // purposely not implemented
 
 };
 } // end namespace itk

@@ -33,7 +33,7 @@
 
 #include "fibertrackCLP.h"
 
-enum IntegrationType {Euler, Midpoint, RK4};
+enum IntegrationType { Euler, Midpoint, RK4 };
 #if 0
 void validate(boost::any& v,
               const std::vector<std::string>& values,
@@ -49,15 +49,15 @@ void validate(boost::any& v,
   // one string, it's an error, and exception will be thrown.
   const std::string& s = validators::get_single_string(values);
 
-  if(s == "euler")
+  if( s == "euler" )
     {
     v = any(Euler);
     }
-  else if(s == "modpoint")
+  else if( s == "modpoint" )
     {
     v = any(Midpoint);
     }
-  else if(s == "rk4")
+  else if( s == "rk4" )
     {
     v = any(RK4);
     }
@@ -66,6 +66,7 @@ void validate(boost::any& v,
     throw validation_error("Estimation type invalid.  Only \"lls\", \"nls\", \"wls\", and \"ml\" allowed.");
     }
 }
+
 #endif
 
 int main(int argc, char* argv[])
@@ -92,15 +93,15 @@ int main(int argc, char* argv[])
     ("source-label,s", po::value<unsigned int>()->default_value(2), "Source label")
     ("target-label,t", po::value<unsigned int>()->default_value(1), "Target label")
     ("forbidden-label,f", po::value<unsigned int>()->default_value(0), "Forbidden label")
-    ("max-angle", po::value<double>()->default_value(M_PI/4, "PI/4"), "Maximum angle of change in radians")
+    ("max-angle", po::value<double>()->default_value(M_PI / 4, "PI/4"), "Maximum angle of change in radians")
     ("step-size", po::value<double>()->default_value(0.5), "Step size in mm")
     ("min-fa", po::value<double>()->default_value(0.2), "Minimum anisotropy")
 //    ("integration-method", po::value<RK4>(), "Integration method (euler, midpoint, rk4)")
     ("whole-brain", "Use every voxel in the brain as a potential seed point")
     ("verbose,v", "Verbose output")
     ("really-verbose", "Follow detail of fiber tracking algorithm")
-    ("force","Ignore image sanity checks.")
-    ;
+    ("force", "Ignore image sanity checks.")
+  ;
 
   po::variables_map vm;
   try
@@ -109,18 +110,20 @@ int main(int argc, char* argv[])
               options(config).run(), vm);
     po::notify(vm);
     }
-  catch (const po::error &e)
+  catch( const po::error & e )
     {
     std::cout << e.what() << std::endl;
     return EXIT_FAILURE;
     }
 
-  if(vm.count("help") || !vm.count("input-tensor-file") ||
-     !vm.count("input-roi-file") || !vm.count("output-fiber-file"))
+  if( vm.count("help") || !vm.count("input-tensor-file") ||
+      !vm.count("input-roi-file") || !vm.count("output-fiber-file") )
     {
     std::cout << config << std::endl;
-    if(vm.count("help"))
+    if( vm.count("help") )
+      {
       return EXIT_SUCCESS;
+      }
     else
       {
       std::cerr << "Tensor image and roi image needs to be specified." << std::endl;
@@ -130,7 +133,7 @@ int main(int argc, char* argv[])
 #endif
   PARSE_ARGS;
 
-  if(inputTensor == "" || inputROI == "" || outputFiberFile == "")
+  if( inputTensor == "" || inputROI == "" || outputFiberFile == "" )
     {
     std::cerr << "Tensor image and roi image needs to be specified." << std::endl;
     return EXIT_FAILURE;
@@ -146,35 +149,40 @@ int main(int argc, char* argv[])
     tensorreader->Update();
     labelreader->Update();
     }
-  catch( itk::ExceptionObject & e)
+  catch( itk::ExceptionObject & e )
     {
     std::cerr << e << std::endl;
     return EXIT_FAILURE;
     }
 
-  if(verbose)
+  if( verbose )
     {
     tensorreader->GetOutput()->Print(std::cout);
     }
 
   // Sanity check the ROI and tensor image as they must be consistent
   // for the filter to work correctly
-  requireequal((tensorreader->GetOutput()->GetSpacing() == labelreader->GetOutput()->GetSpacing()),
-               "Image Spacings", force);
-  requireequal((tensorreader->GetOutput()->GetLargestPossibleRegion() == labelreader->GetOutput()->GetLargestPossibleRegion()),
-               "Image Sizes", force);
-  requireequal((tensorreader->GetOutput()->GetOrigin() == labelreader->GetOutput()->GetOrigin()),
-               "Image Origins", force);
-  requireequal((tensorreader->GetOutput()->GetDirection() == labelreader->GetOutput()->GetDirection()),
-               "Image Orientations", force);
+  requireequal( (tensorreader->GetOutput()->GetSpacing() == labelreader->GetOutput()->GetSpacing() ),
+                "Image Spacings", force);
+  requireequal( (tensorreader->GetOutput()->GetLargestPossibleRegion() ==
+                 labelreader->GetOutput()->GetLargestPossibleRegion() ),
+                "Image Sizes", force);
+  requireequal( (tensorreader->GetOutput()->GetOrigin() == labelreader->GetOutput()->GetOrigin() ),
+                "Image Origins", force);
+  requireequal( (tensorreader->GetOutput()->GetDirection() == labelreader->GetOutput()->GetDirection() ),
+                "Image Orientations", force);
 
   TractographyFilter::Pointer fibertracker = TractographyFilter::New();
-  if(reallyVerbose)
+  if( reallyVerbose )
+    {
     fibertracker->DebugOn();
-  if(wholeBrain)
+    }
+  if( wholeBrain )
+    {
     fibertracker->WholeBrainOn();
-  fibertracker->SetTensorImage(tensorreader->GetOutput());
-  fibertracker->SetROIImage(labelreader->GetOutput());
+    }
+  fibertracker->SetTensorImage(tensorreader->GetOutput() );
+  fibertracker->SetROIImage(labelreader->GetOutput() );
   fibertracker->SetSourceLabel(sourceLabel);
   fibertracker->SetTargetLabel(targetLabel);
   fibertracker->SetForbiddenLabel(forbiddenLabel);
@@ -185,9 +193,9 @@ int main(int argc, char* argv[])
 
   try
     {
-    writeFiberFile(outputFiberFile, fibertracker->GetOutput());
+    writeFiberFile(outputFiberFile, fibertracker->GetOutput() );
     }
-  catch(itk::ExceptionObject e)
+  catch( itk::ExceptionObject e )
     {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;

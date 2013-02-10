@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 
-int FiberIOTest(int , char * [])
+int FiberIOTest(int, char * [])
 {
 
   return EXIT_FAILURE;

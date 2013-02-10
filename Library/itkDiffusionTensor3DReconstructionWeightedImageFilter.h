@@ -19,7 +19,8 @@
 
 #include "itkDiffusionTensor3DReconstructionImageFilterBase.h"
 
-namespace itk{
+namespace itk
+{
 
 /** \class DiffusionTensor3DReconstructionLinearImageFilter      \
  *
@@ -51,20 +52,21 @@ namespace itk{
  * DiffusionTensor3DReconstructionRicianImageFilter
  * \ingroup Multithreaded  TensorObjects
  */
-template< class TGradientImagePixelType,
-          class TTensorPrecision=double >
+template <class TGradientImagePixelType,
+          class TTensorPrecision = double>
 class ITK_EXPORT DiffusionTensor3DReconstructionWeightedImageFilter :
-    public DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
-                                                           TTensorPrecision>
+  public         DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
+                                                                TTensorPrecision>
 {
 
 public:
 
   typedef DiffusionTensor3DReconstructionWeightedImageFilter Self;
-  typedef SmartPointer<Self>                      Pointer;
-  typedef SmartPointer<const Self>                ConstPointer;
+  typedef SmartPointer<Self>                                 Pointer;
+  typedef SmartPointer<const Self>                           ConstPointer;
   typedef DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
-    TTensorPrecision >                                           Superclass;
+                                                         TTensorPrecision>
+    Superclass;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -77,18 +79,19 @@ public:
    * recommmended number is 1.  */
   itkSetMacro( NumberOfIterations, unsigned int );
   itkGetMacro( NumberOfIterations, unsigned int );
-
 protected:
   DiffusionTensor3DReconstructionWeightedImageFilter();
-  virtual ~DiffusionTensor3DReconstructionWeightedImageFilter() {};
+  virtual ~DiffusionTensor3DReconstructionWeightedImageFilter()
+  {
+  };
 
-  virtual vnl_vector< TTensorPrecision >
-    EstimateTensor(const vnl_vector<TTensorPrecision>& S) const;
+  virtual vnl_vector<TTensorPrecision>
+  EstimateTensor(const vnl_vector<TTensorPrecision>& S) const;
 
 private:
   /** Number of reweighting iterations to use.  The default and
    * recommmended number is 1.  */
-  unsigned int                                 m_NumberOfIterations;
+  unsigned int m_NumberOfIterations;
 
 };
 
@@ -99,4 +102,3 @@ private:
 #endif
 
 #endif
-

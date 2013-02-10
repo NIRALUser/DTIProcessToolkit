@@ -86,22 +86,22 @@ const char* NRRD_MEASUREMENT_KEY = "NRRD_measurement frame";
 namespace po = boost::program_options;
 
 // Define necessary types for images
-//typedef double MyRealType;
+// typedef double MyRealType;
 typedef float MyRealType;
 
-//const unsigned int DIM = 3;
+// const unsigned int DIM = 3;
 
-typedef unsigned short DWIPixelType;
+typedef unsigned short                      DWIPixelType;
 typedef itk::VectorImage<DWIPixelType, DIM> VectorImageType;
-typedef itk::Image<DWIPixelType, DIM> ScalarImageType;
-typedef itk::Image<unsigned char, DIM> MaskImageType;
-typedef itk::Image<DWIPixelType, DIM> IntImageType;
+typedef itk::Image<DWIPixelType, DIM>       ScalarImageType;
+typedef itk::Image<unsigned char, DIM>      MaskImageType;
+typedef itk::Image<DWIPixelType, DIM>       IntImageType;
 typedef itk::DiffusionTensor3DReconstructionLinearImageFilter<DWIPixelType, MyRealType>
-DiffusionEstimationFilterType;
+  DiffusionEstimationFilterType;
 typedef DiffusionEstimationFilterType::GradientDirectionContainerType GradientDirectionContainerType;
-typedef vnl_vector_fixed<MyRealType, 3> MyGradientType;
+typedef vnl_vector_fixed<MyRealType, 3>                               MyGradientType;
 
-typedef itk::DWIAtlasBuilder< MyRealType, DWIPixelType > DWIAtlasBuilderType;
+typedef itk::DWIAtlasBuilder<MyRealType, DWIPixelType> DWIAtlasBuilderType;
 
 int outputAllSettings(int argc, char* argv[] )
 {
@@ -143,8 +143,10 @@ int main(int argc, char* argv[])
 
   PARSE_ARGS;
 
-  if ( bVERBOSE )
+  if( bVERBOSE )
+    {
     outputAllSettings( argc, argv );
+    }
 
   DWIAtlasBuilderType::Pointer pAtlasBuilder = DWIAtlasBuilderType::New();
 
@@ -172,19 +174,21 @@ int main(int argc, char* argv[])
   pAtlasBuilder->SetNrOfWLSIterations( (unsigned int)iWLSIter );
   pAtlasBuilder->SetMaskImageFileName( maskImageFileName );
 
-  if ( bNoLogFit && bDoWeightedLSEst )
+  if( bNoLogFit && bDoWeightedLSEst )
     {
-    std::cout << "ERROR: WLS in the original signal domain is not supported. Remove --noLogFit specifier and try again. ABORT." << std::endl;
+    std::cout
+    << "ERROR: WLS in the original signal domain is not supported. Remove --noLogFit specifier and try again. ABORT."
+    << std::endl;
     return EXIT_FAILURE;
     }
 
-  if ( iLogMinArgumentValue != 1 )
+  if( iLogMinArgumentValue != 1 )
     {
     std::cout << "WARNING: iLogMinArgumentValue should always be one, but it is " << iLogMinArgumentValue << std::endl;
     std::cout << "Unless you really know what you are doing, do NOT proceed." << std::endl;
     }
 
-  if ( bVERBOSE )
+  if( bVERBOSE )
     {
     using namespace boost::posix_time;
     ptime now = second_clock::local_time();
@@ -194,12 +198,14 @@ int main(int argc, char* argv[])
 
   pAtlasBuilder->Update();
 
-  if (bVERBOSE)
+  if( bVERBOSE )
+    {
     std::cerr << "Writing the final result to: " << dwiOutputVolume << std::endl;
+    }
 
   // Write reconstructed DWI file
   try
-  {
+    {
     typedef itk::ImageFileWriter<VectorImageType> VectorFileWriterType;
 
     VectorFileWriterType::Pointer dwiWriter = VectorFileWriterType::New();
@@ -209,17 +215,19 @@ int main(int argc, char* argv[])
     dwiWriter->SetUseCompression(true);
     dwiWriter->Update();
 
-  }
-  catch (itk::ExceptionObject e)
-  {
+    }
+  catch( itk::ExceptionObject e )
+    {
     std::cerr << e << std::endl;
     return EXIT_FAILURE;
-  }
+    }
 
-  if ( outlierImageName.compare("None")!=0 )
+  if( outlierImageName.compare("None") != 0 )
     {
-    if ( bVERBOSE )
+    if( bVERBOSE )
+      {
       std::cout << "Writing outlier image to " << outlierImageName << " ... ";
+      }
 
     typedef itk::ImageFileWriter<ScalarImageType> ScalarFileWriterType;
 
@@ -230,10 +238,11 @@ int main(int argc, char* argv[])
     scalarWriter->SetUseCompression(true);
     scalarWriter->Update();
 
-    if ( bVERBOSE )
+    if( bVERBOSE )
+      {
       std::cout << "done." << std::endl;
+      }
     }
 
   return EXIT_SUCCESS;
 }
-

@@ -42,14 +42,14 @@ namespace itk
  */
 template <class TInputImage, class TCoordRep = float, class TCoefficientType = double>
 class ITK_EXPORT VectorBSplineInterpolateImageFunction :
-    public VectorInterpolateImageFunction<TInputImage,TCoordRep>
+  public         VectorInterpolateImageFunction<TInputImage, TCoordRep>
 {
 public:
   /** Standard class typedefs. */
-  typedef VectorBSplineInterpolateImageFunction Self;
-  typedef VectorInterpolateImageFunction<TInputImage,TCoordRep> Superclass;
-  typedef SmartPointer<Self> Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef VectorBSplineInterpolateImageFunction                  Self;
+  typedef VectorInterpolateImageFunction<TInputImage, TCoordRep> Superclass;
+  typedef SmartPointer<Self>                                     Pointer;
+  typedef SmartPointer<const Self>                               ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -69,7 +69,7 @@ public:
                       Superclass::Dimension);
 
   /** Dimension underlying input image. */
-  itkStaticConstMacro(ImageDimension, unsigned int,Superclass::ImageDimension);
+  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
 
   /** Index typedef support. */
   typedef typename Superclass::IndexType IndexType;
@@ -81,14 +81,16 @@ public:
   typedef typename Superclass::OutputType OutputType;
 
   /** component extractor type */
-  typedef typename PixelType::ComponentType  ComponentType;
-  typedef Image<ComponentType, ImageDimension> ComponentImageType;
-  typedef VectorIndexSelectionCastImageFilter<InputImageType,ComponentImageType> ComponentAdaptorType;
-  typedef typename ComponentAdaptorType::Pointer ComponentAdaptorPointer;
+  typedef typename PixelType::ComponentType                                       ComponentType;
+  typedef Image<ComponentType, ImageDimension>                                    ComponentImageType;
+  typedef VectorIndexSelectionCastImageFilter<InputImageType, ComponentImageType> ComponentAdaptorType;
+  typedef typename ComponentAdaptorType::Pointer                                  ComponentAdaptorPointer;
 
   /** component interpolator type */
-  typedef BSplineInterpolateImageFunction<ComponentImageType, TCoordRep, TCoefficientType> ComponentInterpolateFunctionType;
-  typedef typename ComponentInterpolateFunctionType::Pointer ComponentInterpolateFunctionPointer;
+  typedef BSplineInterpolateImageFunction<ComponentImageType, TCoordRep,
+                                          TCoefficientType> ComponentInterpolateFunctionType;
+  typedef typename ComponentInterpolateFunctionType::Pointer
+                                                            ComponentInterpolateFunctionPointer;
 
   /** Set the input image.  This must be set by the user. */
   virtual void SetInputImage(const TInputImage * inputData);
@@ -101,22 +103,23 @@ public:
    *
    * ImageFunction::IsInsideBuffer() can be used to check bounds before
    * calling the method. */
-  virtual OutputType EvaluateAtContinuousIndex(
-    const ContinuousIndexType & index ) const;
+  virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index ) const;
 
 protected:
   VectorBSplineInterpolateImageFunction();
-  ~VectorBSplineInterpolateImageFunction(){};
+  ~VectorBSplineInterpolateImageFunction()
+  {
+  };
   virtual void PrintSelf(std::ostream& os, Indent indent) const;
 
 private:
-  VectorBSplineInterpolateImageFunction(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  VectorBSplineInterpolateImageFunction(const Self &); // purposely not implemented
+  void operator=(const Self &);                        // purposely not implemented
 
   /** Number of neighbors used in the interpolation */
-  static const unsigned long  m_Neighbors;
+  static const unsigned long m_Neighbors;
 
-  std::vector<ComponentAdaptorPointer> m_ComponentAdaptors;
+  std::vector<ComponentAdaptorPointer>             m_ComponentAdaptors;
   std::vector<ComponentInterpolateFunctionPointer> m_ComponentInterpolators;
 
 };

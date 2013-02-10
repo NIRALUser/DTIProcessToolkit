@@ -30,7 +30,8 @@ typedef int ThreadIdType;
 #include "itkIntTypes.h"
 #endif
 
-namespace itk{
+namespace itk
+{
 /** \class DiffusionTensor3DReconstructionImageFilterBase
  *
  *\brief This class is a base class for filters that take as input
@@ -108,53 +109,52 @@ namespace itk{
  * \ingroup Multithreaded  TensorObjects
  */
 
-template< class TGradientImagePixelType,
-          class TTensorPrecision=double >
+template <class TGradientImagePixelType,
+          class TTensorPrecision = double>
 class ITK_EXPORT DiffusionTensor3DReconstructionImageFilterBase :
-    public ImageToImageFilter< VectorImage< TGradientImagePixelType, 3 >,
-                               Image< DiffusionTensor3D< TTensorPrecision >, 3 > >
+  public         ImageToImageFilter<VectorImage<TGradientImagePixelType, 3>,
+                                    Image<DiffusionTensor3D<TTensorPrecision>, 3> >
 {
 
 public:
 
   typedef DiffusionTensor3DReconstructionImageFilterBase Self;
-  typedef SmartPointer<Self>                      Pointer;
-  typedef SmartPointer<const Self>                ConstPointer;
-  typedef ImageToImageFilter< VectorImage< TGradientImagePixelType, 3 >,
-    Image< DiffusionTensor3D< TTensorPrecision >, 3 > >
+  typedef SmartPointer<Self>                             Pointer;
+  typedef SmartPointer<const Self>                       ConstPointer;
+  typedef ImageToImageFilter<VectorImage<TGradientImagePixelType, 3>,
+                             Image<DiffusionTensor3D<TTensorPrecision>, 3> >
     Superclass;
 
   /** Runtime information support. */
   itkTypeMacro(DiffusionTensor3DReconstructionImageFilterBase,
                ImageToImageFilter);
 
-  typedef TGradientImagePixelType                  GradientPixelType;
+  typedef TGradientImagePixelType GradientPixelType;
 
-  typedef typename Superclass::OutputImageType     OutputImageType;
+  typedef typename Superclass::OutputImageType OutputImageType;
 
-  typedef typename OutputImageType::PixelType      TensorPixelType;
+  typedef typename OutputImageType::PixelType TensorPixelType;
 
-  typedef OutputImageType                          TensorImageType;
+  typedef OutputImageType TensorImageType;
 
   typedef typename Superclass::OutputImageRegionType
     OutputImageRegionType;
 
   /** Typedef defining one (of the many) gradient images.  */
-  typedef Image< GradientPixelType, 3 >            ScalarImageType;
+  typedef Image<GradientPixelType, 3> ScalarImageType;
 
   /** An alternative typedef defining one (of the many) gradient images.
    * It will be assumed that the vectorImage has the same dimension as the
    * Gradient image and a vector length parameter of \c n (number of
    * gradient directions)*/
-  typedef typename Superclass::InputImageType      GradientImagesType;
+  typedef typename Superclass::InputImageType GradientImagesType;
 
   /** Holds each magnetic field gradient used to acquire one DWImage */
-  typedef vnl_vector_fixed< TTensorPrecision, 3 >  GradientDirectionType;
+  typedef vnl_vector_fixed<TTensorPrecision, 3> GradientDirectionType;
 
   /** Container to hold gradient directions of the 'n' DW measurements */
-  typedef VectorContainer< unsigned int,
-    GradientDirectionType >                  GradientDirectionContainerType;
-
+  typedef VectorContainer<unsigned int,
+                          GradientDirectionType>                  GradientDirectionContainerType;
 
   /** Another set method to add a gradient directions and its corresponding
    * image. The image here is a VectorImage. The user is expected to pass the
@@ -162,8 +162,7 @@ public:
    * corresponds to the gradient direction of the ith component image the
    * VectorImage.  For the baseline image, a vector of all zeros
    * should be set.*/
-  virtual void SetGradientImage( GradientDirectionContainerType *,
-                                 const GradientImagesType *image);
+  virtual void SetGradientImage( GradientDirectionContainerType *, const GradientImagesType *image);
 
   /** Return the gradient direction. idx is 0 based */
   virtual GradientDirectionType GetGradientDirection( unsigned int idx) const
@@ -172,7 +171,7 @@ public:
       {
       itkExceptionMacro( << "Gradient direction " << idx << "does not exist" );
       }
-    return m_GradientDirectionContainer->ElementAt( idx+1 );
+    return m_GradientDirectionContainer->ElementAt( idx + 1 );
   }
 
   /** Threshold on the reference image data. The output tensor will be a null
@@ -205,26 +204,27 @@ public:
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
   itkConceptMacro(ReferenceEqualityComparableCheck,
-                  (Concept::EqualityComparable<GradientPixelType>));
+                  (Concept::EqualityComparable<GradientPixelType> ) );
   itkConceptMacro(TensorEqualityComparableCheck,
-                  (Concept::EqualityComparable<TensorPixelType>));
+                  (Concept::EqualityComparable<TensorPixelType> ) );
   itkConceptMacro(GradientConvertibleToDoubleCheck,
-                  (Concept::Convertible<GradientPixelType, TTensorPrecision>));
+                  (Concept::Convertible<GradientPixelType, TTensorPrecision> ) );
   itkConceptMacro(DoubleConvertibleToTensorCheck,
-                  (Concept::Convertible<TTensorPrecision, TensorPixelType>));
+                  (Concept::Convertible<TTensorPrecision, TensorPixelType> ) );
   itkConceptMacro(GradientReferenceAdditiveOperatorsCheck,
                   (Concept::AdditiveOperators<GradientPixelType, GradientPixelType,
-                   GradientPixelType>));
+                                              GradientPixelType> ) );
   itkConceptMacro(ReferenceOStreamWritableCheck,
-                  (Concept::OStreamWritable<GradientPixelType>));
+                  (Concept::OStreamWritable<GradientPixelType> ) );
   itkConceptMacro(TensorOStreamWritableCheck,
-                  (Concept::OStreamWritable<TensorPixelType>));
+                  (Concept::OStreamWritable<TensorPixelType> ) );
   /** End concept checking */
 #endif
-
 protected:
   DiffusionTensor3DReconstructionImageFilterBase();
-  virtual ~DiffusionTensor3DReconstructionImageFilterBase() {};
+  virtual ~DiffusionTensor3DReconstructionImageFilterBase()
+  {
+  };
   virtual void PrintSelf(std::ostream& os, Indent indent) const;
 
   virtual void ComputeTensorBasis();
@@ -242,38 +242,36 @@ protected:
    \return vector which contain the tensor elements as the first 6
   elements in row-major order D_xx, D_xy, D_xz, D_yy, D_yz, D_zz.
   The seventh component is the estimated baseline b_0 signal.*/
-  virtual vnl_vector< TTensorPrecision >
-    EstimateTensor(const vnl_vector<TTensorPrecision>& S) const = 0;
-
+  virtual vnl_vector<TTensorPrecision>
+  EstimateTensor(const vnl_vector<TTensorPrecision>& S) const = 0;
 
   /** Holds the tensor basis coefficients G_k */
-  typedef vnl_matrix< TTensorPrecision >            TensorBasisMatrixType;
+  typedef vnl_matrix<TTensorPrecision> TensorBasisMatrixType;
 
   /** Matrix encoding of gradient directions and b-values.  This is
    * the matrix multiplied by the tensor and T2 signal which gives the
    * diffusion weighted signal. */
-  TensorBasisMatrixType                             m_BMatrix;
+  TensorBasisMatrixType m_BMatrix;
 
   /** psuedo-inverse of m_BMatrix */
-  TensorBasisMatrixType                             m_TensorBasis;
+  TensorBasisMatrixType m_TensorBasis;
 
   /** container to hold gradient directions */
   typename GradientDirectionContainerType::Pointer  m_GradientDirectionContainer;
 
   /** Number of gradient measurements */
-  unsigned int                                      m_NumberOfGradientDirections;
+  unsigned int m_NumberOfGradientDirections;
 
   /** Threshold on the reference image data */
-  GradientPixelType                                 m_Threshold;
+  GradientPixelType m_Threshold;
 
   /** LeBihan's b-value for normalizing tensors.  This is the b-value
    * for unit magnitude directions.  Multiple b-values are handled by
    * scaling of the gradient vectors. */
-  TTensorPrecision                                  m_BValue;
-
+  TTensorPrecision m_BValue;
 private:
   /** Whether the baseline signal should be estimated and saved */
-  bool                                              m_EstimateBaseline;
+  bool m_EstimateBaseline;
 };
 
 }
@@ -283,4 +281,3 @@ private:
 #endif
 
 #endif
-

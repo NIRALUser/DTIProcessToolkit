@@ -10,11 +10,10 @@ DTIPointWarper::ComputeNewPoint(const itk::DTITubeSpatialObjectPoint<DIM> & oldp
   typedef WarpInterpolateType::ContinuousIndexType ContinuousIndexType;
   ContinuousIndexType ci;
 
-  std::copy(p, p+DIM, ci);
+  std::copy(p, p + DIM, ci);
 
-  DeformationPixelType displacement(m_WarpInterpolate->EvaluateAtContinuousIndex(ci).GetDataPointer());
-
-  for(unsigned int i = 0; i < 3; ++i)
+  DeformationPixelType displacement(m_WarpInterpolate->EvaluateAtContinuousIndex(ci).GetDataPointer() );
+  for( unsigned int i = 0; i < 3; ++i )
     {
     p[i] = p[i] + displacement[i] / m_Spacing[i];
     }
@@ -25,14 +24,13 @@ DTIPointWarper::ComputeNewPoint(const itk::DTITubeSpatialObjectPoint<DIM> & oldp
 // DTIPointStatisticsGatherer::ComputeNewPoint(const itk::DTITubeSpatialObjectPoint<DIM> & oldpoint) const
 // {
 
-
 // }
-
 
 itk::DTITubeSpatialObjectPoint<DIM>
 DTIPointClearData::ComputeNewPoint(const itk::DTITubeSpatialObjectPoint<DIM> & oldpoint) const
 {
   itk::DTITubeSpatialObjectPoint<DIM> newpoint;
-  newpoint.SetPosition(oldpoint->GetPosition());
+
+  newpoint.SetPosition(oldpoint->GetPosition() );
   return newpoint;
 }

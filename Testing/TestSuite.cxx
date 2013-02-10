@@ -3,16 +3,20 @@
 
 int CommandLineTest(int argc, char* argv[])
 {
-  if(argc == 0)
+  if( argc == 0 )
+    {
     std::cerr << "No command line test specified" << std::endl;
+    }
 
   std::string command;
-  for(int i = 1 ;  i <argc; ++i)
+  for( int i = 1;  i < argc; ++i )
+    {
     command += std::string(argv[i]) + " ";
+    }
 
   std::cout << "Executing: " << std::endl;
   std::cout << command << std::endl;
-  return system(command.c_str());
+  return system(command.c_str() );
 }
 
 void RegisterTests()

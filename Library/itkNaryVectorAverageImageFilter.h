@@ -56,71 +56,83 @@ namespace itk
  * \ingroup IntensityImageFilters  Multithreaded
  */
 
-namespace Functor {
+namespace Functor
+{
 
-template< class TInput, class TOutput >
+template <class TInput, class TOutput>
 class VectorAverage
 {
 public:
-  typedef typename NumericTraits< TOutput >::ValueType OutputValueType;
+  typedef typename NumericTraits<TOutput>::ValueType OutputValueType;
   // not sure if this typedef really makes things more clear... could just use TOutput?
 
-  VectorAverage() {}
-  ~VectorAverage() {}
-  TOutput operator()( const typename VectorContainer<unsigned int, TInput >::Pointer & B)
-    {
-      TOutput mean(0.0);
+  VectorAverage()
+  {
+  }
 
-      for(unsigned int i = 0; i < B->size(); ++i)
-        {
-        mean = mean + B->ElementAt(i);
-        }
-      mean = mean / B->Size();
+  ~VectorAverage()
+  {
+  }
 
-      return mean;
-    }
+  TOutput operator()( const typename VectorContainer<unsigned int, TInput>::Pointer & B)
+  {
+    TOutput mean(0.0);
 
-  bool operator== (const VectorAverage&) const
-    {
-      return true;
-    }
-  bool operator!= (const VectorAverage&) const
-    {
-      return false;
-    }
+    for( unsigned int i = 0; i < B->size(); ++i )
+      {
+      mean = mean + B->ElementAt(i);
+      }
+    mean = mean / B->Size();
+
+    return mean;
+  }
+
+  bool operator==(const VectorAverage &) const
+  {
+    return true;
+  }
+
+  bool operator!=(const VectorAverage &) const
+  {
+    return false;
+  }
+
 };
 
 }
 template <class TInputImage, class TOutputImage>
 class ITK_EXPORT NaryVectorAverageImageFilter :
-    public
-VectorNaryFunctorImageFilter<TInputImage,TOutputImage,
-                             Functor::VectorAverage<  typename TInputImage::PixelType,
-                                                      typename TInputImage::PixelType > >
+  public
+  VectorNaryFunctorImageFilter<TInputImage, TOutputImage,
+                               Functor::VectorAverage<typename TInputImage::PixelType,
+                                                      typename TInputImage::PixelType> >
 {
 public:
   /** Standard class typedefs. */
-  typedef NaryVectorAverageImageFilter  Self;
-  typedef VectorNaryFunctorImageFilter<TInputImage,TOutputImage,
-                                       Functor::VectorAverage< typename TInputImage::PixelType,
-                                                               typename TInputImage::PixelType > >  Superclass;
-  typedef SmartPointer<Self>   Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef NaryVectorAverageImageFilter Self;
+  typedef VectorNaryFunctorImageFilter<TInputImage, TOutputImage,
+                                       Functor::VectorAverage<typename TInputImage::PixelType,
+                                                              typename TInputImage::PixelType> >  Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
-
 protected:
-  NaryVectorAverageImageFilter() {}
-  virtual ~NaryVectorAverageImageFilter() {}
+  NaryVectorAverageImageFilter()
+  {
+  }
+
+  virtual ~NaryVectorAverageImageFilter()
+  {
+  }
 
 private:
-  NaryVectorAverageImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  NaryVectorAverageImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);               // purposely not implemented
 
 };
 
 } // end namespace itk
-
 
 #endif

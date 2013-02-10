@@ -24,10 +24,9 @@
 namespace itk
 {
 
-
 template <class TInputImage, class TOutputImage>
 void
-ExtractVolumeFilter<TInputImage,TOutputImage>
+ExtractVolumeFilter<TInputImage, TOutputImage>
 ::GenerateInputRequestedRegion()
 {
 
@@ -36,18 +35,17 @@ ExtractVolumeFilter<TInputImage,TOutputImage>
   // get pointer to the input
 
   typename Superclass::InputImagePointer  inputPtr  =
-    const_cast< TInputImage * >( this->GetInput());
+    const_cast<TInputImage *>( this->GetInput() );
 
-  if ( !inputPtr )
+  if( !inputPtr )
     {
-      return;
+    return;
     }
 
-
   const TOutputImage * outputPtr = this->GetOutput();
-  if ( !outputPtr )
+  if( !outputPtr )
     {
-      return;
+    return;
     }
 
   OutputImageRegionType outputRegion;
@@ -62,8 +60,8 @@ ExtractVolumeFilter<TInputImage,TOutputImage>
 
   InputImageRegionType inputRegion;
 
-  InputImageSizeType input_sz = output_sz;
-  InputImageIndexType input_idx =output_idx;
+  InputImageSizeType  input_sz = output_sz;
+  InputImageIndexType input_idx = output_idx;
 
   inputRegion.SetSize( input_sz );
   inputRegion.SetIndex( input_idx );
@@ -80,6 +78,7 @@ ExtractVolumeFilter<TInputImage, TOutputImage>
   Superclass::GenerateOutputInformation();
 
   const TInputImage * inputPtr = this->GetInput();
+
   if( !inputPtr )
     {
     return;
@@ -87,7 +86,7 @@ ExtractVolumeFilter<TInputImage, TOutputImage>
 
   // Compute the new region size.
   OutputImageRegionType outputRegion;
-  OutputImageIndexType   idx;
+  OutputImageIndexType  idx;
 
   InputImageSizeType input_sz =
     inputPtr->GetLargestPossibleRegion().GetSize();
@@ -110,37 +109,37 @@ ExtractVolumeFilter<TInputImage, TOutputImage>
 
 }
 
-template< class TInputImage, class TOutputImage>
+template <class TInputImage, class TOutputImage>
 void
-ExtractVolumeFilter< TInputImage, TOutputImage >
+ExtractVolumeFilter<TInputImage, TOutputImage>
 ::GenerateData()
 {
-  typedef itk::ImageRegionConstIterator< TInputImage > ConstIteratorType;
-  typedef itk::ImageRegionIterator< TOutputImage > IteratorType;
+  typedef itk::ImageRegionConstIterator<TInputImage> ConstIteratorType;
+  typedef itk::ImageRegionIterator<TOutputImage>     IteratorType;
 
   // Get the input and output
   typename OutputImageType::Pointer       output = this->GetOutput();
   typename  InputImageType::ConstPointer  input  = this->GetInput();
 
   ConstIteratorType nit( input, input->GetLargestPossibleRegion() );
-  IteratorType it( output, output->GetLargestPossibleRegion() );
+  IteratorType      it( output, output->GetLargestPossibleRegion() );
+  for( nit.GoToBegin(), it.GoToBegin(); !nit.IsAtEnd() && !it.IsAtEnd(); ++nit, ++it )
+    {
 
-  for ( nit.GoToBegin(), it.GoToBegin(); !nit.IsAtEnd() && !it.IsAtEnd(); ++nit, ++it ) {
-
-    OutputPixelType dVal = static_cast<OutputPixelType>(m_dFactor*((nit.Get())[m_iVolumeNr]));
+    OutputPixelType dVal = static_cast<OutputPixelType>(m_dFactor * ( (nit.Get() )[m_iVolumeNr]) );
 
     it.Set( dVal );
 
-  }
+    }
 
 }
 
 /**
  * Standard "PrintSelf" method
  */
-template< class TInputImage, class TOutputImage>
+template <class TInputImage, class TOutputImage>
 void
-ExtractVolumeFilter< TInputImage, TOutputImage >
+ExtractVolumeFilter<TInputImage, TOutputImage>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
   Superclass::PrintSelf( os, indent );
@@ -148,6 +147,5 @@ ExtractVolumeFilter< TInputImage, TOutputImage >
 }
 
 } // end namespace itk
-
 
 #endif

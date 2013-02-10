@@ -24,65 +24,73 @@ namespace itk
 
 // This functor class invokes the computation of fractional anisotropy from
 // every pixel.
-namespace Functor {
+namespace Functor
+{
 
-template< typename TInput, typename TOutput, typename TTransformRealType >
+template <typename TInput, typename TOutput, typename TTransformRealType>
 class TensorRotateFunction
 {
 public:
   typedef TTransformRealType RealType;
 
-  TensorRotateFunction() {}
-  ~TensorRotateFunction() {}
+  TensorRotateFunction()
+  {
+  }
+
+  ~TensorRotateFunction()
+  {
+  }
+
   bool operator!=( const TensorRotateFunction & ) const
-    {
-      return false;
-    }
+  {
+    return false;
+  }
+
   bool operator==( const TensorRotateFunction & other ) const
-    {
-      return !(*this != other);
-    }
+  {
+    return !(*this != other);
+  }
+
   TOutput operator()( const TInput & x )
-    {
-      vnl_matrix<RealType> T(3,3);
-      for(int i = 0; i < 3; ++i)
+  {
+    vnl_matrix<RealType> T(3, 3);
+    for( int i = 0; i < 3; ++i )
+      {
+      for( int j = 0; j < 3; ++j )
         {
-        for(int j = 0; j < 3; ++j)
-          {
-          T(i,j) = x(i,j);
-          }
+        T(i, j) = x(i, j);
         }
+      }
 
-      // TODO is the transpose in the right order?
-      vnl_matrix<RealType> Tr = m_Rotation * T * m_Rotation.transpose();
+    // TODO is the transpose in the right order?
+    vnl_matrix<RealType> Tr = m_Rotation * T * m_Rotation.transpose();
 
-      TOutput ret;
-      for(int i = 0; i < 3; ++i)
+    TOutput ret;
+    for( int i = 0; i < 3; ++i )
+      {
+      for( int j = 0; j < 3; ++j )
         {
-        for(int j = 0; j < 3; ++j)
-          {
-          ret(i,j) = Tr(i,j);
-          }
+        ret(i, j) = Tr(i, j);
         }
-      return ret;
-    }
+      }
+    return ret;
+  }
 
   vnl_matrix<RealType> GetRotation() const
-    {
-      return m_Rotation;
-    }
+  {
+    return m_Rotation;
+  }
 
-  void SetRotation(const vnl_matrix<RealType> &a)
-    {
-      m_Rotation = a;
-    }
+  void SetRotation(const vnl_matrix<RealType> & a)
+  {
+    m_Rotation = a;
+  }
 
 private:
   vnl_matrix<RealType> m_Rotation;
 };
 
 }  // end namespace functor
-
 
 /** \class TensorRotateImageFilter
  * \brief Computes the Fractional Anisotropy for every pixel of a input tensor image.
@@ -102,29 +110,29 @@ template <typename TInputImage,
           typename TOutputImage,
           typename TTransformRealType>
 class ITK_EXPORT TensorRotateImageFilter :
-    public
-UnaryFunctorImageFilter<TInputImage,TOutputImage,
-                        Functor::TensorRotateFunction<
-                          typename TInputImage::PixelType,
-                          typename TOutputImage::PixelType,
-                          TTransformRealType> >
+  public
+  UnaryFunctorImageFilter<TInputImage, TOutputImage,
+                          Functor::TensorRotateFunction<
+                            typename TInputImage::PixelType,
+                            typename TOutputImage::PixelType,
+                            TTransformRealType> >
 {
 public:
   /** Standard class typedefs. */
-  typedef TensorRotateImageFilter  Self;
-  typedef UnaryFunctorImageFilter<TInputImage,TOutputImage,
-    Functor::TensorRotateFunction<
-    typename TInputImage::PixelType,
-    typename TOutputImage::PixelType,
-    TTransformRealType> >  Superclass;
+  typedef TensorRotateImageFilter Self;
+  typedef UnaryFunctorImageFilter<TInputImage, TOutputImage,
+                                  Functor::TensorRotateFunction<
+                                    typename TInputImage::PixelType,
+                                    typename TOutputImage::PixelType,
+                                    TTransformRealType> >  Superclass;
 
-  typedef SmartPointer<Self>   Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
-  typedef typename Superclass::OutputImageType    OutputImageType;
-  typedef typename TOutputImage::PixelType        OutputPixelType;
-  typedef typename TInputImage::PixelType         InputPixelType;
-  typedef typename InputPixelType::ValueType      InputValueType;
+  typedef typename Superclass::OutputImageType OutputImageType;
+  typedef typename TOutputImage::PixelType     OutputPixelType;
+  typedef typename TInputImage::PixelType      InputPixelType;
+  typedef typename InputPixelType::ValueType   InputValueType;
 
   typedef TTransformRealType TransformRealType;
 
@@ -133,30 +141,33 @@ public:
 
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
-  { this->Superclass::PrintSelf( os, indent ); }
+  {
+    this->Superclass::PrintSelf( os, indent );
+  }
 
   vnl_matrix<TransformRealType> GetRotation() const
   {
     return this->GetFunctor().GetRotation();
   }
 
-  void SetRotation(const vnl_matrix<TransformRealType> &a)
+  void SetRotation(const vnl_matrix<TransformRealType> & a)
   {
     this->GetFunctor().SetRotation(a);
     this->Modified();
   }
 
 protected:
-  TensorRotateImageFilter() {};
-  virtual ~TensorRotateImageFilter() {};
-
+  TensorRotateImageFilter()
+  {
+  };
+  virtual ~TensorRotateImageFilter()
+  {
+  };
 private:
-  TensorRotateImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  TensorRotateImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);          // purposely not implemented
 
 };
-
-
 
 } // end namespace itk
 

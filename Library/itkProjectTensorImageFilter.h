@@ -20,7 +20,6 @@
 #include "itkBinaryFunctorImageFilter.h"
 #include "itkNumericTraits.h"
 
-
 namespace itk
 {
 
@@ -50,107 +49,115 @@ namespace itk
  * \sa MaskImageFilter
  * \ingroup IntensityImageFilters  Multithreaded
  */
-namespace Functor {
+namespace Functor
+{
 
-template< class TTensor, class TDWIVector >
+template <class TTensor, class TDWIVector>
 class ProjectTensorInput
 {
 public:
-  typedef vnl_vector_fixed<double, 3> GradientType;
-  typedef VectorContainer<unsigned int, GradientType> GradientListType;
-  typedef typename TDWIVector::ComponentType DWIComponentType;
-  typedef typename NumericTraits< DWIComponentType >::AccumulateType AccumulatorType;
+  typedef vnl_vector_fixed<double, 3>                              GradientType;
+  typedef VectorContainer<unsigned int, GradientType>              GradientListType;
+  typedef typename TDWIVector::ComponentType                       DWIComponentType;
+  typedef typename NumericTraits<DWIComponentType>::AccumulateType AccumulatorType;
 
-  ProjectTensorInput() {};
-  ~ProjectTensorInput() {};
+  ProjectTensorInput()
+  {
+  };
+  ~ProjectTensorInput()
+  {
+  };
 
   bool operator!=( const ProjectTensorInput & ) const
-    {
-      return false;
-    }
+  {
+    return false;
+  }
 
   bool operator==( const ProjectTensorInput & other ) const
-    {
-      return !(*this != other);
-    }
+  {
+    return !(*this != other);
+  }
 
   TResidual operator()( const TTensor & D, const TDWIVector & s)
-    {
-      AccumulatorType baseline = NumericTraits<AccumulatorType>::Zero;
-      VariableLengthVector<double> proj(A.Size() - m_NumBaselines);
-      VariableLengthVector<double> trunc(A.Size() - m_NumBaselines);
+  {
+    AccumulatorType baseline = NumericTraits<AccumulatorType>::Zero;
 
-      unsigned int gradnum = 0;
-      for(unsigned int i = 0; i < A.Size(); ++i)
+    VariableLengthVector<double> proj(A.Size() - m_NumBaselines);
+    VariableLengthVector<double> trunc(A.Size() - m_NumBaselines);
+
+    unsigned int gradnum = 0;
+    for( unsigned int i = 0; i < A.Size(); ++i )
+      {
+      if( m_GradientList->ElementAt(i).one_norm() == 0.0 )
         {
-        if(m_GradientList->ElementAt(i).one_norm() == 0.0)
-          {
-          baseline += A[i];
-          }
-        else
-          {
-          trunc[gradnum] = A[i];
-          gradnum++;
-          }
+        baseline += A[i];
+        }
+      else
+        {
+        trunc[gradnum] = A[i];
+        gradnum++;
+        }
+      }
+
+    assert(gradnum + m_NumBaselines == A.Size() );
+
+    baseline /= static_cast<AccumulatorType>(m_NumBaselines);
+
+    TResidual residual = NumericTraits<AccumulatorType>::Zero;
+
+    if( D[0] == 0 &&
+        D[1] == 0 &&
+        D[2] == 0 &&
+        D[3] == 0 &&
+        D[4] == 0 &&
+        D[5] == 0 )
+      {
+
+      return 0;
+      }
+
+    gradnum = 0;
+    for( unsigned int i = 0; i < A.Size(); ++i )
+      {
+      if( m_GradientList->ElementAt(i).one_norm() != 0.0 )
+        {
+        GradientType g = m_GradientList->ElementAt(i);
+
+        double gdg = g[0] * (D(0, 0) * g[0] + D(0, 1) * g[1] + D(0, 2) * g[2])
+          + g[1] * (D(1, 0) * g[0] + D(1, 1) * g[1] + D(1, 2) * g[2])
+          + g[2] * (D(2, 0) * g[0] + D(2, 1) * g[1] + D(2, 2) * g[2]);
+
+        proj[gradnum] = baseline * exp(-m_BValue * gdg);
+
+        residual += (proj[gradnum] - trunc[gradnum]) * (proj[gradnum] - trunc[gradnum]);
+
+        gradnum++;
         }
 
-      assert(gradnum + m_NumBaselines == A.Size());
+      }
 
-      baseline /= static_cast<AccumulatorType>(m_NumBaselines);
-
-      TResidual residual = NumericTraits<AccumulatorType>::Zero;
-
-      if(D[0] == 0 &&
-         D[1] == 0 &&
-         D[2] == 0 &&
-         D[3] == 0 &&
-         D[4] == 0 &&
-         D[5] == 0)
-
-        return 0;
-
-      gradnum = 0;
-      for(unsigned int i = 0; i < A.Size(); ++i)
-        {
-        if(m_GradientList->ElementAt(i).one_norm() != 0.0)
-          {
-          GradientType g = m_GradientList->ElementAt(i);
-
-          double gdg = g[0]*(D(0,0)*g[0] + D(0,1)*g[1] + D(0,2)*g[2])+
-            g[1]*(D(1,0)*g[0] + D(1,1)*g[1] + D(1,2)*g[2])+
-            g[2]*(D(2,0)*g[0] + D(2,1)*g[1] + D(2,2)*g[2]);
-
-          proj[gradnum] = baseline * exp(-m_BValue * gdg);
-
-          residual += (proj[gradnum] - trunc[gradnum])*(proj[gradnum] - trunc[gradnum]);
-
-          gradnum++;
-          }
-
-        }
-
-      return residual;
-    }
+    return residual;
+  }
 
   void SetGradientList(typename GradientListType::Pointer g)
-    {
-      m_GradientList = g;
+  {
+    m_GradientList = g;
 
-      m_NumBaselines = 0;
-      for(unsigned int i = 0; i < m_GradientList->Size(); ++i)
+    m_NumBaselines = 0;
+    for( unsigned int i = 0; i < m_GradientList->Size(); ++i )
+      {
+      if( m_GradientList->ElementAt(i).one_norm() == 0.0 )
         {
-        if(m_GradientList->ElementAt(i).one_norm() == 0.0)
-          {
-          m_NumBaselines++;
-          }
+        m_NumBaselines++;
         }
-      assert(m_NumBaselines > 0);
-    }
+      }
+    assert(m_NumBaselines > 0);
+  }
 
   void SetBValue(double b)
-    {
-      m_BValue = b;
-    }
+  {
+    m_BValue = b;
+  }
 
 private:
   double m_BValue;
@@ -163,29 +170,29 @@ private:
 
 template <class TTensorImage, class TDWIImage>
 class ITK_EXPORT ProjectTensorImageFilter :
-    public
-UnaryFunctorImageFilter<TTensorImage,TDWIImage,
-                        Functor::ProjectTensorInput<
-                          typename TTensorImage::PixelType,
-                          typename TDWIImage::PixelType> >
+  public
+  UnaryFunctorImageFilter<TTensorImage, TDWIImage,
+                          Functor::ProjectTensorInput<
+                            typename TTensorImage::PixelType,
+                            typename TDWIImage::PixelType> >
 {
 public:
   /** Standard class typedefs. */
-  typedef ProjectTensorImageFilter  Self;
+  typedef ProjectTensorImageFilter Self;
   typedef typename Functor::ProjectTensorInput<
-    typename TTensorImage::PixelType,
-    typename TDWIImage::PixelType>   FunctorType;
+      typename TTensorImage::PixelType,
+      typename TDWIImage::PixelType>   FunctorType;
 
   typedef UnaryFunctorImageFilter<TTensorImage,
-    TDWIImage,
-    FunctorType>  Superclass;
-  typedef SmartPointer<Self>   Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+                                  TDWIImage,
+                                  FunctorType>  Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Typedefs for Functor */
-  typedef typename FunctorType::GradientType GradientType;
+  typedef typename FunctorType::GradientType     GradientType;
   typedef typename FunctorType::GradientListType GradientListType;
-  typedef typename GradientListType::Pointer GradientListPointerType;
+  typedef typename GradientListType::Pointer     GradientListPointerType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -203,16 +210,20 @@ public:
   }
 
 protected:
-  ProjectTensorImageFilter() {}
-  virtual ~ProjectTensorImageFilter() {}
+  ProjectTensorImageFilter()
+  {
+  }
+
+  virtual ~ProjectTensorImageFilter()
+  {
+  }
 
 private:
-  ProjectTensorImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  ProjectTensorImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);           // purposely not implemented
 
 };
 
 } // end namespace itk
-
 
 #endif

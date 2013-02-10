@@ -26,53 +26,64 @@ namespace itk
 
 // This functor class invokes the computation of fractional anisotropy from
 // every pixel.
-namespace Functor {
+namespace Functor
+{
 
-template< typename TInput , typename TOutput>
+template <typename TInput, typename TOutput>
 class VectorClosestDotProductFunction
 {
 public:
-  typedef vnl_vector_fixed<double, 3> GradientType;
+  typedef vnl_vector_fixed<double, 3>                 GradientType;
   typedef VectorContainer<unsigned int, GradientType> GradientListType;
 
-  VectorClosestDotProductFunction() {}
-  ~VectorClosestDotProductFunction() {}
+  VectorClosestDotProductFunction()
+  {
+  }
+
+  ~VectorClosestDotProductFunction()
+  {
+  }
+
   bool operator!=( const VectorClosestDotProductFunction & ) const
-    {
-      return false;
-    }
+  {
+    return false;
+  }
+
   bool operator==( const VectorClosestDotProductFunction & other ) const
-    {
-      return !(*this != other);
-    }
+  {
+    return !(*this != other);
+  }
+
   TOutput operator()( const TInput & x )
-    {
-      TOutput max = NumericTraits<TOutput>::min();
+  {
+    TOutput max = NumericTraits<TOutput>::min();
 
-      for(unsigned int i = 0; i < m_GradientList->Size(); ++i)
+    for( unsigned int i = 0; i < m_GradientList->Size(); ++i )
+      {
+      TOutput dot = fabs(dot_product(x.GetVnlVector(), m_GradientList->ElementAt(i) ) );
+      if( dot > max )
         {
-        TOutput dot = fabs(dot_product(x.GetVnlVector(), m_GradientList->ElementAt(i)));
-        if(dot > max)
-          max = dot;
+        max = dot;
         }
+      }
 
-      return max;
-    }
+    return max;
+  }
 
   void SetGradientList(typename GradientListType::Pointer g)
-    {
-      m_GradientList = GradientListType::New();
+  {
+    m_GradientList = GradientListType::New();
 
-      unsigned int ind = 0;
-      for(unsigned int i = 0; i < g->Size(); ++i)
+    unsigned int ind = 0;
+    for( unsigned int i = 0; i < g->Size(); ++i )
+      {
+      if( g->ElementAt(i).one_norm() != 0.0 )
         {
-        if(g->ElementAt(i).one_norm() != 0.0)
-          {
-          m_GradientList->InsertElement(ind,g->ElementAt(i));
-          ind++;
-          }
+        m_GradientList->InsertElement(ind, g->ElementAt(i) );
+        ind++;
         }
-    }
+      }
+  }
 
 private:
   typename GradientListType::Pointer m_GradientList;
@@ -80,7 +91,6 @@ private:
 };
 
 }  // end namespace functor
-
 
 /** \class VectorClosestDotProductImageFilter
  * \brief Computes the Mean Diffusivity for every pixel of a input tensor image.
@@ -100,34 +110,34 @@ private:
 template <typename TInputImage,
           typename TOutputImage>
 class ITK_EXPORT VectorClosestDotProductImageFilter :
-    public
-UnaryFunctorImageFilter<TInputImage,TOutputImage,
-                        Functor::VectorClosestDotProductFunction<
-                          typename TInputImage::PixelType,
-                          typename TOutputImage::PixelType> >
+  public
+  UnaryFunctorImageFilter<TInputImage, TOutputImage,
+                          Functor::VectorClosestDotProductFunction<
+                            typename TInputImage::PixelType,
+                            typename TOutputImage::PixelType> >
 {
 public:
   /** Standard class typedefs. */
-  typedef VectorClosestDotProductImageFilter  Self;
-  typedef UnaryFunctorImageFilter<TInputImage,TOutputImage,
-    Functor::VectorClosestDotProductFunction<
-    typename TInputImage::PixelType,
-    typename TOutputImage::PixelType> >  Superclass;
+  typedef VectorClosestDotProductImageFilter Self;
+  typedef UnaryFunctorImageFilter<TInputImage, TOutputImage,
+                                  Functor::VectorClosestDotProductFunction<
+                                    typename TInputImage::PixelType,
+                                    typename TOutputImage::PixelType> >  Superclass;
 
-  typedef SmartPointer<Self>   Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
-  typedef typename Superclass::OutputImageType    OutputImageType;
-  typedef typename TOutputImage::PixelType        OutputPixelType;
-  typedef typename TInputImage::PixelType         InputPixelType;
+  typedef typename Superclass::OutputImageType OutputImageType;
+  typedef typename TOutputImage::PixelType     OutputPixelType;
+  typedef typename TInputImage::PixelType      InputPixelType;
 
   typedef typename Functor::VectorClosestDotProductFunction<
-    typename TInputImage::PixelType,
-    typename TOutputImage::PixelType>  FunctorType;
+      typename TInputImage::PixelType,
+      typename TOutputImage::PixelType>  FunctorType;
 
-  typedef typename FunctorType::GradientType GradientType;
+  typedef typename FunctorType::GradientType     GradientType;
   typedef typename FunctorType::GradientListType GradientListType;
-  typedef typename GradientListType::Pointer GradientListPointerType;
+  typedef typename GradientListType::Pointer     GradientListPointerType;
 
   void SetGradientList(GradientListPointerType g)
   {
@@ -140,20 +150,22 @@ public:
 
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
-  { this->Superclass::PrintSelf( os, indent ); }
-
+  {
+    this->Superclass::PrintSelf( os, indent );
+  }
 
 protected:
-  VectorClosestDotProductImageFilter() {};
-  virtual ~VectorClosestDotProductImageFilter() {};
-
+  VectorClosestDotProductImageFilter()
+  {
+  };
+  virtual ~VectorClosestDotProductImageFilter()
+  {
+  };
 private:
-  VectorClosestDotProductImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  VectorClosestDotProductImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);                     // purposely not implemented
 
 };
-
-
 
 } // end namespace itk
 

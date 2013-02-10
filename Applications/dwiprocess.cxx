@@ -34,16 +34,16 @@ int main(int argc, char* argv[])
   // This software reads a vectorized .nrrd file performs a
   // transformation and updates the embedded gradient strings
 
-  typedef double RealType;
-  typedef double TransformRealType;
-  typedef itk::AffineTransform<TransformRealType,3> AffineTransformType;
+  typedef double                                     RealType;
+  typedef double                                     TransformRealType;
+  typedef itk::AffineTransform<TransformRealType, 3> AffineTransformType;
 
   const unsigned int DIM = 3;
-  typedef unsigned short DWIPixelType;
+  typedef unsigned short                      DWIPixelType;
   typedef itk::VectorImage<DWIPixelType, DIM> VectorImageType;
-  typedef itk::Image<DWIPixelType, DIM> ComponentImageType;
+  typedef itk::Image<DWIPixelType, DIM>       ComponentImageType;
 
-  if(argc != 4)
+  if( argc != 4 )
     {
     std::cerr << "Usage: " << argv[0] << " infile outfile transform" << std::endl;
     std::cerr << "This program transform a vector image and updates the gradient"
@@ -63,29 +63,29 @@ int main(int argc, char* argv[])
     {
     reader->Update();
     }
-  catch (itk::ExceptionObject & e)
+  catch( itk::ExceptionObject & e )
     {
-    std::cerr << e <<std::endl;
+    std::cerr << e << std::endl;
     return EXIT_FAILURE;
     }
 
   VectorImageType::Pointer dwimg = reader->GetOutput();
 
-  AffineTransformType::Pointer transform = NULL;
-  vnl_matrix<TransformRealType> R(3,3,0);
-  if (transformfile.rfind(".dof") != std::string::npos)
+  AffineTransformType::Pointer  transform = NULL;
+  vnl_matrix<TransformRealType> R(3, 3, 0);
+  if( transformfile.rfind(".dof") != std::string::npos )
     {
     // Use RView transform file reader
-    RViewTransform<TransformRealType> dof(readDOFFile<TransformRealType>(transformfile));
+    RViewTransform<TransformRealType> dof(readDOFFile<TransformRealType>(transformfile) );
     // image transform
     transform = createITKAffine(dof,
                                 dwimg->GetLargestPossibleRegion().GetSize(),
                                 dwimg->GetSpacing(),
-                                dwimg->GetOrigin());
+                                dwimg->GetOrigin() );
 
     // gradient transform
     // g' = R g
-    R = vnl_matrix_inverse<TransformRealType>(transform->GetMatrix().GetVnlMatrix());
+    R = vnl_matrix_inverse<TransformRealType>(transform->GetMatrix().GetVnlMatrix() );
 
     }
   else
@@ -103,15 +103,14 @@ int main(int argc, char* argv[])
 
   typedef itk::VectorImageToImageAdaptor<DWIPixelType, DIM> VectorElementAdaptorType;
   VectorElementAdaptorType::Pointer adaptor = VectorElementAdaptorType::New();
-  adaptor->SetImage(reader->GetOutput());
+  adaptor->SetImage(reader->GetOutput() );
 
   typedef itk::ComposeImageFilter<ComponentImageType> VectorComposeFilterType;
   VectorComposeFilterType::Pointer vcompose = VectorComposeFilterType::New();
 
-  typedef itk::ResampleImageFilter<VectorElementAdaptorType,ComponentImageType> ResamplerType;
+  typedef itk::ResampleImageFilter<VectorElementAdaptorType, ComponentImageType> ResamplerType;
   ResamplerType::Pointer resampler = ResamplerType::New();
-
-  for(unsigned int i = 0; i < vectorlength; i++)
+  for( unsigned int i = 0; i < vectorlength; i++ )
     {
     // Transform the ith component of the vector image
     adaptor->SetExtractComponentIndex(i);
@@ -119,12 +118,12 @@ int main(int argc, char* argv[])
 
     resampler->SetInput(adaptor);
     resampler->SetTransform(transform);
-    resampler->SetOutputSpacing(reader->GetOutput()->GetSpacing());
-    resampler->SetOutputOrigin(reader->GetOutput()->GetOrigin());
-    resampler->SetSize(reader->GetOutput()->GetLargestPossibleRegion().GetSize());
+    resampler->SetOutputSpacing(reader->GetOutput()->GetSpacing() );
+    resampler->SetOutputOrigin(reader->GetOutput()->GetOrigin() );
+    resampler->SetSize(reader->GetOutput()->GetLargestPossibleRegion().GetSize() );
     resampler->Update();
 
-    vcompose->SetInput(i,resampler->GetOutput());
+    vcompose->SetInput(i, resampler->GetOutput() );
     }
   vcompose->Update();
 
@@ -133,13 +132,13 @@ int main(int argc, char* argv[])
   // write output
   typedef itk::ImageFileWriter<VectorImageType> ImageFileWriterType;
   ImageFileWriterType::Pointer writer = ImageFileWriterType::New();
-  writer->SetInput(vcompose->GetOutput());
+  writer->SetInput(vcompose->GetOutput() );
   writer->SetFileName(outfile);
   try
     {
     writer->Update();
     }
-  catch (itk::ExceptionObject & e)
+  catch( itk::ExceptionObject & e )
     {
     std::cerr << e << std::endl;
     return EXIT_FAILURE;

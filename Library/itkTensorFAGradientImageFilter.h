@@ -23,7 +23,6 @@
 namespace itk
 {
 
-
 /** \class TensorFAGradientImageFilter
  * \brief Computes the 6-element vector field that are the unique
  * elements of the matrix-logarithm of the tensor field.
@@ -36,26 +35,26 @@ namespace itk
  * \ingroup IntensityImageFilters  Multithreaded  TensorObjects
  *
  */
-template<typename T>
+template <typename T>
 class ITK_EXPORT TensorFAGradientImageFilter :
-    public
-ImageToImageFilter<Image<DiffusionTensor3D<T>, 3>,
-                   Image<CovariantVector<T,3>, 3> >
+  public
+  ImageToImageFilter<Image<DiffusionTensor3D<T>, 3>,
+                     Image<CovariantVector<T, 3>, 3> >
 {
 public:
 //  typedef Image<Vector<typename TInputImage::PixelType::RealValueType,6>,3 > TOutputImage;
-  typedef Image<DiffusionTensor3D<T>, 3> InputImageType;
-  typedef Image<CovariantVector<T,3>, 3> OutputImageType;
-  typedef typename InputImageType::PixelType InputPixelType;
+  typedef Image<DiffusionTensor3D<T>, 3>      InputImageType;
+  typedef Image<CovariantVector<T, 3>, 3>     OutputImageType;
+  typedef typename InputImageType::PixelType  InputPixelType;
   typedef typename OutputImageType::PixelType OutputPixelType;
-  typedef T RealType;
+  typedef T                                   RealType;
 
   /** Standard class typedefs. */
-  typedef TensorFAGradientImageFilter  Self;
-  typedef ImageToImageFilter<InputImageType,OutputImageType >  Superclass;
+  typedef TensorFAGradientImageFilter                         Self;
+  typedef ImageToImageFilter<InputImageType, OutputImageType> Superclass;
 
-  typedef SmartPointer<Self>   Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -64,29 +63,31 @@ public:
 
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
-  { this->Superclass::PrintSelf( os, indent ); }
+  {
+    this->Superclass::PrintSelf( os, indent );
+  }
 
   virtual void GenerateData();
 
-
 protected:
-  TensorFAGradientImageFilter() {};
-  virtual ~TensorFAGradientImageFilter() {};
-
+  TensorFAGradientImageFilter()
+  {
+  };
+  virtual ~TensorFAGradientImageFilter()
+  {
+  };
 private:
-  TensorFAGradientImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  TensorFAGradientImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);              // purposely not implemented
 
   double m_Sigma;
 
 };
-
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "itkTensorFAGradientImageFilter.txx"
 #endif
 
 }
-
 
 #endif

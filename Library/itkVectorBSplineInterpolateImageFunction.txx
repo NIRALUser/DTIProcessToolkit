@@ -27,60 +27,57 @@ namespace itk
 /**
  * Define the number of neighbors
  */
-template<class TInputImage, class TCoordRep, class TCoefficientType>
+template <class TInputImage, class TCoordRep, class TCoefficientType>
 const unsigned long
-VectorBSplineInterpolateImageFunction< TInputImage, TCoordRep , TCoefficientType >
+VectorBSplineInterpolateImageFunction<TInputImage, TCoordRep, TCoefficientType>
 ::m_Neighbors = 1 << TInputImage::ImageDimension;
-
 
 /**
  * Constructor
  */
-template<class TInputImage, class TCoordRep, class TCoefficientType>
-VectorBSplineInterpolateImageFunction< TInputImage, TCoordRep , TCoefficientType >
+template <class TInputImage, class TCoordRep, class TCoefficientType>
+VectorBSplineInterpolateImageFunction<TInputImage, TCoordRep, TCoefficientType>
 ::VectorBSplineInterpolateImageFunction()
 {
   m_ComponentInterpolators.resize(Dimension);
   m_ComponentAdaptors.resize(Dimension);
-
-  for ( unsigned int i = 0; i < Dimension; i++)
+  for( unsigned int i = 0; i < Dimension; i++ )
     {
     m_ComponentInterpolators[i] = ComponentInterpolateFunctionType::New();
     m_ComponentAdaptors[i] = ComponentAdaptorType::New();
     }
 }
 
-
 /**
  * PrintSelf
  */
-template<class TInputImage, class TCoordRep, class TCoefficientType>
+template <class TInputImage, class TCoordRep, class TCoefficientType>
 void
-VectorBSplineInterpolateImageFunction< TInputImage, TCoordRep , TCoefficientType >
+VectorBSplineInterpolateImageFunction<TInputImage, TCoordRep, TCoefficientType>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
   os << "Vector BSpline" << std::endl;
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 template <class TImageType, class TCoordRep, class TCoefficientType>
 void
-VectorBSplineInterpolateImageFunction<TImageType,TCoordRep,TCoefficientType>
+VectorBSplineInterpolateImageFunction<TImageType, TCoordRep, TCoefficientType>
 ::SetInputImage(const TImageType * inputData)
 {
   // Call super class input set
-  this->VectorInterpolateImageFunction<TImageType,TCoordRep>::SetInputImage(inputData);
+  this->VectorInterpolateImageFunction<TImageType, TCoordRep>::SetInputImage(inputData);
 
-  if(inputData)
+  if( inputData )
     {
     // data is now stored in m_Image
-    for( unsigned int i = 0; i < Dimension; i++)
+    for( unsigned int i = 0; i < Dimension; i++ )
       {
       m_ComponentAdaptors[i]->SetInput(inputData);
       m_ComponentAdaptors[i]->SetIndex(i);
       m_ComponentAdaptors[i]->Update();
 
-      m_ComponentInterpolators[i]->SetInputImage(m_ComponentAdaptors[i]->GetOutput());
+      m_ComponentInterpolators[i]->SetInputImage(m_ComponentAdaptors[i]->GetOutput() );
       }
     }
 }
@@ -88,16 +85,16 @@ VectorBSplineInterpolateImageFunction<TImageType,TCoordRep,TCoefficientType>
 /**
  * Evaluate at image index position
  */
-template<class TInputImage, class TCoordRep, class TCoefficientType>
-typename VectorBSplineInterpolateImageFunction< TInputImage, TCoordRep , TCoefficientType >
+template <class TInputImage, class TCoordRep, class TCoefficientType>
+typename VectorBSplineInterpolateImageFunction<TInputImage, TCoordRep, TCoefficientType>
 ::OutputType
-VectorBSplineInterpolateImageFunction< TInputImage, TCoordRep , TCoefficientType >
+VectorBSplineInterpolateImageFunction<TInputImage, TCoordRep, TCoefficientType>
 ::EvaluateAtContinuousIndex(
   const ContinuousIndexType& index) const
 {
   OutputType output;
-  output.Fill(0.0);
 
+  output.Fill(0.0);
   for( unsigned int i = 0; i < Dimension; i++ )
     {
     output[i] = m_ComponentInterpolators[i]->EvaluateAtContinuousIndex(index);

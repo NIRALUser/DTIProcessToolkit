@@ -14,64 +14,69 @@
 
 #include "TensorGeometry.h"
 
-template<class T, unsigned int dimension=3>
+template <class T, unsigned int dimension = 3>
 class LinearTensorGeometry : public TensorGeometry<T, dimension>
 {
 public:
-  typedef TensorGeometry<T, dimension> SuperClass;
-  typedef typename SuperClass::TensorType TensorType;
+  typedef TensorGeometry<T, dimension>     SuperClass;
+  typedef typename SuperClass::TensorType  TensorType;
   typedef typename SuperClass::TangentType TangentType;
 
-  LinearTensorGeometry() {}
+  LinearTensorGeometry()
+  {
+  }
 
-  virtual T InnerProduct(const TensorType & base, const TangentType & v,
-                         const TangentType & w);
+  virtual T InnerProduct(const TensorType & base, const TangentType & v, const TangentType & w);
 
   virtual TensorType ExpMap(const TensorType & base, const TangentType & v);
+
   virtual TangentType LogMap(const TensorType & base, const TensorType & p);
+
 };
 
-template<class T, unsigned int dimension>
+template <class T, unsigned int dimension>
 T LinearTensorGeometry<T, dimension>::InnerProduct(const TensorType & base,
                                                    const TangentType & v,
                                                    const TangentType & w)
 {
-  T prod;
+  T   prod;
   int i, j, diagIndex;
 
   // Diagonal elements are weighted by one, off-diagonal by two
   diagIndex = 0;
   j = dimension;
   prod = 0.0;
-  for(i = 0; i < v.Size(); i++)
+  for( i = 0; i < v.Size(); i++ )
     {
-    if(i == diagIndex)
+    if( i == diagIndex )
       {
       prod += v[i] * w[i];
       diagIndex += j;
       j--;
       }
     else
+      {
       prod += 2.0 * v[i] * w[i];
+      }
     }
 
   return prod;
 }
 
-template<class T, unsigned int dimension>
+template <class T, unsigned int dimension>
 typename LinearTensorGeometry<T, dimension>::TensorType
 LinearTensorGeometry<T, dimension>::ExpMap(const TensorType & base,
                                            const TangentType & v)
 {
-  return (base + v);
+  return base + v;
 }
 
-template<class T, unsigned int dimension>
+template <class T, unsigned int dimension>
 typename LinearTensorGeometry<T, dimension>::TangentType
 LinearTensorGeometry<T, dimension>::LogMap(const TensorType & base,
                                            const TensorType & p)
 {
-  return (p - base);
+  return p - base;
 }
 
 #endif

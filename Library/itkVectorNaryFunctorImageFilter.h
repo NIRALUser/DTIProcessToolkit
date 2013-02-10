@@ -37,17 +37,17 @@ namespace itk
  * \ingroup IntensityImageFilters   Multithreaded
  */
 
-template <class TInputImage, class TOutputImage, class TFunction >
+template <class TInputImage, class TOutputImage, class TFunction>
 class ITK_EXPORT VectorNaryFunctorImageFilter :
-    public InPlaceImageFilter<TInputImage,TOutputImage>
+  public         InPlaceImageFilter<TInputImage, TOutputImage>
 
 {
 public:
   /** Standard class typedefs. */
-  typedef VectorNaryFunctorImageFilter  Self;
-  typedef InPlaceImageFilter<TInputImage,TOutputImage>  Superclass;
-  typedef SmartPointer<Self>   Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef VectorNaryFunctorImageFilter                  Self;
+  typedef InPlaceImageFilter<TInputImage, TOutputImage> Superclass;
+  typedef SmartPointer<Self>                            Pointer;
+  typedef SmartPointer<const Self>                      ConstPointer;
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
@@ -55,22 +55,25 @@ public:
   itkTypeMacro(VectorNaryFunctorImageFilter, InPlaceImageFilter);
 
   /** Some typedefs. */
-  typedef TFunction   FunctorType;
-  typedef TInputImage InputImageType;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::RegionType   InputImageRegionType;
-  typedef typename InputImageType::PixelType    InputImagePixelType;
-  typedef TOutputImage OutputImageType;
-  typedef typename OutputImageType::Pointer     OutputImagePointer;
-  typedef typename OutputImageType::RegionType  OutputImageRegionType;
-  typedef typename OutputImageType::PixelType   OutputImagePixelType;
-  typedef VectorContainer<unsigned int, InputImagePixelType > VectorNaryArrayType;
+  typedef TFunction                                          FunctorType;
+  typedef TInputImage                                        InputImageType;
+  typedef typename InputImageType::Pointer                   InputImagePointer;
+  typedef typename InputImageType::RegionType                InputImageRegionType;
+  typedef typename InputImageType::PixelType                 InputImagePixelType;
+  typedef TOutputImage                                       OutputImageType;
+  typedef typename OutputImageType::Pointer                  OutputImagePointer;
+  typedef typename OutputImageType::RegionType               OutputImageRegionType;
+  typedef typename OutputImageType::PixelType                OutputImagePixelType;
+  typedef VectorContainer<unsigned int, InputImagePixelType> VectorNaryArrayType;
 
   /** Get the functor object.  The functor is returned by reference.
    * (Functors do not have to derive from itk::LightObject, so they do
    * not necessarily have a reference count. So we cannot return a
    * SmartPointer). */
-  FunctorType& GetFunctor() { return m_Functor; };
+  FunctorType & GetFunctor()
+  {
+    return m_Functor;
+  };
 
   /** Set the functor object.  This replaces the current Functor with a
    * copy of the specified Functor. This allows the user to specify a
@@ -80,7 +83,7 @@ public:
    * appropriate). */
   void SetFunctor(FunctorType& functor)
   {
-    if ( m_Functor != functor )
+    if( m_Functor != functor )
       {
       m_Functor = functor;
       this->Modified();
@@ -89,7 +92,9 @@ public:
 
 protected:
   VectorNaryFunctorImageFilter();
-  virtual ~VectorNaryFunctorImageFilter() {};
+  virtual ~VectorNaryFunctorImageFilter()
+  {
+  };
 
   /** VectorNaryFunctorImageFilter can be implemented as a multithreaded filter.
    * Therefore, this implementation provides a ThreadedGenerateData() routine
@@ -101,12 +106,11 @@ protected:
    *
    * \sa ImageToImageFilter::ThreadedGenerateData(),
    *     ImageToImageFilter::GenerateData()  */
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-                            ThreadIdType threadId );
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, ThreadIdType threadId );
 
 private:
-  VectorNaryFunctorImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  VectorNaryFunctorImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);               // purposely not implemented
 
   FunctorType m_Functor;
 };

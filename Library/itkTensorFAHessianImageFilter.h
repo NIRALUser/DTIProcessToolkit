@@ -25,7 +25,6 @@
 namespace itk
 {
 
-
 /** \class TensorFAHessianImageFilter
  * \brief Computes the 6-element vector field that are the unique
  * elements of the matrix-logarithm of the tensor field.
@@ -38,58 +37,59 @@ namespace itk
  * \ingroup IntensityImageFilters  Multithreaded  TensorObjects
  *
  */
-template<typename T>
+template <typename T>
 class ITK_EXPORT TensorFAHessianImageFilter :
-    public
-ImageToImageFilter<Image<DiffusionTensor3D<T>, 3>,
-                   Image<SymmetricSecondRankTensor<3,T>, 3> >
+  public
+  ImageToImageFilter<Image<DiffusionTensor3D<T>, 3>,
+                     Image<SymmetricSecondRankTensor<3, T>, 3> >
 {
 public:
 //  typedef Image<Vector<typename TInputImage::PixelType::RealValueType,6>,3 > TOutputImage;
-  typedef Image<DiffusionTensor3D<T>, 3> InputImageType;
-  typedef Image<SymmetricSecondRankTensor<3,T>, 3> InputImageType;
-  typedef typename InputImageType::PixelType InputPixelType;
-  typedef typename OutputImageType::PixelType OutputPixelType;
+  typedef Image<DiffusionTensor3D<T>, 3>                   InputImageType;
+  typedef Image<SymmetricSecondRankTensor<3, T>, 3>        InputImageType;
+  typedef typename InputImageType::PixelType               InputPixelType;
+  typedef typename OutputImageType::PixelType              OutputPixelType;
   typedef typename OutputPixelType::EigenVectorsMatrixType EigenVectorType;
-  typedef typename OutputPixelType::EigenValuesArrayType EigenValueType;
-  typedef T RealType;
-
+  typedef typename OutputPixelType::EigenValuesArrayType   EigenValueType;
+  typedef T                                                RealType;
 
   /** Standard class typedefs. */
-  typedef TensorFAHessianImageFilter  Self;
-  typedef ImageToImageFilter<InputImageType,OutputImageType >  Superclass;
+  typedef TensorFAHessianImageFilter                          Self;
+  typedef ImageToImageFilter<InputImageType, OutputImageType> Superclass;
 
-  typedef SmartPointer<Self>   Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
-  { this->Superclass::PrintSelf( os, indent ); }
+  {
+    this->Superclass::PrintSelf( os, indent );
+  }
 
   virtual void GenerateData();
 
-
 protected:
-  TensorFAHessianImageFilter() {};
-  virtual ~TensorFAHessianImageFilter() {};
-
+  TensorFAHessianImageFilter()
+  {
+  };
+  virtual ~TensorFAHessianImageFilter()
+  {
+  };
 private:
-  TensorFAHessianImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  TensorFAHessianImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);             // purposely not implemented
 
   double m_Scale;
 
 };
-
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "itkTensorFAHessianImageFilter.txx"
 #endif
 
 }
-
 
 #endif

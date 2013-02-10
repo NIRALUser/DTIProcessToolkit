@@ -32,26 +32,37 @@ template <typename TInput, typename TGradientDirection, typename TOutput>
 class TensorApparentDiffusionCoefficient
 {
 public:
-  TensorApparentDiffusionCoefficient() {}
-  ~TensorApparentDiffusionCoefficient() {}
+  TensorApparentDiffusionCoefficient()
+  {
+  }
+
+  ~TensorApparentDiffusionCoefficient()
+  {
+  }
 
   bool operator!=( const TensorApparentDiffusionCoefficient & ) const
-    {
-      return false;
-    }
+  {
+    return false;
+  }
+
   bool operator==( const TensorApparentDiffusionCoefficient & other ) const
-    {
-      return !(*this != other);
-    }
+  {
+    return !(*this != other);
+  }
 
   TOutput operator()(const TInput & d, const TGradientDirection & direction)
-    {
-      double result = 0.0;
-      for(unsigned int i = 0; i < 3; ++i)
-        for(unsigned int j = 0; j < 3; ++j)
-          result += direction[i]*d(i,j)*direction[j];
-      return result;
-    }
+  {
+    double result = 0.0;
+
+    for( unsigned int i = 0; i < 3; ++i )
+      {
+      for( unsigned int j = 0; j < 3; ++j )
+        {
+        result += direction[i] * d(i, j) * direction[j];
+        }
+      }
+    return result;
+  }
 
 };
 

@@ -53,15 +53,15 @@ void validate(boost::any& v,
   // one string, it's an error, and exception will be thrown.
   const std::string& s = validators::get_single_string(values);
 
-  if(s ==  "nearestneighbor")
+  if( s ==  "nearestneighbor" )
     {
     v = any(NearestNeighbor);
     }
-  else if (s == "linear")
+  else if( s == "linear" )
     {
     v = any(Linear);
     }
-  else if (s == "cubic")
+  else if( s == "cubic" )
     {
     v = any(Cubic);
     }
@@ -70,20 +70,27 @@ void validate(boost::any& v,
     throw validation_error("Interpolation type invalid.  Only \"nearestneighbor\", \"linear\", and \"cubic\" allowed.");
     }
 }
+
 #endif
 
 typedef itk::InterpolateImageFunction<IntImageType, double> InterpolatorType;
 
 InterpolatorType::Pointer createInterpolater(InterpolationType interp)
 {
-  switch(interp)
+  switch( interp )
     {
     case NearestNeighbor:
+      {
       return itk::NearestNeighborInterpolateImageFunction<IntImageType, double>::New().GetPointer();
+      }
     case Linear:
+      {
       return itk::LinearInterpolateImageFunction<IntImageType, double>::New().GetPointer();
+      }
     case Cubic:
+      {
       return itk::BSplineInterpolateImageFunction<IntImageType, double>::New().GetPointer();
+      }
     default:
       throw itk::ExceptionObject("Invalid interpolation type");
     }
@@ -107,8 +114,10 @@ int main(int argc, char* argv[])
     ("invert", po::value<bool>()->default_value(false), "Invert transform before applying (default: false)")
     ("deformation,d", po::value<std::string>(), "Deformation Field")
     ("h-field", "The deformation is an h-field")
-    ("interpolator", po::value<InterpolationType>()->default_value(Linear, "linear"), "Interpolation type (neareastneighbor, linear, cubic")
-    ;
+    ("interpolator",
+    po::value<InterpolationType>()->default_value(Linear,
+                                                  "linear"), "Interpolation type (neareastneighbor, linear, cubic")
+  ;
 
   po::variables_map vm;
 
@@ -118,18 +127,20 @@ int main(int argc, char* argv[])
               options(config).run(), vm);
     po::notify(vm);
     }
-  catch (const po::error &e)
+  catch( const po::error & e )
     {
     std::cout << config << std::endl;
     return EXIT_FAILURE;
     }
 
-  if(vm.count("help") || !vm.count("input-image") || !vm.count("output-image")
-     || (!vm.count("transformation") && !vm.count("deformation")))
+  if( vm.count("help") || !vm.count("input-image") || !vm.count("output-image")
+      || (!vm.count("transformation") && !vm.count("deformation") ) )
     {
     std::cout << config << std::endl;
-    if(vm.count("help"))
+    if( vm.count("help") )
+      {
       return EXIT_SUCCESS;
+      }
     else
       {
       std::cerr << "The input, output, and transformation must be specified." << std::endl;
@@ -138,8 +149,8 @@ int main(int argc, char* argv[])
     }
 #endif
   PARSE_ARGS;
-  if(inputImage == "" || outputImage == "" ||
-     transformation == "" || deformation == "")
+  if( inputImage == "" || outputImage == "" ||
+      transformation == "" || deformation == "" )
     {
     std::cerr << "The input, output, and transformation must be specified." << std::endl;
     return EXIT_FAILURE;
@@ -154,7 +165,7 @@ int main(int argc, char* argv[])
     {
     reader->Update();
     }
-  catch (itk::ExceptionObject & e)
+  catch( itk::ExceptionObject & e )
     {
     std::cerr << e << std::endl;
     return EXIT_FAILURE;
@@ -162,10 +173,10 @@ int main(int argc, char* argv[])
   InterpolationType interpType =
     (interpolation == "linear" ? Linear :
      (interpolation == "nearestneightbor" ? NearestNeighbor :
-      Cubic));
-  IntImageType::Pointer result = NULL;
+      Cubic) );
+  IntImageType::Pointer     result = NULL;
   InterpolatorType::Pointer interp = createInterpolater(interpType);
-  if(transformation != "")
+  if( transformation != "" )
     {
     typedef itk::TransformFileReader TransformReader;
     TransformReader::Pointer treader = TransformReader::New();
@@ -176,14 +187,14 @@ int main(int argc, char* argv[])
       {
       treader->Update();
       }
-    catch (itk::ExceptionObject & e)
+    catch( itk::ExceptionObject & e )
       {
       std::cerr << e << std::endl;
       return EXIT_FAILURE;
       }
 
     typedef itk::ResampleImageFilter<IntImageType, IntImageType, double> ResampleFilter;
-    ResampleFilter::Pointer  resampler = ResampleFilter::New();
+    ResampleFilter::Pointer resampler = ResampleFilter::New();
     resampler->SetSize( reader->GetOutput()->GetLargestPossibleRegion().GetSize() );
     resampler->SetOutputOrigin( reader->GetOutput()->GetOrigin() );
     resampler->SetOutputSpacing( reader->GetOutput()->GetSpacing() );
@@ -192,13 +203,14 @@ int main(int argc, char* argv[])
     resampler->SetInput( reader->GetOutput() );
 
     typedef itk::AffineTransform<double, 3> TransformType;
-    TransformType::Pointer transform = dynamic_cast<TransformType*>( treader->GetTransformList()->front().GetPointer() );
-    assert(!transform.IsNull());
+    TransformType::Pointer transform =
+      dynamic_cast<TransformType *>( treader->GetTransformList()->front().GetPointer() );
+    assert(!transform.IsNull() );
     resampler->SetTransform( transform );
     resampler->Update();
     result = resampler->GetOutput();
     }
-  else if(deformation != "")
+  else if( deformation != "" )
     {
     DeformationImageType::Pointer defimage = DeformationImageType::New();
     defimage = readDeformationField(deformation,
@@ -208,10 +220,10 @@ int main(int argc, char* argv[])
     WarpFilter::Pointer warpresampler = WarpFilter::New();
     warpresampler->SetInterpolator(interp);
     warpresampler->SetEdgePaddingValue(0);
-    warpresampler->SetInput(reader->GetOutput());
+    warpresampler->SetInput(reader->GetOutput() );
     warpresampler->SetDeformationField(defimage);
-    warpresampler->SetOutputSpacing( reader->GetOutput()->GetSpacing());
-    warpresampler->SetOutputOrigin( reader->GetOutput()->GetOrigin());
+    warpresampler->SetOutputSpacing( reader->GetOutput()->GetSpacing() );
+    warpresampler->SetOutputOrigin( reader->GetOutput()->GetOrigin() );
     warpresampler->Update();
 
     result = warpresampler->GetOutput();
@@ -223,7 +235,7 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
     }
 
-  typedef itk::ImageFileWriter<IntImageType > ImageWriter;
+  typedef itk::ImageFileWriter<IntImageType> ImageWriter;
   ImageWriter::Pointer writer = ImageWriter::New();
   writer->UseCompressionOn();
   writer->SetFileName(outputImage);
@@ -233,7 +245,7 @@ int main(int argc, char* argv[])
     {
     writer->Update();
     }
-  catch (itk::ExceptionObject & e)
+  catch( itk::ExceptionObject & e )
     {
     std::cerr << e << std::endl;
     return EXIT_FAILURE;

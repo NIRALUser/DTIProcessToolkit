@@ -19,7 +19,7 @@
 #include "imageio.h"
 #include <itkImageFileWriter.h>
 
-template<typename TImage>
+template <typename TImage>
 void writeImage(const std::string & filename,
                 typename itk::SmartPointer<TImage> image)
 {
@@ -27,7 +27,7 @@ void writeImage(const std::string & filename,
   typename ImageWriterType::Pointer writer = ImageWriterType::New();
   writer->SetUseCompression(true);
   writer->SetInput(image);
-  writer->SetFileName(filename.c_str());
+  writer->SetFileName(filename.c_str() );
   writer->Update();
 
 }

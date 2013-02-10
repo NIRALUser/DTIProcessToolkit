@@ -40,59 +40,61 @@ namespace itk
  * \ingroup IntensityImageFilters  Multithreaded  TensorObjects
  *
  */
-template<typename T>
+template <typename T>
 class ITK_EXPORT TensorFileWriter :
-    public
-ImageToImageFilter<Image<DiffusionTensor3D<T>, 3>,
-                   Image<Vector<T,6>, 3> >
+  public
+  ImageToImageFilter<Image<DiffusionTensor3D<T>, 3>,
+                     Image<Vector<T, 6>, 3> >
 {
 public:
 //  typedef Image<Vector<typename TInputImage::PixelType::RealValueType,6>,3 > TOutputImage;
-  typedef Image<DiffusionTensor3D<T>, 3> InputImageType;
-  typedef Image<Vector<T,6>, 3> OutputImageType;
-  typedef typename InputImageType::PixelType InputPixelType;
-  typedef typename OutputImageType::PixelType OutputPixelType;
+  typedef Image<DiffusionTensor3D<T>, 3>                  InputImageType;
+  typedef Image<Vector<T, 6>, 3>                          OutputImageType;
+  typedef typename InputImageType::PixelType              InputPixelType;
+  typedef typename OutputImageType::PixelType             OutputPixelType;
   typedef typename InputPixelType::EigenVectorsMatrixType EigenVectorType;
-  typedef typename InputPixelType::EigenValuesArrayType EigenValueType;
-  typedef T RealType;
-
+  typedef typename InputPixelType::EigenValuesArrayType   EigenValueType;
+  typedef T                                               RealType;
 
   /** Standard class typedefs. */
-  typedef TensorFileWriter  Self;
-  typedef ImageToImageFilter<InputImageType,OutputImageType >  Superclass;
+  typedef TensorFileWriter                                    Self;
+  typedef ImageToImageFilter<InputImageType, OutputImageType> Superclass;
 
-  typedef SmartPointer<Self>   Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  itkGetMacro(FileName,std::string);
-  itkSetMacro(FileName,std::string);
+  itkGetMacro(FileName, std::string);
+  itkSetMacro(FileName, std::string);
 
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
-  { this->Superclass::PrintSelf( os, indent ); }
+  {
+    this->Superclass::PrintSelf( os, indent );
+  }
 
   virtual void GenerateData();
 
 protected:
-  TensorFileWriter() {};
-  virtual ~TensorFileWriter() {};
-
+  TensorFileWriter()
+  {
+  };
+  virtual ~TensorFileWriter()
+  {
+  };
 private:
-  TensorFileWriter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  TensorFileWriter(const Self &); // purposely not implemented
+  void operator=(const Self &);   // purposely not implemented
 
   std::string m_FileName;
 };
-
 
 }
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "itkTensorFileWriter.txx"
 #endif
-
 
 #endif

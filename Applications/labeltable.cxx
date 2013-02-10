@@ -27,8 +27,8 @@ int main(int argc, char* argv[])
   const char* infile = argv[1];
   const char* outfile = argv[2];
 
-  typedef unsigned short PixelType;
-  typedef itk::Image<PixelType, 3> ImageType;
+  typedef unsigned short                  PixelType;
+  typedef itk::Image<PixelType, 3>        ImageType;
   typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
   typedef itk::ImageFileWriter<ImageType> ImageFileWriterType;
 
@@ -38,14 +38,15 @@ int main(int argc, char* argv[])
   reader->SetFileName(infile);
 
   ChangeLabelType::Pointer labelchanger = ChangeLabelType::New();
-  labelchanger->SetInput(reader->GetOutput());
-
-  for(int i = 3; i  < argc;  i += 2)
-    labelchanger->SetChange(atoi(argv[i]),atoi(argv[i+1]));
+  labelchanger->SetInput(reader->GetOutput() );
+  for( int i = 3; i  < argc;  i += 2 )
+    {
+    labelchanger->SetChange(atoi(argv[i]), atoi(argv[i + 1]) );
+    }
 
   ImageFileWriterType::Pointer writer = ImageFileWriterType::New();
   writer->SetUseCompression(true);
-  writer->SetInput(labelchanger->GetOutput());
+  writer->SetInput(labelchanger->GetOutput() );
   writer->SetFileName(outfile);
   writer->Update();
 

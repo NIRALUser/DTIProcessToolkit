@@ -24,8 +24,6 @@
 namespace itk
 {
 
-
-
 /** \class TensorFileReader
  * \brief Computes the 6-element vector field that are the unique
  * elements of the matrix-logarithm of the tensor field.
@@ -40,34 +38,34 @@ namespace itk
  */
 template <class TOutputImage>
 class ITK_EXPORT TensorFileReader :
-    public ImageSource<TOutputImage>
+  public         ImageSource<TOutputImage>
 
 {
 public:
 //  typedef Image<Vector<typename TInputImage::PixelType::RealValueType,6>,3 > TOutputImage;
-  typedef TOutputImage OutputImageType;
-  typedef typename OutputImageType::PixelType OutputPixelType;
+  typedef TOutputImage                            OutputImageType;
+  typedef typename OutputImageType::PixelType     OutputPixelType;
   typedef typename OutputPixelType::RealValueType RealType;
 
-  typedef typename TOutputImage::SizeType  SizeType;
+  typedef typename TOutputImage::SizeType SizeType;
 
   /** The region of the output image. */
-  typedef typename TOutputImage::RegionType  ImageRegionType;
+  typedef typename TOutputImage::RegionType ImageRegionType;
 
   /** Standard class typedefs. */
-  typedef TensorFileReader  Self;
-  typedef ImageSource<OutputImageType >  Superclass;
+  typedef TensorFileReader             Self;
+  typedef ImageSource<OutputImageType> Superclass;
 
-  typedef SmartPointer<Self>   Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  itkGetMacro(FileName,std::string);
-  itkSetMacro(FileName,std::string);
+  itkGetMacro(FileName, std::string);
+  itkSetMacro(FileName, std::string);
 
-  itkGetMacro(Type,std::string);
+  itkGetMacro(Type, std::string);
 
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const;
@@ -81,8 +79,8 @@ protected:
   virtual void GenerateData();
 
 private:
-  TensorFileReader(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  TensorFileReader(const Self &); // purposely not implemented
+  void operator=(const Self &);   // purposely not implemented
 
   std::string m_FileName;
   std::string m_Type;
@@ -91,12 +89,10 @@ private:
 
 };
 
-
 }
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "itkTensorFileReader.txx"
 #endif
-
 
 #endif

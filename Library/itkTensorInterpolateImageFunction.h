@@ -35,7 +35,6 @@ namespace itk
 //   itkStaticConstMacro(Dimension, int, T::Dimension);
 // };
 
-
 /** \class TensorInterpolateImageFunction
  * \brief Base class for all vector image interpolaters.
  *
@@ -59,10 +58,10 @@ template <
   class TPixelType = typename TInputImage::PixelType
   >
 class ITK_EXPORT TensorInterpolateImageFunction :
-    public ImageFunction<
-  TInputImage,
-  TPixelType,
-  TCoordRep >
+  public         ImageFunction<
+    TInputImage,
+    TPixelType,
+    TCoordRep>
 {
 public:
   /** Extract the vector dimension from the pixel template parameter. */
@@ -76,19 +75,18 @@ public:
   /** Standard class typedefs. */
   typedef TensorInterpolateImageFunction Self;
   typedef ImageFunction<TInputImage,
-    TPixelType, TCoordRep > Superclass;
-  typedef SmartPointer<Self> Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+                        TPixelType, TCoordRep> Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(TensorInterpolateImageFunction, ImageFunction);
 
   /** InputImageType typedef support. */
-  typedef typename Superclass::InputImageType InputImageType;
-  typedef typename InputImageType::PixelType  PixelType;
-  typedef typename PixelType::ValueType       ValueType;
-  typedef typename NumericTraits<ValueType>::RealType  RealType;
-
+  typedef typename Superclass::InputImageType         InputImageType;
+  typedef typename InputImageType::PixelType          PixelType;
+  typedef typename PixelType::ValueType               ValueType;
+  typedef typename NumericTraits<ValueType>::RealType RealType;
 
   /** Point typedef support. */
   typedef typename Superclass::PointType PointType;
@@ -113,8 +111,9 @@ public:
   virtual OutputType Evaluate( const PointType& point ) const
   {
     ContinuousIndexType index;
+
     this->GetInputImage()->TransformPhysicalPointToContinuousIndex( point, index );
-    return ( this->EvaluateAtContinuousIndex( index ) );
+    return this->EvaluateAtContinuousIndex( index );
   }
 
   /** Interpolate the image at a continuous index position
@@ -127,8 +126,7 @@ public:
    *
    * ImageFunction::IsInsideBuffer() can be used to check bounds before
    * calling the method. */
-  virtual OutputType EvaluateAtContinuousIndex(
-    const ContinuousIndexType & index ) const = 0;
+  virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index ) const = 0;
 
   /** Interpolate the image at an index position.
    * Simply returns the image value at the
@@ -140,28 +138,35 @@ public:
   virtual OutputType EvaluateAtIndex( const IndexType & index ) const
   {
     OutputType output;
-    PixelType input = this->GetInputImage()->GetPixel( index );
+    PixelType  input = this->GetInputImage()->GetPixel( index );
+
     for( unsigned int k = 0; k < Dimension; k++ )
       {
       output[k] = static_cast<double>( input[k] );
       }
-    return ( output );
+    return output;
   }
 
 protected:
-  TensorInterpolateImageFunction() {}
-  ~TensorInterpolateImageFunction() {}
+  TensorInterpolateImageFunction()
+  {
+  }
+
+  ~TensorInterpolateImageFunction()
+  {
+  }
+
   void PrintSelf(std::ostream& os, Indent indent) const
-  { Superclass::PrintSelf( os, indent ); }
+  {
+    Superclass::PrintSelf( os, indent );
+  }
 
 private:
-  TensorInterpolateImageFunction(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  TensorInterpolateImageFunction(const Self &); // purposely not implemented
+  void operator=(const Self &);                 // purposely not implemented
 
 };
 
 } // end namespace itk
 
 #endif
-
-

@@ -26,64 +26,71 @@ namespace itk
 
 // This functor class invokes the computation of fractional anisotropy from
 // every pixel.
-namespace Functor {
+namespace Functor
+{
 
-template< typename TInput1, typename TInput2, typename TOutput >
+template <typename TInput1, typename TInput2, typename TOutput>
 class TensorRotateFromDeformationFieldFunction
 {
 public:
   typedef typename TOutput::ValueType RealType;
 
-  TensorRotateFromDeformationFieldFunction() {}
-  ~TensorRotateFromDeformationFieldFunction() {}
+  TensorRotateFromDeformationFieldFunction()
+  {
+  }
+
+  ~TensorRotateFromDeformationFieldFunction()
+  {
+  }
+
   bool operator!=( const TensorRotateFromDeformationFieldFunction & ) const
-    {
-      return false;
-    }
+  {
+    return false;
+  }
+
   bool operator==( const TensorRotateFromDeformationFieldFunction & other ) const
-    {
-      return !(*this != other);
-    }
-  TOutput operator()( const TInput1 & x, const TInput2 &y ) const
-    {
-      // Extract rotation from TInput2
-      typedef typename TInput2::InternalMatrixType VnlMatrixType;
-      typedef typename TInput2::ComponentType TransformPrecision;
+  {
+    return !(*this != other);
+  }
 
-      VnlMatrixType iden;
-      iden.set_identity();
+  TOutput operator()( const TInput1 & x, const TInput2 & y ) const
+  {
+    // Extract rotation from TInput2
+    typedef typename TInput2::InternalMatrixType VnlMatrixType;
+    typedef typename TInput2::ComponentType      TransformPrecision;
 
-      VnlMatrixType vnlx;
-      for(int i = 0; i < 3; ++i)
+    VnlMatrixType iden;
+    iden.set_identity();
+
+    VnlMatrixType vnlx;
+    for( int i = 0; i < 3; ++i )
+      {
+      for( int j = 0; j < 3; ++j )
         {
-        for(int j = 0; j < 3; ++j)
-          {
-          vnlx(i,j) = x(i,j);
-          }
+        vnlx(i, j) = x(i, j);
         }
+      }
 
-      vnl_svd<TransformPrecision> svd(y.GetVnlMatrix() + iden);
-      VnlMatrixType R(svd.U() * svd.V().transpose());
+    vnl_svd<TransformPrecision> svd(y.GetVnlMatrix() + iden);
+    VnlMatrixType               R(svd.U() * svd.V().transpose() );
 
-      VnlMatrixType res = R.transpose() * vnlx * R;
+    VnlMatrixType res = R.transpose() * vnlx * R;
 
-      TOutput out;
-      for(int i = 0; i < 3; ++i)
+    TOutput out;
+    for( int i = 0; i < 3; ++i )
+      {
+      for( int j = i; j < 3; ++j )
         {
-        for(int j = i; j < 3; ++j)
-          {
-          out(i,j) = res(i,j);
-          }
+        out(i, j) = res(i, j);
         }
+      }
 
-      return out;
-    }
+    return out;
+  }
 
 };
 
-
 }  // end namespace functor
-
 
 /** \class TensorRotateFromDeformationFieldImageFilter
  * \brief Computes the Fractional Anisotropy for every pixel of a input tensor image.
@@ -103,31 +110,31 @@ template <typename TInputImage1,
           typename TInputImage2,
           typename TOutputImage>
 class ITK_EXPORT TensorRotateFromDeformationFieldImageFilter :
-    public
-BinaryFunctorImageFilter<TInputImage1,TInputImage2,TOutputImage,
-                         Functor::TensorRotateFromDeformationFieldFunction<
-                           typename TInputImage1::PixelType,
-                           typename TInputImage2::PixelType,
-                           typename TOutputImage::PixelType> >
+  public
+  BinaryFunctorImageFilter<TInputImage1, TInputImage2, TOutputImage,
+                           Functor::TensorRotateFromDeformationFieldFunction<
+                             typename TInputImage1::PixelType,
+                             typename TInputImage2::PixelType,
+                             typename TOutputImage::PixelType> >
 {
 public:
   /** Standard class typedefs. */
-  typedef TensorRotateFromDeformationFieldImageFilter  Self;
-  typedef BinaryFunctorImageFilter<TInputImage1,TInputImage2,TOutputImage,
-    Functor::TensorRotateFromDeformationFieldFunction<
-    typename TInputImage1::PixelType,
-    typename TInputImage2::PixelType,
-    typename TOutputImage::PixelType> >  Superclass;
+  typedef TensorRotateFromDeformationFieldImageFilter Self;
+  typedef BinaryFunctorImageFilter<TInputImage1, TInputImage2, TOutputImage,
+                                   Functor::TensorRotateFromDeformationFieldFunction<
+                                     typename TInputImage1::PixelType,
+                                     typename TInputImage2::PixelType,
+                                     typename TOutputImage::PixelType> >  Superclass;
 
-  typedef SmartPointer<Self>   Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
-  typedef typename Superclass::OutputImageType    OutputImageType;
-  typedef typename TOutputImage::PixelType        OutputPixelType;
-  typedef typename TInputImage1::PixelType         InputPixelType1;
-  typedef typename InputPixelType1::ValueType      InputValueType1;
-  typedef typename TInputImage2::PixelType         InputPixelType2;
-  typedef typename InputPixelType2::ValueType      InputValueType2;
+  typedef typename Superclass::OutputImageType OutputImageType;
+  typedef typename TOutputImage::PixelType     OutputPixelType;
+  typedef typename TInputImage1::PixelType     InputPixelType1;
+  typedef typename InputPixelType1::ValueType  InputValueType1;
+  typedef typename TInputImage2::PixelType     InputPixelType2;
+  typedef typename InputPixelType2::ValueType  InputValueType2;
 
   typedef typename OutputPixelType::ValueType TransformRealType;
 
@@ -136,19 +143,22 @@ public:
 
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const
-  { this->Superclass::PrintSelf( os, indent ); }
+  {
+    this->Superclass::PrintSelf( os, indent );
+  }
 
 protected:
-  TensorRotateFromDeformationFieldImageFilter() {};
-  virtual ~TensorRotateFromDeformationFieldImageFilter() {};
-
+  TensorRotateFromDeformationFieldImageFilter()
+  {
+  };
+  virtual ~TensorRotateFromDeformationFieldImageFilter()
+  {
+  };
 private:
-  TensorRotateFromDeformationFieldImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  TensorRotateFromDeformationFieldImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);                              // purposely not implemented
 
 };
-
-
 
 } // end namespace itk
 

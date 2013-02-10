@@ -20,7 +20,6 @@
 #include "itkBinaryFunctorImageFilter.h"
 #include "itkNumericTraits.h"
 
-
 namespace itk
 {
 
@@ -50,77 +49,87 @@ namespace itk
  * \sa MaskImageFilter
  * \ingroup IntensityImageFilters  Multithreaded
  */
-namespace Functor {
+namespace Functor
+{
 
-template< class TInput, class TMask, class TOutput >
+template <class TInput, class TMask, class TOutput>
 class VectorMaskInput
 {
 public:
-  typedef typename NumericTraits< TInput >::AccumulateType AccumulatorType;
+  typedef typename NumericTraits<TInput>::AccumulateType AccumulatorType;
 
-  VectorMaskInput() {};
-  ~VectorMaskInput() {};
+  VectorMaskInput()
+  {
+  };
+  ~VectorMaskInput()
+  {
+  };
   bool operator!=( const VectorMaskInput & ) const
-    {
-      return false;
-    }
+  {
+    return false;
+  }
+
   bool operator==( const VectorMaskInput & other ) const
-    {
-      return !(*this != other);
-    }
+  {
+    return !(*this != other);
+  }
+
   TOutput operator()( const TInput & A, const TMask & B)
-    {
-      if (B == NumericTraits< TMask >::Zero )
-        {
-        TInput R = A;
-        R.Fill(0);
-        return R;
-        }
-      else
-        {
-        return static_cast<TOutput>( A );
-        }
-    }
+  {
+    if( B == NumericTraits<TMask>::Zero )
+      {
+      TInput R = A;
+      R.Fill(0);
+      return R;
+      }
+    else
+      {
+      return static_cast<TOutput>( A );
+      }
+  }
+
 };
 
 }
 template <class TInputImage, class TMaskImage, class TOutputImage>
 class ITK_EXPORT VectorMaskImageFilter :
-    public
-BinaryFunctorImageFilter<TInputImage,TMaskImage,TOutputImage,
-                         Functor::VectorMaskInput<
-                           typename TInputImage::PixelType,
-                           typename TMaskImage::PixelType,
-                           typename TOutputImage::PixelType>   >
-
+  public
+  BinaryFunctorImageFilter<TInputImage, TMaskImage, TOutputImage,
+                           Functor::VectorMaskInput<
+                             typename TInputImage::PixelType,
+                             typename TMaskImage::PixelType,
+                             typename TOutputImage::PixelType>   >
 
 {
 public:
   /** Standard class typedefs. */
-  typedef VectorMaskImageFilter  Self;
-  typedef BinaryFunctorImageFilter<TInputImage,TMaskImage,TOutputImage,
+  typedef VectorMaskImageFilter Self;
+  typedef BinaryFunctorImageFilter<TInputImage, TMaskImage, TOutputImage,
                                    Functor::VectorMaskInput<
                                      typename TInputImage::PixelType,
                                      typename TMaskImage::PixelType,
                                      typename TOutputImage::PixelType>
                                    >  Superclass;
-typedef SmartPointer<Self>   Pointer;
-typedef SmartPointer<const Self>  ConstPointer;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
 /** Method for creation through the object factory. */
-itkNewMacro(Self);
-
+  itkNewMacro(Self);
 protected:
-VectorMaskImageFilter() {}
-virtual ~VectorMaskImageFilter() {}
+  VectorMaskImageFilter()
+  {
+  }
+
+  virtual ~VectorMaskImageFilter()
+  {
+  }
 
 private:
-VectorMaskImageFilter(const Self&); //purposely not implemented
-void operator=(const Self&); //purposely not implemented
+  VectorMaskImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);        // purposely not implemented
 
 };
 
 } // end namespace itk
-
 
 #endif

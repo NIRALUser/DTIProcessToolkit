@@ -17,7 +17,7 @@
 #include <itkSymmetricSecondRankTensor.h>
 #include "MetricSpace.h"
 
-template<class T, unsigned int dimension=3>
+template <class T, unsigned int dimension = 3>
 class TensorGeometry : public MetricSpace<itk::DiffusionTensor3D<T>, T>
 {
 public:
@@ -25,13 +25,15 @@ public:
   typedef itk::DiffusionTensor3D<T> TensorType;
   typedef itk::DiffusionTensor3D<T> TangentType;
 
-  TensorGeometry() {}
+  TensorGeometry()
+  {
+  }
 
   // Defines the Riemannian metric at a base point for two tangent vectors.
-  virtual T InnerProduct(const TensorType & base,
-                         const TangentType & v,
-                         const TangentType & w) = 0;
+  virtual T InnerProduct(const TensorType & base, const TangentType & v, const TangentType & w) = 0;
+
   virtual T Norm(const TensorType & base, const TangentType & v);
+
   virtual T NormSquared(const TensorType & base, const TangentType & v);
 
   // ExpMap gives the Riemannian exponential map (i.e., geodesic segment
@@ -44,27 +46,28 @@ public:
 
   // Geodesic distance between tensors a and b.
   virtual T Distance(const TensorType & a, const TensorType & b);
+
 };
 
-template<class T, unsigned int dimension>
+template <class T, unsigned int dimension>
 T TensorGeometry<T, dimension>::Norm(const TensorType & base,
                                      const TangentType & v)
 {
-  return sqrt(NormSquared(base, v));
+  return sqrt(NormSquared(base, v) );
 }
 
-template<class T, unsigned int dimension>
+template <class T, unsigned int dimension>
 T TensorGeometry<T, dimension>::NormSquared(const TensorType & base,
                                             const TangentType & v)
 {
   return InnerProduct(base, v, v);
 }
 
-template<class T, unsigned int dimension>
+template <class T, unsigned int dimension>
 T TensorGeometry<T, dimension>::Distance(const TensorType & a,
                                          const TensorType & b)
 {
-  return Norm(a, LogMap(a, b));
+  return Norm(a, LogMap(a, b) );
 }
 
 #endif

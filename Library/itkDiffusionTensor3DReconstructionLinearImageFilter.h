@@ -21,7 +21,8 @@
 
 #include "itkDiffusionTensor3DReconstructionImageFilterBase.h"
 
-namespace itk{
+namespace itk
+{
 /** \class DiffusionTensor3DReconstructionLinearImageFilter
  * \brief This class derives from the
  * DiffusionTensor3DReconstructionImageFilterBase to implement a
@@ -50,31 +51,35 @@ namespace itk{
  * DiffusionTensor3DReconstructionRicianImageFilter
  * \ingroup Multithreaded  TensorObjects
  */
-template< class TGradientImagePixelType,
-          class TTensorPrecision=double >
+template <class TGradientImagePixelType,
+          class TTensorPrecision = double>
 class ITK_EXPORT DiffusionTensor3DReconstructionLinearImageFilter :
-    public DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
-                                                           TTensorPrecision>
+  public         DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
+                                                                TTensorPrecision>
 {
 public:
-  typedef DiffusionTensor3DReconstructionLinearImageFilter       Self;
-  typedef SmartPointer<Self>                                     Pointer;
-  typedef SmartPointer<const Self>                               ConstPointer;
+  typedef DiffusionTensor3DReconstructionLinearImageFilter Self;
+  typedef SmartPointer<Self>                               Pointer;
+  typedef SmartPointer<const Self>                         ConstPointer;
   typedef DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
-                                                         TTensorPrecision >                                           Superclass;
+                                                         TTensorPrecision>
+    Superclass;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
   itkTypeMacro(Self, Superclass);
-
 protected:
-  DiffusionTensor3DReconstructionLinearImageFilter() {};
-  virtual ~DiffusionTensor3DReconstructionLinearImageFilter() {};
+  DiffusionTensor3DReconstructionLinearImageFilter()
+  {
+  };
+  virtual ~DiffusionTensor3DReconstructionLinearImageFilter()
+  {
+  };
 
-  virtual vnl_vector< TTensorPrecision >
-    EstimateTensor(const vnl_vector<TTensorPrecision>& S) const;
+  virtual vnl_vector<TTensorPrecision>
+  EstimateTensor(const vnl_vector<TTensorPrecision>& S) const;
 
 };
 

@@ -24,45 +24,40 @@
 #include "TensorGeometry.h"
 #include <itkDiffusionTensor3D.h>
 
-template<class T, unsigned int dimension = 3>
+template <class T, unsigned int dimension = 3>
 class TensorStatistics
 {
 public:
-  typedef itk::DiffusionTensor3D<T> TensorType;
-  typedef itk::DiffusionTensor3D<T> TangentType;
+  typedef itk::DiffusionTensor3D<T>                      TensorType;
+  typedef itk::DiffusionTensor3D<T>                      TangentType;
   typedef itk::VectorContainer<unsigned int, TensorType> TensorListType;
-  typedef typename TensorListType::Pointer TensorListPointerType;
+  typedef typename TensorListType::Pointer               TensorListPointerType;
 
   typedef itk::VectorContainer<unsigned int, T> ScalarListType;
-  typedef typename ScalarListType::Pointer ScalarListPointerType;
+  typedef typename ScalarListType::Pointer      ScalarListPointerType;
 
   typedef itk::SymmetricSecondRankTensor<T, dimension * (dimension + 1) / 2>
-  CovarianceType;
-  typedef typename CovarianceType::EigenValuesArrayType PGAVariancesArrayType;
+    CovarianceType;
+  typedef typename CovarianceType::EigenValuesArrayType   PGAVariancesArrayType;
   typedef typename CovarianceType::EigenVectorsMatrixType PGAVectorsMatrixType;
 
   TensorStatistics(TensorGeometry<T, dimension> * _tensGeometry,
                    const T & _stepSize = 1.0)
-    {
-      tensGeometry = _tensGeometry;
-      stepSize = _stepSize;
-    }
+  {
+    tensGeometry = _tensGeometry;
+    stepSize = _stepSize;
+  }
 
-  void ComputeMean(const TensorListPointerType tensorList,
-                   TensorType & mean) const;
+  void ComputeMean(const TensorListPointerType tensorList, TensorType & mean) const;
 
-  void ComputeWeightedAve(const ScalarListPointerType weightList,
-                          const TensorListPointerType tensorList,
+  void ComputeWeightedAve(const ScalarListPointerType weightList, const TensorListPointerType tensorList,
                           TensorType & weightedAve) const;
 
-  void ComputeMeanAndCovariance(const TensorListPointerType tensorList,
-                                TensorType & mean,
+  void ComputeMeanAndCovariance(const TensorListPointerType tensorList, TensorType & mean,
                                 CovarianceType & covariance) const;
 
-  void ComputeMeanAndPGA(const TensorListPointerType tensorList,
-                         TensorType & mean,
-                         PGAVariancesArrayType & pgaVariances,
-                         PGAVectorsMatrixType & pgaVectorsMatrix) const;
+  void ComputeMeanAndPGA(const TensorListPointerType tensorList, TensorType & mean,
+                         PGAVariancesArrayType & pgaVariances, PGAVectorsMatrixType & pgaVectorsMatrix) const;
 
   // Generates random tensor from isotropic Gaussian density.
   // Depends on the tensor geometry being used.
@@ -70,7 +65,7 @@ public:
 
 private:
   TensorGeometry<T, dimension> * tensGeometry;
-  T stepSize;
+  T                              stepSize;
 
   static const T EPSILON = 1.0e-12;
 };

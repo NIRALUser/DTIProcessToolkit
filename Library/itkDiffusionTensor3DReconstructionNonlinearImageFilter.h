@@ -22,7 +22,8 @@
 #include "itkDiffusionTensor3DReconstructionImageFilterBase.h"
 #include "vnl/vnl_least_squares_function.h"
 
-namespace itk{
+namespace itk
+{
 
 /** \class DiffusionTensor3DReconstructionNonlinearImageFilter
  * \brief This class derives from the
@@ -45,20 +46,21 @@ namespace itk{
  * DiffusionTensor3DReconstructionRicianImageFilter
  * \ingroup Multithreaded  TensorObjects
  */
-template< class TGradientImagePixelType,
-          class TTensorPrecision=double >
+template <class TGradientImagePixelType,
+          class TTensorPrecision = double>
 class ITK_EXPORT DiffusionTensor3DReconstructionNonlinearImageFilter :
-    public DiffusionTensor3DReconstructionImageFilterBase< TGradientImagePixelType,
-                                                           TTensorPrecision>
+  public         DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
+                                                                TTensorPrecision>
 {
 public:
-  typedef DiffusionTensor3DReconstructionNonlinearImageFilter       Self;
-  typedef SmartPointer<Self>                                     Pointer;
-  typedef SmartPointer<const Self>                               ConstPointer;
+  typedef DiffusionTensor3DReconstructionNonlinearImageFilter Self;
+  typedef SmartPointer<Self>                                  Pointer;
+  typedef SmartPointer<const Self>                            ConstPointer;
   typedef DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
-    TTensorPrecision >                                           Superclass;
+                                                         TTensorPrecision>
+    Superclass;
 
-  typedef typename Superclass::GradientPixelType                 GradientPixelType;
+  typedef typename Superclass::GradientPixelType GradientPixelType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -72,15 +74,18 @@ public:
   /** Get step size for optimizer for non-linear fit.  A
   levenburg-Marquadt optimizer is used.  The default is 1.0e-10. */
   itkGetMacro( Step, double );
-
 protected:
-  DiffusionTensor3DReconstructionNonlinearImageFilter() : m_Step(1.0e-10) {};
-  virtual ~DiffusionTensor3DReconstructionNonlinearImageFilter() {};
+  DiffusionTensor3DReconstructionNonlinearImageFilter() : m_Step(1.0e-10)
+  {
+  };
+  virtual ~DiffusionTensor3DReconstructionNonlinearImageFilter()
+  {
+  };
 
-  virtual vnl_vector< TTensorPrecision >
-    EstimateTensor(const vnl_vector<TTensorPrecision>& S) const;
+  virtual vnl_vector<TTensorPrecision>
+  EstimateTensor(const vnl_vector<TTensorPrecision>& S) const;
 
-  double                                                 m_Step;
+  double m_Step;
 };
 
 }

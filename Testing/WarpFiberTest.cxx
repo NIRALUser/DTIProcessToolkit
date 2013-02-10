@@ -8,7 +8,7 @@
 #include <itkSpatialObjectReader.h>
 #include <itkSpatialObjectWriter.h>
 
-int WarpFiberTest(int , char * [])
+int WarpFiberTest(int, char * [])
 {
   // 1: Tensor Volume
   // 2: Output Initial Fiber File
@@ -19,7 +19,6 @@ int WarpFiberTest(int , char * [])
   // Read synthetic fiber
 
   // Warp synthetic fiber according to warp field
-
 
   return EXIT_FAILURE;
 }
