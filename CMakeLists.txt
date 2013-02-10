@@ -45,33 +45,11 @@ endmacro(CHECKIFSLICER3BUILD)
 endif(NOT CHECKIFSLICER3BUILD)
 CHECKIFSLICER3BUILD()  ## Call the convenience macro
 
-##  In many cases sub-projects depending on SlicerExectuion Model
-##  that can be built stand alone are combined in larger packages.
-##  This logic will include SlicerExectionModel only if it
-##  has not already been included by a previous package.
-if(NOT ADDFIRSTSLICEREXECUTIONMODEL)
-macro(ADDFIRSTSLICEREXECUTIONMODEL LOCAL_PROJECT_NAMESPACE)
-
-  if(NOT BUILDSEMFROM${LOCAL_PROJECT_NAMESPACE})
-    find_package(GenerateCLP NO_MODULE QUIET)
-  endif(NOT BUILDSEMFROM${LOCAL_PROJECT_NAMESPACE})
-
-  if( BUILDSEMFROM${LOCAL_PROJECT_NAMESPACE} OR NOT GenerateCLP_DIR )
-    set(BUILDSEMFROM${LOCAL_PROJECT_NAMESPACE} ON CACHE BOOL "FLAG FOR BUILD SlicerExectionModel building to prevent recursion.")
-    add_subdirectory(SlicerExecutionModel)
-  endif( BUILDSEMFROM${LOCAL_PROJECT_NAMESPACE} OR NOT GenerateCLP_DIR )
-
-  find_package(GenerateCLP NO_MODULE REQUIRED)
-  if(GenerateCLP_DIR)
-    include(${GenerateCLP_USE_FILE})
-  else(GenerateCLP_DIR)
-    message(FATAL_ERROR "Can't build without GenerateCLP. Please set GenerateCLP_DIR")
-  endif(GenerateCLP_DIR)
-
-endmacro(ADDFIRSTSLICEREXECUTIONMODEL)
-endif(NOT ADDFIRSTSLICEREXECUTIONMODEL)
-###
-ADDFIRSTSLICEREXECUTIONMODEL(${LOCAL_PROJECT_NAME})
+#-----------------------------------------------------------------------------
+find_package(SlicerExecutionModel REQUIRED GenerateCLP)
+include(${GenerateCLP_USE_FILE})
+include(${SlicerExecutionModel_USE_FILE})
+include(${SlicerExecutionModel_CMAKE_DIR}/SEMMacroBuildCLI.cmake)
 
 
 if(NOT ITK_FOUND)
