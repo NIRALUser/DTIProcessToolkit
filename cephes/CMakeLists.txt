@@ -6,7 +6,6 @@ add_library(cephes ${cephes_SRC})
 set( libraries_targets cephes )
 
 
-message( WARNING ${CLI_INSTALL_LIBRARY_DESTINATION} )
 set_target_properties(${libraries_targets} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CLI_RUNTIME_OUTPUT_DIRECTORY}"
     LIBRARY_OUTPUT_DIRECTORY "${CLI_LIBRARY_OUTPUT_DIRECTORY}"
