@@ -82,9 +82,6 @@ CMAKE_DEPENDENT_OPTION(
 #option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined version of SlicerExecutionModel"  OFF)
 #option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" ON)
 
-set(USE_SYSTEM_ITK OFF)
-set(USE_SYSTEM_SlicerExecutionModel OFF)
-
 #------------------------------------------------------------------------------
 # ${LOCAL_PROJECT_NAME} dependency list
 #------------------------------------------------------------------------------
@@ -195,11 +192,11 @@ endif()
 
 
 #-----------------------------------------------------------------------------
-unsetForSlicer( VERBOSE NAMES SlicerExecutionModel_DIR ITK_DIR VTK_DIR CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
+unsetForSlicer( NAMES SlicerExecutionModel_DIR ITK_DIR VTK_DIR CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
 find_package(Slicer REQUIRED)
 include(${Slicer_USE_FILE})
-resetForSlicer( VERBOSE NAMES ITK_DIR SlicerExecutionModel_DIR CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
-set( BUILD_SHARED_LIBS OFF)
+resetForSlicer( NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
+set( BUILD_SHARED_LIBS ON)
 #-----------------------------------------------------------------------------
 # Add external project CMake args
 #-----------------------------------------------------------------------------
@@ -244,8 +241,9 @@ endif()
     DEPENDS ${${LOCAL_PROJECT_NAME}_DEPENDENCIES}
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
-      -DCLI_RUNTIME_OUTPUT_DIRECTORY:PATH=${SlicerExecutionModel_DEFAULT_CLI_RUNTIME_OUTPUT_DIRECTORY}
       -DCLI_INSTALL_RUNTIME_DESTINATION:PATH=${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}
+      -DCLI_INSTALL_LIBRARY_DESTINATION:PATH=${SlicerExecutionModel_DEFAULT_CLI_INSTALL_LIBRARY_DESTINATION}
+      -DCLI_INSTALL_ARCHIVE_DESTINATION:PATH=${SlicerExecutionModel_DEFAULT_CLI_INSTALL_ARCHIVE_DESTINATION}
       -DMIDAS_PACKAGE_EMAIL:STRING=${MIDAS_PACKAGE_EMAIL}
       -DMIDAS_PACKAGE_API_KEY:STRING=${MIDAS_PACKAGE_API_KEY}
       -DDTIProcess_BUILD_SLICER_EXTENSION:BOOL=OFF
