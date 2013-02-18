@@ -203,6 +203,8 @@
       <name>reorientation</name>
       <longflag>--reorientation</longflag>
       <description>Reorientation type (fs, ppd)</description>
+      <element>fs</element>
+      <element>ppd</element>
       <default>fs</default>
     </string-enumeration>
     <image type="tensor">
