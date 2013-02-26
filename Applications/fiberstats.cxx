@@ -68,22 +68,6 @@ int main(int argc, char* argv[])
 #endif
   PARSE_ARGS;
   // End option reading configuration
-
-  // Display help if asked or program improperly called
-  if( help || fiberFile == "" )
-    {
-    if( help )
-      {
-      std::cout << "Version: $Date: 2009-01-09 15:39:51 $ $Revision: 1.3 $" << std::endl;
-      std::cout << ITK_SOURCE_VERSION << std::endl;
-      return EXIT_SUCCESS;
-      }
-    else
-      {
-      return EXIT_FAILURE;
-      }
-    }
-
   const bool         VERBOSE = verbose;
   GroupType::Pointer group = readFiberFile(fiberFile);
 

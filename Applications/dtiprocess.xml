@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Diffusion.DTIProcess</category>
-  <title>dtiprocess</title>
+  <category>Diffusion.NIRALPipeline</category>
+  <title>DTIProcess</title>
   <description> \ndtiprocess is a tool that handles tensor fields. It takes as an input a tensor field in nrrd format.\nIt can generate diffusion scalar properties out of the tensor field such as : FA (--fa_output), Gradient FA image (--fa_gradient_output), color FA (--color_fa_output), MD (--md_output), Frobenius norm (--frobenius_norm_output), lbd1, lbd2, lbd3 (--lambda{1,2,3}_output), binary map of voxel where if any of the eigenvalue is negative, the voxel is set to 1 (--negative_eigenvector_output) \nIt also creates 4D images out of the tensor field such as: Highest eigenvector map (highest eigenvector at each voxel) (--principal_eigenvector_output)\n Masking capabilities: For any of the processing done with dtiprocess, it's possible to apply it on a masked region of the tensor field. You need to use the --mask option for any of the option to be applied on that tensor field sub-region only. If you want to save the masked tensor field use the option --outmask and specify the new masked tensor field file name.\ndtiprocess also allows a range of transformations on the tensor fields. The transformed tensor field file name is specified with the option --deformation_output. There are 3 resampling interpolation methods specified with the tag --interpolation followed by the type to use (nearestneighbor, linear, cubic) Then you have several transformations possible to apply:\n\t- Affine transformations using as an input \n\t- itk affine transformation file (based on the itkAffineTransform class)\n\t- Affine transformations using rview (details and download at http://www.doc.ic.ac.uk/~dr/software/). There are 2 versions of rview both creating transformation files called dof files. The old version of rview outputs text files containing the transformation parameters. It can be read in with the --dof_file option. The new version outputs binary dof files. These dof files can be transformed into human readable file with the dof2mat tool which is part of the rview package. So you need to save the output of dof2mat into a text file which can then be used with the -- newdof_file option. Usage example: dof2mat mynewdoffile.dof >> mynewdoffile.txt \t dtiprocess --dti_image mytensorfield.nhdr --newdof_file mynewdoffile.txt --rot_output myaffinetensorfield.nhdr \nNon linear transformations as an input: The default transformation file type is d-field (displacement field) in nrrd format. The option to use is --forward with the name of the file. If the transformation file is a h-field you have to add the option --hField. </description>
   <documentation-url>http://www.google.com/</documentation-url>
   <license>
@@ -12,38 +12,25 @@
      PURPOSE.  See the above copyright notices for more information.
   </license>
   <contributor>Casey Goodlett</contributor>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <parameters advanced="false">
-    <boolean>
-      <name>verbose</name>
-      <flag>v</flag>
-      <longflag>--verbose</longflag>
-      <label>Verbose</label>
-      <description>produce verbose output</description>
-      <default>0</default>
-    </boolean>
-    <image>
-      <name>mask</name>
-      <longflag>--mask</longflag>
-      <label>Mask</label>
-      <description>Mask tensors. Specify --outmask if you want to save the masked tensor field, otherwise the mask is applied just for the current processing </description>
+    <label>Input DTI</label>
+    <image type="tensor">
+      <name>dtiImage</name>
+      <longflag>--dti_image</longflag>
+      <label>DTI Image</label>
+      <description>DTI tensor volume</description>
       <channel>input</channel>
-      <default></default>
     </image>
-    <image>
-      <name>outmask</name>
-      <longflag>--outmask</longflag>
-      <label>Output Mask</label>
-      <description>Name of the masked tensor field.</description>
-      <channel>input</channel>
-      <default></default>
-    </image>
+  </parameters>
+  <parameters advanced="false">
+    <label>Diffusion Tensor Measurements</label>
     <image type="scalar">
       <name>faOutput</name>
       <longflag>--fa_output</longflag>
       <flag>f</flag>
       <label>FA Output</label>
-      <description>FA output file</description>
+      <description>Fractional Anisotropy output file</description>
       <channel>output</channel>
       <default></default>
     </image>
@@ -52,15 +39,7 @@
       <longflag>--md_output</longflag>
       <flag>m</flag>
       <label>MD Output</label>
-      <description>MD output file</description>
-      <channel>output</channel>
-      <default></default>
-    </image>
-    <image type="scalar">
-      <name>faGradientOutput</name>
-      <longflag>--fa_gradient_output</longflag>
-      <label>FA Gradient Output</label>
-      <description>FA Gradient output file</description>
+      <description>Mean Diffusivity output file</description>
       <channel>output</channel>
       <default></default>
     </image>
@@ -68,26 +47,35 @@
       <name>sigma</name>
       <longflag>--sigma</longflag>
       <flag>s</flag>
+      <label>Gradients scale</label>
       <description>Scale of gradients</description>
       <default>2.0</default>
     </double>
-    <image>
-      <name>faGradientMagOutput</name>
-      <longflag>--fa_gradmag_output</longflag>
+    <image type="vector">
+      <name>faGradientOutput</name>
+      <longflag>--fa_gradient_output</longflag>
       <label>FA Gradient Output</label>
-      <description>FA Gradient Magnitude output file</description>
+      <description>Fractional Anisotropy Gradient output file</description>
       <channel>output</channel>
       <default></default>
     </image>
-    <image>
+    <image type="scalar">
+      <name>faGradientMagOutput</name>
+      <longflag>--fa_gradmag_output</longflag>
+      <label>FA Gradient Magnitude Output</label>
+      <description>Fractional Anisotropy Gradient Magnitude output file</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
+    <image type="vector">
       <name>colorFAOutput</name>
       <longflag>--color_fa_output</longflag>
       <label>Color FA Output</label>
-      <description>Color FA output file</description>
+      <description>Color Fractional Anisotropy output file</description>
       <channel>output</channel>
       <default></default>
     </image>
-    <image>
+    <image type="vector">
       <name>principalEigenvectorOutput</name>
       <longflag>--principal_eigenvector_output</longflag>
       <label>Principal Eigenvectors Output</label>
@@ -95,7 +83,7 @@
       <channel>output</channel>
       <default></default>
     </image>
-    <image>
+    <image type="scalar">
       <name>negativeEigenvectorOutput</name>
       <longflag>--negative_eigenvector_output</longflag>
       <label>Negative Eigenvectors Output</label>
@@ -114,8 +102,8 @@
     <image type="scalar">
       <name>lambda1Output</name>
       <longflag>--lambda1_output</longflag>
-      <label>Lambda 1 </label>
-      <description>Lambda 1 (largest eigenvalue) output</description>
+      <label>Lambda 1 (AD)</label>
+      <description>Axial Diffusivity - Lambda 1 (largest eigenvalue) output</description>
       <channel>output</channel>
       <default></default>
     </image>
@@ -139,49 +127,65 @@
       <name>RDOutput</name>
       <longflag>--RD_output</longflag>
       <label>RD </label>
-      <description>RD (radial diffusivity 1/2*(lambda2+lambda3)) output</description>
+      <description>RD (Radial Diffusivity 1/2*(lambda2+lambda3)) output</description>
       <channel>output</channel>
       <default></default>
     </image>
-    <boolean>
-      <name>scalarFloat</name>
-      <longflag>--scalar_float</longflag>
-      <label>Scalar Float</label>
-      <description>Write scalar [FA,MD] as unscaled float (with their actual values, otherwise scaled by 10 000).  Also causes FA to be unscaled [0..1].</description>
-      <default>0</default>
-    </boolean>
-    <image>
+  </parameters>
+  <parameters advanced="true">
+    <label>Affine Transformation</label>
+    <image type="tensor">
       <name>rotOutput</name>
       <longflag>--rot_output</longflag>
       <flag>r</flag>
-      <label>Rotated Tensor Output</label>
+      <label>Output Transformed Tensor</label>
       <description>Rotated tensor output file.  Must also specify the dof file.</description>
       <channel>output</channel>
     </image>
+    <transform>
+      <name>affineitk_file</name>
+      <longflag>--affineitk_file</longflag>
+      <label>Affine Transform (ITK)</label>
+      <description>Transformation file for affine transformation.  ITK format.</description>
+      <channel>input</channel>
+    </transform>
     <file>
       <name>dofFile</name>
       <longflag>--dof_file</longflag>
       <flag>d</flag>
-      <label>Transformation File</label>
+      <label>Transform File (dof)</label>
       <description>Transformation file for affine transformation.  This can be ITK format (or the outdated RView).</description>
-      <channel>output</channel>
+      <channel>input</channel>
     </file>
+    <file>
+      <name>newdof_file</name>
+      <longflag>--newdof_file</longflag>
+      <label>Transform File (new dof)</label>
+      <description>Transformation file for affine transformation.  RView NEW format. (txt file output of dof2mat)</description>
+      <channel>input</channel>
+    </file>
+  </parameters>
+  <parameters advanced="true">
+    <label>Masking</label>
     <image>
-      <name>deformationOutput</name>
-      <longflag>--deformation_output</longflag>
-      <flag>w</flag>
-      <label>Deformation Output</label>
-      <description>Warped tensor field based on a deformation field.  This option requires the --forward,-F transformation to be specified.</description>
-      <channel>output</channel>
+      <name>mask</name>
+      <longflag>--mask</longflag>
+      <label>Mask</label>
+      <description>Mask tensors. Specify --outmask if you want to save the masked tensor field, otherwise the mask is applied just for the current processing </description>
+      <channel>input</channel>
+      <default></default>
     </image>
-    <image>
-      <name>forwardTransformation</name>
-      <longflag>--forward</longflag>
-      <flag>F</flag>
-      <label>Forward Transformation</label>
-      <description>Forward transformation.  Assumed to be a deformation field in world coordinates, unless the --h-field option is specified.</description>
+    <image type="tensor">
+      <name>outmask</name>
+      <longflag>--outmask</longflag>
+      <label>Masked tensor</label>
+      <description>Name of the masked tensor field.</description>
       <channel>output</channel>
+      <default></default>
     </image>
+  </parameters>
+  <parameters advanced="true">
+    <label>Deformation field</label>
     <boolean>
       <name>hField</name>
       <longflag>--hField</longflag>
@@ -189,10 +193,27 @@
       <description>forward and inverse transformations are h-fields instead of displacement fields</description>
       <default>0</default>
     </boolean>
+    <image type="vector">
+      <name>forwardTransformation</name>
+      <longflag>--forward</longflag>
+      <flag>F</flag>
+      <label>Forward Transformation</label>
+      <description>Forward transformation.  Assumed to be a deformation field in world coordinates, unless the --h-field option is specified.</description>
+      <channel>input</channel>
+    </image>
+    <image type="tensor">
+      <name>deformationOutput</name>
+      <longflag>--deformation_output</longflag>
+      <flag>w</flag>
+      <label>Deformed tensor image</label>
+      <description>Warped tensor field based on a deformation field.  This option requires the --forward,-F transformation to be specified.</description>
+      <channel>output</channel>
+    </image>
     <string-enumeration>
       <name>interpolation</name>
       <longflag>--interpolation</longflag>
       <flag>i</flag>
+      <label>Interpolation</label>
       <description>Interpolation type (nearestneighbor, linear, cubic)</description>
       <default>linear</default>
       <element>nearestneighbor</element>
@@ -202,31 +223,36 @@
     <string-enumeration>
       <name>reorientation</name>
       <longflag>--reorientation</longflag>
+      <label>Reorientation</label>
       <description>Reorientation type (fs, ppd)</description>
+      <default>fs</default>
       <element>fs</element>
       <element>ppd</element>
-      <default>fs</default>
     </string-enumeration>
-    <image type="tensor">
-      <name>dtiImage</name>
-      <longflag>--dti_image</longflag>
-      <label>DTI Image</label>
-      <description>DTI tensor volume</description>
-      <channel>input</channel>
-    </image>
-    <file>
-      <name>newdof_file</name>
-      <longflag>--newdof_file</longflag>
-      <label> newdof_file </label>
-      <description>Transformation file for affine transformation.  RView NEW format. (txt file output of dof2mat)</description>
-      <channel>input</channel>
-    </file>
-    <transform>
-      <name>affineitk_file</name>
-      <longflag>--affineitk_file</longflag>
-      <label> affineitk_file </label>
-      <description>Transformation file for affine transformation.  ITK format.</description>
-      <channel>input</channel>
-    </transform>
+  </parameters>
+  <parameters advanced="true">
+    <label>Options</label>
+    <boolean>
+      <name>scalarFloat</name>
+      <longflag>--scalar_float</longflag>
+      <label>Scalar Float</label>
+      <description>Write scalar [FA,MD] as unscaled float (with their actual values, otherwise scaled by 10 000).  Also causes FA to be unscaled [0..1].</description>
+      <default>0</default>
+    </boolean>
+    <boolean>
+      <name>doubleDTI</name>
+      <longflag>--DTI_double</longflag>
+      <label>DTI double (do not use in 3D Slicer)</label>
+      <description>Tensor components are saved as doubles (cannot be visualized in Slicer)</description>
+      <default>false</default>
+    </boolean>
+    <boolean>
+      <name>verbose</name>
+      <flag>v</flag>
+      <longflag>--verbose</longflag>
+      <label>Verbose</label>
+      <description>produce verbose output</description>
+      <default>0</default>
+    </boolean>
   </parameters>
 </executable>

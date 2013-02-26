@@ -27,6 +27,7 @@
 #include <itkUnaryFunctorImageFilter.h>
 #include <itkImageDuplicator.h>
 #include <itkVersion.h>
+#include <itkCastImageFilter.h>
 
 #include "itkLogEuclideanTensorImageFilter.h"
 #include "itkExpEuclideanTensorImageFilter.h"
@@ -215,12 +216,29 @@ int main(int argc, char* argv[])
     ExpEuclideanFilter::Pointer expf = ExpEuclideanFilter::New();
     expf->SetInput(divide->GetOutput() );
 
-    typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;
-    TensorFileWriterType::Pointer twrit = TensorFileWriterType::New();
-    twrit->SetUseCompression(true);
-    twrit->SetInput(expf->GetOutput() );
-    twrit->SetFileName(tensorOutput);
-    twrit->Update();
+    if( !doubleDTI )
+      {
+      typedef itk::DiffusionTensor3D<float> TensorFloatPixelType;
+      typedef itk::Image<TensorFloatPixelType, 3> TensorFloatImageType;
+      typedef itk::CastImageFilter< TensorImageType, TensorFloatImageType > CastDTIFilterType ;
+      CastDTIFilterType::Pointer castFilter = CastDTIFilterType::New() ;
+      castFilter->SetInput( expf->GetOutput() ) ;
+      typedef itk::ImageFileWriter<TensorFloatImageType> TensorFileWriterType;
+      TensorFileWriterType::Pointer tensorWriter = TensorFileWriterType::New();
+      tensorWriter->SetFileName(tensorOutput.c_str());
+      tensorWriter->SetInput(castFilter->GetOutput());
+      tensorWriter->SetUseCompression(true);
+      tensorWriter->Update();
+      }
+    else
+      {
+      typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;
+      TensorFileWriterType::Pointer twrit = TensorFileWriterType::New();
+      twrit->SetUseCompression(true);
+      twrit->SetInput(expf->GetOutput());
+      twrit->SetFileName(tensorOutput);
+      twrit->Update();
+      }
     }
   else
     {

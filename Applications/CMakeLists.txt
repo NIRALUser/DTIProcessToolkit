@@ -1,77 +1,72 @@
-add_executable(nrrdvtk nrrdvtk.cxx)
-target_link_libraries(nrrdvtk ${ITK_LIBRARIES})
+ADD_EXECUTABLE(nrrdvtk nrrdvtk.cxx)
+TARGET_LINK_LIBRARIES(nrrdvtk ${ITK_LIBRARIES})
 
-add_executable(dwiprocess dwiprocess.cxx)
-target_link_libraries(dwiprocess ${ITK_LIBRARIES})
+ADD_EXECUTABLE(dwiprocess dwiprocess.cxx)
+TARGET_LINK_LIBRARIES(dwiprocess ${ITK_LIBRARIES})
 
-add_executable(labeltable labeltable.cxx)
-target_link_libraries(labeltable ${ITK_LIBRARIES})
+ADD_EXECUTABLE(labeltable labeltable.cxx)
+TARGET_LINK_LIBRARIES(labeltable ${ITK_LIBRARIES})
 
-add_executable(hfieldtodeformation  hfieldtodeformation.cxx)
-target_link_libraries(hfieldtodeformation TensorOperations DTIIO ${ITK_LIBRARIES})
+ADD_EXECUTABLE(hfieldtodeformation  hfieldtodeformation.cxx)
+TARGET_LINK_LIBRARIES(hfieldtodeformation TensorOperations DTIIO ${ITK_LIBRARIES})
 
-add_executable(tio tio.cxx)
-target_link_libraries(tio ${ITK_LIBRARIES})
+ADD_EXECUTABLE(tio tio.cxx)
+TARGET_LINK_LIBRARIES(tio ${ITK_LIBRARIES})
 
-add_executable(morph morph.cxx)
-target_link_libraries(morph ${ITK_LIBRARIES})
+ADD_EXECUTABLE(morph morph.cxx)
+TARGET_LINK_LIBRARIES(morph ${ITK_LIBRARIES})
 
 if(BUILD_dwiAtlas)
-  add_subdirectory(dwiAtlas)
-  add_dependencies(dwiAtlas dwiprocess DTIIO)
+  ADD_SUBDIRECTORY(dwiAtlas)
+  ADD_DEPENDENCIES(dwiAtlas dwiprocess DTIIO)	
 endif(BUILD_dwiAtlas)
 
 
-set(dtiprocess_SRC dtiprocess.cxx)
-GENERATECLP(dtiprocess_SRC dtiprocess.xml)
-add_executable(dtiprocess ${dtiprocess_SRC})
-target_link_libraries(dtiprocess TensorOperations DTIIO ${ITK_LIBRARIES})
-
-set(dtiestim_SRC dtiestim.cxx)
-GENERATECLP(dtiestim_SRC dtiestim.xml)
-add_executable(dtiestim ${dtiestim_SRC})
-target_link_libraries(dtiestim ${ITK_LIBRARIES} cephes)
-
-set(scalartransform_SRC scalartransform.cxx)
-GENERATECLP(scalartransform_SRC scalartransform.xml)
-add_executable(scalartransform ${scalartransform_SRC})
-target_link_libraries(scalartransform DTIIO ${ITK_LIBRARIES} )
-
-set(fiberprocess_SRC fiberprocess.cxx)
-GENERATECLP(fiberprocess_SRC fiberprocess.xml)
-add_executable(fiberprocess ${fiberprocess_SRC})
-target_link_libraries(fiberprocess DTIIO ${ITK_LIBRARIES} ${ITK_LIBRARIES} )
-
-set(dtiaverage_SRC dtiaverage.cxx)
-GENERATECLP(dtiaverage_SRC dtiaverage.xml)
-add_executable(dtiaverage ${dtiaverage_SRC})
-target_link_libraries(dtiaverage TensorOperations DTIIO )
-
-set(fibertrack_SRC fibertrack.cxx)
-GENERATECLP(fibertrack fibertrack.xml)
-add_executable(fibertrack ${fibertrack_SRC})
-target_link_libraries(fibertrack DTIIO TensorOperations ${ITK_LIBRARIES} ${ITK_LIBRARIES})
-
-set(fiberstats_SRC fiberstats.cxx)
-GENERATECLP(fiberstats_SRC fiberstats.xml)
-add_executable(fiberstats fiberstats.cxx)
-target_link_libraries(fiberstats DTIIO )
-
-set(maxcurvature_SRC maxcurvature.cxx)
-GENERATECLP(maxcurvature_SRC maxcurvature.xml)
-add_executable(maxcurvature ${maxcurvature_SRC})
-target_link_libraries(maxcurvature ${ITK_LIBRARIES} ${ITK_LIBRARIES} )
+macro(SEM_BUILD_EXECUTABLE)
+  set(options )
+  set( oneValueArgs NAME )
+  set(multiValueArgs LIBRARIES )
+  CMAKE_PARSE_ARGUMENTS(LOCAL
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+    )
+  SEMMacroBuildCLI(
+    NAME ${LOCAL_NAME}
+    TARGET_LIBRARIES ${LOCAL_LIBRARIES}
+    RUNTIME_OUTPUT_DIRECTORY ${CLI_RUNTIME_OUTPUT_DIRECTORY}
+    LIBRARY_OUTPUT_DIRECTORY ${CLI_LIBRARY_OUTPUT_DIRECTORY}
+    ARCHIVE_OUTPUT_DIRECTORY ${CLI_ARCHIVE_OUTPUT_DIRECTORY}
+    INSTALL_RUNTIME_DESTINATION ${CLI_INSTALL_RUNTIME_DESTINATION}
+    INSTALL_LIBRARY_DESTINATION ${CLI_INSTALL_LIBRARY_DESTINATION}
+    INSTALL_ARCHIVE_DESTINATION ${CLI_INSTALL_ARCHIVE_DESTINATION}
+    )
+endmacro()
 
 
-install(TARGETS dtiprocess
-                dtiestim
-                scalartransform
-                #                fiberprocess
-                dtiaverage
-                fibertrack
-                fiberstats
-                maxcurvature
-                 RUNTIME DESTINATION bin
-                 LIBRARY DESTINATION lib
-                 ARCHIVE DESTINATION lib/static)
+##dtiprocess
+set( MODULE_LIBRARIES ${ITK_LIBRARIES} TensorOperations DTIIO )
+SEM_BUILD_EXECUTABLE( NAME dtiprocess BUILD_LIBRARY ${BUILD_TESTING} LIBRARIES ${MODULE_LIBRARIES} )
+##dtiestim
+set( MODULE_LIBRARIES DWIPrivateLibrary ${ITK_LIBRARIES} cephes )
+SEM_BUILD_EXECUTABLE( NAME dtiestim BUILD_LIBRARY ${BUILD_TESTING} LIBRARIES ${MODULE_LIBRARIES} )
+##scalartransform
+set( MODULE_LIBRARIES DTIIO ${ITK_LIBRARIES} )
+SEM_BUILD_EXECUTABLE( NAME scalartransform LIBRARIES ${MODULE_LIBRARIES} )
+##fiberprocess
+set( MODULE_LIBRARIES DTIIO ${ITK_LIBRARIES} )
+SEM_BUILD_EXECUTABLE( NAME fiberprocess LIBRARIES ${MODULE_LIBRARIES} )
+##dtiaverage
+set( MODULE_LIBRARIES TensorOperations DTIIO )
+SEM_BUILD_EXECUTABLE( NAME dtiaverage BUILD_LIBRARY ${BUILD_TESTING} LIBRARIES ${MODULE_LIBRARIES} )
+##fibertrack
+set( MODULE_LIBRARIES DTIIO TensorOperations ${ITK_LIBRARIES} )
+SEM_BUILD_EXECUTABLE( NAME fibertrack LIBRARIES ${MODULE_LIBRARIES} )
+##fiberstats
+set( MODULE_LIBRARIES DTIIO )
+SEM_BUILD_EXECUTABLE( NAME fiberstats LIBRARIES ${MODULE_LIBRARIES} )
+##maxcurvature
+set( MODULE_LIBRARIES ${ITK_LIBRARIES} )
+SEM_BUILD_EXECUTABLE( NAME maxcurvature LIBRARIES ${MODULE_LIBRARIES} )
 

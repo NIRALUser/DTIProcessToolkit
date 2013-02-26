@@ -42,7 +42,7 @@
 #include <itkAddImageFilter.h>
 #include <itkExpImageFilter.h>
 #include <itkImageRegionIterator.h>
-
+#include <itkCastImageFilter.h>
 #include <itkNthElementImageAdaptor.h>
 #include <itkOtsuThresholdImageCalculator.h>
 
@@ -807,15 +807,31 @@ int main(int argc, char* argv[])
   // Write tensor file if requested
   try
     {
-    typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType;
-
-    TensorFileWriterType::Pointer tensorWriter = TensorFileWriterType::New();
-    tensorWriter->SetFileName(tensorOutput.c_str() );
-    tensors->SetMetaDataDictionary(dict);
-    tensorWriter->SetInput(tensors);
-    tensorWriter->SetUseCompression(true);
-    tensorWriter->Update();
-
+    if( !doubleDTI )
+      {
+      typedef itk::DiffusionTensor3D<float> TensorFloatPixelType ;
+      typedef itk::Image<TensorFloatPixelType, DIM> TensorFloatImageType ;
+      typedef itk::CastImageFilter< TensorImageType, TensorFloatImageType > CastDTIFilterType ;
+      CastDTIFilterType::Pointer castFilter = CastDTIFilterType::New() ;
+      castFilter->SetInput( tensors ) ;
+      typedef itk::ImageFileWriter<TensorFloatImageType> TensorFileWriterType ;
+      TensorFileWriterType::Pointer tensorWriter = TensorFileWriterType::New() ;
+      tensorWriter->SetFileName(tensorOutput.c_str()) ;
+      tensors->SetMetaDataDictionary(dict) ;
+      tensorWriter->SetInput(castFilter->GetOutput()) ;
+      tensorWriter->SetUseCompression(true) ;
+      tensorWriter->Update() ;
+      }
+    else
+      {
+      typedef itk::ImageFileWriter<TensorImageType> TensorFileWriterType ;
+      TensorFileWriterType::Pointer tensorWriter = TensorFileWriterType::New() ;
+      tensorWriter->SetFileName(tensorOutput.c_str()) ;
+      tensors->SetMetaDataDictionary(dict) ;
+      tensorWriter->SetInput(tensors) ;
+      tensorWriter->SetUseCompression(true) ;
+      tensorWriter->Update() ;
+      }
     }
   catch( itk::ExceptionObject e )
     {

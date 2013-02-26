@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Diffusion.DTIProcess</category>
-  <title>maxcurvature</title>
+  <category>Diffusion.NIRALPipeline</category>
+  <title>MaxCurvature-Hessian</title>
   <description> This program computes the Hessian of the FA image (--image). We use this scalar image as a registration input when doing DTI atlas building. For most adult FA we use a sigma of 2 whereas for neonate or primate images and sigma of 1 or 1.5 is more appropriate. For really noisy images, 2.5 - 4 can be considered. The final image (--output) shows the main feature of the input image.</description>
   <documentation-url>http://www.google.com/</documentation-url>
   <license>
@@ -15,15 +15,7 @@
   <acknowledgements>Hans Johnson(1,3,4); Kent Williams(1); (1=University of Iowa Department of Psychiatry, 3=University of Iowa Department of Biomedical Engineering, 4=University of Iowa Department of Electrical and Computer Engineering) provided conversions to make DTIProcess compatible with Slicer execution, and simplified the stand-alone build requirements by removing the dependancies on boost and a fortran compiler.</acknowledgements>
   <version>1.1.0</version>
   <parameters advanced="false">
-    <image>
-      <name>output</name>
-      <longflag>--output</longflag>
-      <flag>o</flag>
-      <label>Output file</label>
-      <description>Output File</description>
-      <channel>output</channel>
-      <default></default>
-    </image>
+    <label>I/O</label>
     <image type="scalar">
       <name>image</name>
       <longflag>--image</longflag>
@@ -33,14 +25,15 @@
       <channel>input</channel>
       <default></default>
     </image>
-    <boolean>
-      <name>verbose</name>
-      <flag>v</flag>
-      <longflag>--verbose</longflag>
-      <label>Verbose</label>
-      <description>produce verbose output</description>
-      <default>0</default>
-    </boolean>
+    <image type="scalar">
+      <name>output</name>
+      <longflag>--output</longflag>
+      <flag>o</flag>
+      <label>Output file</label>
+      <description>Output File</description>
+      <channel>output</channel>
+      <default></default>
+    </image>
     <double>
       <name>sigma</name>
       <longflag>--sigma</longflag>
@@ -49,5 +42,16 @@
       <description>Scale of Gradients</description>
       <default>2</default>
     </double>
+  </parameters>
+  <parameters advanced="true">
+    <label>Advanced options</label>
+    <boolean>
+      <name>verbose</name>
+      <flag>v</flag>
+      <longflag>--verbose</longflag>
+      <label>Verbose</label>
+      <description>produce verbose output</description>
+      <default>0</default>
+    </boolean>
   </parameters>
 </executable>

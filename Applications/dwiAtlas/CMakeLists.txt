@@ -47,6 +47,6 @@ endif(NOT EXECUTABLE_OUTPUT_PATH)
 
 add_executable(dwiAtlas dwiAtlas.cxx)
 
-target_link_libraries(dwiAtlas ${ITK_LIBRARIES} ${ITK_LIBRARIES} ${ITK_LIBRARIES} ${ITK_LIBRARIES} DTIIO ${BOOST_LIBRARIES})
+target_link_libraries(dwiAtlas ${ITK_LIBRARIES} DTIIO ${BOOST_LIBRARIES})
 
 

@@ -22,7 +22,8 @@
 // datastructures
 #include <itkMetaDataObject.h>
 #include <itkVersion.h>
-
+// Filters
+#include <itkCastImageFilter.h>
 // IO
 #include <itkImageFileReader.h>
 
@@ -207,6 +208,10 @@ int main(int argc, char* argv[])
   // End option reading configuration
 #endif
 
+  typedef itk::DiffusionTensor3D<float> TensorFloatPixelType;
+  typedef itk::Image<TensorFloatPixelType, DIM> TensorFloatImageType;
+  typedef itk::ImageFileWriter<TensorFloatImageType> TensorFileWriterType;
+  typedef itk::CastImageFilter< TensorImageType, TensorFloatImageType > CastDTIFilterType ;
   // If the value scale is true (default) we scal FA and MD values to
   // integer ranges.
 //   {
@@ -322,18 +327,40 @@ int main(int argc, char* argv[])
     // If the outmask option is specified, the masked tensor field is saved
     if( outmask != "" )
       {
-      typedef itk::ImageFileWriter<TensorImageType> FileWriterType;
-      FileWriterType::Pointer dtiwriter = FileWriterType::New();
-      dtiwriter->SetFileName(outmask.c_str() );
-      dtiwriter->SetInput(tensors);
-      try
+      if( !doubleDTI )
         {
-        dtiwriter->Update();
+        CastDTIFilterType::Pointer castFilter = CastDTIFilterType::New() ;
+        castFilter->SetInput( tensors ) ;
+        TensorFileWriterType::Pointer dtiwriter = TensorFileWriterType::New();
+        dtiwriter->SetFileName(outmask.c_str());
+        dtiwriter->SetInput(castFilter->GetOutput());
+        dtiwriter->SetUseCompression(true);
+        try
+          {
+          dtiwriter->Update();
+          }
+          catch (itk::ExceptionObject & e)
+          {
+            std::cerr << e <<std::endl;
+            return EXIT_FAILURE;
+          }
         }
-      catch( itk::ExceptionObject & e )
+      else
         {
-        std::cerr << e << std::endl;
-        return EXIT_FAILURE;
+        typedef itk::ImageFileWriter<TensorImageType> FileWriterType;
+        FileWriterType::Pointer dtiwriter = FileWriterType::New();
+        dtiwriter->SetFileName(outmask.c_str());
+        dtiwriter->SetUseCompression(true);
+        dtiwriter->SetInput(tensors);
+        try
+          {
+          dtiwriter->Update();
+          }
+        catch (itk::ExceptionObject & e)
+          {
+          std::cerr << e <<std::endl;
+          return EXIT_FAILURE;
+          }
         }
       }
     }
@@ -477,31 +504,40 @@ int main(int argc, char* argv[])
 
   if( rotOutput != "" )
     {
-    if( dofFile == "" )
+    TensorImageType::Pointer tensorImage ;
+    //If the input affine file is a dof file from rview
+    if(dofFile != "")
       {
-      std::cerr << "Tensor rotation requested, but dof file not specified" << std::endl;
+      tensorImage = createROT(tensors,dofFile,0) ;
+      }
+    //If the input affine file is a new dof file (output of dof2mat)
+    else if(newdof_file != "")
+      {
+      tensorImage = createROT(tensors, newdof_file, 1);
+      }
+    //If the input affine file is an itk compatible file
+    else if(affineitk_file != "")
+      {
+      tensorImage = createROT(tensors, affineitk_file, 2);
+      }
+    else
+      {
+      std::cerr << "Tensor rotation requested, but dof/newdof/affineitk file not specified" << std::endl;
       return EXIT_FAILURE;
       }
-    // If the input affine file is a dof file from rview
-    else if( dofFile != "" )
+    if( !doubleDTI )
       {
-      writeImage(rotOutput,
-                 createROT(tensors, dofFile, 0) );
+      CastDTIFilterType::Pointer castFilter = CastDTIFilterType::New() ;
+      castFilter->SetInput( tensorImage ) ;
+      castFilter->Update() ;
+      TensorFloatImageType::Pointer tensorFloat = castFilter->GetOutput() ;
+      writeImage( rotOutput , tensorFloat ) ;
       }
-    // If the input affine file is a new dof file (output of dof2mat)
-    else if( newdof_file != "" )
+    else
       {
-      writeImage(rotOutput,
-                 createROT(tensors, newdof_file, 1) );
-      }
-    // If the input affine file is an itk compatible file
-    else if( affineitk_file != "" )
-      {
-      writeImage(rotOutput,
-                 createROT(tensors, affineitk_file, 2) );
+      writeImage( rotOutput , tensorImage ) ;
       }
     }
-
   if( deformationOutput != "" )
     {
     if( forwardTransformation == "" )
@@ -518,17 +554,28 @@ int main(int argc, char* argv[])
       }
 
     forward = readDeformationField(forwardTransformation, dftype);
-
-    writeImage(deformationOutput,
-               createWarp(tensors,
-                          forward,
-                          // vm["reorientation"].as<TensorReorientationType>(),
-                          (reorientation == "fs" ? FiniteStrain :
-                           PreservationPrincipalDirection),
-                          // vm["interpolation"].as<InterpolationType>()));
-                          (interpolation == "linear" ? Linear :
-                           (interpolation == "nearestneightbor" ? NearestNeighbor :
-                            Cubic) ) ) );
+    TensorImageType::Pointer tensorImage ;
+    tensorImage = createWarp(tensors,
+               forward,
+               //vm["reorientation"].as<TensorReorientationType>(),
+               (reorientation == "fs" ? FiniteStrain :
+               PreservationPrincipalDirection),
+               //vm["interpolation"].as<InterpolationType>()));
+               (interpolation == "linear" ? Linear :
+               (interpolation == "nearestneightbor" ? NearestNeighbor :
+               Cubic)));
+    if( !doubleDTI )
+      {
+      CastDTIFilterType::Pointer castFilter = CastDTIFilterType::New() ;
+      castFilter->SetInput( tensorImage ) ;
+      castFilter->Update() ;
+      TensorFloatImageType::Pointer tensorFloat = castFilter->GetOutput() ;
+      writeImage( deformationOutput , tensorFloat ) ;
+      }
+    else
+      {
+      writeImage( deformationOutput , tensorImage ) ;
+      }
     }
 
 #if 0 //
