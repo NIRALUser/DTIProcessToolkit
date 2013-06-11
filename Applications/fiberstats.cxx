@@ -19,6 +19,8 @@
 #include <iostream>
 #include <numeric>
 #include <set>
+#include <vector>
+
 // ITK includes
 #include <itkVersion.h>
 #include <itkIndex.h>
@@ -89,6 +91,7 @@ int main(int argc, char* argv[])
   bundlestats["fro"] = MeasureSample();
 
   // For each fiber
+  std::vector<double> FiberLengthsVector;
   ChildrenListType*          children = group->GetChildren(0);
   ChildrenListType::iterator it;
   for( it = children->begin(); it != children->end(); it++ )
@@ -97,11 +100,22 @@ int main(int argc, char* argv[])
       dynamic_cast<DTITubeType *>( (*it).GetPointer() )->GetPoints();
     DTITubeType::Pointer newtube = DTITubeType::New();
     // For each point along the fiber
+    double FiberLength=0;// Added by Adrien Kaiser 04-03-2013
+    typedef DTIPointType::PointType PointType;
+    PointType Previousp = pointlist.begin()->GetPosition();// Added by Adrien Kaiser 04-03-2013
     for( DTIPointListType::iterator pit = pointlist.begin();
          pit != pointlist.end(); ++pit )
       {
-      typedef DTIPointType::PointType PointType;
       PointType p = pit->GetPosition();
+
+      // Added by Adrien Kaiser 04-03-2013: Compute length between 2 points
+      if(pit != pointlist.begin()) // no previous for the first one
+      {
+        double length = sqrt( (Previousp[0]-p[0])*(Previousp[0]-p[0]) + (Previousp[1]-p[1])*(Previousp[1]-p[1]) +(Previousp[2]-p[2])*(Previousp[2]-p[2]) );
+        FiberLength = FiberLength + length;
+      }
+      Previousp = p;
+      //
 
       IndexType i;
       i[0] = static_cast<long int>(vnl_math_rnd_halfinttoeven(p[0]) );
@@ -122,12 +136,44 @@ int main(int argc, char* argv[])
         }
 
       } // end point loop
+    FiberLengthsVector.push_back(FiberLength);// Added by Adrien Kaiser 04-03-2013
     }   // end fiber loop
+
+  // Added by Adrien Kaiser 04-03-2013: compute average fiber length and quantiles
+  std::cout<< FiberLengthsVector.size() <<" fibers found"<<std::endl;
+
+  if( FiberLengthsVector.empty() )
+  {
+    std::cout<<"This fiber file is empty. ABORT."<<std::endl;
+    return EXIT_FAILURE;
+  }
+
+  double AverageFiberLength = 0;
+  for(unsigned int AFLVecIter=0; AFLVecIter < FiberLengthsVector.size();AFLVecIter++)
+  {
+     AverageFiberLength = AverageFiberLength + FiberLengthsVector[AFLVecIter];
+  }
+  AverageFiberLength = AverageFiberLength / FiberLengthsVector.size();
+  std::cout<<"Average Fiber Length: "<<AverageFiberLength<<std::endl;
+
+  sort( FiberLengthsVector.begin(), FiberLengthsVector.end() );
+  std::cout<<"Minimum Fiber Length: "<< FiberLengthsVector[0] <<std::endl;
+  std::cout<<"Maximum Fiber Length: "<< FiberLengthsVector[FiberLengthsVector.size()-1] <<std::endl;
+  std::cout<<"75 percentile Fiber Length: "<< FiberLengthsVector[ (int)(0.75*FiberLengthsVector.size()) ] <<std::endl;
+  std::cout<<"90 percentile Fiber Length: "<< FiberLengthsVector[ (int)(0.9*FiberLengthsVector.size()) ] <<std::endl;
+  double Average75PercFiberLength = 0;
+  for(unsigned int AFLVecIter=(int)(0.75*FiberLengthsVector.size()); AFLVecIter < FiberLengthsVector.size();AFLVecIter++)
+  {
+     Average75PercFiberLength = Average75PercFiberLength + FiberLengthsVector[AFLVecIter];
+  }
+  Average75PercFiberLength = Average75PercFiberLength / (FiberLengthsVector.size() - (int)(0.75*FiberLengthsVector.size())) ;
+  std::cout<<"Average 75 Percentile Fiber Length: "<<Average75PercFiberLength<<std::endl;
+  //
 
   double voxelsize = spacing[0] * spacing[1] * spacing[2];
   std::cout << "Volume (mm^3): " << seenvoxels.size() * voxelsize << std::endl;
   // std::cout << "Measure statistics" << std::endl;
-  for( SampleMap::const_iterator smit = bundlestats.begin();
+/*  for( SampleMap::const_iterator smit = bundlestats.begin();
        smit != bundlestats.end(); ++smit )
     {
     const std::string statname = smit->first;
@@ -144,7 +190,7 @@ int main(int argc, char* argv[])
       }
     std::cout << statname << " std: " << std::sqrt(var) << std::endl;
     }
-
+*/
   delete children;
   return EXIT_SUCCESS;
 }
