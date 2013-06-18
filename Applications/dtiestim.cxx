@@ -727,25 +727,22 @@ int main(int argc, char* argv[])
     std::cout << "Estimation method: " << method << std::endl;
     }
 
-  DiffusionEstimationFilterType::Pointer llsestimator = DiffusionEstimationFilterType::New();
-  llsestimator->ReleaseDataFlagOn();
-  llsestimator->SetGradientImage(gradientContainer, dwi);
-  llsestimator->SetBValue(b0);
-  llsestimator->SetThreshold(_threshold);
-  llsestimator->Update();
-  tensors = llsestimator->GetOutput();
-
   //  if(vm["method"].as<EstimationType>() == LinearEstimate)
   if( method == "lls" )
     {
+       DiffusionEstimationFilterType::Pointer llsestimator = DiffusionEstimationFilterType::New();
+       llsestimator->ReleaseDataFlagOn();
+       llsestimator->SetGradientImage(gradientContainer, dwi);
+       llsestimator->SetBValue(b0);
+       llsestimator->SetThreshold(_threshold);
+       llsestimator->Update();
+       tensors = llsestimator->GetOutput();
     }
   //  else if(vm["method"].as<EstimationType>() == NonlinearEstimate)
   else if( method == "nls" )
     {
     NLDiffusionEstimationFilterType::Pointer estimator = NLDiffusionEstimationFilterType::New();
     estimator->ReleaseDataFlagOn();
-
-    TensorImageType::Pointer llstensors = tensors;
 
     estimator->SetGradientImage(gradientContainer, dwi);
     estimator->SetBValue(b0);
@@ -760,8 +757,6 @@ int main(int argc, char* argv[])
     {
     WLDiffusionEstimationFilterType::Pointer estimator = WLDiffusionEstimationFilterType::New();
     estimator->ReleaseDataFlagOn();
-
-    TensorImageType::Pointer llstensors = tensors;
 
     if( VERBOSE )
       {
@@ -778,15 +773,28 @@ int main(int argc, char* argv[])
   //  else if(vm["method"].as<EstimationType>() == MaximumLikelihoodEstimate)
   else if( method == "ml" )
     {
+    WLDiffusionEstimationFilterType::Pointer estimatorInit = WLDiffusionEstimationFilterType::New();
+    estimatorInit->ReleaseDataFlagOn();
+
+    estimatorInit->SetGradientImage(gradientContainer, dwi);
+    estimatorInit->SetBValue(b0);
+    estimatorInit->SetThreshold(_threshold);
+    estimatorInit->SetNumberOfIterations(weightIterations);
+    estimatorInit->Update();
+    TensorImageType::Pointer inittensors = estimatorInit->GetOutput();
+
     MLDiffusionEstimationFilterType::Pointer estimator = MLDiffusionEstimationFilterType::New();
     estimator->ReleaseDataFlagOn();
 
-    TensorImageType::Pointer llstensors = tensors;
+    if( VERBOSE )
+      {
+      std::cout << "Weighting steps: " << weightIterations << std::endl;
+      }
 
     estimator->SetGradientImage(gradientContainer, dwi);
     estimator->SetBValue(b0);
     estimator->SetThreshold(_threshold);
-    estimator->SetInitialTensor(llstensors);
+    estimator->SetInitialTensor(inittensors);
     estimator->SetStep(stepSize);
     estimator->SetNumberOfThreads(1);
     std::cout << "Start sigma: " << sigma << std::endl;
