@@ -16,5 +16,6 @@ set_target_properties(${libraries_targets} PROPERTIES
     )
 
 install(TARGETS ${libraries_targets}
-    LIBRARY DESTINATION ${Slicer_INSTALL_ROOT}${Slicer_BUNDLE_EXTENSIONS_LOCATION}${Slicer_LIB_DIR} COMPONENT RuntimeLibraries
+    LIBRARY DESTINATION "${Slicer_INSTALL_ROOT}${Slicer_BUNDLE_EXTENSIONS_LOCATION}${Slicer_LIB_DIR}" COMPONENT RuntimeLibraries
+    ARCHIVE DESTINATION "${Slicer_INSTALL_ROOT}${Slicer_BUNDLE_EXTENSIONS_LOCATION}${Slicer_LIB_DIR}" COMPONENT RuntimeLibraries
     )
