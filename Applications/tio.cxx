@@ -88,7 +88,7 @@ int ComputeTransform(  const std::string doffile,
     GetImageCenter( reader->GetOutput(), targetCenter );
     ImageType::PointType sourceCenter;
     GetImageCenter( sourceReader->GetOutput(), sourceCenter );
-    itk::Vector<float, 3> translation;
+    itk::Vector<Precision, 3> translation;
     translation = sourceCenter - targetCenter;
     translation += aff->GetTranslation();
     aff->SetTranslation( translation );
