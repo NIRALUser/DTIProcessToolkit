@@ -4,8 +4,6 @@
 
 
 
-
-
 # Add test of the homemade "round()" function
 add_executable(TestHomemadeRoundFunction TestHomemadeRoundFunction.cxx)
 target_link_libraries(TestHomemadeRoundFunction ${ITK_LIBRARIES})
