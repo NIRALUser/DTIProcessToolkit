@@ -412,6 +412,28 @@ int main(int argc, char* argv[])
         std::cout << "Masking Data" << std::endl;
         }
 
+      // Check for same pixelsize & origin, and correct if necessary.
+      LabelImageType::RegionType maskRegion = (maskreader->GetOutput())->GetLargestPossibleRegion();
+      VectorImageType::RegionType dwiRegion = (dwireader->GetOutput())->GetLargestPossibleRegion();
+      LabelImageType::SpacingType maskSpacing = (maskreader->GetOutput())->GetSpacing();
+      VectorImageType::SpacingType dwiSpacing = (dwireader->GetOutput())->GetSpacing();
+      LabelImageType::PointType maskOrigin = (maskreader->GetOutput())->GetOrigin();
+      VectorImageType::PointType dwiOrigin = (dwireader->GetOutput())->GetOrigin();
+
+      if ( ( (maskRegion.GetSize(0) == dwiRegion.GetSize(0)) && (maskRegion.GetSize(1) == dwiRegion.GetSize(1))
+	     && (maskRegion.GetSize(2) == dwiRegion.GetSize(2)))) {
+	if ( (maskSpacing[0] != dwiSpacing[0]) || (maskSpacing[1] != dwiSpacing[1]) || (maskSpacing[2] != dwiSpacing[2])) {
+	  // Same size, but different pixeldim
+	  std::cout << "warning pixelsizes are off between mask and dwi, ignoring and masking nevertheless" << std::endl;
+	  (maskreader->GetOutput())->SetSpacing(dwiSpacing);
+	}
+	if ( (maskOrigin[0] != dwiOrigin[0]) || (maskOrigin[1] != dwiOrigin[1]) || (maskOrigin[2] != dwiOrigin[2])) {
+	  // Same size, but different pixeldim
+	  std::cout << "warning origin locations are off between mask and dwi, ignoring and masking nevertheless" << std::endl;
+	  (maskreader->GetOutput())->SetOrigin(dwiOrigin);
+	} 
+      }
+
       typedef itk::VectorMaskImageFilter<VectorImageType, LabelImageType, VectorImageType> MaskFilterType;
       MaskFilterType::Pointer mask = MaskFilterType::New();
 //      mask->ReleaseDataFlagOn();
