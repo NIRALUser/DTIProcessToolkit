@@ -30,7 +30,7 @@ if(CMAKE_VERSION VERSION_LESS 2.8.9)
 else()
   set(cmakeversion_external_update LOG_UPDATE 1)
 endif()
- 
+
 #-----------------------------------------------------------------------------
 # Update CMake module path
 #------------------------------------------------------------------------------
@@ -49,11 +49,28 @@ include(SlicerExtensionsConfigureMacros)
 #-----------------------------------------------------------------------------
 # CMake Function(s) and Macro(s)
 #-----------------------------------------------------------------------------
-if(CMAKE_PATCH_VERSION LESS 3)
+if(CMAKE_VERSION VERSION_LESS 2.8.3)
   include(Pre283CMakeParseArguments)
 else()
   include(CMakeParseArguments)
 endif()
+
+#-----------------------------------------------------------------------------
+if(NOT COMMAND SETIFEMPTY)
+  macro(SETIFEMPTY)
+    set(KEY ${ARGV0})
+    set(VALUE ${ARGV1})
+    if(NOT ${KEY})
+      set(${ARGV})
+    endif()
+  endmacro()
+endif()
+
+#-------------------------------------------------------------------------
+SETIFEMPTY(CLI_INSTALL_LIBRARY_DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+SETIFEMPTY(CLI_INSTALL_ARCHIVE_DESTINATION ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
+SETIFEMPTY(CLI_INSTALL_RUNTIME_DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
 
 #-------------------------------------------------------------------------
 # Augment compiler flags

@@ -38,15 +38,10 @@ include_directories(${BOOST_INCLUDE_DIR} ${DWIProcess_SOURCE_DIR}/Library ${DWIP
 #  include(${GenerateCLP_USE_FILE})
 #endif(GenerateCLP_FOUND)
 
-set(dwiAtlas_SOURCE dwiAtlas.cxx)
-GENERATECLP(dwiAtlas_SOURCE dwiAtlas.xml)
+#set(dwiAtlas_SOURCE dwiAtlas.cxx)
+#GENERATECLP(dwiAtlas_SOURCE dwiAtlas.xml)
 
-if(NOT EXECUTABLE_OUTPUT_PATH)
-      set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-endif(NOT EXECUTABLE_OUTPUT_PATH)
-
-add_executable(dwiAtlas dwiAtlas.cxx)
-
-target_link_libraries(dwiAtlas ${ITK_LIBRARIES} DTIIO ${BOOST_LIBRARIES})
-
+##dwiAtlas
+set( MODULE_LIBRARIES ${ITK_LIBRARIES} DTIIO ${BOOST_LIBRARIES} )
+SEM_BUILD_EXECUTABLE( NAME dwiAtlas LIBRARIES ${MODULE_LIBRARIES} )
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Set the library paths such that all locally built shared 
+# Set the library paths such that all locally built shared
 # libraries are found and used
 # ahead of system libs
 package=BRAINSStandAlone
