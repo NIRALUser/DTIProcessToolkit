@@ -52,8 +52,24 @@ int ComputeTransform(  const std::string doffile,
   ImageType::PointType   origin = reader->GetOutput()->GetOrigin();
 
   typedef itk::AffineTransform<Precision, 3> AffineTransformType;
+// After ITK_VERSION 4.5 (Acutally after June 20th, 2013) the ITK Transform
+// classes are now templated.  This requires forward declarations to be defined
+// differently.
+#if ( ( ITK_VERSION_MAJOR == 4 ) && ( ITK_VERSION_MINOR < 5 ) )
+  //This is trying to use the double presion writer to write
+  //a single precision transform.  This is not a robust operation
+  //and was not guaranteed to work in ITK v4.4 and less with
+  //all transform writer types.  I think that the .txt writer
+  //would have worked, but .mat and .hdf5 should have thrown
+  //an exception.
   typedef itk::TransformFileWriter           TransformWriterType;
-  TransformWriterType::Pointer twriter = TransformWriterType::New();
+  typedef itk::TransformFileWriter::Pointer  TransformWriterTypePointer;
+#else
+  // As of ITKv4.5 there are both double and single precision transform writers.
+  typedef          itk::TransformFileWriterTemplate<Precision>          TransformWriterType;
+  typedef typename itk::TransformFileWriterTemplate<Precision>::Pointer TransformWriterTypePointer;
+#endif
+  TransformWriterTypePointer twriter = TransformWriterType::New();
   typename AffineTransformType::Pointer aff;
   // Handle the old version of rview (the one where the dof files were in ASCII)
   if( rview_old )
