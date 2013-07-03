@@ -104,73 +104,7 @@ void validate(boost::any& v,
 
 int main(int argc, char* argv[])
 {
-#if 1
   PARSE_ARGS;
-#else
-  namespace po = boost::program_options;
-
-//  unsigned int scale;
-
-  // Read program options/configuration
-  po::options_description config("Usage: dtiestim dwi-image tensor-output [options]");
-  config.add_options()
-    ("help,h", "produce this help message")
-
-    ("brain-mask,M", po::value<std::string>(),
-    "Brain mask.  Image where for every voxel == 0 the tensors are not estimated.")
-    ("bad-region-mask,B", po::value<std::string>(),
-    "Bad region mask.  Image where for every voxel > 0 the tensors are not estimated.")
-    ("threshold,t", po::value<ScalarPixelType>(),
-    "Baseline threshold for estimation.  If not specified calculated using an OTSU threshold on the baseline image.")
-    ("B0", po::value<std::string>(),
-    "Baseline image, average of all baseline images")
-    ("idwi", po::value<std::string>(),
-    "idwi output image.  Image with isotropic diffusion-weighted information = geometric mean of diffusion images.")
-
-    ("method,m", po::value<EstimationType>()->default_value(LinearEstimate, "lls (Linear Least Squares)"),
-    "Estimation method (lls,wls,nls,ml)")
-
-  // WLS options
-    ("weight-iterations", po::value<unsigned int>()->default_value(1),
-    "Number of iterations to recaluate weightings from tensor estimate")
-
-  // Optimization options
-    ("step,s", po::value<double>()->default_value(1.0e-8),
-    "Gradient descent step size (for nls and ml methods)")
-    ("sigma", po::value<double>(),
-    "Sigma parameter for Rician ML estimation (Std deviation of Gaussian noise in k-space).")
-
-    ("verbose,v",
-    "Verbose output")
-  ;
-
-  po::options_description hidden("Hidden options");
-  hidden.add_options()
-    ("dwi-image", po::value<std::string>(), "DWI image volume.")
-    ("tensor-output", po::value<std::string>(), "Tensor output.")
-  ;
-
-  po::options_description all;
-  all.add(config).add(hidden);
-
-  po::positional_options_description p;
-  p.add("dwi-image", 1);
-  p.add("tensor-output", 1);
-
-  po::variables_map vm;
-
-  try
-    {
-    po::store(po::command_line_parser(argc, argv).
-              options(all).positional(p).run(), vm);
-    po::notify(vm);
-    }
-  catch( const po::error & e )
-    {
-    std::cout << config << std::endl;
-    return EXIT_FAILURE;
-    }
-#endif
   // End option reading configuration
 
   // Display help if asked or program improperly called
@@ -431,7 +365,7 @@ int main(int argc, char* argv[])
 	  // Same size, but different pixeldim
 	  std::cout << "warning origin locations are off between mask and dwi, ignoring and masking nevertheless" << std::endl;
 	  (maskreader->GetOutput())->SetOrigin(dwiOrigin);
-	} 
+	}
       }
 
       typedef itk::VectorMaskImageFilter<VectorImageType, LabelImageType, VectorImageType> MaskFilterType;
