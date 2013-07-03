@@ -101,15 +101,14 @@ void DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
 }
 
 template <class TGradientImagePixelType, class TTensorPrecision>
-void DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
-                                                    TTensorPrecision>
-::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-                       ThreadIdType)
+void DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType, TTensorPrecision>
+::ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, ThreadIdType)
 {
-  typename OutputImageType::Pointer outputImage =
-    static_cast<OutputImageType *>(this->ProcessObject::GetOutput(0) );
-  typename ScalarImageType::Pointer baselineImage =
-    static_cast<ScalarImageType *>(this->ProcessObject::GetOutput(1) );
+  typename OutputImageType::Pointer outputImage = dynamic_cast<OutputImageType *>(this->ProcessObject::GetOutput(0) );
+  if(outputImage.IsNull() )
+    {
+    itkExceptionMacro( << "ERROR:  outputImage is not converted properly from ProcessObject." )
+    }
 
   ImageRegionIterator<OutputImageType> oit(outputImage, outputRegionForThread);
   oit.GoToBegin();
@@ -127,6 +126,11 @@ void DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
   ScalarIteratorType bit;
   if( m_EstimateBaseline )
     {
+    typename ScalarImageType::Pointer baselineImage = dynamic_cast<ScalarImageType *>(this->ProcessObject::GetOutput(1) );
+    if(baselineImage.IsNull() )
+      {
+      itkExceptionMacro( << "ERROR:  baselineImage is not converted properly from ProcessObject." )
+      }
     bit = ScalarIteratorType(baselineImage, outputRegionForThread);
     bit.GoToBegin();
     }

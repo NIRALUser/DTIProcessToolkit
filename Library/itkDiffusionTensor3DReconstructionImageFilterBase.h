@@ -137,8 +137,7 @@ public:
 
   typedef OutputImageType TensorImageType;
 
-  typedef typename Superclass::OutputImageRegionType
-    OutputImageRegionType;
+  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
 
   /** Typedef defining one (of the many) gradient images.  */
   typedef Image<GradientPixelType, 3> ScalarImageType;
