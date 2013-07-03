@@ -5,10 +5,8 @@ set(verbose FALSE)
 #-----------------------------------------------------------------------------
 
 
+unset( EXECUTABLES_ONLY CACHE )
 
-unset( SlicerExecutionModel_DIR CACHE )
-unset( VTK_DIR CACHE )
-unset( ITK_DIR CACHE )
 
 option(USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
 set(git_protocol "git")
@@ -77,10 +75,18 @@ CMAKE_DEPENDENT_OPTION(
   )
 
 
-########Since is it an extension we do not leave the choice to the user of what is compiled
-#option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
-#option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined version of SlicerExecutionModel"  OFF)
-#option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" ON)
+########Depending if it is an extension or a Superbuild
+if( NOT DTIProcess_BUILD_SLICER_EXTENSION )
+  option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
+  option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined version of SlicerExecutionModel"  OFF)
+  option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
+  set( EXECUTABLES_ONLY ON )
+else()
+  unset( SlicerExecutionModel_DIR CACHE )
+  unset( VTK_DIR CACHE )
+  unset( ITK_DIR CACHE )
+  set( EXECUTABLES_ONLY OFF )
+endif()
 
 #------------------------------------------------------------------------------
 # ${LOCAL_PROJECT_NAME} dependency list
@@ -88,7 +94,7 @@ CMAKE_DEPENDENT_OPTION(
 
 set(ITK_EXTERNAL_NAME ITKv4)
 
-set(${LOCAL_PROJECT_NAME}_DEPENDENCIES ${ITK_EXTERNAL_NAME} SlicerExecutionModel )
+set(${LOCAL_PROJECT_NAME}_DEPENDENCIES ${ITK_EXTERNAL_NAME} SlicerExecutionModel VTK )
 
 if(BUILD_STYLE_UTILS)
   list(APPEND ${LOCAL_PROJECT_NAME}_DEPENDENCIES Cppcheck KWStyle Uncrustify)
@@ -192,11 +198,13 @@ endif()
 
 
 #-----------------------------------------------------------------------------
-unsetForSlicer( NAMES SlicerExecutionModel_DIR ITK_DIR VTK_DIR CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
-find_package(Slicer REQUIRED)
-include(${Slicer_USE_FILE})
-resetForSlicer( NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
-set( BUILD_SHARED_LIBS ON)
+if(DTIProcess_BUILD_SLICER_EXTENSION)
+  unsetForSlicer( NAMES SlicerExecutionModel_DIR ITK_DIR VTK_DIR CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
+  find_package(Slicer REQUIRED)
+  include(${Slicer_USE_FILE})
+  resetForSlicer( NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
+  set( BUILD_SHARED_LIBS ON)
+endif()
 #-----------------------------------------------------------------------------
 # Add external project CMake args
 #-----------------------------------------------------------------------------
@@ -243,11 +251,15 @@ endif()
     CMAKE_ARGS
       -DMIDAS_PACKAGE_EMAIL:STRING=${MIDAS_PACKAGE_EMAIL}
       -DMIDAS_PACKAGE_API_KEY:STRING=${MIDAS_PACKAGE_API_KEY}
-      -DDTIProcess_BUILD_SLICER_EXTENSION:BOOL=OFF
       -DEXTENSION_NAME:STRING=${EXTENSION_NAME}
       -DEXTENSION_SUPERBUILD_BINARY_DIR:PATH=${${EXTENSION_NAME}_BINARY_DIR}
+      -DDTIProcess_BUILD_SLICER_EXTENSION:BOOL=${DTIProcess_BUILD_SLICER_EXTENSION}
+      -DDTIProcess_SUPERBUILD:BOOL=OFF
+      -DINSTALL_RUNTIME_DESTINATION:PATH=${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}
+      -DINSTALL_LIBRARY_DESTINATION:PATH=${SlicerExecutionModel_DEFAULT_CLI_INSTALL_LIBRARY_DESTINATION}
       ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
       ${COMMON_EXTERNAL_PROJECT_ARGS}
+      -DEXECUTABLES_ONLY:BOOL=${EXECUTABLES_ONLY}
       # Slicer
       -DSlicer_DIR:PATH=${Slicer_DIR}
     INSTALL_COMMAND ""

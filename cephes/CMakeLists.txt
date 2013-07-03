@@ -1,6 +1,6 @@
 
 set(cephes_SRC i0.c)
-add_library(cephes ${cephes_SRC})
+add_library(cephes ${STATIC_LIB} ${cephes_SRC})
 
 
 set( libraries_targets cephes )
@@ -13,8 +13,8 @@ set_target_properties(${libraries_targets} PROPERTIES
     )
 
 install(TARGETS ${libraries_targets}
-    RUNTIME DESTINATION "${Slicer_INSTALL_ROOT}${Slicer_BUNDLE_EXTENSIONS_LOCATION}${Slicer_LIB_DIR}" COMPONENT RuntimeLibraries
-    LIBRARY DESTINATION "${Slicer_INSTALL_ROOT}${Slicer_BUNDLE_EXTENSIONS_LOCATION}${Slicer_LIB_DIR}" COMPONENT RuntimeLibraries
-    ARCHIVE DESTINATION "${Slicer_INSTALL_ROOT}${Slicer_BUNDLE_EXTENSIONS_LOCATION}${Slicer_LIB_DIR}" COMPONENT RuntimeLibraries
+    RUNTIME DESTINATION "${INSTALL_RUNTIME_DESTINATION}" COMPONENT RuntimeLibraries
+    LIBRARY DESTINATION "${INSTALL_LIBRARY_DESTINATION}" COMPONENT RuntimeLibraries
+    ARCHIVE DESTINATION "${INSTALL_ARCHIVE_DESTINATION}" COMPONENT RuntimeLibraries
     )
 
