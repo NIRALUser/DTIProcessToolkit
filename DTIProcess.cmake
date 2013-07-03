@@ -54,11 +54,11 @@ include(${SlicerExecutionModel_USE_FILE})
 if(NOT ITK_FOUND)
     find_package(ITK REQUIRED)
     include(${ITK_USE_FILE})
-else()
-  if( NOT DEFINED ITKV3_COMPATIBILITY OR NOT ${ITKV3_COMPATIBILITY}  )
-    message( WARNING "Choose ITKv4 compiled with ITKV3_COMPATIBILITY set to ON (or GenerateCLP compiled against such an ITK version). If not, you may have compilation errors" )
-  endif()
 endif(NOT ITK_FOUND)
+if( NOT DEFINED ITKV3_COMPATIBILITY OR NOT ${ITKV3_COMPATIBILITY}  )
+  message( WARNING "Choose ITKv4 compiled with ITKV3_COMPATIBILITY set to ON (or GenerateCLP compiled against such an ITK version). If not, you may have compilation errors" )
+endif()
+
 
 
 if(NOT VTK_FOUND)
