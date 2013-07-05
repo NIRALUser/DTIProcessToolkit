@@ -43,6 +43,7 @@ public:
   itkTypeMacro(ImageToDTITubeSpatialObjectFilter, DTITubeSpatialObjectSource);
 
   /** Create a valid output. */
+  using Superclass::MakeOutput;
   virtual DataObject::Pointer MakeOutput(DataObjectPointerArraySizeType idx);
 
   /** Some Image related typedefs. */
