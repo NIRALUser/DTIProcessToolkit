@@ -373,6 +373,8 @@ int main(int argc, char* argv[])
 //      mask->ReleaseDataFlagOn();
       mask->SetInput1(dwireader->GetOutput() );
       mask->SetInput2(maskreader->GetOutput() );
+      mask->SetCoordinateTolerance( 0.001 ) ;
+      mask->SetDirectionTolerance( 0.001 ) ;
       mask->Update();
 
       dwi = mask->GetOutput();

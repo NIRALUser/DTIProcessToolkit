@@ -98,6 +98,9 @@ ENDIF(BUILD_TESTING)
 
 
 if( DTIProcess_BUILD_SLICER_EXTENSION )
+  if( APPLE )
+    set( CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,@loader_path/. CACHE STRING "Linker options" FORCE )
+  endif()
   set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
   include(${Slicer_EXTENSION_CPACK})
 else()
