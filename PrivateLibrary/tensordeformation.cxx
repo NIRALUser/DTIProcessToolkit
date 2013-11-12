@@ -203,7 +203,11 @@ TensorImageType::Pointer createWarp(TensorImageType::Pointer timg,
     }
 
   warp->SetInput(logf->GetOutput() );
+#if ITK_VERSION_MAJOR < 4
   warp->SetDeformationField(forward);
+#else
+  warp->SetDisplacementField(forward);
+#endif
   warp->SetOutputSpacing(logf->GetOutput()->GetSpacing() );
   warp->SetOutputOrigin(logf->GetOutput()->GetOrigin() );
   warp->Update();

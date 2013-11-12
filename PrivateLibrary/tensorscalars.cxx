@@ -11,7 +11,13 @@
 #include "itkFastSymmetricEigenAnalysisImageFilter.h"
 #include "itkVectorIndexSelectionCastImageFilter.h"
 #include <itkAddImageFilter.h>
+
+#if ITK_VERSION_MAJOR < 4
 #include <itkMultiplyByConstantImageFilter.h>
+#else
+#include <itkMultiplyImageFilter.h>
+#endif
+
 // My ITK Filters
 #include "itkVectorMaskNegatedImageFilter.h"
 #include "itkTensorMeanDiffusivityImageFilter.h"
@@ -148,7 +154,13 @@ itk::Image<double, 3>::Pointer createRD<double>(TensorImageType::Pointer timg) /
 
   rdfilter->Update();
 
-  typedef itk::MultiplyByConstantImageFilter<RDFilterType::OutputImageType, float, RealImageType> DivideFilterType;
+#if ITK_VERSION_MAJOR < 4
+  typedef itk::MultiplyByConstantImageFilter<RDFilterType::OutputImageType, float, RealImageType>
+    DivideFilterType;
+#else
+  typedef itk::MultiplyImageFilter<RDFilterType::OutputImageType,
+    RDFilterType::OutputImageType, RealImageType> DivideFilterType;
+#endif
   DivideFilterType::Pointer dividefilter = DivideFilterType::New();
   dividefilter->SetInput(rdfilter->GetOutput() );
   dividefilter->SetConstant(0.5);

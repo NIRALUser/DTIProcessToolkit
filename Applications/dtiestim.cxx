@@ -44,7 +44,11 @@
 #include <itkImageRegionIterator.h>
 #include <itkCastImageFilter.h>
 #include <itkNthElementImageAdaptor.h>
+#if ITK_VERSION_MAJOR < 4
 #include <itkOtsuThresholdImageCalculator.h>
+#else
+#include <itkOtsuThresholdImageFilter.h>
+#endif
 
 #include "itkVectorMaskNegatedImageFilter.h"
 #include "itkVectorMaskImageFilter.h"
@@ -527,14 +531,22 @@ int main(int argc, char* argv[])
     }
   else
     {
+#if ITK_VERSION_MAJOR < 4
     typedef itk::OtsuThresholdImageCalculator<RealImageType>
       OtsuThresholdCalculatorType;
 
     OtsuThresholdCalculatorType::Pointer otsucalculator = OtsuThresholdCalculatorType::New();
     otsucalculator->SetImage(B0Image);
     otsucalculator->Compute();
-    _threshold = static_cast<ScalarPixelType>(.9 * otsucalculator->GetThreshold() );
+#else
+    typedef itk::OtsuThresholdImageFilter<RealImageType,RealImageType>
+      OtsuThresholdImageFilterType;
 
+    OtsuThresholdImageFilterType::Pointer otsucalculator = OtsuThresholdImageFilterType::New();
+    otsucalculator->SetInput(B0Image);
+    otsucalculator->Update();
+#endif
+    _threshold = static_cast<ScalarPixelType>(.9 * otsucalculator->GetThreshold() );
     if( VERBOSE )
       {
       std::cout << "Otsu threshold: " << threshold << std::endl;
