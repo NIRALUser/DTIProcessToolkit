@@ -10,6 +10,16 @@ unset( USE_GIT_PROTOCOL CACHE )
 unset( VTK_GIT_TAG CACHE )
 unset( VTK_REPOSITORY CACHE )
 
+#-----------------------------------------------------------------------------
+# Update CMake module path
+#------------------------------------------------------------------------------
+set(CMAKE_MODULE_PATH
+  ${CMAKE_CURRENT_SOURCE_DIR}/CMake
+  ${CMAKE_CURRENT_BINARY_DIR}/CMake
+  ${CMAKE_MODULE_PATH}
+  )
+
+
 ## A simple macro to set variables ONLY if it has not been set
 ## This is needed when stand-alone packages are combined into
 ## a larger package, and the desired behavior is that all the
