@@ -53,6 +53,7 @@ add_test(NAME ${CLP}DTI_WLS_Test COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:
     --tensor_output ${output}
     --dwi_image ${input}
     -m wls
+    --threshold 0
   )
 
 set(output ${${CLP}_tmp_dir}/idwi.nrrd )
