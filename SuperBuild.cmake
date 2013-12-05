@@ -5,8 +5,6 @@ set(verbose FALSE)
 #-----------------------------------------------------------------------------
 
 
-unset( EXECUTABLES_ONLY CACHE )
-
 
 option(USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
 set(git_protocol "git")
@@ -74,18 +72,17 @@ CMAKE_DEPENDENT_OPTION(
   "BUILD_STYLE_UTILS" OFF
   )
 
+option(EXECUTABLES_ONLY "Build the tools and the tools' libraries statically" ON)
 
 ########Depending if it is an extension or a Superbuild
 if( NOT DTIProcess_BUILD_SLICER_EXTENSION )
   option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
   option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined version of SlicerExecutionModel"  OFF)
   option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
-  set( EXECUTABLES_ONLY ON )
 else()
   unset( SlicerExecutionModel_DIR CACHE )
   unset( VTK_DIR CACHE )
   unset( ITK_DIR CACHE )
-  set( EXECUTABLES_ONLY OFF )
 endif()
 
 #------------------------------------------------------------------------------
@@ -204,7 +201,6 @@ if(DTIProcess_BUILD_SLICER_EXTENSION)
   find_package(Slicer REQUIRED)
   include(${Slicer_USE_FILE})
   resetForSlicer( NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
-  set( BUILD_SHARED_LIBS ON)
 endif()
 #-----------------------------------------------------------------------------
 # Add external project CMake args
