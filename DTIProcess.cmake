@@ -37,18 +37,8 @@ endif(NOT SETIFEMPTY)
 SETIFEMPTY(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 SETIFEMPTY(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 SETIFEMPTY(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
-if( DTIProcess_BUILD_SLICER_EXTENSION )
-  unsetForSlicer( NAMES SlicerExecutionModel_DIR ITK_DIR VTK_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS ITK_LIBRARIES )
-  find_package(Slicer REQUIRED)
-  include(${Slicer_USE_FILE})
-  resetForSlicer( NAMES SlicerExecutionModel_DIR ITK_DIR VTK_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS ITK_LIBRARIES )
-  message(${Slicer_LIB_DIR})
-  set( INSTALL_RUNTIME_DESTINATION ${Slicer_INSTALL_ROOT}${Slicer_BUNDLE_EXTENSIONS_LOCATION}${Slicer_LIB_DIR} )
-  set( INSTALL_LIBRARY_DESTINATION ${Slicer_INSTALL_ROOT}${Slicer_BUNDLE_EXTENSIONS_LOCATION}${Slicer_LIB_DIR} )
-else()
-  SETIFEMPTY(INSTALL_RUNTIME_DESTINATION bin)
-  SETIFEMPTY(INSTALL_LIBRARY_DESTINATION bin)
-endif()
+SETIFEMPTY(INSTALL_RUNTIME_DESTINATION bin)
+SETIFEMPTY(INSTALL_LIBRARY_DESTINATION bin)
 SETIFEMPTY(INSTALL_ARCHIVE_DESTINATION lib/static)
 
 option(BUILD_dwiAtlas "Build dwiAtlas or not.  Requires boost." OFF)
@@ -66,6 +56,11 @@ endif()
 ##  that can be built stand alone are combined in larger packages.
 ##  This logic will include SlicerExectionModel only if it
 ##  has not already been included by a previous package.
+
+if( DTIProcess_BUILD_SLICER_EXTENSION )
+  find_package(Slicer REQUIRED)
+  include(${Slicer_USE_FILE})
+endif()
 
 
 find_package(SlicerExecutionModel REQUIRED)
@@ -93,12 +88,15 @@ ${DTIProcess_SOURCE_DIR}/PrivateLibrary
 ${DTIProcess_SOURCE_DIR}
 )
 
+
 ## Replace bessel(FORTRAN) with cephes(C)
 SET(BESSEL_LIB cephes)
 ADD_SUBDIRECTORY(cephes)
 
 ADD_SUBDIRECTORY(PrivateLibrary)
 ADD_SUBDIRECTORY(Applications)
+
+
 
 
 IF(BUILD_TESTING)
