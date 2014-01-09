@@ -3,7 +3,23 @@ include(CMakeDependentOption)
 enable_language(C)
 enable_language(CXX)
 
+#-----------------------------------------------------------------------------
+# Platform check
+#-----------------------------------------------------------------------------
 
+set(PLATFORM_CHECK true)
+
+if(PLATFORM_CHECK)
+  # See CMake/Modules/Platform/Darwin.cmake)
+  #   6.x == Mac OSX 10.2 (Jaguar)
+  #   7.x == Mac OSX 10.3 (Panther)
+  #   8.x == Mac OSX 10.4 (Tiger)
+  #   9.x == Mac OSX 10.5 (Leopard)
+  #  10.x == Mac OSX 10.6 (Snow Leopard)
+  if (DARWIN_MAJOR_VERSION LESS "9")
+    message(FATAL_ERROR "Only Mac OSX >= 10.5 are supported !")
+  endif()
+endif()
 
 #-----------------------------------------------------------------------------
 set(EXTENSION_NAME DTIProcess)
@@ -17,7 +33,6 @@ set(EXTENSION_STATUS "Beta")
 set(EXTENSION_DEPENDS "NA") # Specified as a space separated list or 'NA' if any
 set(EXTENSION_BUILD_SUBDIRECTORY DTIProcess-build)
 
-find_package(Git REQUIRED)
 
 option( BUILD_TESTING   "Build the testing tree" ON )
 

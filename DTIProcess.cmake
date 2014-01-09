@@ -3,12 +3,9 @@ set(MODULE_NAME ${EXTENSION_NAME}) # Do not use 'project()'
 set(MODULE_TITLE ${MODULE_NAME})
 
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
-unset( USE_SYSTEM_ITK CACHE)
-unset( USE_SYSTEM_SlicerExecutionModel CACHE)
-unset( USE_SYSTEM_VTK CACHE)
-unset( USE_GIT_PROTOCOL CACHE )
-unset( VTK_GIT_TAG CACHE )
-unset( VTK_REPOSITORY CACHE )
+unset( USE_SYSTEM_ITK CACHE )
+unset( USE_SYSTEM_VTK CACHE )
+unset( USE_SYSTEM_SlicerExecutionModel CACHE )
 
 #-----------------------------------------------------------------------------
 # Update CMake module path

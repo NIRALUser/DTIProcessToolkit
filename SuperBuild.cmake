@@ -3,11 +3,20 @@ set(LOCAL_PROJECT_NAME DTIProcess)
 #-----------------------------------------------------------------------------
 set(verbose FALSE)
 #-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+# Prerequisites
+#-----------------------------------------------------------------------------
+find_package(Subversion)
+if(NOT Subversion_FOUND)
+  message(FATAL_ERROR "error: Install SVN and try to re-configure")
+endif()
 
-
+find_package(Git)
+if(NOT GIT_FOUND)
+  message(FATAL_ERROR "error: Install Git and try to re-configure")
+endif()
 
 option(USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
-set(git_protocol "git")
 if(NOT USE_GIT_PROTOCOL)
   set(git_protocol "http")
 else(NOT USE_GIT_PROTOCOL)
@@ -28,32 +37,6 @@ else()
   set(gen "${CMAKE_GENERATOR}")
 endif()
 
-#-----------------------------------------------------------------------------
-# Platform check
-#-----------------------------------------------------------------------------
-
-set(PLATFORM_CHECK true)
-
-if(PLATFORM_CHECK)
-  # See CMake/Modules/Platform/Darwin.cmake)
-  #   6.x == Mac OSX 10.2 (Jaguar)
-  #   7.x == Mac OSX 10.3 (Panther)
-  #   8.x == Mac OSX 10.4 (Tiger)
-  #   9.x == Mac OSX 10.5 (Leopard)
-  #  10.x == Mac OSX 10.6 (Snow Leopard)
-  if (DARWIN_MAJOR_VERSION LESS "9")
-    message(FATAL_ERROR "Only Mac OSX >= 10.5 are supported !")
-  endif()
-endif()
-
-
-
-
-
-#-----------------------------------------------------------------------------
-# Project dependencies
-#-----------------------------------------------------------------------------
-
 
 #-----------------------------------------------------------------------------
 # Superbuild option(s)
@@ -73,17 +56,22 @@ CMAKE_DEPENDENT_OPTION(
   )
 
 option(EXECUTABLES_ONLY "Build the tools and the tools' libraries statically" ON)
+#-----------------------------------------------------------------------------
+# Extension configuration
+#-----------------------------------------------------------------------------
 
 ########Depending if it is an extension or a Superbuild
-if( NOT DTIProcess_BUILD_SLICER_EXTENSION )
-  option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
-  option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined version of SlicerExecutionModel"  OFF)
-  option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
-else()
-  unset( SlicerExecutionModel_DIR CACHE )
-  unset( VTK_DIR CACHE )
-  unset( ITK_DIR CACHE )
+if( DTIProcess_BUILD_SLICER_EXTENSION )
+  find_package(Slicer REQUIRED)
+  set( Slicer_USE_PYTHONQT FALSE )
+  set( USE_SYSTEM_ITK ON CACHE BOOL "Build using an externally defined version of ITK" FORCE )
+  set( USE_SYSTEM_VTK ON CACHE BOOL "Build using an externally defined version of VTK" FORCE )
+  set( USE_SYSTEM_SlicerExecutionModel ON CACHE BOOL "Build using an externally defined version of SlicerExecutionModel" FORCE )
 endif()
+
+option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
+option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined version of SlicerExecutionModel"  OFF)
+option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
 
 #------------------------------------------------------------------------------
 # ${LOCAL_PROJECT_NAME} dependency list
@@ -167,6 +155,10 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   CMAKE_MODULE_LINKER_FLAGS:STRING
   SITE:STRING
   BUILDNAME:STRING
+  Subversion_SVN_EXECUTABLE:FILEPATH
+  GIT_EXECUTABLE:FILEPATH
+  USE_GIT_PROTOCOL:BOOL
+  DTIProcess_BUILD_SLICER_EXTENSION:BOOL
   )
 
 if(${LOCAL_PROJECT_NAME}_USE_QT)
@@ -194,14 +186,6 @@ if(APPLE)
 endif()
 
 
-
-#-----------------------------------------------------------------------------
-if(DTIProcess_BUILD_SLICER_EXTENSION)
-  unsetForSlicer( NAMES SlicerExecutionModel_DIR ITK_DIR VTK_DIR CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
-  find_package(Slicer REQUIRED)
-  include(${Slicer_USE_FILE})
-  resetForSlicer( NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
-endif()
 #-----------------------------------------------------------------------------
 # Add external project CMake args
 #-----------------------------------------------------------------------------
@@ -249,8 +233,6 @@ endif()
       -DMIDAS_PACKAGE_EMAIL:STRING=${MIDAS_PACKAGE_EMAIL}
       -DMIDAS_PACKAGE_API_KEY:STRING=${MIDAS_PACKAGE_API_KEY}
       -DEXTENSION_NAME:STRING=${EXTENSION_NAME}
-      -DEXTENSION_SUPERBUILD_BINARY_DIR:PATH=${${EXTENSION_NAME}_BINARY_DIR}
-      -DDTIProcess_BUILD_SLICER_EXTENSION:BOOL=${DTIProcess_BUILD_SLICER_EXTENSION}
       -DDTIProcess_SUPERBUILD:BOOL=OFF
       -DINSTALL_RUNTIME_DESTINATION:PATH=${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}
       -DINSTALL_LIBRARY_DESTINATION:PATH=${SlicerExecutionModel_DEFAULT_CLI_INSTALL_LIBRARY_DESTINATION}
