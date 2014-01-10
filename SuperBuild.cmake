@@ -3,25 +3,6 @@ set(LOCAL_PROJECT_NAME DTIProcess)
 #-----------------------------------------------------------------------------
 set(verbose FALSE)
 #-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-# Prerequisites
-#-----------------------------------------------------------------------------
-find_package(Subversion)
-if(NOT Subversion_FOUND)
-  message(FATAL_ERROR "error: Install SVN and try to re-configure")
-endif()
-
-find_package(Git)
-if(NOT GIT_FOUND)
-  message(FATAL_ERROR "error: Install Git and try to re-configure")
-endif()
-
-option(USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
-if(NOT USE_GIT_PROTOCOL)
-  set(git_protocol "http")
-else(NOT USE_GIT_PROTOCOL)
-  set(git_protocol "git")
-endif()
 
 #-----------------------------------------------------------------------------
 # Enable and setup External project global properties
@@ -155,10 +136,10 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   CMAKE_MODULE_LINKER_FLAGS:STRING
   SITE:STRING
   BUILDNAME:STRING
-  Subversion_SVN_EXECUTABLE:FILEPATH
   GIT_EXECUTABLE:FILEPATH
   USE_GIT_PROTOCOL:BOOL
   DTIProcess_BUILD_SLICER_EXTENSION:BOOL
+  Slicer_DIR:PATH
   )
 
 if(${LOCAL_PROJECT_NAME}_USE_QT)
@@ -239,8 +220,7 @@ endif()
       ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
       ${COMMON_EXTERNAL_PROJECT_ARGS}
       -DEXECUTABLES_ONLY:BOOL=${EXECUTABLES_ONLY}
-      # Slicer
-      -DSlicer_DIR:PATH=${Slicer_DIR}
+      -DEXTENSION_SUPERBUILD_BINARY_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}
     INSTALL_COMMAND ""
   )
 
