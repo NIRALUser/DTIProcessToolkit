@@ -58,6 +58,14 @@
   <parameters advanced="false">
     <label>Options</label>
     <boolean>
+      <name>saveProperties</name>
+      <longflag>--saveProperties</longflag>
+      <flag>p</flag>
+      <label>saveProperties</label>
+      <description>save the tensor property as scalar data into the vtk (only works for vtk fiber files). </description>
+      <default>0</default>
+    </boolean>
+    <boolean>
       <name>noWarp</name>
       <flag>n</flag>
       <longflag>--no_warp</longflag>

@@ -179,18 +179,19 @@ int main(int argc, char* argv[])
 
     typedef DeformationInterpolateType::ContinuousIndexType ContinuousIndexType;
     ContinuousIndexType tensor_ci, def_ci;
+
     // For each point along the fiber
-// std::cout<<"plop"<<std::endl;
     for( pit = pointlist.begin(); pit != pointlist.end(); ++pit )
       {
       typedef DTIPointType::PointType PointType;
-//      std::cout<<"plop3"<<std::endl;
+
       // p is not really a point its a continuous index
       const PointType               p = pit->GetPosition();
       DTITubeType::TransformPointer transform = ( (*it).GetPointer() )->GetObjectToWorldTransform();
       const PointType               p_world_orig = transform->TransformPoint( p );
-//      std::cout<<p_world_orig<<" "<<p<<std::endl;
+
       itk::Point<double, 3> pt_trans = p_world_orig;
+
       if( deformationfield )
         {
         deformationfield->TransformPhysicalPointToContinuousIndex(p_world_orig, def_ci);
@@ -265,36 +266,50 @@ int main(int argc, char* argv[])
       // newpoint.SetBlue(0.0);
 
       // Attribute tensor data if provided
+      float sotensor[6];
+      itk::DiffusionTensor3D<double> tensor;
       if( tensorVolume != "" && fiberOutput != "" && !noDataChange )
         {
         tensorreader->GetOutput()->TransformPhysicalPointToContinuousIndex(pt_trans, tensor_ci);
-        itk::DiffusionTensor3D<double> tensor(tensorinterp->EvaluateAtContinuousIndex(tensor_ci).GetDataPointer() );
+        tensor = tensorinterp->EvaluateAtContinuousIndex(tensor_ci).GetDataPointer() ;
 
         // TODO: Change SpatialObject interface to accept DiffusionTensor3D
-        float sotensor[6];
         for( unsigned int i = 0; i < 6; ++i )
           {
           sotensor[i] = tensor[i];
           }
+	}
+      else 
+	{
+	  // copy prior tensor info
+	  for( unsigned int i = 0; i < 6; ++i )
+	    {
+	      sotensor[i] = pit->GetTensorMatrix()[i];
+	      tensor[i] = pit->GetTensorMatrix()[i];
+	    }
+	
+	}
 
-        typedef itk::DiffusionTensor3D<double>::EigenValuesArrayType EigenValuesType;
-        EigenValuesType eigenvalues;
-        tensor.ComputeEigenValues(eigenvalues);
-
-        newpoint.SetRadius(0.5);
-        newpoint.SetTensorMatrix(sotensor);
-        newpoint.AddField(itk::DTITubeSpatialObjectPoint<3>::FA, tensor.GetFractionalAnisotropy() );
-        newpoint.AddField("md", tensor.GetTrace() / 3);
-        newpoint.AddField("fro", sqrt(tensor[0] * tensor[0]
-                                      + 2 * tensor[1] * tensor[1]
-                                      + 2 * tensor[2] * tensor[2]
-                                      + tensor[3] * tensor[3]
-                                      + 2 * tensor[4] * tensor[4]
-                                      + tensor[5] * tensor[5]) );
-        newpoint.AddField("l1", eigenvalues[2]);
-        newpoint.AddField("l2", eigenvalues[1]);
-        newpoint.AddField("l3", eigenvalues[0]);
-        }
+      typedef itk::DiffusionTensor3D<double>::EigenValuesArrayType EigenValuesType;
+      EigenValuesType eigenvalues;
+      tensor.ComputeEigenValues(eigenvalues);
+      
+      newpoint.SetRadius(0.5);
+      newpoint.SetTensorMatrix(sotensor);
+      newpoint.AddField(itk::DTITubeSpatialObjectPoint<3>::FA, tensor.GetFractionalAnisotropy() );
+      newpoint.AddField("fa", tensor.GetFractionalAnisotropy() );
+      newpoint.AddField("md", tensor.GetTrace() / 3);
+      newpoint.AddField("fro", sqrt(tensor[0] * tensor[0]
+				    + 2 * tensor[1] * tensor[1]
+				    + 2 * tensor[2] * tensor[2]
+				    + tensor[3] * tensor[3]
+				    + 2 * tensor[4] * tensor[4]
+				    + tensor[5] * tensor[5]) );
+      newpoint.AddField("l1", eigenvalues[2]);
+      newpoint.AddField("ad", eigenvalues[2]);
+      newpoint.AddField("l2", eigenvalues[1]);
+      newpoint.AddField("l3", eigenvalues[0]);
+      newpoint.AddField("rd", (eigenvalues[0]+eigenvalues[1])/2.0);
 
       newpoints.push_back(newpoint);
       }
@@ -317,7 +332,7 @@ int main(int argc, char* argv[])
 
   if( fiberOutput != "" )
     {
-    writeFiberFile(fiberOutput, newgroup);
+      writeFiberFile(fiberOutput, newgroup, saveProperties);
     }
 
   if( voxelize != "" )

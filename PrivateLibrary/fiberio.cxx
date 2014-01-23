@@ -27,7 +27,7 @@ inline double SQ2(double x)
 
 };
 
-void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup)
+void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup, bool saveProperties)
 {
   // Make sure origins are updated
   fibergroup->ComputeObjectToWorldTransform();
@@ -56,6 +56,18 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup)
     ids->SetNumberOfIds(0);
     pts->SetNumberOfPoints(0);
     polydata->Allocate();
+    vtkFloatArray *scalarFA = vtkFloatArray::New();
+    vtkFloatArray *scalarMD = vtkFloatArray::New();
+    vtkFloatArray *scalarRD = vtkFloatArray::New();
+    vtkFloatArray *scalarAD = vtkFloatArray::New();
+    scalarFA->SetNumberOfComponents(1);
+    scalarFA->SetName("FA");
+    scalarMD->SetNumberOfComponents(1);
+    scalarMD->SetName("MD");
+    scalarAD->SetNumberOfComponents(1);
+    scalarAD->SetName("AD");
+    scalarRD->SetNumberOfComponents(1);
+    scalarRD->SetName("RD");
 
     std::auto_ptr<ChildrenListType> children(fibergroup->GetChildren(0) );
     typedef ChildrenListType::const_iterator IteratorType;
@@ -97,6 +109,13 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup)
         vtktensor[7] = sopt->GetTensorMatrix()[4];
         vtktensor[8] = sopt->GetTensorMatrix()[5];
 
+	//std::cout << "MD = " << sopt->GetField("md") << ", " ;
+
+        scalarFA->InsertNextValue(sopt->GetField("fa"));
+        scalarMD->InsertNextValue(sopt->GetField("md"));
+        scalarAD->InsertNextValue(sopt->GetField("ad"));
+        scalarRD->InsertNextValue(sopt->GetField("rd"));
+
         tensorsdata->InsertNextTupleValue(vtktensor);
 
         }
@@ -104,6 +123,13 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup)
       }
 
     polydata->GetPointData()->SetTensors(tensorsdata);
+    if (saveProperties) 
+      {
+	polydata->GetPointData()->AddArray(scalarFA);
+	polydata->GetPointData()->AddArray(scalarMD);
+	polydata->GetPointData()->AddArray(scalarAD);
+	polydata->GetPointData()->AddArray(scalarRD);
+      }
 
     // Legacy
     if( filename.rfind(".vtk") != std::string::npos )
@@ -240,12 +266,15 @@ GroupType::Pointer readFiberFile(const std::string & filename)
                           + SQ2(log(lambdas[1]) - logavg) \
                           + SQ2(log(lambdas[2]) - logavg) );
 
+	float rd = (lambdas[1] + lambdas[0])/2;
+
         pt.AddField("fa", fa);
         pt.AddField("ga", ga);
         pt.AddField("md", md);
         pt.AddField("l1", lambdas[2]);
         pt.AddField("l2", lambdas[1]);
         pt.AddField("l3", lambdas[0]);
+        pt.AddField("rd", rd);
 
         pointsToAdd.push_back(pt);
         }
