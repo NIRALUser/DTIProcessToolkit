@@ -6,6 +6,10 @@ enable_language(CXX)
 #-----------------------------------------------------------------------------
 # Prerequisites
 #-----------------------------------------------------------------------------
+if( DTIProcess_BUILD_SLICER_EXTENSION )
+  find_package(Subversion REQUIRED)
+endif()
+
 find_package(Git)
 if(NOT GIT_FOUND)
   message(WARNING "Git may be needed to download external dependencies: Install Git and try to re-configure")
