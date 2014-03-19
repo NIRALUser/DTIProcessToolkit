@@ -137,7 +137,11 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup,
       vtkSmartPointer<vtkPolyDataWriter> fiberwriter = vtkPolyDataWriter::New();
       fiberwriter->SetFileTypeToBinary();
       fiberwriter->SetFileName(filename.c_str() );
+#if (VTK_MAJOR_VERSION < 6)
       fiberwriter->SetInput(polydata);
+#else
+      fiberwriter->SetInputData(polydata);
+#endif
       fiberwriter->Update();
       }
     // XML
@@ -145,7 +149,11 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup,
       {
       vtkSmartPointer<vtkXMLPolyDataWriter> fiberwriter = vtkXMLPolyDataWriter::New();
       fiberwriter->SetFileName(filename.c_str() );
+#if (VTK_MAJOR_VERSION < 6)
       fiberwriter->SetInput(polydata);
+#else
+      fiberwriter->SetInputData(polydata);
+#endif
       fiberwriter->Update();
       }
     else
