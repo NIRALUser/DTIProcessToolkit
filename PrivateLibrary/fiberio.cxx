@@ -4,7 +4,7 @@
 
 #include <itkSpatialObjectReader.h>
 #include <itkSpatialObjectWriter.h>
-
+#include <vtkVersionMacros.h>
 #include <vtkPolyData.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataReader.h>
@@ -233,14 +233,14 @@ GroupType::Pointer readFiberFile(const std::string & filename)
         {
         ++pindex;
 
-        vtkFloatingPointType* coordinates = points->GetPoint(j);
+        double * coordinates = points->GetPoint(j);
         DTIPointType          pt;
         // Convert from RAS to LPS for vtk
         pt.SetPosition(-coordinates[0], -coordinates[1], coordinates[2]);
         pt.SetRadius(0.5);
         pt.SetColor(0.0, 1.0, 0.0);
 
-        vtkFloatingPointType* vtktensor = fibtensordata->GetTuple9(pindex);
+        double * vtktensor = fibtensordata->GetTuple9(pindex);
         float                 floattensor[6];
         ITKTensorType         itktensor;
 
