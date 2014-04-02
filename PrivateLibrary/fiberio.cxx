@@ -4,7 +4,7 @@
 
 #include <itkSpatialObjectReader.h>
 #include <itkSpatialObjectWriter.h>
-#include <vtkVersionMacros.h>
+#include <vtkVersion.h>
 #include <vtkPolyData.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataReader.h>
