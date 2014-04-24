@@ -31,43 +31,6 @@
 
 int main(int argc, char* argv[])
 {
-#if 0
-  namespace po = boost::program_options;
-  using namespace boost::lambda;
-
-  // Read program options/configuration
-  po::options_description config("Usage: fiberstats input-fiber [options]");
-  config.add_options()
-    ("help,h", "produce this help message")
-    ("verbose,v", "produces verbose output")
-  ;
-
-  po::options_description hidden("Hidden options");
-  hidden.add_options()
-    ("fiber-file", po::value<std::string>(), "DTI fiber file")
-  ;
-
-  po::options_description all;
-  all.add(config).add(hidden);
-
-  po::positional_options_description p;
-  p.add("fiber-file", 1);
-
-  po::variables_map vm;
-
-  try
-    {
-    po::store(po::command_line_parser(argc, argv).
-              options(all).positional(p).run(), vm);
-    po::notify(vm);
-    }
-  catch( const po::error & e )
-    {
-    std::cout << "Parse error: " << std::endl;
-    std::cout << config << std::endl;
-    return EXIT_FAILURE;
-    }
-#endif
   PARSE_ARGS;
   // End option reading configuration
   const bool         VERBOSE = verbose;

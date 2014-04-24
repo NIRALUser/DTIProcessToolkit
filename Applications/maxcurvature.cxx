@@ -35,85 +35,9 @@
 #include "maxcurvatureCLP.h"
 
 enum CurvatureType { MaxEigenvalue, SmoothNormalized, RawNormalized, UnPossible };
-#if 0
-void validate(boost::any& v,
-              const std::vector<std::string>& values,
-              CurvatureType* curvature_type,
-              int)
-{
-  using namespace po;
-  using boost::any;
-
-  // Make sure no previous assignment to 'a' was made.
-  validators::check_first_occurrence(v);
-  // Extract the first string from 'values'. If there is more than
-  // one string, it's an error, and exception will be thrown.
-  const std::string& s = validators::get_single_string(values);
-
-  if( s ==  "orig" )
-    {
-    v = any(MaxEigenvalue);
-    }
-  else if( s == "snorm" )
-    {
-    v = any(SmoothNormalized);
-    }
-  else if( s == "rnorm" )
-    {
-    v = any(RawNormalized);
-    }
-  else
-    {
-    throw validation_error("Curvature type invalid.  Only \"orig\", \"snorm\", and \"rnorm\" allowed.");
-    }
-
-}
-
-#endif
 
 int main(int argc, char* argv[])
 {
-#if 0
-  // Read program options/configuration
-  po::options_description config("Usage: maxcurvature input-image [options]");
-  config.add_options()
-  // General options
-    ("help,h", "produce this help message")
-    ("verbose,v", "produces verbose output")
-
-  // Outputs
-    ("output,o", po::value<std::string>(), "Output file")
-    ("sigma,s", po::value<double>()->default_value(2.0), "Scale of gradients")
-    ("type,t", po::value<CurvatureType>()->default_value(MaxEigenvalue, "orig"), "Curvature type")
-  ;
-
-  po::options_description hidden("Hidden options");
-  hidden.add_options()
-    ("image", po::value<std::string>(), "FA image")
-  ;
-
-  po::options_description all;
-  all.add(config).add(hidden);
-
-  po::positional_options_description p;
-  p.add("image", 1);
-
-  po::variables_map vm;
-
-  try
-    {
-    po::store(po::command_line_parser(argc, argv).
-              options(all).positional(p).run(), vm);
-    po::notify(vm);
-    }
-  catch( const po::error & e )
-    {
-    std::cerr << e.what() << std::endl;
-    return EXIT_FAILURE;
-    }
-
-  // End option reading configuration
-#endif
   PARSE_ARGS;
 
   // Display help if asked or program improperly called

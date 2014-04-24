@@ -67,44 +67,6 @@ const char* NRRD_MEASUREMENT_KEY = "NRRD_measurement frame";
 
 enum EstimationType { LinearEstimate, NonlinearEstimate, WeightedEstimate, MaximumLikelihoodEstimate };
 
-#if 0
-void validate(boost::any& v,
-              const std::vector<std::string>& values,
-              EstimationType* target_type,
-              int)
-{
-  using namespace boost::program_options;
-  using boost::any;
-
-  // Make sure no previous assignment to 'a' was made.
-  validators::check_first_occurrence(v);
-  // Extract the first string from 'values'. If there is more than
-  // one string, it's an error, and exception will be thrown.
-  const std::string& s = validators::get_single_string(values);
-
-  if( s == "lls" || s == "linear" )
-    {
-    v = any(LinearEstimate);
-    }
-  else if( s == "nls" || s == "nonlinear" )
-    {
-    v = any(NonlinearEstimate);
-    }
-  else if( s == "wls" || s == "weighted" )
-    {
-    v = any(WeightedEstimate);
-    }
-  else if( s == "ml" )
-    {
-    v = any(MaximumLikelihoodEstimate);
-    }
-  else
-    {
-    throw validation_error("Estimation type invalid.  Only \"lls\", \"nls\", \"wls\", and \"ml\" allowed.");
-    }
-}
-
-#endif
 
 int main(int argc, char* argv[])
 {

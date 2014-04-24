@@ -19,14 +19,6 @@
 #include <iostream>
 #include <fstream>
 
-// boost includes
-#include <boost/program_options/option.hpp>
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/positional_options.hpp>
-#include <boost/program_options/variables_map.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/program_options/cmdline.hpp>
-
 // ITK includes
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
@@ -39,37 +31,6 @@
 #include <itkAffineTransform.h>
 
 enum InterpolationType { NearestNeighbor, Linear };
-
-// Validates the interpolation type option string to the the allowed
-// values for interpolation methods.  Currently nearestneighbor,
-// linear, or cubic.
-void validate(boost::any& v,
-              const std::vector<std::string>& values,
-              InterpolationType* target_type,
-              int)
-{
-  using namespace boost::program_options;
-  using boost::any;
-
-  // Make sure no previous assignment to 'a' was made.
-  validators::check_first_occurrence(v);
-  // Extract the first string from 'values'. If there is more than
-  // one string, it's an error, and exception will be thrown.
-  const std::string& s = validators::get_single_string(values);
-
-  if( s ==  "nearestneighbor" )
-    {
-    v = any(NearestNeighbor);
-    }
-  else if( s == "linear" )
-    {
-    v = any(Linear);
-    }
-  else
-    {
-    throw validation_error("Interpolation type invalid.  Only \"nearestneighbor\" and \"linear\"\"cubic\" allowed.");
-    }
-}
 
 #include "itkHFieldToDeformationFieldImageFilter.h"
 int main(int argc, char* argv[])
