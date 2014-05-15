@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-set(LOCAL_PROJECT_NAME DTIProcess)
+set(PRIMARY_PROJECT_NAME DTIProcess)
 #-----------------------------------------------------------------------------
 set(verbose FALSE)
 #-----------------------------------------------------------------------------
@@ -11,7 +11,6 @@ include(ExternalProject)
 include(SlicerMacroEmptyExternalProject)
 include(SlicerMacroCheckExternalProjectDependency)
 
-include(ExternalProject)
 if(CMAKE_EXTRA_GENERATOR)
   set(gen "${CMAKE_EXTRA_GENERATOR} - ${CMAKE_GENERATOR}")
 else()
@@ -55,28 +54,29 @@ option(USE_SYSTEM_SlicerExecutionModel "Build using an externally defined versio
 option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
 
 #------------------------------------------------------------------------------
-# ${LOCAL_PROJECT_NAME} dependency list
+# ${PRIMARY_PROJECT_NAME} dependency list
 #------------------------------------------------------------------------------
 
 set(ITK_EXTERNAL_NAME ITKv4)
 
-set(${LOCAL_PROJECT_NAME}_DEPENDENCIES ${ITK_EXTERNAL_NAME} SlicerExecutionModel VTK )
+set(${PRIMARY_PROJECT_NAME}_DEPENDENCIES ${ITK_EXTERNAL_NAME} SlicerExecutionModel VTK )
 
 if(BUILD_STYLE_UTILS)
-  list(APPEND ${LOCAL_PROJECT_NAME}_DEPENDENCIES Cppcheck KWStyle Uncrustify)
+  list(APPEND ${PRIMARY_PROJECT_NAME}_DEPENDENCIES Cppcheck KWStyle Uncrustify)
 endif()
 
 
 #-----------------------------------------------------------------------------
 # Define Superbuild global variables
 #-----------------------------------------------------------------------------
-
+set(EXTERNAL_SOURCE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Select where external packages will be downloaded" )
+set(EXTERNAL_BINARY_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Select where external packages will be compiled and installed" )
 # This variable will contain the list of CMake variable specific to each external project
 # that should passed to ${CMAKE_PROJECT_NAME}.
 # The item of this list should have the following form: <EP_VAR>:<TYPE>
 # where '<EP_VAR>' is an external project variable and TYPE is either BOOL, STRING, PATH or FILEPATH.
-# TODO Variable appended to this list will be automatically exported in ${LOCAL_PROJECT_NAME}Config.cmake,
-# prefix '${LOCAL_PROJECT_NAME}_' will be prepended if it applies.
+# TODO Variable appended to this list will be automatically exported in ${PRIMARY_PROJECT_NAME}Config.cmake,
+# prefix '${PRIMARY_PROJECT_NAME}_' will be prepended if it applies.
 set(${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS)
 
 # The macro '_expand_external_project_vars' can be used to expand the list of <EP_VAR>.
@@ -143,9 +143,9 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   Slicer_DIR:PATH
   )
 
-if(${LOCAL_PROJECT_NAME}_USE_QT)
+if(${PRIMARY_PROJECT_NAME}_USE_QT)
   list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
-    ${LOCAL_PROJECT_NAME}_USE_QT:BOOL
+    ${PRIMARY_PROJECT_NAME}_USE_QT:BOOL
     QT_QMAKE_EXECUTABLE:PATH
     QT_MOC_EXECUTABLE:PATH
     QT_UIC_EXECUTABLE:PATH
@@ -154,8 +154,13 @@ endif()
 
 _expand_external_project_vars()
 set(COMMON_EXTERNAL_PROJECT_ARGS ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS})
-SlicerMacroCheckExternalProjectDependency(${LOCAL_PROJECT_NAME})
+set(extProjName ${PRIMARY_PROJECT_NAME})
+set(proj        ${PRIMARY_PROJECT_NAME})
 
+List( LENGTH ${PRIMARY_PROJECT_NAME}_DEPENDENCIES dependencies_size )
+if( dependencies_size GREATER 0 )
+  SlicerMacroCheckExternalProjectDependency(${PRIMARY_PROJECT_NAME})
+endif()
 #-----------------------------------------------------------------------------
 # Set CMake OSX variable to pass down the external project
 #-----------------------------------------------------------------------------
@@ -204,12 +209,12 @@ endif()
 # Configure and build
 #------------------------------------------------------------------------------
 
-  set(proj ${LOCAL_PROJECT_NAME})
+  set(proj ${PRIMARY_PROJECT_NAME})
   ExternalProject_Add(${proj}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     BINARY_DIR ${proj}-build
-    DEPENDS ${${LOCAL_PROJECT_NAME}_DEPENDENCIES}
+    DEPENDS ${${PRIMARY_PROJECT_NAME}_DEPENDENCIES}
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
       -DMIDAS_PACKAGE_EMAIL:STRING=${MIDAS_PACKAGE_EMAIL}
