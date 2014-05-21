@@ -46,6 +46,8 @@ if( DTIProcess_BUILD_SLICER_EXTENSION )
   set( Slicer_USE_PYTHONQT FALSE )
   set( USE_SYSTEM_ITK ON CACHE BOOL "Build using an externally defined version of ITK" FORCE )
   set( USE_SYSTEM_VTK ON CACHE BOOL "Build using an externally defined version of VTK" FORCE )
+  #VTK_VERSION_MAJOR is define but not a CACHE variable
+  set( VTK_VERSION_MAJOR ${VTK_VERSION_MAJOR} CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6).")
   set( USE_SYSTEM_SlicerExecutionModel ON CACHE BOOL "Build using an externally defined version of SlicerExecutionModel" FORCE )
 endif()
 
