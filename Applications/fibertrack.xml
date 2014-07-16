@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Diffusion.NIRALPipeline</category>
-  <title>FiberTrack</title>
+  <category>Diffusion.Tractography</category>
+  <title>FiberTrack (DTIProcess)</title>
   <description> \nThis program implements a simple streamline tractography method based on the principal eigenvector of the tensor field. A fourth order Runge-Kutta integration rule used to advance the streamlines.\nAs a first parameter you have to input the tensor field (with the --input_tensor_file option). Then the region of interest image file is set with the --input_roi_file. Next you want to set the output fiber file name after the --output_fiber_file option. \nYou can specify the label value in the input_roi_file with the --target_label, --source_label and  --fobidden_label options. By default target label is 1, source label is 2 and forbidden label is 0. The source label is where the streamlines are seeded, the target label defines the voxels through which the fibers must pass by to be kept in the final fiber file and the forbidden label defines the voxels where the streamlines are stopped if they pass through it. There is also a --whole_brain option which, if enabled, consider both target and source labels of the roi image as target labels and all the voxels of the image are considered as sources.\nDuring the tractography, the --fa_min parameter is used as the minimum value needed at different voxel for the tracking to keep going along a streamline. The --step_size parameter is used for each iteration of the tracking algorithm and defines the length of each step. The --max_angle option defines the maximum angle allowed between two successive segments along the tracked fiber.
 </description>
-  <documentation-url>http://www.google.com/</documentation-url>
+  <documentation-url>http://www.slicer.org/slicerWiki/index.php/Documentation/Nightly/Extensions/DTIProcess</documentation-url>
   <license>
   Copyright (c)  Casey Goodlett. All rights reserved.
   See http://www.ia.unc.edu/dev/Copyright.htm for details.

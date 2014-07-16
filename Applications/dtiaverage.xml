@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Diffusion.NIRALPipeline.OnlyCommandLine</category>
-  <title>DTIAverage</title>
+  <category>Diffusion.Diffusion Tensor Images.CommandLineOnly</category>
+  <title>DTIAverage (DTIProcess)</title>
   <description> \ndtiaverage is a program that allows to compute the average of an arbitrary number of tensor fields (listed after the --inputs option) This program is used in our pipeline as the last step of the atlas building processing. When all the tensor fields have been deformed in the same space, to create the average tensor field (--tensor_output) we use dtiaverage. \n Several average method can be used (specified by the --method option): euclidian, log-euclidian and pga. The default being euclidian.</description>
-  <documentation-url>http://www.google.com/</documentation-url>
+  <documentation-url>http://www.slicer.org/slicerWiki/index.php/Documentation/Nightly/Extensions/DTIProcess</documentation-url>
   <license>
     Copyright (c)  Casey Goodlett. All rights reserved.
     See http://www.ia.unc.edu/dev/Copyright.htm for details.

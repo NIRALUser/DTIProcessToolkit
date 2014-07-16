@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Diffusion.NIRALPipeline.OnlyCommandLine</category>
-  <title>FiberStats</title>
+  <category>Diffusion.Tractography.CommandLineOnly</category>
+  <title>FiberStats (DTIProcess)</title>
   <description> Obsolete tool - Not used anymore</description>
-  <documentation-url>http://www.google.com/</documentation-url>
+  <documentation-url>http://www.slicer.org/slicerWiki/index.php/Documentation/Nightly/Extensions/DTIProcess</documentation-url>
   <license>
   Copyright (c)  Casey Goodlett. All rights reserved.
   See http://www.ia.unc.edu/dev/Copyright.htm for details.
