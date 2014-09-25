@@ -25,6 +25,8 @@ set(extProjName VTK) #The find_package known name
 set(proj        VTK) #This local name
 
 
+#Setting VTK_VERSION_MAJOR to its default value if it has not been set before
+set(VTK_VERSION_MAJOR 5 CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6).")
 # Set the possible values of VTK major version for cmake-gui
 set_property(CACHE VTK_VERSION_MAJOR PROPERTY STRINGS "5" "6")
 if(NOT "${VTK_VERSION_MAJOR}" STREQUAL "5" AND NOT "${VTK_VERSION_MAJOR}" STREQUAL "6")
@@ -32,16 +34,11 @@ if(NOT "${VTK_VERSION_MAJOR}" STREQUAL "5" AND NOT "${VTK_VERSION_MAJOR}" STREQU
   message(WARNING "Setting VTK_VERSION_MAJOR to '5' as an valid value was specified.")
 endif()
 
+set(USE_VTKv5 ON)
+set(USE_VTKv6 OFF)
 if(${VTK_VERSION_MAJOR} STREQUAL "6")
-  #Setting VTK_VERSION_MAJOR to its default value if it has not been set before
-  set(VTK_VERSION_MAJOR 6 CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6).")
   set(USE_VTKv5 OFF)
   set(USE_VTKv6 ON)
-else()
-   set(USE_VTKv5 ON)
-   set(USE_VTKv6 OFF)
-   #Setting VTK_VERSION_MAJOR to its default value if it has not been set before
-   set(VTK_VERSION_MAJOR 5 CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6).")
 endif()
 
 if(USE_VTKv6)

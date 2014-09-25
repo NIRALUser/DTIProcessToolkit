@@ -3,18 +3,9 @@ set(MODULE_NAME ${EXTENSION_NAME}) # Do not use 'project()'
 set(MODULE_TITLE ${MODULE_NAME})
 
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
-unset( USE_SYSTEM_ITK CACHE )
-unset( USE_SYSTEM_VTK CACHE )
-unset( USE_SYSTEM_SlicerExecutionModel CACHE )
-
-#-----------------------------------------------------------------------------
-# Update CMake module path
-#------------------------------------------------------------------------------
-set(CMAKE_MODULE_PATH
-  ${CMAKE_CURRENT_SOURCE_DIR}/CMake
-  ${CMAKE_CURRENT_BINARY_DIR}/CMake
-  ${CMAKE_MODULE_PATH}
-  )
+#unset( USE_SYSTEM_ITK CACHE )
+#unset( USE_SYSTEM_VTK CACHE )
+#unset( USE_SYSTEM_SlicerExecutionModel CACHE )
 
 
 ## A simple macro to set variables ONLY if it has not been set
@@ -54,12 +45,6 @@ endif()
 ##  This logic will include SlicerExectionModel only if it
 ##  has not already been included by a previous package.
 
-if( DTIProcess_BUILD_SLICER_EXTENSION )
-  find_package(Slicer REQUIRED)
-  include(${Slicer_USE_FILE})
-endif()
-
-
 find_package(SlicerExecutionModel REQUIRED)
 include(${SlicerExecutionModel_USE_FILE})
 
@@ -94,7 +79,45 @@ ADD_SUBDIRECTORY(PrivateLibrary)
 ADD_SUBDIRECTORY(Applications)
 
 
+option(BUILD_PolyDataTransform "Build PolyDataTransform" ON)
+option(BUILD_PolyDataMerge "Build PolyDataMerge" ON)
+if( BUILD_PolyDataTransform OR BUILD_PolyDataMerge )
+  set(${PRIMARY_PROJECT_NAME}_DEPENDENCIES niral_utilities)
+  if( BUILD_PolyDataMerge )
+    install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/niral_utilities-install/bin/polydatamerge DESTINATION ${INSTALL_RUNTIME_DESTINATION} )
+  endif()
+  if( BUILD_PolyDataTransform )
+    install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/niral_utilities-install/bin/polydatatransform DESTINATION ${INSTALL_RUNTIME_DESTINATION} )
+  endif()
+endif()
 
+#-----------------------------------------------------------------------------
+# Add external project CMake args
+#-----------------------------------------------------------------------------
+
+list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
+  BUILD_TESTING:BOOL
+  ITK_VERSION_MAJOR:STRING
+  ITK_DIR:PATH
+  VTK_DIR:PATH
+  GenerateCLP_DIR:PATH
+  SlicerExecutionModel_DIR:PATH
+  )
+_expand_external_project_vars()
+set(COMMON_EXTERNAL_PROJECT_ARGS ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS})
+set(extProjName ${PRIMARY_PROJECT_NAME})
+set(proj        ${PRIMARY_PROJECT_NAME})
+
+List( LENGTH ${PRIMARY_PROJECT_NAME}_DEPENDENCIES dependencies_size )
+if( dependencies_size GREATER 0 )
+  SlicerMacroCheckExternalProjectDependency(${PRIMARY_PROJECT_NAME})
+endif()
+
+
+if( DTIProcess_BUILD_SLICER_EXTENSION )
+  find_package(Slicer REQUIRED)
+  include(${Slicer_USE_FILE})
+endif()
 
 IF(BUILD_TESTING)
   include(CTest)

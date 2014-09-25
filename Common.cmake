@@ -1,14 +1,49 @@
+# With CMake 2.8.9 or later, the UPDATE_COMMAND is required for updates to occur.
+# For earlier versions, we nullify the update state to prevent updates and
+# undesirable rebuild.
+if(CMAKE_VERSION VERSION_LESS 2.8.9)
+  set(cmakeversion_external_update UPDATE_COMMAND "")
+else()
+  set(cmakeversion_external_update LOG_UPDATE 1)
+endif()
+
+#-----------------------------------------------------------------------------
+# Update CMake module path
+#------------------------------------------------------------------------------
+set(CMAKE_MODULE_PATH
+  ${CMAKE_CURRENT_SOURCE_DIR}/CMake
+  ${CMAKE_CURRENT_BINARY_DIR}/CMake
+  ${CMAKE_MODULE_PATH}
+  )
+
+#-----------------------------------------------------------------------------
+set(PRIMARY_PROJECT_NAME DTIProcess)
+#-----------------------------------------------------------------------------
+set(verbose FALSE)
+#-----------------------------------------------------------------------------
+
 include(CMakeDependentOption)
 
 enable_language(C)
 enable_language(CXX)
 
 #-----------------------------------------------------------------------------
+# Enable and setup External project global properties
+#-----------------------------------------------------------------------------
+include(ExternalProject) 
+include(SlicerMacroEmptyExternalProject)
+include(SlicerMacroCheckExternalProjectDependency)
+
+if(CMAKE_EXTRA_GENERATOR)
+  set(gen "${CMAKE_EXTRA_GENERATOR} - ${CMAKE_GENERATOR}")
+else()
+  set(gen "${CMAKE_GENERATOR}")
+endif()
+
+#-----------------------------------------------------------------------------
 # Prerequisites
 #-----------------------------------------------------------------------------
-if( DTIProcess_BUILD_SLICER_EXTENSION )
-  find_package(Subversion REQUIRED)
-endif()
+find_package(Subversion REQUIRED)
 
 find_package(Git)
 if(NOT GIT_FOUND)
@@ -55,24 +90,6 @@ set(EXTENSION_BUILD_SUBDIRECTORY DTIProcess-build)
 
 option( BUILD_TESTING   "Build the testing tree" ON )
 
-
-# With CMake 2.8.9 or later, the UPDATE_COMMAND is required for updates to occur.
-# For earlier versions, we nullify the update state to prevent updates and
-# undesirable rebuild.
-if(CMAKE_VERSION VERSION_LESS 2.8.9)
-  set(cmakeversion_external_update UPDATE_COMMAND "")
-else()
-  set(cmakeversion_external_update LOG_UPDATE 1)
-endif()
-
-#-----------------------------------------------------------------------------
-# Update CMake module path
-#------------------------------------------------------------------------------
-set(CMAKE_MODULE_PATH
-  ${CMAKE_CURRENT_SOURCE_DIR}/CMake
-  ${CMAKE_CURRENT_BINARY_DIR}/CMake
-  ${CMAKE_MODULE_PATH}
-  )
 
 #-----------------------------------------------------------------------------
 # Sanity checks
@@ -129,3 +146,80 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
   endif()
 endif()
+
+#-----------------------------------------------------------------------------
+# Define Superbuild global variables
+#-----------------------------------------------------------------------------
+set(EXTERNAL_SOURCE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Select where external packages will be downloaded" )
+set(EXTERNAL_BINARY_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Select where external packages will be compiled and installed" )
+# This variable will contain the list of CMake variable specific to each external project
+# that should passed to ${CMAKE_PROJECT_NAME}.
+# The item of this list should have the following form: <EP_VAR>:<TYPE>
+# where '<EP_VAR>' is an external project variable and TYPE is either BOOL, STRING, PATH or FILEPATH.
+# TODO Variable appended to this list will be automatically exported in ${PRIMARY_PROJECT_NAME}Config.cmake,
+# prefix '${PRIMARY_PROJECT_NAME}_' will be prepended if it applies.
+set(${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS)
+
+# The macro '_expand_external_project_vars' can be used to expand the list of <EP_VAR>.
+set(${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS) # List of CMake args to configure BRAINS
+set(${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARNAMES) # List of CMake variable names
+
+# Convenient macro allowing to expand the list of EP_VAR listed in ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
+# The expanded arguments will be appended to the list ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS
+# Similarly the name of the EP_VARs will be appended to the list ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARNAMES.
+macro(_expand_external_project_vars)
+  set(${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS "")
+  set(${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARNAMES "")
+  foreach(arg ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS})
+    string(REPLACE ":" ";" varname_and_vartype ${arg})
+    set(target_info_list ${target_info_list})
+    list(GET varname_and_vartype 0 _varname)
+    list(GET varname_and_vartype 1 _vartype)
+    list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS -D${_varname}:${_vartype}=${${_varname}})
+    list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARNAMES ${_varname})
+  endforeach()
+endmacro()
+
+#-----------------------------------------------------------------------------
+# Common external projects CMake variables
+#-----------------------------------------------------------------------------
+list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
+  MAKECOMMAND:STRING
+  CMAKE_SKIP_RPATH:BOOL
+  CMAKE_MODULE_PATH:PATH
+  CMAKE_BUILD_TYPE:STRING
+  BUILD_SHARED_LIBS:BOOL
+  CMAKE_CXX_COMPILER:PATH
+  CMAKE_CXX_FLAGS_RELEASE:STRING
+  CMAKE_CXX_FLAGS_DEBUG:STRING
+  CMAKE_CXX_FLAGS:STRING
+  CMAKE_C_COMPILER:PATH
+  CMAKE_C_FLAGS_RELEASE:STRING
+  CMAKE_C_FLAGS_DEBUG:STRING
+  CMAKE_C_FLAGS:STRING
+  CMAKE_SHARED_LINKER_FLAGS:STRING
+  CMAKE_EXE_LINKER_FLAGS:STRING
+  CMAKE_MODULE_LINKER_FLAGS:STRING
+  CMAKE_GENERATOR:STRING
+  CMAKE_EXTRA_GENERATOR:STRING
+  CMAKE_INSTALL_PREFIX:PATH
+  CMAKE_LIBRARY_OUTPUT_DIRECTORY:PATH
+  CMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH
+  CMAKE_RUNTIME_OUTPUT_DIRECTORY:PATH
+  CMAKE_BUNDLE_OUTPUT_DIRECTORY:PATH
+  CTEST_NEW_FORMAT:BOOL
+  MEMORYCHECK_COMMAND_OPTIONS:STRING
+  MEMORYCHECK_COMMAND:PATH
+  CMAKE_SHARED_LINKER_FLAGS:STRING
+  CMAKE_EXE_LINKER_FLAGS:STRING
+  CMAKE_MODULE_LINKER_FLAGS:STRING
+  SITE:STRING
+  BUILDNAME:STRING
+  Subversion_SVN_EXECUTABLE:FILEPATH
+  GIT_EXECUTABLE:FILEPATH
+  USE_GIT_PROTOCOL:BOOL
+  DTIProcess_BUILD_SLICER_EXTENSION:BOOL
+  Slicer_DIR:PATH
+  VTK_VERSION_MAJOR:STRING
+  )
+
