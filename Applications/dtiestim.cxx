@@ -40,8 +40,8 @@
 #include <itkBinaryThresholdImageFilter.h>
 #include <itkLogImageFilter.h>
 #include <itkAddImageFilter.h>
+#include "itkDivideImageFilter.h"
 #include <itkExpImageFilter.h>
-#include <itkImageRegionIterator.h>
 #include <itkCastImageFilter.h>
 #include <itkNthElementImageAdaptor.h>
 #if ITK_VERSION_MAJOR < 4
@@ -441,13 +441,12 @@ int main(int argc, char* argv[])
     }
   else
     {
-    typedef itk::ImageRegionIterator<RealImageType> RealIterator;
-    RealIterator iterImage(B0Image, B0Image->GetBufferedRegion() );
-    while( !iterImage.IsAtEnd() )
-      {
-      iterImage.Set(iterImage.Get() / numberB0Directions);
-      ++iterImage;
-      }
+    typedef itk::DivideImageFilter <RealImageType, RealImageType, RealImageType > DivideImageFilterType;
+    DivideImageFilterType::Pointer divideImageFilter = DivideImageFilterType::New ();
+    divideImageFilter->SetInput1(B0Image);
+    divideImageFilter->SetConstant(numberB0Directions);
+    divideImageFilter->Update();
+    B0Image = divideImageFilter->GetOutput() ;
     }
 
   if( VERBOSE )
@@ -621,14 +620,12 @@ int main(int argc, char* argv[])
       std::cout << "Number of non B0 images : " << numberNonB0Directions << std::endl;
       }
 
-    typedef itk::ImageRegionIterator<RealImageType> RealIterator;
-    RealIterator iterImage(idwiImage, idwiImage->GetBufferedRegion() );
-    while( !iterImage.IsAtEnd() )
-      {
-      iterImage.Set(iterImage.Get() / numberNonB0Directions);
-      ++iterImage;
-      }
-
+    typedef itk::DivideImageFilter <RealImageType, RealImageType, RealImageType > DivideImageFilterType;
+    DivideImageFilterType::Pointer divideImageFilter = DivideImageFilterType::New ();
+    divideImageFilter->SetInput1(idwiImage);
+    divideImageFilter->SetConstant(numberNonB0Directions);
+    divideImageFilter->Update();
+    idwiImage = divideImageFilter->GetOutput();
     typedef itk::ExpImageFilter<RealImageType, RealImageType> ExpFilterType;
     ExpFilterType::Pointer expfilter = ExpFilterType::New();
     expfilter->SetInput(idwiImage);
