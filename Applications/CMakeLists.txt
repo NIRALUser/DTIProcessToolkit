@@ -1,20 +1,20 @@
 ADD_EXECUTABLE(nrrdvtk nrrdvtk.cxx)
-TARGET_LINK_LIBRARIES(nrrdvtk ${ITK_LIBRARIES})
+TARGET_LINK_LIBRARIES(nrrdvtk ${DTIProcess_ITK_LIBRARIES})
 
 ADD_EXECUTABLE(dwiprocess dwiprocess.cxx)
-TARGET_LINK_LIBRARIES(dwiprocess ${ITK_LIBRARIES})
+TARGET_LINK_LIBRARIES(dwiprocess ${DTIProcess_ITK_LIBRARIES})
 
 ADD_EXECUTABLE(labeltable labeltable.cxx)
-TARGET_LINK_LIBRARIES(labeltable ${ITK_LIBRARIES})
+TARGET_LINK_LIBRARIES(labeltable ${DTIProcess_ITK_LIBRARIES})
 
 ADD_EXECUTABLE(hfieldtodeformation  hfieldtodeformation.cxx)
-TARGET_LINK_LIBRARIES(hfieldtodeformation TensorOperations DTIIO ${ITK_LIBRARIES})
+TARGET_LINK_LIBRARIES(hfieldtodeformation TensorOperations DTIIO ${DTIProcess_ITK_LIBRARIES})
 
 ADD_EXECUTABLE(tio tio.cxx)
-TARGET_LINK_LIBRARIES(tio ${ITK_LIBRARIES})
+TARGET_LINK_LIBRARIES(tio ${DTIProcess_ITK_LIBRARIES})
 
 ADD_EXECUTABLE(morph morph.cxx)
-TARGET_LINK_LIBRARIES(morph ${ITK_LIBRARIES})
+TARGET_LINK_LIBRARIES(morph ${DTIProcess_ITK_LIBRARIES})
 
 macro(SEM_BUILD_EXECUTABLE)
   set(options )
@@ -52,13 +52,13 @@ macro(SEM_BUILD_EXECUTABLE)
 endmacro()
 
 ##dtiprocess
-set( MODULE_LIBRARIES ${ITK_LIBRARIES} TensorOperations DTIIO )
+set( MODULE_LIBRARIES ${DTIProcess_ITK_LIBRARIES} TensorOperations DTIIO )
 SEM_BUILD_EXECUTABLE( NAME dtiprocess BUILD_LIBRARY ${BUILD_TESTING} LIBRARIES ${MODULE_LIBRARIES} )
 ##dtiestim
-set( MODULE_LIBRARIES ${ITK_LIBRARIES} cephes )
+set( MODULE_LIBRARIES ${DTIProcess_ITK_LIBRARIES} cephes )
 SEM_BUILD_EXECUTABLE( NAME dtiestim BUILD_LIBRARY ${BUILD_TESTING} LIBRARIES ${MODULE_LIBRARIES} )
 ##fiberprocess
-set( MODULE_LIBRARIES DTIIO ${ITK_LIBRARIES} )
+set( MODULE_LIBRARIES DTIIO ${DTIProcess_ITK_LIBRARIES} )
 SEM_BUILD_EXECUTABLE( NAME fiberprocess LIBRARIES ${MODULE_LIBRARIES} )
 ##dtiaverage
 set( MODULE_LIBRARIES TensorOperations DTIIO )
@@ -70,13 +70,13 @@ SEM_BUILD_EXECUTABLE( NAME fiberstats LIBRARIES ${MODULE_LIBRARIES} )
 #We do not build those old tools as part of the Slicer extension package. Those tools are not maintained anymore.
 if( NOT DTIProcess_BUILD_SLICER_EXTENSION )
   ##scalartransform
-  set( MODULE_LIBRARIES DTIIO ${ITK_LIBRARIES} )
+  set( MODULE_LIBRARIES DTIIO ${DTIProcess_ITK_LIBRARIES} )
   SEM_BUILD_EXECUTABLE( NAME scalartransform LIBRARIES ${MODULE_LIBRARIES} )
   ##fibertrack
-  set( MODULE_LIBRARIES DTIIO TensorOperations ${ITK_LIBRARIES} )
+  set( MODULE_LIBRARIES DTIIO TensorOperations ${DTIProcess_ITK_LIBRARIES} )
   SEM_BUILD_EXECUTABLE( NAME fibertrack LIBRARIES ${MODULE_LIBRARIES} )
   ##maxcurvature
-  set( MODULE_LIBRARIES ${ITK_LIBRARIES} )
+  set( MODULE_LIBRARIES ${DTIProcess_ITK_LIBRARIES} )
   SEM_BUILD_EXECUTABLE( NAME maxcurvature LIBRARIES ${MODULE_LIBRARIES} )
 endif()
 
