@@ -49,7 +49,54 @@ find_package(SlicerExecutionModel REQUIRED)
 include(${SlicerExecutionModel_USE_FILE})
 
 if(NOT ITK_FOUND)
-    find_package(ITK REQUIRED)
+    find_package(ITK COMPONENTS
+      ITKDiffusionTensorImage
+      ITKRegistrationCommon
+      ITKOptimizersv4
+      ITKConnectedComponents
+      ITKV3Compatibility
+      ITKMathematicalMorphology
+      ITKBinaryMathematicalMorphology
+      ITKRegionGrowing
+      ITKMetricsv4
+      ITKRegistrationMethodsv4
+      ITKDistanceMap
+      ITKVTK
+      ITKTransform
+      ITKIOImageBase
+      ITKIONRRD
+      ITKImageCompare
+      ITKIOBMP
+      ITKIOBioRad
+      ITKIOCSV
+      ITKIODCMTK
+      ITKIOGDCM
+      ITKIOGE
+      ITKIOGIPL
+      ITKIOHDF5
+      ITKIOIPL
+      ITKIOImageBase
+      ITKIOJPEG
+      ITKIOLSM
+      MGHIO
+      ITKIOMRC
+      ITKIOMesh
+      ITKIOMeta
+      ITKIONIFTI
+      ITKIONRRD
+      ITKIOPNG
+      ITKIORAW
+      ITKIOSiemens
+      ITKIOSpatialObjects
+      ITKIOStimulate
+      ITKIOTIFF
+      ITKIOTransformBase
+      ITKIOTransformHDF5
+      ITKIOTransformInsightLegacy
+      ITKIOTransformMatlab
+      ITKIOVTK
+      ITKIOXML
+      REQUIRED)
     include(${ITK_USE_FILE})
 endif(NOT ITK_FOUND)
 if( NOT DEFINED ITKV3_COMPATIBILITY OR NOT ${ITKV3_COMPATIBILITY}  )
@@ -59,7 +106,10 @@ endif()
 
 
 if(NOT VTK_FOUND)
-    find_package(VTK REQUIRED)
+    find_package(VTK COMPONENTS
+      vtkIOLegacy
+      vtkIOXML
+      REQUIRED)
     include(${VTK_USE_FILE})
 endif(NOT VTK_FOUND)
 
