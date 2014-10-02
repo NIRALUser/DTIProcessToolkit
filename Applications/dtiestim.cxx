@@ -89,7 +89,11 @@ int main(int argc, char* argv[])
     /* }
     */
     }
-
+  if( defaultTensorValue.size() != 6 )
+  {
+      std::cerr << "Default tensor must have 6 components" << std::endl ;
+      return EXIT_FAILURE ;
+  }
   bool VERBOSE(verbose);
   if( stepSize < 0.0 )
     {
@@ -655,7 +659,11 @@ int main(int argc, char* argv[])
     {
     std::cout << "Estimation method: " << method << std::endl;
     }
-
+  TensorPixelType defaultTensor(0.0) ;
+  for( int i = 0 ; i < 6 ; i++ )
+  {
+      defaultTensor[ i ] = defaultTensorValue[ i ] ;
+  }
   //  if(vm["method"].as<EstimationType>() == LinearEstimate)
   if( method == "lls" )
     {
@@ -663,6 +671,7 @@ int main(int argc, char* argv[])
        llsestimator->ReleaseDataFlagOn();
        llsestimator->SetGradientImage(gradientContainer, dwi);
        llsestimator->SetBValue(b0);
+       llsestimator->SetDefaultTensor(defaultTensor);
        llsestimator->SetThreshold(_threshold);
        llsestimator->Update();
        tensors = llsestimator->GetOutput();
@@ -675,6 +684,7 @@ int main(int argc, char* argv[])
 
     estimator->SetGradientImage(gradientContainer, dwi);
     estimator->SetBValue(b0);
+    estimator->SetDefaultTensor(defaultTensor);
     estimator->SetThreshold(_threshold);
     estimator->SetStep(stepSize);
     estimator->SetNumberOfThreads(1);
@@ -694,6 +704,7 @@ int main(int argc, char* argv[])
 
     estimator->SetGradientImage(gradientContainer, dwi);
     estimator->SetBValue(b0);
+    estimator->SetDefaultTensor(defaultTensor);
     estimator->SetThreshold(_threshold);
     estimator->SetNumberOfIterations(weightIterations);
     estimator->Update();
@@ -707,6 +718,7 @@ int main(int argc, char* argv[])
 
     estimatorInit->SetGradientImage(gradientContainer, dwi);
     estimatorInit->SetBValue(b0);
+    estimatorInit->SetDefaultTensor(defaultTensor);
     estimatorInit->SetThreshold(_threshold);
     estimatorInit->SetNumberOfIterations(weightIterations);
     estimatorInit->Update();

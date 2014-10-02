@@ -77,7 +77,7 @@ find_package(ITK COMPONENTS
   ITKIOImageBase
   ITKIOJPEG
   ITKIOLSM
-  MGHIO
+#  MGHIO
   ITKIOMRC
   ITKIOMesh
   ITKIOMeta

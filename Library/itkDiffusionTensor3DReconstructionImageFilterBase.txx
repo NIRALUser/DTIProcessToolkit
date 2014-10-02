@@ -50,6 +50,8 @@ DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
   m_GradientDirectionContainer = NULL;
   m_BValue = 1.0;
   m_EstimateBaseline = false;
+  TensorPixelType tensor(0.0) ;
+  m_DefaultTensor = tensor ;
 }
 
 template <class TGradientImagePixelType, class TTensorPrecision>
@@ -147,7 +149,7 @@ void DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType, TTe
       }
     D = EstimateTensor(B);
 
-    TensorPixelType tensor(0.0);
+    TensorPixelType tensor = m_DefaultTensor ;
     // First we need to estimate the S_0 then compare it to the threshold
     // D[6] is the estimated S_0
     if( exp(D[6]) >= m_Threshold )

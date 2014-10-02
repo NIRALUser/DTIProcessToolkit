@@ -173,11 +173,16 @@ public:
     return m_GradientDirectionContainer->ElementAt( idx + 1 );
   }
 
-  /** Threshold on the reference image data. The output tensor will be a null
+  /** Threshold on the reference image data. The output tensor will be the default
    * tensor for pixels in the reference image that have a value less than this
    * threshold. */
   itkSetMacro( Threshold, GradientPixelType );
   itkGetMacro( Threshold, GradientPixelType );
+
+  /** Default tensor value if output tensor is below the threshold
+  */
+  itkSetMacro( DefaultTensor, TensorPixelType );
+  itkGetMacro( DefaultTensor, TensorPixelType );
 
   /**
    * The BValue \f$ (s/mm^2) \f$ value used in normalizing the tensors to
@@ -268,6 +273,10 @@ protected:
    * for unit magnitude directions.  Multiple b-values are handled by
    * scaling of the gradient vectors. */
   TTensorPrecision m_BValue;
+
+  /** Default tensor used to replace computed tensors that are
+   * below the given threshold */
+  TensorPixelType m_DefaultTensor ;
 private:
   /** Whether the baseline signal should be estimated and saved */
   bool m_EstimateBaseline;
