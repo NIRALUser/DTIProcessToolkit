@@ -38,8 +38,14 @@ option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
 #------------------------------------------------------------------------------
 # ${PRIMARY_PROJECT_NAME} dependency list
 #------------------------------------------------------------------------------
-
+#Compilation options for ITK if USE_SYSTEM_ITK is set to OFF (Superbuild)
 set(ITK_EXTERNAL_NAME ITKv4)
+set(${PRIMARY_PROJECT_NAME}_BUILD_DICOM_SUPPORT ON)
+set( USE_ITK_Module_MGHIO ON )
+set( ${PRIMARY_PROJECT_NAME}_BUILD_TIFF_SUPPORT ON )
+set( ${PRIMARY_PROJECT_NAME}_BUILD_JPEG_SUPPORT ON )
+set( ${PRIMARY_PROJECT_NAME}_BUILD_ZLIB_SUPPORT ON )
+set( ${PRIMARY_PROJECT_NAME}_BUILD_FFTW_SUPPORT ON )
 
 set(${PRIMARY_PROJECT_NAME}_DEPENDENCIES ${ITK_EXTERNAL_NAME} SlicerExecutionModel VTK )
 
@@ -90,9 +96,6 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   VTK_DIR:PATH
   GenerateCLP_DIR:PATH
   SlicerExecutionModel_DIR:PATH
-  USE_SYSTEM_ITK:BOOL
-  USE_SYSTEM_VTK:BOOL
-  USE_SYSTEM_SlicerExecutionModel:BOOL
   )
 
 _expand_external_project_vars()
@@ -136,6 +139,9 @@ endif()
       ${COMMON_EXTERNAL_PROJECT_ARGS}
       -DEXECUTABLES_ONLY:BOOL=${EXECUTABLES_ONLY}
       -DEXTENSION_SUPERBUILD_BINARY_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}
+      -DUSE_SYSTEM_ITK:BOOL=TRUE
+      -DUSE_SYSTEM_VTK:BOOL=TRUE
+      -DUSE_SYSTEM_SlicerExecutionModel:BOOL=TRUE
     INSTALL_COMMAND ""
   )
 

@@ -167,7 +167,6 @@ _expand_external_project_vars()
 set(COMMON_EXTERNAL_PROJECT_ARGS ${${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_ARGS})
 set(extProjName ${PRIMARY_PROJECT_NAME})
 set(proj        ${PRIMARY_PROJECT_NAME})
-
 List( LENGTH ${PRIMARY_PROJECT_NAME}_DEPENDENCIES dependencies_size )
 if( dependencies_size GREATER 0 )
   SlicerMacroCheckExternalProjectDependency(${PRIMARY_PROJECT_NAME})

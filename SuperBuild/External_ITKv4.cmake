@@ -68,10 +68,9 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
   endif()
   # Include dependent projects if any
   SlicerMacroCheckExternalProjectDependency(${proj})
-
   set(${proj}_DCMTK_ARGS)
   if(${PRIMARY_PROJECT_NAME}_BUILD_DICOM_SUPPORT)
-    set(${proj}_DCMTK_ARGS
+   set(${proj}_DCMTK_ARGS
       -DDCMTK_DIR:PATH=${DCMTK_DIR}
       -DModule_ITKDCMTK:BOOL=ON
       -DModule_ITKIODCMTK:BOOL=ON
