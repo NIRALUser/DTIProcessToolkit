@@ -48,7 +48,7 @@ endif()
 find_package(SlicerExecutionModel REQUIRED)
 include(${SlicerExecutionModel_USE_FILE})
 
-find_package(ITK COMPONENTS
+set( LIST_ITK_COMPONENTS
   ITKDiffusionTensorImage
   ITKRegistrationCommon
   ITKOptimizersv4
@@ -77,7 +77,6 @@ find_package(ITK COMPONENTS
   ITKIOImageBase
   ITKIOJPEG
   ITKIOLSM
-#  MGHIO
   ITKIOMRC
   ITKIOMesh
   ITKIOMeta
@@ -96,7 +95,16 @@ find_package(ITK COMPONENTS
   ITKIOVTK
   ITKIOXML
   ITKTestKernel
-  REQUIRED)
+)
+
+if( NOT DTIProcess_BUILD_SLICER_EXTENSION )
+  list( APPEND LIST_ITK_COMPONENTS MGHIO )
+endif()
+
+find_package(ITK COMPONENTS 
+   ${LIST_ITK_COMPONENTS}
+   REQUIRED
+   )
 include(${ITK_USE_FILE})
 # have to save library list because it gets clobbered by GenerateCLP, which
 # calls find_package(ITK) every time it's invoked.
