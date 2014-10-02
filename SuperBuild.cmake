@@ -22,6 +22,7 @@ option(EXECUTABLES_ONLY "Build the tools and the tools' libraries statically" ON
 
 ########Depending if it is an extension or a Superbuild
 if( DTIProcess_BUILD_SLICER_EXTENSION )
+  unsetForSlicer(NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER DCMTK_DIR ITK_DIR SlicerExecutionModel_DIR VTK_DIR QT_QMAKE_EXECUTABLE ITK_VERSION_MAJOR CMAKE_CXX_FLAGS CMAKE_C_FLAGS Teem_DIR)
   find_package(Slicer REQUIRED)
   set( Slicer_USE_PYTHONQT FALSE )
   set( USE_SYSTEM_ITK ON CACHE BOOL "Build using an externally defined version of ITK" FORCE )
