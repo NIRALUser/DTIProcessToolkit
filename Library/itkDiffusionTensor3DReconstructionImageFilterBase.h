@@ -189,6 +189,19 @@ public:
   itkSetMacro( Verbose, bool );
   itkGetMacro( Verbose, bool );
 
+  /** Set the boolean value to shift negative eigenvalues to strictly
+  * positive eigenvalues
+  */
+  itkSetMacro( ShiftNegativeEigenvalues, bool );
+  itkGetMacro( ShiftNegativeEigenvalues, bool );
+
+  /** Set a coefficient used to multiply the smallest eigenvalue if it is negative
+  * to obtain only strictly positive eigenvalues. The value of this variable must be
+  * between 1.0 and 1.001
+  */
+  itkSetMacro( ShiftNegativeEigenvaluesCoefficient, double );
+  itkGetMacro( ShiftNegativeEigenvaluesCoefficient, double );
+
   /**
    * The BValue \f$ (s/mm^2) \f$ value used in normalizing the tensors to
    * physically meaningful units.  See equation (24) of the first reference for
@@ -284,8 +297,14 @@ protected:
   TensorPixelType m_DefaultTensor ;
 
   /** Prints more information while running */
-
   bool m_Verbose ;
+
+  /** Shifts negative eigen values to positive values */
+  bool m_ShiftNegativeEigenvalues ;
+
+  /** Shifts negative eigen values coefficient */
+  double m_ShiftNegativeEigenvaluesCoefficient ;
+
 private:
   /** Whether the baseline signal should be estimated and saved */
   bool m_EstimateBaseline;

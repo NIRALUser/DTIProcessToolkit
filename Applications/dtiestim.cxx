@@ -114,6 +114,11 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
       }
     }
+  if( ShiftNegativeEigenvaluesCoefficient < 1.0 || ShiftNegativeEigenvaluesCoefficient > 1.001 )
+  {
+    std::cerr << "Shift Negative Eigenvalues Coefficient must be between 1.0 and 1.001" << std::endl;
+    return EXIT_FAILURE;
+  }
   // Read diffusion weighted MR
 
   typedef itk::ImageFileReader<VectorImageType> FileReaderType;
@@ -674,6 +679,8 @@ int main(int argc, char* argv[])
        llsestimator->SetDefaultTensor(defaultTensor);
        llsestimator->SetThreshold(_threshold);
        llsestimator->SetVerbose( verbose ) ;
+       llsestimator->SetShiftNegativeEigenvalues( ShiftNegativeEigenvalues ) ;
+       llsestimator->SetShiftNegativeEigenvaluesCoefficient( ShiftNegativeEigenvaluesCoefficient ) ;
        llsestimator->Update();
        tensors = llsestimator->GetOutput();
     }
@@ -690,6 +697,8 @@ int main(int argc, char* argv[])
     estimator->SetStep(stepSize);
     estimator->SetNumberOfThreads(1);
     estimator->SetVerbose( verbose ) ;
+    estimator->SetShiftNegativeEigenvalues( ShiftNegativeEigenvalues ) ;
+    estimator->SetShiftNegativeEigenvaluesCoefficient( ShiftNegativeEigenvaluesCoefficient ) ;
     estimator->Update();
     tensors = estimator->GetOutput();
     }
@@ -710,6 +719,8 @@ int main(int argc, char* argv[])
     estimator->SetThreshold(_threshold);
     estimator->SetNumberOfIterations(weightIterations);
     estimator->SetVerbose( verbose ) ;
+    estimator->SetShiftNegativeEigenvalues( ShiftNegativeEigenvalues ) ;
+    estimator->SetShiftNegativeEigenvaluesCoefficient( ShiftNegativeEigenvaluesCoefficient ) ;
     estimator->Update();
     tensors = estimator->GetOutput();
     }
@@ -725,6 +736,8 @@ int main(int argc, char* argv[])
     estimatorInit->SetThreshold(_threshold);
     estimatorInit->SetNumberOfIterations(weightIterations);
     estimatorInit->SetVerbose( verbose ) ;
+    estimatorInit->SetShiftNegativeEigenvalues( ShiftNegativeEigenvalues ) ;
+    estimatorInit->SetShiftNegativeEigenvaluesCoefficient( ShiftNegativeEigenvaluesCoefficient ) ;
     estimatorInit->Update();
     TensorImageType::Pointer inittensors = estimatorInit->GetOutput();
 

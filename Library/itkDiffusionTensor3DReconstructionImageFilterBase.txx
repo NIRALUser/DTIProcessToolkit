@@ -53,6 +53,7 @@ DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
   TensorPixelType tensor(0.0) ;
   m_DefaultTensor = tensor ;
   m_Verbose = false ;
+  m_ShiftNegativeEigenvaluesCoefficient = 1.0 ;
 }
 
 template <class TGradientImagePixelType, class TTensorPrecision>
@@ -99,7 +100,10 @@ void DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
     {
     itkExceptionMacro( << "At least 7 images are required" );
     }
-
+  if( m_ShiftNegativeEigenvaluesCoefficient < 1.0 || m_ShiftNegativeEigenvaluesCoefficient > 1.001 )
+    {
+    itkExceptionMacro( << "Shift Negative Eigenvalues Coefficient must be between 1.0 and 1.001" );
+    }
   this->ComputeTensorBasis();
 }
 
@@ -149,7 +153,6 @@ void DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType, TTe
       B[i] = gv[i];
       }
     D = EstimateTensor(B);
-
     TensorPixelType tensor = m_DefaultTensor ;
     // First we need to estimate the S_0 then compare it to the threshold
     // D[6] is the estimated S_0
@@ -159,7 +162,35 @@ void DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType, TTe
       std::copy(D.begin(), D.end() - 1, tensor.Begin() );
 
       }
-
+    if( m_ShiftNegativeEigenvalues )
+    {
+      typename DiffusionTensor3D<TTensorPrecision>::EigenValuesArrayType eigenValues ;
+      typename DiffusionTensor3D<TTensorPrecision>::EigenVectorsMatrixType eigenVectors ;
+      tensor.ComputeEigenAnalysis( eigenValues, eigenVectors ) ;
+      if( eigenValues[ 0 ] <= 0 ) //eigenvalues are in ascending order
+      {
+        Matrix<TTensorPrecision, 3, 3> eigenValueMatrix ;
+        TTensorPrecision shift = -eigenValues[ 0 ] * static_cast<TTensorPrecision>(m_ShiftNegativeEigenvaluesCoefficient) ;
+        for( int i = 0 ; i < 3 ; i++ )
+        {
+          tensor( i , i ) += shift ;
+        }
+/*      for( int i = 0 ; i < 3 ; i++ )//This is equivalent to adding directly the shift to the diagonal terms
+        {
+          eigenValueMatrix[ i ][ i ] = eigenValues[ i ] + shift ;
+        }
+        Matrix<TTensorPrecision, 3, 3> matrix ;
+        eigenVectors = eigenVectors.GetTranspose();
+        matrix = eigenVectors * eigenValueMatrix * eigenVectors.GetInverse();
+        for( int i = 0; i < 3; i++ )
+        {
+          for( int j = i; j < 3; j++ )
+          {
+            tensor( i, j ) = matrix[ i ][ j ] ;
+          }
+        }*/
+      }
+    }
     oit.Set( tensor );
     ++oit; // Output (reconstructed tensor image) iterator
     ++git; // Gradient  image iterator
