@@ -55,18 +55,18 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
 
   ### --- Project specific additions here
   set(${proj}_CMAKE_OPTIONS
-    -DCOMPILE_CONVERTITKFORMATS:BOOL=OFF
+    -DCOMPILE_CONVERTITKFORMATS:BOOL=ON
     -DCOMPILE_CORREVAL:BOOL=OFF
-    -DCOMPILE_CROPTOOLS:BOOL=OFF
+    -DCOMPILE_CROPTOOLS:BOOL=ON
     -DCOMPILE_CURVECOMPARE:BOOL=OFF
     -DCOMPILE_DMDBIOMARKERTOOL:BOOL=OFF
     -DCOMPILE_DTIAtlasBuilder:BOOL=OFF
     -DCOMPILE_DWI_NIFTINRRDCONVERSION:BOOL=OFF
-    -DCOMPILE_IMAGEMATH:BOOL=OFF
-    -DCOMPILE_IMAGESTAT:BOOL=OFF
+    -DCOMPILE_IMAGEMATH:BOOL=ON
+    -DCOMPILE_IMAGESTAT:BOOL=ON
     -DCOMPILE_MULTIATLASSEG:BOOL=OFF
-    -DCOMPILE_POLYDATAMERGE:BOOL=${BUILD_PolyDataMerge}
-    -DCOMPILE_POLYDATATRANSFORM:BOOL=${BUILD_PolyDataTransform}
+    -DCOMPILE_POLYDATAMERGE:BOOL=ON
+    -DCOMPILE_POLYDATATRANSFORM:BOOL=ON
     -DCOMPILE_TRANSFORMDEFORMATIONFIELD:BOOL=OFF
     -DCOMPILE_TEXTUREBIOMARKERTOOL:BOOL=OFF
     -DUSE_SYSTEM_SlicerExecutionModel:BOOL=ON
@@ -76,13 +76,11 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
     )
 
   ### --- End Project specific additions
-  set(${proj}_REPOSITORY "https://www.nitrc.org/svn/niral_utilities/trunk")
-  set(${proj}_SVN_REVISION -r "89")
+  set( ${proj}_REPOSITORY ${git_protocol}://github.com/NIRALUser/niral_utilities.git )
+  set( ${proj}_GIT_TAG dea3323b99be580b6fd2a7214ce60ddb9d7baec2 )
   ExternalProject_Add(${proj}
-    SVN_REPOSITORY ${${proj}_REPOSITORY}
-    SVN_REVISION ${${proj}_SVN_REVISION}
-    SVN_USERNAME slicerbot
-    SVN_PASSWORD slicer
+    GIT_REPOSITORY ${${proj}_REPOSITORY}
+    GIT_TAG ${${proj}_GIT_TAG}
     SOURCE_DIR ${EXTERNAL_SOURCE_DIRECTORY}/${proj}
     BINARY_DIR ${EXTERNAL_BINARY_DIRECTORY}/${proj}-build
     LOG_CONFIGURE 0  # Wrap configure in script to ignore log output from dashboards
@@ -95,7 +93,8 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
       ${COMMON_EXTERNAL_PROJECT_ARGS}
       ${${proj}_CMAKE_OPTIONS}
-      -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/${proj}-install ## We really do want to install in order to limit # of include paths INSTALL_COMMAND ""
+      -DCMAKE_INSTALL_PREFIX:PATH=${EXTERNAL_BINARY_DIRECTORY}/${proj}-install
+## We really do want to install in order to limit # of include paths INSTALL_COMMAND ""
     DEPENDS
       ${${proj}_DEPENDENCIES}
   )
