@@ -184,6 +184,11 @@ public:
   itkSetMacro( DefaultTensor, TensorPixelType );
   itkGetMacro( DefaultTensor, TensorPixelType );
 
+  /** Prints more information
+  */
+  itkSetMacro( Verbose, bool );
+  itkGetMacro( Verbose, bool );
+
   /**
    * The BValue \f$ (s/mm^2) \f$ value used in normalizing the tensors to
    * physically meaningful units.  See equation (24) of the first reference for
@@ -277,6 +282,10 @@ protected:
   /** Default tensor used to replace computed tensors that are
    * below the given threshold */
   TensorPixelType m_DefaultTensor ;
+
+  /** Prints more information while running */
+
+  bool m_Verbose ;
 private:
   /** Whether the baseline signal should be estimated and saved */
   bool m_EstimateBaseline;

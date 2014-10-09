@@ -673,6 +673,7 @@ int main(int argc, char* argv[])
        llsestimator->SetBValue(b0);
        llsestimator->SetDefaultTensor(defaultTensor);
        llsestimator->SetThreshold(_threshold);
+       llsestimator->SetVerbose( verbose ) ;
        llsestimator->Update();
        tensors = llsestimator->GetOutput();
     }
@@ -688,6 +689,7 @@ int main(int argc, char* argv[])
     estimator->SetThreshold(_threshold);
     estimator->SetStep(stepSize);
     estimator->SetNumberOfThreads(1);
+    estimator->SetVerbose( verbose ) ;
     estimator->Update();
     tensors = estimator->GetOutput();
     }
@@ -707,6 +709,7 @@ int main(int argc, char* argv[])
     estimator->SetDefaultTensor(defaultTensor);
     estimator->SetThreshold(_threshold);
     estimator->SetNumberOfIterations(weightIterations);
+    estimator->SetVerbose( verbose ) ;
     estimator->Update();
     tensors = estimator->GetOutput();
     }
@@ -721,6 +724,7 @@ int main(int argc, char* argv[])
     estimatorInit->SetDefaultTensor(defaultTensor);
     estimatorInit->SetThreshold(_threshold);
     estimatorInit->SetNumberOfIterations(weightIterations);
+    estimatorInit->SetVerbose( verbose ) ;
     estimatorInit->Update();
     TensorImageType::Pointer inittensors = estimatorInit->GetOutput();
 

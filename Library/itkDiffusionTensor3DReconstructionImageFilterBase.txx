@@ -52,6 +52,7 @@ DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
   m_EstimateBaseline = false;
   TensorPixelType tensor(0.0) ;
   m_DefaultTensor = tensor ;
+  m_Verbose = false ;
 }
 
 template <class TGradientImagePixelType, class TTensorPrecision>

@@ -86,8 +86,10 @@ DiffusionTensor3DReconstructionNonlinearImageFilter<TGradientImagePixelType,
   vnl_levenberg_marquardt optimizer(lsqf);
   optimizer.set_x_tolerance(m_Step);
   optimizer.set_f_tolerance(1.0e-6);
-
-  std::cout << this->m_BMatrix.size() << std::endl;
+  if( this->m_Verbose )
+  {
+    std::cout << this->m_BMatrix.size() << std::endl;
+  }
   if( !optimizer.minimize(estimate) )
     {
     throw itk::ExceptionObject("Error in non-linear tensor estimation");
