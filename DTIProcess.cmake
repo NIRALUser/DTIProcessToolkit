@@ -53,7 +53,6 @@ set( LIST_ITK_COMPONENTS
   ITKRegistrationCommon
   ITKOptimizersv4
   ITKConnectedComponents
-  ITKV3Compatibility
   ITKMathematicalMorphology
   ITKBinaryMathematicalMorphology
   ITKRegionGrowing
@@ -109,9 +108,6 @@ include(${ITK_USE_FILE})
 # have to save library list because it gets clobbered by GenerateCLP, which
 # calls find_package(ITK) every time it's invoked.
 set(DTIProcess_ITK_LIBRARIES ${ITK_LIBRARIES})
-if( NOT DEFINED ITKV3_COMPATIBILITY OR NOT ${ITKV3_COMPATIBILITY}  )
-  message( WARNING "Choose ITKv4 compiled with ITKV3_COMPATIBILITY set to ON (or GenerateCLP compiled against such an ITK version). If not, you may have compilation errors" )
-endif()
 
 
 
