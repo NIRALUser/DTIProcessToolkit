@@ -151,7 +151,7 @@ private:
 # include "itkTemplates/DifferenceDiffusionTensor3DImageFilter+-.h"
 #endif
 
-#if ITK_TEMPLATE_TXX
+#ifndef ITK_MANUAL_INSTANTIATION
 # include "itkDifferenceDiffusionTensor3DImageFilter.txx"
 #endif
 

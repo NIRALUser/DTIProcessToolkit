@@ -117,7 +117,7 @@ private:
 #include "Templates/itkTensorLinearInterpolateImageFunction+-.h"
 #endif
 
-#if ITK_TEMPLATE_TXX
+#ifndef ITK_MANUAL_INSTANTIATION
 #include "itkTensorLinearInterpolateImageFunction.txx"
 #endif
 
