@@ -296,7 +296,6 @@ createnewITKAffine(const DOFType & dof,
   typedef typename AffineTransformType::MatrixType      MatrixType;
   typedef typename AffineTransformType::TranslationType TranslationType;
   typedef typename AffineTransformType::CenterType      CenterType;
-  typedef typename AffineTransformType::OffsetType      OffsetType;
 
   MatrixType aff3itk;
   for( int i = 0; i < 3; ++i )

@@ -73,7 +73,6 @@ public:
     typedef typename TInput1::RealValueType          RealValueType;
     typedef typename TInput1::EigenVectorsMatrixType EigenVectorsType;
     typedef typename TInput1::EigenValuesArrayType   EigenValuesType;
-    typedef CovariantVector<RealValueType, 3>        PixelType;
 
     EigenVectorsType mat;
     EigenValuesType  e;
