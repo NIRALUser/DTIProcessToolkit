@@ -45,8 +45,9 @@ endif()
 ##  This logic will include SlicerExectionModel only if it
 ##  has not already been included by a previous package.
 
-find_package(SlicerExecutionModel REQUIRED)
+find_package(SlicerExecutionModel REQUIRED GenerateCLP)
 include(${SlicerExecutionModel_USE_FILE})
+include(${GenerateCLP_USE_FILE})
 
 set( LIST_ITK_COMPONENTS
   ITKDiffusionTensorImage
