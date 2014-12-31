@@ -71,7 +71,7 @@ public:
   typedef itk::ThresholdImageFilter<ScalarImageType> ThresholdImageFilterType;
 
   /** Triggers the Computation of Rician noise level */
-  void Compute( void );
+  void Compute();
 
   /** Connects the input image for which the histogram is going to be computed */
   itkSetConstObjectMacro( Input, ScalarImageType );

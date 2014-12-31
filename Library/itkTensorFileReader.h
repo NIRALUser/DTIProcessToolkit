@@ -70,7 +70,7 @@ public:
   /** Print internal ivars */
   void PrintSelf(std::ostream& os, Indent indent) const;
 
-  virtual void GenerateOutputInformation(void);
+  virtual void GenerateOutputInformation();
 
 protected:
   TensorFileReader();

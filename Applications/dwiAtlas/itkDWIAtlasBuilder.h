@@ -186,7 +186,7 @@ public:
   itkSetMacro(Origin, PointType);
   virtual void SetOrigin(const double* values);
 
-  const InputStringObjectType * GetInput( void );
+  const InputStringObjectType * GetInput();
 
   ScalarImageType * GetOutlierImage()
   {
@@ -297,9 +297,9 @@ protected:
   // threaded version to generate data
   void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, ThreadIdType threadId );
 
-  void AfterThreadedGenerateData( void );
+  void AfterThreadedGenerateData();
 
-  void BeforeThreadedGenerateData( void );
+  void BeforeThreadedGenerateData();
 
   SizeType    m_Size;
   SpacingType m_Spacing;

@@ -69,10 +69,10 @@ public:
   /** Get the output DTITubeSpatialObject of this process object.  */
   const OutputDTITubeSpatialObjectType * GetOutput(void) const;
 
-  OutputDTITubeSpatialObjectType * GetOutput(void);
+  OutputDTITubeSpatialObjectType * GetOutput();
 
   /** Prepare the output */
-  void GenerateOutputInformation(void);
+  void GenerateOutputInformation();
 
 protected:
   ImageToDTITubeSpatialObjectFilter();

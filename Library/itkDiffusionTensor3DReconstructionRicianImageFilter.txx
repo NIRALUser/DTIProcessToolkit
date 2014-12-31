@@ -164,7 +164,7 @@ void DiffusionTensor3DReconstructionRicianImageFilter<TReferenceImagePixelType,
 
       GradientVectorType b = git.Get();
 
-      typename NumericTraits<ReferencePixelType>::AccumulateType b0 = NumericTraits<ReferencePixelType>::Zero;
+      typename NumericTraits<ReferencePixelType>::AccumulateType b0 = NumericTraits<ReferencePixelType>::ZeroValue();
       // Average the baseline image pixels
       for( unsigned int i = 0; i < baselineind.size(); ++i )
         {
