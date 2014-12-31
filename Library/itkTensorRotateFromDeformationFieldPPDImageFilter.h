@@ -70,7 +70,6 @@ public:
     VnlMatrixType A(y.GetVnlMatrix() + iden);
     A = vnl_inverse(A);
 
-    typedef typename TInput1::RealValueType          RealValueType;
     typedef typename TInput1::EigenVectorsMatrixType EigenVectorsType;
     typedef typename TInput1::EigenValuesArrayType   EigenValuesType;
 

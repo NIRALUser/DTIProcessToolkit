@@ -86,7 +86,6 @@ int ComputeTransform(  const std::string doffile,
   else
     {
     newRViewTransform<Precision> dof = readDOF2MATFile<Precision>( doffile );
-    typedef itk::AffineTransform<Precision, 3> AffineTransformType;
     aff = createnewITKAffine( dof,
                               size,
                               spacing,

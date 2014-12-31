@@ -34,7 +34,6 @@ int main(int argc, char* argv[])
   // This software reads a vectorized .nrrd file performs a
   // transformation and updates the embedded gradient strings
 
-  typedef double                                     RealType;
   typedef double                                     TransformRealType;
   typedef itk::AffineTransform<TransformRealType, 3> AffineTransformType;
 
