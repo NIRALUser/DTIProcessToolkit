@@ -68,15 +68,15 @@ public:
   itkGetMacro(Type, std::string);
 
   /** Print internal ivars */
-  void PrintSelf(std::ostream& os, Indent indent) const;
+  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
 
-  virtual void GenerateOutputInformation();
+  virtual void GenerateOutputInformation() ITK_OVERRIDE;
 
 protected:
   TensorFileReader();
   virtual ~TensorFileReader();
 
-  virtual void GenerateData();
+  virtual void GenerateData() ITK_OVERRIDE;
 
 private:
   TensorFileReader(const Self &); // purposely not implemented

@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 
   VectorImageType::Pointer dwimg = reader->GetOutput();
 
-  AffineTransformType::Pointer  transform = NULL;
+  AffineTransformType::Pointer  transform = ITK_NULLPTR;
   vnl_matrix<TransformRealType> R(3, 3, 0);
   if( transformfile.rfind(".dof") != std::string::npos )
     {

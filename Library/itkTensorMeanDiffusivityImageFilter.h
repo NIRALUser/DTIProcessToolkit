@@ -103,7 +103,7 @@ public:
   itkNewMacro(Self);
 
   /** Print internal ivars */
-  void PrintSelf(std::ostream& os, Indent indent) const
+  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE
   {
     this->Superclass::PrintSelf( os, indent );
   }

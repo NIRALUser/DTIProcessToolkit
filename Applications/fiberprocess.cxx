@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
   // Reader fiber bundle
   GroupType::Pointer group = readFiberFile(fiberFile);
 
-  DeformationImageType::Pointer deformationfield(NULL);
+  DeformationImageType::Pointer deformationfield(ITK_NULLPTR);
   if( hField != "" )
     {
     deformationfield = readDeformationField(hField, HField);
@@ -58,11 +58,11 @@ int main(int argc, char* argv[])
     }
   else
     {
-    deformationfield = NULL;
+    deformationfield = ITK_NULLPTR;
     }
 
   typedef itk::VectorLinearInterpolateImageFunction<DeformationImageType, double> DeformationInterpolateType;
-  DeformationInterpolateType::Pointer definterp(NULL);
+  DeformationInterpolateType::Pointer definterp(ITK_NULLPTR);
   if( deformationfield )
     {
     definterp = DeformationInterpolateType::New();
@@ -120,8 +120,8 @@ int main(int argc, char* argv[])
   // Setup tensor file if available
   typedef itk::ImageFileReader<TensorImageType>                              TensorImageReader;
   typedef itk::TensorLinearInterpolateImageFunction<TensorImageType, double> TensorInterpolateType;
-  TensorImageReader::Pointer     tensorreader = NULL;
-  TensorInterpolateType::Pointer tensorinterp = NULL;
+  TensorImageReader::Pointer     tensorreader = ITK_NULLPTR;
+  TensorInterpolateType::Pointer tensorinterp = ITK_NULLPTR;
 
   if( tensorVolume != "" )
     {
