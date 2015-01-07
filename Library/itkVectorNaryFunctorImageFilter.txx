@@ -58,7 +58,7 @@ VectorNaryFunctorImageFilter<TInputImage, TOutputImage, TFunction>
 //   outputIt.GoToBegin();
 //   while( !outputIt.IsAtEnd() )
 //     {
-//     outputIt.Set( itk::NumericTraits< OutputImagePixelType >::Zero );
+//     outputIt.Set( itk::NumericTraits< OutputImagePixelType >::ZeroValue() );
 //     ++outputIt;
 //     }
 

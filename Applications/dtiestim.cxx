@@ -657,7 +657,6 @@ int main(int argc, char* argv[])
     }
 
   // Estimate tensors
-  typedef itk::ImageToImageFilter<VectorImageType, TensorImageType> DiffusionEstimationBaseType;
   TensorImageType::Pointer tensors;
 
   if( VERBOSE )

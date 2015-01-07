@@ -80,7 +80,7 @@ public:
 
   TTensor operator()( const TDWIVector & A, const TTensor & D)
   {
-    AccumulatorType baseline = NumericTraits<AccumulatorType>::Zero;
+    AccumulatorType baseline = NumericTraits<AccumulatorType>::ZeroValue();
 
     VariableLengthVector<double> proj(A.Size() - m_NumBaselines);
     VariableLengthVector<double> trunc(A.Size() - m_NumBaselines);
@@ -105,7 +105,7 @@ public:
 
     baseline /= static_cast<AccumulatorType>(m_NumBaselines);
 
-    TResidual residual = NumericTraits<AccumulatorType>::Zero;
+    TResidual residual = NumericTraits<AccumulatorType>::ZeroValue();
 
     // ignore this pixel if a tensor was not estimated
     if( D[0] == 0 &&

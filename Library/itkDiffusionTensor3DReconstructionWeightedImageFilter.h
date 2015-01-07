@@ -86,7 +86,7 @@ protected:
   };
 
   virtual vnl_vector<TTensorPrecision>
-  EstimateTensor(const vnl_vector<TTensorPrecision>& S) const;
+  EstimateTensor(const vnl_vector<TTensorPrecision>& S) const ITK_OVERRIDE;
 
 private:
   /** Number of reweighting iterations to use.  The default and

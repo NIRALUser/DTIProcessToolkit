@@ -247,14 +247,14 @@ protected:
   virtual ~DiffusionTensor3DReconstructionImageFilterBase()
   {
   };
-  virtual void PrintSelf(std::ostream& os, Indent indent) const;
+  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
 
   virtual void ComputeTensorBasis();
 
-  virtual void BeforeThreadedGenerateData();
+  virtual void BeforeThreadedGenerateData() ITK_OVERRIDE;
 
   virtual void ThreadedGenerateData( const
-                                     OutputImageRegionType &outputRegionForThread, ThreadIdType);
+                                     OutputImageRegionType &outputRegionForThread, ThreadIdType) ITK_OVERRIDE;
 
   /** Derived classes should override this method to estimate the
   tensor from the diffusion weighted signal.  The gradient directions,

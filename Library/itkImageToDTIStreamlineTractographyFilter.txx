@@ -211,7 +211,6 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage, TROIImage, TOutputSpatialOb
       break;
       }
 
-    typedef typename TensorInterpolateType::OutputType ArrayType;
     const TensorType nextt = m_TensorInterpolator->Evaluate(nextpt);
 
     // Anisotropy too low

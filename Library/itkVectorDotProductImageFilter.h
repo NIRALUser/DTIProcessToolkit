@@ -76,7 +76,7 @@ public:
 
   TOutput operator()( const TInput1 & A, const TInput2 & B)
   {
-    if( B == NumericTraits<TInput2>::Zero )
+    if( B == NumericTraits<TInput2>::ZeroValue() )
       {
       TInput1 R = A;
       R.Fill(0);

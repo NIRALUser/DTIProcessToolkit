@@ -76,7 +76,7 @@ public:
 
   TOutput operator()( const TInput & A, const TMask & B)
   {
-    if( B == NumericTraits<TMask>::Zero )
+    if( B == NumericTraits<TMask>::ZeroValue() )
       {
       TInput R = A;
       R.Fill(0);

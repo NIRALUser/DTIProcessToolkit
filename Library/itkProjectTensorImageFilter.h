@@ -80,7 +80,7 @@ public:
 
   TResidual operator()( const TTensor & D, const TDWIVector & s)
   {
-    AccumulatorType baseline = NumericTraits<AccumulatorType>::Zero;
+    AccumulatorType baseline = NumericTraits<AccumulatorType>::ZeroValue();
 
     VariableLengthVector<double> proj(A.Size() - m_NumBaselines);
     VariableLengthVector<double> trunc(A.Size() - m_NumBaselines);
@@ -103,7 +103,7 @@ public:
 
     baseline /= static_cast<AccumulatorType>(m_NumBaselines);
 
-    TResidual residual = NumericTraits<AccumulatorType>::Zero;
+    TResidual residual = NumericTraits<AccumulatorType>::ZeroValue();
 
     if( D[0] == 0 &&
         D[1] == 0 &&

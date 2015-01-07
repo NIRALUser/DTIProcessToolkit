@@ -166,7 +166,6 @@ RicianNoiseLevelDeterminer<TImageType, RealType>
   // get the histogram
 
   typedef typename LabelStatisticsImageFilterType::HistogramPointer HistogramPointer;
-  typedef typename LabelStatisticsImageFilterType::HistogramType    HistogramType;
 
   HistogramPointer hp =    labelStatisticsImageFilterRestricted->GetHistogram( 1 );
 

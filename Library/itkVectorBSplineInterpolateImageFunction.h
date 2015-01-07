@@ -93,7 +93,7 @@ public:
                                                             ComponentInterpolateFunctionPointer;
 
   /** Set the input image.  This must be set by the user. */
-  virtual void SetInputImage(const TInputImage * inputData);
+  virtual void SetInputImage(const TInputImage * inputData) ITK_OVERRIDE;
 
   /** Evaluate the function at a ContinuousIndex position
    *
@@ -103,14 +103,14 @@ public:
    *
    * ImageFunction::IsInsideBuffer() can be used to check bounds before
    * calling the method. */
-  virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index ) const;
+  virtual OutputType EvaluateAtContinuousIndex(const ContinuousIndexType & index ) const ITK_OVERRIDE;
 
 protected:
   VectorBSplineInterpolateImageFunction();
   ~VectorBSplineInterpolateImageFunction()
   {
   };
-  virtual void PrintSelf(std::ostream& os, Indent indent) const;
+  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
 
 private:
   VectorBSplineInterpolateImageFunction(const Self &); // purposely not implemented
