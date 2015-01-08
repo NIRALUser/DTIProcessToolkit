@@ -77,7 +77,7 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
 
   ### --- End Project specific additions
   set( ${proj}_REPOSITORY ${git_protocol}://github.com/NIRALUser/niral_utilities.git )
-  set( ${proj}_GIT_TAG 3996b452eaa807cd53f167e35de76e181d497e58 )
+  set( ${proj}_GIT_TAG 55a63c0a658dc7b0e313289bf1b0887fdc841dab )
   ExternalProject_Add(${proj}
     GIT_REPOSITORY ${${proj}_REPOSITORY}
     GIT_TAG ${${proj}_GIT_TAG}
