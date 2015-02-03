@@ -4,10 +4,8 @@ Program:   NeuroLib (DTI command line tools)
 Language:  C++
 Date:      $Date: 2009/08/03 17:36:42 $
 Version:   $Revision: 1.8 $
-Author:    Casey Goodlett (gcasey@sci.utah.edu)
+Author:    Casey Goodlett (gcasey@sci.utah.edu), Martin Styner Francois Budin, Hans Johnson
 
-Copyright (c)  Casey Goodlett. All rights reserved.
-See NeuroLibCopyright.txt or http://www.ia.unc.edu/dev/Copyright.htm for details.
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
