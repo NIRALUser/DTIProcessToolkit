@@ -41,7 +41,7 @@ option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
 #------------------------------------------------------------------------------
 #Compilation options for ITK if USE_SYSTEM_ITK is set to OFF (Superbuild)
 set(ITK_EXTERNAL_NAME ITKv4)
-set(${PRIMARY_PROJECT_NAME}_BUILD_DICOM_SUPPORT ON)
+#set(${PRIMARY_PROJECT_NAME}_BUILD_DICOM_SUPPORT ON)
 set( USE_ITK_Module_MGHIO ON )
 if( UNIX )
   set( ${PROJECT_NAME}_BUILD_TIFF_SUPPORT ON )
