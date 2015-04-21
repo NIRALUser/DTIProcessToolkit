@@ -145,6 +145,9 @@ endif()
       -DUSE_SYSTEM_ITK:BOOL=TRUE
       -DUSE_SYSTEM_VTK:BOOL=TRUE
       -DUSE_SYSTEM_SlicerExecutionModel:BOOL=TRUE
+      -DBUILD_PolyDataTransform:BOOL=${BUILD_PolyDataTransform}
+      -DBUILD_PolyDataMerge:BOOL=${BUILD_PolyDataMerge}
+      -DBUILD_CropDTI:BOOL=${BUILD_CropDTI}
     INSTALL_COMMAND ""
   )
 

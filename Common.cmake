@@ -232,3 +232,7 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   VTK_VERSION_MAJOR:STRING
   )
 
+option(BUILD_PolyDataTransform "Build PolyDataTransform" ON)
+option(BUILD_PolyDataMerge "Build PolyDataMerge" ON)
+option(BUILD_CropDTI "Build CropDTI" ON)
+
