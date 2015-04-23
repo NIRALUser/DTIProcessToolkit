@@ -63,46 +63,56 @@ set( LIST_ITK_COMPONENTS
   ITKVTK
   ITKTransform
   ITKIOImageBase
-  ITKIONRRD
+  ITKIOTransformBase
+  ITKIOTransformInsightLegacy
+  ITKIOTransformMatlab
   ITKImageCompare
+  ITKTestKernel
+)
+
+# IO modules: we only load the IO modules that are available with ITK. Because the toolds compiled in this project read and write DWI and DTI,
+# we leave only NRRD as the compulsory module.
+set( ALL_IO
   ITKIOBMP
   ITKIOBioRad
   ITKIOCSV
-#  ITKIODCMTK
+  ITKIODCMTK
   ITKIOGDCM
   ITKIOGE
   ITKIOGIPL
   ITKIOHDF5
   ITKIOIPL
-  ITKIOImageBase
   ITKIOJPEG
   ITKIOLSM
   ITKIOMRC
   ITKIOMesh
   ITKIOMeta
   ITKIONIFTI
-  ITKIONRRD
   ITKIOPNG
   ITKIORAW
   ITKIOSiemens
   ITKIOSpatialObjects
   ITKIOStimulate
   ITKIOTIFF
-  ITKIOTransformBase
   ITKIOTransformHDF5
-  ITKIOTransformInsightLegacy
-  ITKIOTransformMatlab
   ITKIOVTK
   ITKIOXML
-  ITKTestKernel
 )
 
+list(APPEND LIST_ITK_IO_USED ITKIONRRD )
+foreach( io ${ALL_IO} )
+  list( FIND ITK_MODULES_ENABLED ${io} position )
+  if( ${position} GREATER -1 ) #not found: ${position}==-1
+    list( APPEND LIST_ITK_IO_USED ${io} )
+  endif()
+endforeach()
+
 if( NOT DTIProcess_BUILD_SLICER_EXTENSION )
-  list( APPEND LIST_ITK_COMPONENTS MGHIO )
+  list( APPEND LIST_ITK_IO_USED MGHIO )
 endif()
 
 find_package(ITK COMPONENTS 
-   ${LIST_ITK_COMPONENTS}
+   ${LIST_ITK_COMPONENTS} ${LIST_ITK_IO_USED}
    REQUIRED
    )
 include(${ITK_USE_FILE})
