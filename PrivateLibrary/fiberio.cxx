@@ -230,61 +230,71 @@ GroupType::Pointer readFiberFile(const std::string & filename)
 
       vtkSmartPointer<vtkDataArray> fibtensordata = fibdata->GetPointData()->GetTensors();
       for( int j = 0; j < points->GetNumberOfPoints(); ++j )
-        {
-        ++pindex;
-
-        double * coordinates = points->GetPoint(j);
-        DTIPointType          pt;
-        // Convert from RAS to LPS for vtk
-        pt.SetPosition(-coordinates[0], -coordinates[1], coordinates[2]);
-        pt.SetRadius(0.5);
-        pt.SetColor(0.0, 1.0, 0.0);
-
-        double * vtktensor = fibtensordata->GetTuple9(pindex);
-        float                 floattensor[6];
-        ITKTensorType         itktensor;
-
-        floattensor[0] = itktensor[0] = vtktensor[0];
-        floattensor[1] = itktensor[1] = vtktensor[1];
-        floattensor[2] = itktensor[2] = vtktensor[2];
-        floattensor[3] = itktensor[3] = vtktensor[4];
-        floattensor[4] = itktensor[4] = vtktensor[5];
-        floattensor[5] = itktensor[5] = vtktensor[8];
-
-        pt.SetTensorMatrix(floattensor);
-
-        LambdaArrayType lambdas;
-
-        // Need to do do eigenanalysis of the tensor
-        itktensor.ComputeEigenValues(lambdas);
-
-        // FIXME: We should not be repeating this code here.  The code
-        // for all these computations should be re-factored into a
-        // common library.
-
-        float md = (lambdas[0] + lambdas[1] + lambdas[2]) / 3;
-        float fa = sqrt(1.5) * sqrt( (lambdas[0] - md) * (lambdas[0] - md)
-                                     + (lambdas[1] - md) * (lambdas[1] - md)
-                                     + (lambdas[2] - md) * (lambdas[2] - md) )
-          / sqrt(lambdas[0] * lambdas[0] + lambdas[1] * lambdas[1] + lambdas[2] * lambdas[2]);
-
-        float logavg = (log(lambdas[0]) + log(lambdas[1]) + log(lambdas[2]) ) / 3;
-
-        float ga =  sqrt( SQ2(log(lambdas[0]) - logavg) \
-                          + SQ2(log(lambdas[1]) - logavg) \
-                          + SQ2(log(lambdas[2]) - logavg) );
-
-	float rd = (lambdas[1] + lambdas[0])/2;
-
-        pt.AddField("fa", fa);
-        pt.AddField("ga", ga);
-        pt.AddField("md", md);
-        pt.AddField("l1", lambdas[2]);
-        pt.AddField("l2", lambdas[1]);
-        pt.AddField("l3", lambdas[0]);
-        pt.AddField("rd", rd);
-
-        pointsToAdd.push_back(pt);
+	{
+	  ++pindex;
+	  
+	  double * coordinates = points->GetPoint(j);
+	  DTIPointType          pt;
+	  // Convert from RAS to LPS for vtk
+	  pt.SetPosition(-coordinates[0], -coordinates[1], coordinates[2]);
+	  pt.SetRadius(0.5);
+	  pt.SetColor(0.0, 1.0, 0.0);
+	  double * vtktensor;
+	  float                 floattensor[6];
+	  ITKTensorType         itktensor;
+	  
+	  if (fibtensordata) {
+	    vtktensor = fibtensordata->GetTuple9(pindex);
+	    floattensor[0] = itktensor[0] = vtktensor[0];
+	    floattensor[1] = itktensor[1] = vtktensor[1];
+	    floattensor[2] = itktensor[2] = vtktensor[2];
+	    floattensor[3] = itktensor[3] = vtktensor[4];
+	    floattensor[4] = itktensor[4] = vtktensor[5];
+	    floattensor[5] = itktensor[5] = vtktensor[8];
+	  } else {
+	    vtktensor = new double[9];
+	    floattensor[0] = itktensor[0] = vtktensor[0] = 1.0;
+	    floattensor[1] = itktensor[1] = vtktensor[1] = 0.0;
+	    floattensor[2] = itktensor[2] = vtktensor[2] = 0.0;
+	    floattensor[3] = itktensor[3] = vtktensor[4] = 1.0;
+	    floattensor[4] = itktensor[4] = vtktensor[5] = 0.0;
+	    floattensor[5] = itktensor[5] = vtktensor[8] = 1.0;
+	  }
+	  
+	  pt.SetTensorMatrix(floattensor);
+	  
+	  LambdaArrayType lambdas;
+	  
+	  // Need to do do eigenanalysis of the tensor
+	  itktensor.ComputeEigenValues(lambdas);
+	  
+	  // FIXME: We should not be repeating this code here.  The code
+	  // for all these computations should be re-factored into a
+	  // common library.
+	  
+	  float md = (lambdas[0] + lambdas[1] + lambdas[2]) / 3;
+	  float fa = sqrt(1.5) * sqrt( (lambdas[0] - md) * (lambdas[0] - md)
+				       + (lambdas[1] - md) * (lambdas[1] - md)
+				       + (lambdas[2] - md) * (lambdas[2] - md) )
+	    / sqrt(lambdas[0] * lambdas[0] + lambdas[1] * lambdas[1] + lambdas[2] * lambdas[2]);
+	  
+	  float logavg = (log(lambdas[0]) + log(lambdas[1]) + log(lambdas[2]) ) / 3;
+	  
+	  float ga =  sqrt( SQ2(log(lambdas[0]) - logavg) \
+			    + SQ2(log(lambdas[1]) - logavg)	\
+			    + SQ2(log(lambdas[2]) - logavg) );
+	  
+	  float rd = (lambdas[1] + lambdas[0])/2;
+	  
+	  pt.AddField("fa", fa);
+	  pt.AddField("ga", ga);
+	  pt.AddField("md", md);
+	  pt.AddField("l1", lambdas[2]);
+	  pt.AddField("l2", lambdas[1]);
+	  pt.AddField("l3", lambdas[0]);
+	  pt.AddField("rd", rd);
+	  
+	  pointsToAdd.push_back(pt);
         }
 
       dtiTube->SetPoints(pointsToAdd);
