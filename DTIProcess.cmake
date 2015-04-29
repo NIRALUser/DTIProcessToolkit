@@ -85,6 +85,7 @@ set( ALL_IO
   ITKIOJPEG
   ITKIOLSM
   ITKIOMRC
+  MGHIO
   ITKIOMesh
   ITKIOMeta
   ITKIONIFTI
@@ -106,10 +107,6 @@ foreach( io ${ALL_IO} )
     list( APPEND LIST_ITK_IO_USED ${io} )
   endif()
 endforeach()
-
-if( NOT DTIProcess_BUILD_SLICER_EXTENSION )
-  list( APPEND LIST_ITK_IO_USED MGHIO )
-endif()
 
 find_package(ITK COMPONENTS 
    ${LIST_ITK_COMPONENTS} ${LIST_ITK_IO_USED}
