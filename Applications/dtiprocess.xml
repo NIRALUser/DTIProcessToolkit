@@ -232,6 +232,17 @@
   </parameters>
   <parameters advanced="true">
     <label>Options</label>
+    <string-enumeration>
+      <name>correction</name>
+      <longflag>--correction</longflag>
+      <description>Correct the tensors if computed tensor is not semi-definite positive.</description>
+      <label>Tensors Correction</label>
+      <element>zero</element>
+      <element>none</element>
+      <element>abs</element>
+      <element>nearest</element>
+      <default>none</default>
+    </string-enumeration>
     <boolean>
       <name>scalarFloat</name>
       <longflag>--scalar_float</longflag>
