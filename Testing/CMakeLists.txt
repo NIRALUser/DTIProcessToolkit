@@ -45,9 +45,13 @@ add_test(NAME ${CLP}B0Test COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}
     --tensor_output ${trash}
   )
 
-#DWI wls
-set(output ${${CLP}_tmp_dir}/dti_wls.nrrd )
-set(baseline ${${CLP}_source_dir}/Baseline/dti_WLS.nrrd )
+## Test PSD correction methods
+##  --correction <none|zero|abs|nearest>
+##     Correct the tensors if computed tensor is not semi-definite positive.
+##     (default: none)
+#DWI wls - no correction is the default
+set(output ${${CLP}_tmp_dir}/dti_wls_noCorrection.nrrd )
+set(baseline ${${CLP}_source_dir}/Baseline/dti_wls_noCorrection.nrrd )
 add_test(NAME ${CLP}DTI_WLS_Test COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${baseline}
@@ -59,6 +63,55 @@ add_test(NAME ${CLP}DTI_WLS_Test COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:
     -m wls
     --threshold 0
   )
+
+#DWI wls - zero negative values correction
+set(output ${${CLP}_tmp_dir}/dti_wls_zero.nrrd )
+set(baseline ${${CLP}_source_dir}/Baseline/dti_wls_zero.nrrd )
+add_test(NAME ${CLP}DTI_WLS_ZERO_CORR_Test COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
+  --compare
+    ${baseline}
+    ${output}
+  --compareIntensityTolerance ${ALLOWED_PIXEL_VALUE_DIFF}
+  ModuleEntryPoint
+    --tensor_output ${output}
+    --correction zero
+    --dwi_image ${input}
+    -m wls
+    --threshold 0
+  )
+
+#DWI wls - abs negative values correction
+set(output ${${CLP}_tmp_dir}/dti_wls_abs.nrrd )
+set(baseline ${${CLP}_source_dir}/Baseline/dti_wls_abs.nrrd )
+add_test(NAME ${CLP}DTI_WLS_ABS_CORR_Test COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
+  --compare
+    ${baseline}
+    ${output}
+  --compareIntensityTolerance ${ALLOWED_PIXEL_VALUE_DIFF}
+  ModuleEntryPoint
+    --tensor_output ${output}
+    --correction abs
+    --dwi_image ${input}
+    -m wls
+    --threshold 0
+  )
+
+#DWI wls - nearest negative values correction
+set(output ${${CLP}_tmp_dir}/dti_wls_nearest.nrrd )
+set(baseline ${${CLP}_source_dir}/Baseline/dti_wls_nearest.nrrd)
+add_test(NAME ${CLP}DTI_WLS_NEAREST_CORR_Test COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
+  --compare
+    ${baseline}
+    ${output}
+  --compareIntensityTolerance ${ALLOWED_PIXEL_VALUE_DIFF}
+  ModuleEntryPoint
+    --tensor_output ${output}
+    --correction nearest
+    --dwi_image ${input}
+    -m wls
+    --threshold 0
+  )
+
 
 set(output ${${CLP}_tmp_dir}/idwi.nrrd )
 set(baseline ${${CLP}_source_dir}/Baseline/IDWI.nrrd )
