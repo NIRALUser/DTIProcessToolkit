@@ -34,6 +34,11 @@
 #include "imageio.h"
 #include "deformationfieldio.h"
 
+// tensor correction headers
+#include "itkDiffusionTensor3DZeroCorrection.h"
+#include "itkDiffusionTensor3DAbsCorrection.h"
+#include "itkDiffusionTensor3DNearestCorrection.h"
+
 #include "dtiprocessCLP.h"
 
 // Bad global variables.  TODO: remove these
@@ -136,6 +141,33 @@ int main(int argc, char* argv[])
     }
 
   TensorImageType::Pointer tensors = dtireader->GetOutput();
+
+  // Tensors Corrections
+  if( !correction.compare( "zero" ) )
+    {
+    typedef itk::DiffusionTensor3DZeroCorrectionFilter<TensorImageType, TensorImageType> ZeroCorrection;
+    ZeroCorrection::Pointer zeroFilter = ZeroCorrection::New();
+    zeroFilter->SetInput( tensors );
+    zeroFilter->Update();
+    tensors = zeroFilter->GetOutput();
+    }
+  else if( !correction.compare( "abs" ) )
+    {
+    typedef itk::DiffusionTensor3DAbsCorrectionFilter<TensorImageType, TensorImageType> AbsCorrection;
+    AbsCorrection::Pointer absFilter = AbsCorrection::New();
+    absFilter->SetInput( tensors );
+    absFilter->Update();
+    tensors = absFilter->GetOutput();
+    }
+  else if( !correction.compare( "nearest" ) )
+    {
+    typedef itk::DiffusionTensor3DNearestCorrectionFilter<TensorImageType, TensorImageType> NearestCorrection;
+    NearestCorrection::Pointer nearestFilter = NearestCorrection::New();
+    nearestFilter->SetInput( tensors );
+    nearestFilter->Update();
+    tensors = nearestFilter->GetOutput();
+    }
+
   //  if(vm.count("mask"))
   if( mask != "" )
     {
