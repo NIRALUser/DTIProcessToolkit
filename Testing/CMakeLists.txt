@@ -2,6 +2,10 @@
 # Test executable
 #
 
+set(DTI_AVERAGE_ALLOWED_PIXEL_VALUE_DIFF 0.0000000000000000001)
+set(ALLOWED_PIXEL_VALUE_DIFF             0.000000000001)
+set(IDWITest_ALLOWED_PIXEL_VALUE_DIFF    0.0000000001)
+
 
 
 # Add test of the homemade "round()" function
@@ -48,7 +52,7 @@ add_test(NAME ${CLP}DTI_WLS_Test COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:
   --compare
     ${baseline}
     ${output}
-  --compareIntensityTolerance 0.000000000001
+  --compareIntensityTolerance ${ALLOWED_PIXEL_VALUE_DIFF}
   ModuleEntryPoint
     --tensor_output ${output}
     --dwi_image ${input}
@@ -62,7 +66,7 @@ add_test(NAME ${CLP}IDWITest COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CL
   --compare
     ${baseline}
     ${output}
-  --compareIntensityTolerance 0.0000000001
+  --compareIntensityTolerance ${IDWITest_ALLOWED_PIXEL_VALUE_DIFF}
   ModuleEntryPoint
     --idwi ${output}
     --dwi_image ${input}
@@ -91,7 +95,7 @@ add_test(NAME ${CLP}Test1 COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}T
   --compare
     ${baseline}
     ${output}
-  --compareIntensityTolerance 0.000000000000000000001
+  --compareIntensityTolerance ${DTI_AVERAGE_ALLOWED_PIXEL_VALUE_DIFF}
   ModuleEntryPoint
     --tensor_output ${output}
     --inputs ${input1}
