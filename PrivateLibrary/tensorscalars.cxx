@@ -8,7 +8,7 @@
 #include <itkGradientMagnitudeRecursiveGaussianImageFilter.h>
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
-#include "itkFastSymmetricEigenAnalysisImageFilter.h"
+#include "itkSymmetricEigenAnalysisImageFilter.h"
 #include "itkVectorIndexSelectionCastImageFilter.h"
 #include <itkAddImageFilter.h>
 
@@ -89,10 +89,11 @@ itk::Image<double, 3>::Pointer createLambda<double>(TensorImageType::Pointer tim
                                                     EigenValueIndex lambdaind)     // Lambda index
 {
   // Not really a deformation image output jsut a 3-vector of doubles.
-  typedef itk::FastSymmetricEigenAnalysisImageFilter<TensorImageType, DeformationImageType> LambdaFilterType;
+  typedef itk::SymmetricEigenAnalysisImageFilter<TensorImageType, DeformationImageType> LambdaFilterType;
   LambdaFilterType::Pointer lambdafilter = LambdaFilterType::New();
   lambdafilter->SetInput(timg);
   lambdafilter->OrderEigenValuesBy(LambdaFilterType::FunctorType::OrderByValue);
+  lambdafilter->SetDimension(3);
   lambdafilter->Update();
 
   typedef itk::VectorIndexSelectionCastImageFilter<LambdaFilterType::OutputImageType,
@@ -127,10 +128,11 @@ itk::Image<unsigned short, 3>::Pointer createLambda<unsigned short>(TensorImageT
 template <>
 itk::Image<double, 3>::Pointer createRD<double>(TensorImageType::Pointer timg) // Tensor image
 {
-  typedef itk::FastSymmetricEigenAnalysisImageFilter<TensorImageType, DeformationImageType> LambdaFilterType;
+  typedef itk::SymmetricEigenAnalysisImageFilter<TensorImageType, DeformationImageType> LambdaFilterType;
   LambdaFilterType::Pointer lambdafilter = LambdaFilterType::New();
   lambdafilter->SetInput(timg);
   lambdafilter->OrderEigenValuesBy(LambdaFilterType::FunctorType::OrderByValue);
+  lambdafilter->SetDimension(3);
   lambdafilter->Update();
 
   typedef itk::AddImageFilter<RealImageType, RealImageType, RealImageType> RDFilterType;
