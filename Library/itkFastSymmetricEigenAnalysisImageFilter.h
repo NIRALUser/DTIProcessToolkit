@@ -14,8 +14,8 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkSymmetricEigenAnalysisImageFilter_h
-#define __itkSymmetricEigenAnalysisImageFilter_h
+#ifndef __itkFastSymmetricEigenAnalysisImageFilter_h
+#define __itkFastSymmetricEigenAnalysisImageFilter_h
 
 #include <itkUnaryFunctorImageFilter.h>
 #include <vnl/algo/vnl_symmetric_eigensystem.h>
@@ -28,9 +28,6 @@ namespace itk
 // operator, while the output pixel type must provide the API for the
 // [] operator. Input pixel matrices should be symmetric.
 //
-// The default operation is to order eigen values in ascending order.
-// You may also use OrderEigenValuesBy( ) to order eigen values by
-// magnitude as is common with use of tensors in vessel extraction.
 namespace Functor
 {
 
@@ -69,45 +66,17 @@ public:
                                                 lambdas[2]);
     return TOutput(lambdas);
   }
-
-  /** Typdedefs to order eigen values.
-   * OrderByValue:      lambda_1 < lambda_2 < ....
-   * OrderByMagnitude:  |lambda_1| < |lambda_2| < .....
-   * DoNotOrder:        Default order of eigen values obtained after QL method
-   */
-  typedef enum
-    {
-    OrderByValue = 1,
-    OrderByMagnitude,
-    DoNotOrder
-    } EigenValueOrderType;
-
-  /** Order eigen values. Default is to OrderByValue:  lambda_1 <
-   * lambda_2 < .... */
-  void OrderEigenValuesBy( EigenValueOrderType order )
-  {
-    m_Order = order;
-  }
-
-private:
-  EigenValueOrderType m_Order;
 };
 
 }  // end namespace functor
 
-/** \class SymmetricEigenAnalysisImageFilter
+/** \class FastSymmetricEigenAnalysisImageFilter
  * \brief Computes the Fractional Anisotropy for every pixel of a input tensor image.
  *
- * SymmetricEigenAnalysisImageFilter applies pixel-wise the invokation for
+ * FastSymmetricEigenAnalysisImageFilter applies pixel-wise the invokation for
  * computing the fractional anisotropy of every pixel. The pixel type of the
  * input image is expected to implement a method GetFractionalAnisotropy(), and
  * to specify its return type as  RealValueType.
- *
- * The OrderEigenValuesBy( .. ) method can be used to order eigen values
- * in ascending order by value or magnitude or no ordering.
- * OrderByValue:      lambda_1 < lambda_2 < ....
- * OrderByMagnitude:  |lambda_1| < |lambda_2| < .....
- * DoNotOrder:        Default order of eigen values obtained after QL method
  *
  * The user of this class is explicitly supposed to set the dimension of the
  * 2D matrix using the SetDimension() method.
@@ -142,20 +111,6 @@ public:
   typedef typename TInputImage::PixelType      InputPixelType;
   typedef typename InputPixelType::ValueType   InputValueType;
   typedef typename Superclass::FunctorType     FunctorType;
-
-  /** Typdedefs to order eigen values.
-   * OrderByValue:      lambda_1 < lambda_2 < ....
-   * OrderByMagnitude:  |lambda_1| < |lambda_2| < .....
-   * DoNotOrder:        Default order of eigen values obtained after QL method
-   */
-  typedef typename FunctorType::EigenValueOrderType EigenValueOrderType;
-
-  /** Order eigen values. Default is to OrderByValue:  lambda_1 <
-   * lambda_2 < .... */
-  void OrderEigenValuesBy( EigenValueOrderType order )
-  {
-    this->GetFunctor().OrderEigenValuesBy( order );
-  }
 
   /** Run-time type information (and related methods).   */
   itkTypeMacro( FastSymmetricEigenAnalysisImageFilter, UnaryFunctorImageFilter );

@@ -92,7 +92,6 @@ itk::Image<double, 3>::Pointer createLambda<double>(TensorImageType::Pointer tim
   typedef itk::FastSymmetricEigenAnalysisImageFilter<TensorImageType, DeformationImageType> LambdaFilterType;
   LambdaFilterType::Pointer lambdafilter = LambdaFilterType::New();
   lambdafilter->SetInput(timg);
-  lambdafilter->OrderEigenValuesBy(LambdaFilterType::FunctorType::OrderByValue);
   lambdafilter->Update();
 
   typedef itk::VectorIndexSelectionCastImageFilter<LambdaFilterType::OutputImageType,
@@ -130,7 +129,6 @@ itk::Image<double, 3>::Pointer createRD<double>(TensorImageType::Pointer timg) /
   typedef itk::FastSymmetricEigenAnalysisImageFilter<TensorImageType, DeformationImageType> LambdaFilterType;
   LambdaFilterType::Pointer lambdafilter = LambdaFilterType::New();
   lambdafilter->SetInput(timg);
-  lambdafilter->OrderEigenValuesBy(LambdaFilterType::FunctorType::OrderByValue);
   lambdafilter->Update();
 
   typedef itk::AddImageFilter<RealImageType, RealImageType, RealImageType> RDFilterType;
