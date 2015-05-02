@@ -67,7 +67,7 @@
       <description>Brain mask.  Image where for every voxel == 0 the tensors are not estimated. Be aware that in addition a threshold based masking will be performed by default. If such an additional threshold masking is NOT desired, then use option -t 0.</description>
       <channel>input</channel>
       <default></default>
-    </image> 
+    </image>
     <image>
       <name>badRegionMask</name>
       <longflag>--bad_region_mask</longflag>
@@ -80,6 +80,17 @@
   </parameters>
   <parameters advanced="true">
     <label>Options</label>
+    <string-enumeration>
+      <name>correction</name>
+      <longflag>--correction</longflag>
+      <description>Correct the tensors if computed tensor is not semi-definite positive.</description>
+      <label>Tensors Correction</label>
+      <element>none</element>
+      <element>zero</element>
+      <element>abs</element>
+      <element>nearest</element>
+      <default>none</default>
+    </string-enumeration>
     <string-enumeration>
       <name>method</name>
       <label>Method</label>
