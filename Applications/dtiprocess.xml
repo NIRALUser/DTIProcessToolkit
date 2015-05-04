@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notices for more information.
   </license>
   <contributor>Casey Goodlett</contributor>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <parameters advanced="false">
     <label>Input DTI</label>
     <image type="tensor">
