@@ -250,6 +250,10 @@ DifferenceDiffusionTensor3DImageFilter<TInputImage, TOutputImage>
         // If center pixel isn't good enough, then test the neighborhood
         if(minimumDifference > m_DifferenceThreshold)
           {
+std::cout<<valid.GetIndex()[0]<<" "<<valid.GetIndex()[1]<<" "<<valid.GetIndex()[2]<<std::endl;
+std::cout<<t<<std::endl;
+std::cout<<centerTensor<<std::endl;
+std::cout<<minimumDifference<<std::endl;
           unsigned int neighborhoodSize = test.Size();
           // Find the closest-valued pixel in the neighborhood of the test
           // image.
