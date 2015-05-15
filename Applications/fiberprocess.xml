@@ -12,19 +12,19 @@
     PURPOSE.  See the above copyright notices for more information.
   </license>
   <contributor>Casey Goodlett</contributor>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <parameters advanced="false">
     <label>I/O</label>
     <geometry type="fiberbundle">
       <name>fiberFile</name>
-      <longflag>--fiber_file</longflag>
+      <longflag alias="fiber_file">inputFiberBundle</longflag>
       <label>Fiber File</label>
       <description>DTI fiber file</description>
       <channel>input</channel>
     </geometry>
     <geometry type="fiberbundle">
       <name>fiberOutput</name>
-      <longflag>--fiber_output</longflag>
+      <longflag alias="fiber_output">outputFiberBundle</longflag>
       <flag>o</flag>
       <label>Fiber Output</label>
       <description>Output fiber file. May be warped or updated with new data depending on other options used.</description>
@@ -32,7 +32,7 @@
     </geometry>
     <image type="tensor">
       <name>tensorVolume</name>
-      <longflag>--tensor_volume</longflag>
+      <longflag alias="tensor_volume">inputDTIVolume</longflag>
       <flag>T</flag>
       <label>Tensor Volume</label>
       <description>Interpolate tensor values from the given field</description>
@@ -40,7 +40,7 @@
     </image>
     <image type="vector">
       <name>hField</name>
-      <longflag>--h_field</longflag>
+      <longflag alias="h_field">hFieldVolume</longflag>
       <flag>H</flag>
       <label>HField</label>
       <description>HField for warp and statistics lookup. If this option is used tensor-volume must also be specified.</description>
@@ -48,7 +48,7 @@
     </image>
     <image type="vector">
       <name>displacementField</name>
-      <longflag>--displacement_field</longflag>
+      <longflag alias="displacement_field">displacementFieldVolume</longflag>
       <flag>D</flag>
       <label>DisplacementField</label>
       <description>Displacement Field for warp and statistics lookup.  If this option is used tensor-volume must also be specified.</description>
@@ -59,7 +59,7 @@
     <label>Options</label>
     <boolean>
       <name>saveProperties</name>
-      <longflag>--saveProperties</longflag>
+      <longflag>saveProperties</longflag>
       <flag>p</flag>
       <label>saveProperties</label>
       <description>save the tensor property as scalar data into the vtk (only works for vtk fiber files). </description>
@@ -68,14 +68,14 @@
     <boolean>
       <name>noWarp</name>
       <flag>n</flag>
-      <longflag>--no_warp</longflag>
+      <longflag alias="no_warp">noWarp</longflag>
       <label>No Warp</label>
       <description>Do not warp the geometry of the tensors only obtain the new statistics.</description>
       <default>0</default>
     </boolean>
     <float>
       <name>fiberRadius</name> 
-      <longflag>--fiber_radius</longflag> 
+      <longflag alias="fiber_radius">fiberRadius</longflag> 
       <flag>R</flag>
       <description>set radius of all fibers to this value</description> 
       <label>Radius for all fibers</label> 
@@ -83,7 +83,7 @@
     </float> 
     <boolean>
       <name>indexSpace</name>
-      <longflag>--index_space</longflag>
+      <longflag alias="index_space">indexSpace</longflag>
       <label>Index Space</label>
       <description>Use index-space for fiber output coordinates, otherwise us world space for fiber output coordinates (from tensor file).</description>
       <default>0</default>
@@ -93,7 +93,7 @@
     <label>Voxelize</label>
     <image type="label">
       <name>voxelize</name>
-      <longflag>--voxelize</longflag>
+      <longflag>voxelize</longflag>
       <flag>V</flag>
       <label>Voxelize</label>
       <description>Voxelize fiber into a label map (the labelmap filename is the argument of -V). The tensor file must be specified using -T for information about the size, origin, spacing of the image. The deformation is applied before the voxelization </description>
@@ -101,14 +101,14 @@
     </image>
     <boolean>
       <name>voxelizeCountFibers</name>
-      <longflag>--voxelize_count_fibers</longflag>
+      <longflag alias="voxelize_count_fibers">voxelizeCountFibers</longflag>
       <label>Voxelize Count Fibers</label>
       <description>Count number of fibers per-voxel instead of just setting to 1</description>
       <default>0</default>
     </boolean>
     <integer>
       <name>voxelLabel</name>
-      <longflag>--voxel_label</longflag>
+      <longflag alias="voxel_label">voxelLabel</longflag>
       <label>Label for voxelized fiber</label>
       <description>Label for voxelized fiber</description>
       <default>1</default>
@@ -119,14 +119,14 @@
     <boolean>
       <name>verbose</name>
       <flag>v</flag>
-      <longflag>--verbose</longflag>
+      <longflag>verbose</longflag>
       <label>Verbose</label>
       <description>produce verbose output</description>
       <default>0</default>
     </boolean>
     <boolean>
       <name>noDataChange</name>
-      <longflag>--noDataChange</longflag>
+      <longflag>noDataChange</longflag>
       <label>No Data Change</label>
       <description>Do not change data ??? </description>
       <default>0</default>

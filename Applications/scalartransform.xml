@@ -12,19 +12,19 @@
      PURPOSE.  See the above copyright notices for more information.
   </license>
   <contributor>Casey Goodlett</contributor>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <parameters advanced="false">
     <image>
       <name>inputImage</name>
       <flag>i</flag>
-      <longflag>--input_image</longflag>
+      <longflag alias="input_image">inputVolume</longflag>
       <label>Input Image</label>
       <description>Image to tranform</description>
       <channel>input</channel>
     </image>
     <image>
       <name>outputImage</name>
-      <longflag>--output_image</longflag>
+      <longflag alias="output_image">outputVolume</longflag>
       <flag>o</flag>
       <label>Output Image</label>
       <description>The transformed image</description>
@@ -32,37 +32,37 @@
     </image>
     <file>
       <name>transformation</name>
-      <longflag>--transformation</longflag>
+      <longflag alias="transformation">transformationFile</longflag>
       <flag>t</flag>
       <label>Transformation File</label>
-      <description>Output file for transformation parameters</description>
-      <channel>output</channel>
+      <description>Input file for transformation parameters</description>
+      <channel>input</channel>
     </file>
     <boolean>
       <name>invert</name>
-      <longflag>--invert</longflag>
+      <longflag>invert</longflag>
       <label>Invert</label>
       <description>Invert tranform before applying.</description>
       <default>0</default>
     </boolean>
     <image>
       <name>deformation</name>
-      <longflag>--deformation</longflag>
-      <flag>w</flag>
+      <longflag alias="deformation">deformationFieldVolume</longflag>
+      <flag alias="w">D</flag>
       <label>Deformation Field</label>
       <description>Deformation field.</description>
       <channel>input</channel>
     </image>
     <boolean>
       <name>hField</name>
-      <longflag>--h_field</longflag>
+      <longflag alias="h_field">hField</longflag>
       <label>H-Field</label>
       <description>The deformation is an h-field.</description>
       <default>0</default>
     </boolean>
     <string-enumeration>
       <name>interpolation</name>
-      <longflag>--interpolation</longflag>
+      <longflag alias="interpolationType">interpolation</longflag>
       <flag>I</flag>
       <description>Interpolation type (nearestneighbor, linear, cubic)</description>
       <default>linear</default>

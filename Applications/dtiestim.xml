@@ -13,12 +13,12 @@
   </license>
   <contributor>Casey Goodlett, Francois Budin</contributor>
   <acknowledgements>Hans Johnson(1,3,4); Kent Williams(1); (1=University of Iowa Department of Psychiatry, 3=University of Iowa Department of Biomedical Engineering, 4=University of Iowa Department of Electrical and Computer Engineering) provided conversions to make DTIProcess compatible with Slicer execution, and simplified the stand-alone build requirements by removing the dependancies on boost and a fortran compiler.</acknowledgements>
-  <version>1.2.1</version>
+  <version>1.2.2</version>
   <parameters advanced="false">
     <label>Input/Ouput</label>
     <image type="diffusion-weighted">
       <name>dwiImage</name>
-      <longflag>--dwi_image</longflag>
+      <longflag alias="dwi_image">inputDWIVolume</longflag>
       <label>DWI Image</label>
       <description>DWI image volume (required)</description>
       <channel>input</channel>
@@ -26,7 +26,7 @@
     </image>
     <image type="tensor">
       <name>tensorOutput</name>
-      <longflag>--tensor_output</longflag>
+      <longflag alias="tensor_output">outputDTIVolume</longflag>
       <label>Tensor Output</label>
       <description>Tensor OutputImage</description>
       <channel>output</channel>
@@ -34,7 +34,7 @@
     </image>
     <image type="scalar">
       <name>B0</name>
-      <longflag>--B0</longflag>
+      <longflag alias="B0">outputBaselineVolume</longflag>
       <label>Baseline Image (optional)</label>
       <description>Baseline image, average of all baseline images</description>
       <channel>output</channel>
@@ -42,7 +42,7 @@
     </image>
     <image type="scalar">
       <name>IDWI</name>
-      <longflag>--idwi</longflag>
+      <longflag alias="idwi">outputIDWIVolume</longflag>
       <label>IDWI (optional)</label>
       <description>idwi output image. Image with isotropic diffusion-weighted information = geometric mean of diffusion images</description>
       <channel>output</channel>
@@ -50,7 +50,7 @@
     </image>
     <image>
       <name>B0MaskOutput</name>
-      <longflag>--B0_mask_output</longflag>
+      <longflag alias="B0_mask_output">outputBaselineMaskVolume</longflag>
       <label>Mask created by thresholded B0 (optional)</label>
       <description>B0 mask used for the estimation. B0 thresholded either with the -t option value or the automatic OTSU value</description>
       <channel>output</channel>
@@ -61,7 +61,7 @@
     <label>Input masks</label>
     <image>
       <name>brainMask</name>
-      <longflag>--brain_mask</longflag>
+      <longflag alias="brain_mask">inputBrainMaskVolume</longflag>
       <flag>M</flag>
       <label>Brain Mask</label>
       <description>Brain mask.  Image where for every voxel == 0 the tensors are not estimated. Be aware that in addition a threshold based masking will be performed by default. If such an additional threshold masking is NOT desired, then use option -t 0.</description>
@@ -70,7 +70,7 @@
     </image>
     <image>
       <name>badRegionMask</name>
-      <longflag>--bad_region_mask</longflag>
+      <longflag alias="bad_region_mask">inputBadRegionMaskVolume</longflag>
       <flag>B</flag>
       <label>Bad Region Mask</label>
       <description>Bad region mask.  Image where for every voxel > 0 the tensors are not estimated</description>
@@ -82,7 +82,7 @@
     <label>Options</label>
     <string-enumeration>
       <name>correction</name>
-      <longflag>--correction</longflag>
+      <longflag alias="correction">correctionType</longflag>
       <description>Correct the tensors if computed tensor is not semi-definite positive.</description>
       <label>Tensors Correction</label>
       <element>none</element>
@@ -94,9 +94,9 @@
     <string-enumeration>
       <name>method</name>
       <label>Method</label>
-      <longflag>--method</longflag>
+      <longflag alias="method">estimationMethod</longflag>
       <flag>m</flag>
-      <description>Esitmation method (lls:linear least squares, wls:weighted least squares, nls:non-linear least squares, ml:maximum likelihood)</description>
+      <description>Estimation method (lls:linear least squares, wls:weighted least squares, nls:non-linear least squares, ml:maximum likelihood)</description>
       <default>lls</default>
       <element>lls</element>
       <element>wls</element>
@@ -105,7 +105,7 @@
     </string-enumeration>
     <integer>
       <name>threshold</name>
-      <longflag>--threshold</longflag>
+      <longflag alias="threshold">baselineThreshold</longflag>
       <flag>t</flag>
       <label>Threshold</label>
       <description>Baseline threshold for estimation. If not specified calculated using an OTSU threshold on the baseline image.</description>
@@ -113,14 +113,14 @@
     </integer>
     <integer>
       <name>weightIterations</name>
-      <longflag>--weight_iterations</longflag>
+      <longflag alias="weight_iterations">weightIterations</longflag>
       <label>Weight Iterations</label>
       <description>Number of iterations to recaluate weightings from tensor estimate</description>
       <default>1</default>
     </integer>
     <double>
       <name>stepSize</name>
-      <longflag>--step</longflag>
+      <longflag alias="step">stepSize</longflag>
       <flag>S</flag>
       <label>Step Size</label>
       <description>Gradient descent step size (for nls and ml methods)</description>
@@ -128,7 +128,7 @@
     </double>
     <double>
       <name>sigma</name>
-      <longflag>--sigma</longflag>
+      <longflag>sigma</longflag>
       <flag>s</flag>
       <label>Sigma</label>
       <description></description>
@@ -136,7 +136,7 @@
     </double>
     <boolean>
       <name>doubleDTI</name>
-      <longflag>--DTI_double</longflag>
+      <longflag alias="DTI_double">saveTensorsAsdoubles</longflag>
       <label>DTI double (do not use in 3D Slicer)</label>
       <description>Tensor components are saved as doubles (cannot be visualized in Slicer)</description>
       <default>false</default>
@@ -144,28 +144,28 @@
     <boolean>
       <name>verbose</name>
       <flag>v</flag>
-      <longflag>--verbose</longflag>
+      <longflag>verbose</longflag>
       <label>Verbose</label>
       <description>produce verbose output</description>
       <default>0</default>
     </boolean>
     <double-vector>
       <name>defaultTensorValue</name>
-      <longflag>--defaultTensor</longflag>
+      <longflag alias="defaultPixelValue">defaultTensor</longflag>
       <label>Default Tensor</label>
       <description>Default tensor used if estimated tensor is below a given threshold</description>
       <default>0,0,0,0,0,0</default>
     </double-vector>
     <boolean>
       <name>ShiftNegativeEigenvalues</name>
-      <longflag>shiftNeg</longflag>
+      <longflag alias="shiftNeg">shiftNegativeEigenvalues</longflag>
       <description><![CDATA[Shift eigenvalues so all are positive (accounts for bad tensors related to noise or acquisition error). This is the same option as the one available in DWIToDTIEstimation in Slicer (but instead of just adding the minimum eigenvalue to all the eigenvalues if it is smaller than 0, we use a coefficient to have stictly positive eigenvalues]]></description>
       <label>Shift Negative Eigenvalues</label>
       <default>false</default>
     </boolean>
     <double>
       <name>ShiftNegativeEigenvaluesCoefficient</name>
-      <longflag>shiftNegCoeff</longflag>
+      <longflag alias="shiftNegCoeff">shiftNegativeEigenvaluesCoefficient</longflag>
       <description><![CDATA[Shift eigenvalues so all are positive (accounts for bad tensors related to noise or acquisition error). Instead of just adding the minimum eigenvalue to all the eigenvalues if it is smaller than 0, we use a coefficient to have stictly positive eigenvalues. Coefficient must be between 1.0 and 1.001 (included).]]></description>
       <label>Shift Negative Eigenvalues</label>
       <default>1.0001</default>

@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notices for more information.
   </license>
   <contributor>Casey Goodlett</contributor>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
   <parameters advanced="false">
     <label>Input DTI</label>
     <image type="tensor">
       <name>dtiImage</name>
-      <longflag>--dti_image</longflag>
+      <longflag alias="dti_image">inputDTIVolume</longflag>
       <label>DTI Image</label>
       <description>DTI tensor volume</description>
       <channel>input</channel>
@@ -27,7 +27,7 @@
     <label>Diffusion Tensor Measurements</label>
     <image type="scalar">
       <name>faOutput</name>
-      <longflag>--fa_output</longflag>
+      <longflag alias="fa_output">outputFAVolume</longflag>
       <flag>f</flag>
       <label>FA Output</label>
       <description>Fractional Anisotropy output file</description>
@@ -36,7 +36,7 @@
     </image>
     <image type="scalar">
       <name>mdOutput</name>
-      <longflag>--md_output</longflag>
+      <longflag alias="md_output">outputMDVolume</longflag>
       <flag>m</flag>
       <label>MD Output</label>
       <description>Mean Diffusivity output file</description>
@@ -45,7 +45,7 @@
     </image>
     <double>
       <name>sigma</name>
-      <longflag>--sigma</longflag>
+      <longflag>sigma</longflag>
       <flag>s</flag>
       <label>Gradients scale</label>
       <description>Scale of gradients</description>
@@ -53,7 +53,7 @@
     </double>
     <image type="vector">
       <name>faGradientOutput</name>
-      <longflag>--fa_gradient_output</longflag>
+      <longflag alias="fa_gradient_output">outputFAGradientVolume</longflag>
       <label>FA Gradient Output</label>
       <description>Fractional Anisotropy Gradient output file</description>
       <channel>output</channel>
@@ -61,7 +61,7 @@
     </image>
     <image type="scalar">
       <name>faGradientMagOutput</name>
-      <longflag>--fa_gradmag_output</longflag>
+      <longflag alias="fa_gradmag_output">outputFAGradientMagnitudeVolume</longflag>
       <label>FA Gradient Magnitude Output</label>
       <description>Fractional Anisotropy Gradient Magnitude output file</description>
       <channel>output</channel>
@@ -69,7 +69,7 @@
     </image>
     <image type="vector">
       <name>colorFAOutput</name>
-      <longflag>--color_fa_output</longflag>
+      <longflag alias="color_fa_output">outputColorFAVolume</longflag>
       <label>Color FA Output</label>
       <description>Color Fractional Anisotropy output file</description>
       <channel>output</channel>
@@ -77,7 +77,7 @@
     </image>
     <image type="vector">
       <name>principalEigenvectorOutput</name>
-      <longflag>--principal_eigenvector_output</longflag>
+      <longflag alias="principal_eigenvector_output">outputPrincipalEigenvectorVolume</longflag>
       <label>Principal Eigenvectors Output</label>
       <description>Principal Eigenvectors Output</description>
       <channel>output</channel>
@@ -85,7 +85,7 @@
     </image>
     <image type="scalar">
       <name>negativeEigenvectorOutput</name>
-      <longflag>--negative_eigenvector_output</longflag>
+      <longflag alias="negative_eigenvector_output">outputNegativeEigenvectorVolume</longflag>
       <label>Negative Eigenvectors Output</label>
       <description>Negative Eigenvectors Output: create a binary image where if any of the eigen value is below zero, the voxel is set to 1, otherwise 0.</description>
       <channel>output</channel>
@@ -93,7 +93,7 @@
     </image>
     <image type="scalar">
       <name>frobeniusNormOutput</name>
-      <longflag>--frobenius_norm_output</longflag>
+      <longflag alias="frobenius_norm_output">outputFrobeniusNormVolume</longflag>
       <label>Frobenius Norm Output</label>
       <description>Frobenius Norm Output</description>
       <channel>output</channel>
@@ -101,7 +101,7 @@
     </image>
     <image type="scalar">
       <name>lambda1Output</name>
-      <longflag>--lambda1_output</longflag>
+      <longflag alias="lambda1_output">outputLargestEigenvalueVolume</longflag>
       <label>Lambda 1 (AD)</label>
       <description>Axial Diffusivity - Lambda 1 (largest eigenvalue) output</description>
       <channel>output</channel>
@@ -109,7 +109,7 @@
     </image>
     <image type="scalar">
       <name>lambda2Output</name>
-      <longflag>--lambda2_output</longflag>
+      <longflag alias="lambda2_output">outputMiddleEigenvalueVolume</longflag>
       <label>Lambda 2 </label>
       <description>Lambda 2 (middle eigenvalue) output</description>
       <channel>output</channel>
@@ -117,7 +117,7 @@
     </image>
     <image type="scalar">
       <name>lambda3Output</name>
-      <longflag>--lambda3_output</longflag>
+      <longflag alias="lambda3_output">outputSmallestEigenvalueVolume</longflag>
       <label>Lambda 3 </label>
       <description>Lambda 3 (smallest eigenvalue) output</description>
       <channel>output</channel>
@@ -125,7 +125,7 @@
     </image>
     <image type="scalar">
       <name>RDOutput</name>
-      <longflag>--RD_output</longflag>
+      <longflag alias="RD_output">outputRDVolume</longflag>
       <label>RD </label>
       <description>RD (Radial Diffusivity 1/2*(lambda2+lambda3)) output</description>
       <channel>output</channel>
@@ -136,7 +136,7 @@
     <label>Affine Transformation</label>
     <image type="tensor">
       <name>rotOutput</name>
-      <longflag>--rot_output</longflag>
+      <longflag alias="rot_output">outputAffineTransformedDTIVolume</longflag>
       <flag>r</flag>
       <label>Output Transformed Tensor</label>
       <description>Rotated tensor output file.  Must also specify the dof file.</description>
@@ -144,14 +144,14 @@
     </image>
     <transform>
       <name>affineitk_file</name>
-      <longflag>--affineitk_file</longflag>
+      <longflag alias="affineitk_file">affineITKTransform</longflag>
       <label>Affine Transform (ITK)</label>
       <description>Transformation file for affine transformation.  ITK format.</description>
       <channel>input</channel>
     </transform>
     <file>
       <name>dofFile</name>
-      <longflag>--dof_file</longflag>
+      <longflag alias="dof_file">affineDOFTransform</longflag>
       <flag>d</flag>
       <label>Transform File (dof)</label>
       <description>Transformation file for affine transformation.  This can be ITK format (or the outdated RView).</description>
@@ -159,7 +159,7 @@
     </file>
     <file>
       <name>newdof_file</name>
-      <longflag>--newdof_file</longflag>
+      <longflag alias="newdof_file">affineNewDOFTransform</longflag>
       <label>Transform File (new dof)</label>
       <description>Transformation file for affine transformation.  RView NEW format. (txt file output of dof2mat)</description>
       <channel>input</channel>
@@ -169,7 +169,7 @@
     <label>Masking</label>
     <image>
       <name>mask</name>
-      <longflag>--mask</longflag>
+      <longflag alias="mask">inputMaskVolume</longflag>
       <label>Mask</label>
       <description>Mask tensors. Specify --outmask if you want to save the masked tensor field, otherwise the mask is applied just for the current processing </description>
       <channel>input</channel>
@@ -177,7 +177,7 @@
     </image>
     <image type="tensor">
       <name>outmask</name>
-      <longflag>--outmask</longflag>
+      <longflag alias="outmask">outputMaskedDTIVolume</longflag>
       <label>Masked tensor</label>
       <description>Name of the masked tensor field.</description>
       <channel>output</channel>
@@ -188,22 +188,22 @@
     <label>Deformation field</label>
     <boolean>
       <name>hField</name>
-      <longflag>--hField</longflag>
+      <longflag>hField</longflag>
       <label>H Fields</label>
       <description>forward and inverse transformations are h-fields instead of displacement fields</description>
       <default>0</default>
     </boolean>
     <image type="vector">
       <name>forwardTransformation</name>
-      <longflag>--forward</longflag>
-      <flag>F</flag>
+      <longflag alias="forward">deformationFieldVolume</longflag>
+      <flag alias="F">D</flag>
       <label>Forward Transformation</label>
       <description>Forward transformation.  Assumed to be a deformation field in world coordinates, unless the --h-field option is specified.</description>
       <channel>input</channel>
     </image>
     <image type="tensor">
       <name>deformationOutput</name>
-      <longflag>--deformation_output</longflag>
+      <longflag alias="deformation_output">outputWarpedDTIVolume</longflag>
       <flag>w</flag>
       <label>Deformed tensor image</label>
       <description>Warped tensor field based on a deformation field.  This option requires the --forward,-F transformation to be specified.</description>
@@ -211,7 +211,7 @@
     </image>
     <string-enumeration>
       <name>interpolation</name>
-      <longflag>--interpolation</longflag>
+      <longflag alias="interpolationType">interpolation</longflag>
       <flag>i</flag>
       <label>Interpolation</label>
       <description>Interpolation type (nearestneighbor, linear, cubic)</description>
@@ -222,7 +222,7 @@
     </string-enumeration>
     <string-enumeration>
       <name>reorientation</name>
-      <longflag>--reorientation</longflag>
+      <longflag alias="reorientation">transformTensorMethod</longflag>
       <label>Reorientation</label>
       <description>Reorientation type (fs, ppd)</description>
       <default>fs</default>
@@ -234,7 +234,7 @@
     <label>Options</label>
     <string-enumeration>
       <name>correction</name>
-      <longflag>--correction</longflag>
+      <longflag alias="correctionType">correction</longflag>
       <description>Correct the tensors if computed tensor is not semi-definite positive.</description>
       <label>Tensors Correction</label>
       <element>zero</element>
@@ -245,14 +245,14 @@
     </string-enumeration>
     <boolean>
       <name>scalarFloat</name>
-      <longflag>--scalar_float</longflag>
+      <longflag alias="scalar_float">saveScalarsAsFloat</longflag>
       <label>Scalar Float</label>
       <description>Write scalar [FA,MD] as unscaled float (with their actual values, otherwise scaled by 10 000).  Also causes FA to be unscaled [0..1].</description>
       <default>0</default>
     </boolean>
     <boolean>
       <name>doubleDTI</name>
-      <longflag>--DTI_double</longflag>
+      <longflag alias="DTI_double">saveTensorsAsdoubles</longflag>
       <label>DTI double (do not use in 3D Slicer)</label>
       <description>Tensor components are saved as doubles (cannot be visualized in Slicer)</description>
       <default>false</default>
@@ -260,7 +260,7 @@
     <boolean>
       <name>verbose</name>
       <flag>v</flag>
-      <longflag>--verbose</longflag>
+      <longflag>verbose</longflag>
       <label>Verbose</label>
       <description>produce verbose output</description>
       <default>0</default>

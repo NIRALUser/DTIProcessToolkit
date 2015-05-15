@@ -14,12 +14,12 @@
   </license>
   <contributor>Casey Goodlett</contributor>
   <acknowledgements>Hans Johnson(1,3,4); Kent Williams(1); (1=University of Iowa Department of Psychiatry, 3=University of Iowa Department of Biomedical Engineering, 4=University of Iowa Department of Electrical and Computer Engineering) provided conversions to make DTIProcess compatible with Slicer execution, and simplified the stand-alone build requirements by removing the dependancies on boost and a fortran compiler.</acknowledgements>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
   <parameters advanced="false">
     <label>I/O</label>
     <image type="tensor">
       <name>inputTensor</name>
-      <longflag>--input_tensor_file</longflag>
+      <longflag alias="input_tensor_file">inputDTIVolume</longflag>
       <flag>i</flag>
       <label>Input Tensor Image</label>
       <description>Tensor Image</description>
@@ -28,7 +28,7 @@
     </image>
     <image type="label">
       <name>inputROI</name>
-      <longflag>--input_roi_file</longflag>
+      <longflag alias="input_roi_file">inputROIVolume</longflag>
       <flag>r</flag>
       <label>Input ROI Image</label>
       <description>The filename of the image which contains the labels used for seeding and constraining the algorithm.</description>
@@ -37,7 +37,7 @@
     </image>
     <geometry type="fiberbundle">
       <name>outputFiberFile</name>
-      <longflag>--output_fiber_file</longflag>
+      <longflag alias="output_fiber_file">outputFiberBundle</longflag>
       <flag>o</flag>
       <label>Output Fiber File</label>
       <description>The filename for the fiber file produced by the algorithm. This file must end in a .fib or .vtk extension for ITK spatial object and vtkPolyData formats respectively.</description>
@@ -49,7 +49,7 @@
     <label>Source/Target</label>
     <integer>
       <name>sourceLabel</name>
-      <longflag>--source_label</longflag>
+      <longflag alias="source_label">sourceLabel</longflag>
       <label>Source Label</label>
       <flag>s</flag>
       <description>The label of voxels in the labelfile to use for seeding tractography. One tract is seeded from the center of each voxel with this label</description>
@@ -58,7 +58,7 @@
     <integer>
       <name>targetLabel</name>
       <label>Target Label</label>
-      <longflag>--target_label</longflag>
+      <longflag alias="target_label">targetLabel</longflag>
       <flag>t</flag>
       <description>The label of voxels in the labelfile used to constrain tractography. Tracts that do not pass through a voxel with this label are rejected. Set this keep all tracts.</description>
       <default>1</default>
@@ -66,7 +66,7 @@
     <integer>
       <name>forbiddenLabel</name>
       <label>Forbidden Label</label>
-      <longflag>--forbidden_label</longflag>
+      <longflag alias="forbidden_label">forbiddenLabel</longflag>
       <flag>f</flag>
       <description>Forbidden label</description>
       <default>0</default>
@@ -74,7 +74,7 @@
     <boolean>
       <name>wholeBrain</name>
       <label>Whole Brain</label>
-      <longflag>--whole_brain</longflag>
+      <longflag alias="whole_brain">wholeBrain</longflag>
       <description>If this option is enabled all voxels in the image are used to seed tractography. When this option is enabled both source and target labels function as target labels</description>
       <default>false</default>
     </boolean>
@@ -84,21 +84,21 @@
     <double>
       <name>maxAngle</name>
       <label>Maximum Angle</label>
-      <longflag>--max_angle</longflag>
+      <longflag alias="max_angle">maximumAngle</longflag>
       <description>Maximum angle of change in radians</description>
       <default>0.785398163397448309615660845819875721</default>
     </double>
     <double>
       <name>stepSize</name>
       <label>Step Size</label>
-      <longflag>--step_size</longflag>
+      <longflag alias="step_size">stepSize</longflag>
       <description>Step size in mm for the tracking algorithm</description>
       <default>0.5</default>
     </double>
     <double>
       <name>minFa</name>
       <label>Minimum FA</label>
-      <longflag>--min_fa</longflag>
+      <longflag alias="min_fa">minimumFA</longflag>
       <description>The minimum FA threshold to continue tractography</description>
       <default>0.2</default>
     </double>
@@ -107,7 +107,7 @@
     <label>Advanced options</label>
     <boolean>
       <name>force</name>
-      <longflag>--force</longflag>
+      <longflag>force</longflag>
       <label>Force</label>
       <description>Ignore sanity checks.</description>
       <default>0</default>
@@ -115,14 +115,14 @@
     <boolean>
       <name>verbose</name>
       <flag>v</flag>
-      <longflag>--verbose</longflag>
+      <longflag>verbose</longflag>
       <label>Verbose</label>
       <description>produce verbose output</description>
       <default>0</default>
     </boolean>
     <boolean>
       <name>reallyVerbose</name>
-      <longflag>--really_verbose</longflag>
+      <longflag>really_verbose</longflag>
       <label>Really Verbose</label>
       <description>Follow detail of fiber tracking algorithm</description>
       <default>0</default>

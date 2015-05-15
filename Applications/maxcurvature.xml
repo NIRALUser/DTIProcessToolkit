@@ -13,12 +13,12 @@
   </license>
   <contributor>Casey Goodlett</contributor>
   <acknowledgements>Hans Johnson(1,3,4); Kent Williams(1); (1=University of Iowa Department of Psychiatry, 3=University of Iowa Department of Biomedical Engineering, 4=University of Iowa Department of Electrical and Computer Engineering) provided conversions to make DTIProcess compatible with Slicer execution, and simplified the stand-alone build requirements by removing the dependancies on boost and a fortran compiler.</acknowledgements>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
   <parameters advanced="false">
     <label>I/O</label>
     <image type="scalar">
       <name>image</name>
-      <longflag>--image</longflag>
+      <longflag alias="image">inputFAVolume</longflag>
       <flag>i</flag>
       <label>FA image file</label>
       <description>FA Image</description>
@@ -27,7 +27,7 @@
     </image>
     <image type="scalar">
       <name>output</name>
-      <longflag>--output</longflag>
+      <longflag alias="output">outputVolume</longflag>
       <flag>o</flag>
       <label>Output file</label>
       <description>Output File</description>
@@ -36,7 +36,7 @@
     </image>
     <double>
       <name>sigma</name>
-      <longflag>--sigma</longflag>
+      <longflag>sigma</longflag>
       <flag>s</flag>
       <label>Scale of Gradients</label>
       <description>Scale of Gradients</description>
@@ -48,7 +48,7 @@
     <boolean>
       <name>verbose</name>
       <flag>v</flag>
-      <longflag>--verbose</longflag>
+      <longflag>verbose</longflag>
       <label>Verbose</label>
       <description>produce verbose output</description>
       <default>0</default>
