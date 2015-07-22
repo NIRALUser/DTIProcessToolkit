@@ -150,8 +150,8 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DBUILD_TESTING:BOOL=OFF
       -DBUILD_EXAMPLES:BOOL=OFF
       -DCMAKE_INSTALL_PREFIX:PATH=${${proj}_INSTALL_PATH}
-      -DITK_LEGACY_REMOVE:BOOL=ON
-      -DITKV3_COMPATIBILITY:BOOL=OFF
+      -DITK_LEGACY_REMOVE:BOOL=${ITK_LEGACY_REMOVE} # ITKv3 compatibility is required for dwiAtlas to compile and run!
+      -DITKV3_COMPATIBILITY:BOOL=${ITKV3_COMPATIBILITY}  # ITKv3 compatibility is required for dwiAtlas to compile and run!
       -DITK_BUILD_DEFAULT_MODULES:BOOL=ON
       -DKWSYS_USE_MD5:BOOL=ON # Required by SlicerExecutionModel
       -DITK_WRAPPING:BOOL=OFF #${BUILD_SHARED_LIBS} ## HACK:  QUICK CHANGE

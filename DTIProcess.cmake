@@ -29,7 +29,6 @@ SETIFEMPTY(INSTALL_RUNTIME_DESTINATION bin)
 SETIFEMPTY(INSTALL_LIBRARY_DESTINATION bin)
 SETIFEMPTY(INSTALL_ARCHIVE_DESTINATION lib/static)
 
-option(BUILD_dwiAtlas "Build dwiAtlas or not.  Requires boost." OFF)
 option(BUILD_TESTING "Build the testing tree" ON)
 option(EXECUTABLES_ONLY "Build only executables (CLI)" OFF)
 

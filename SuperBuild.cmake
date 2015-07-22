@@ -51,6 +51,12 @@ set( ${PRIMARY_PROJECT_NAME}_BUILD_ZLIB_SUPPORT ON )
 set( ${PRIMARY_PROJECT_NAME}_BUILD_FFTW_SUPPORT ON )
 
 set(${PRIMARY_PROJECT_NAME}_DEPENDENCIES ${ITK_EXTERNAL_NAME} SlicerExecutionModel VTK )
+if( BUILD_dwiAtlas )
+  list(APPEND ${PRIMARY_PROJECT_NAME}_DEPENDENCIES Boost)
+endif()
+
+CMAKE_DEPENDENT_OPTION( ITK_LEGACY_REMOVE "Remove ITK legacy" ON "NOT BUILD_dwiAtlas" OFF)
+CMAKE_DEPENDENT_OPTION( ITKV3_COMPATIBILITY "Build ITKv4 with ITKv3 compatibility" OFF "NOT BUILD_dwiAtlas" ON)
 
 if(BUILD_STYLE_UTILS)
   list(APPEND ${PRIMARY_PROJECT_NAME}_DEPENDENCIES Cppcheck KWStyle Uncrustify)
@@ -148,6 +154,7 @@ endif()
       -DBUILD_PolyDataTransform:BOOL=${BUILD_PolyDataTransform}
       -DBUILD_PolyDataMerge:BOOL=${BUILD_PolyDataMerge}
       -DBUILD_CropDTI:BOOL=${BUILD_CropDTI}
+      -DBUILD_dwiAtlas:BOOL=${BUILD_dwiAtlas}
     INSTALL_COMMAND ""
   )
 

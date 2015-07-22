@@ -131,7 +131,7 @@ SETIFEMPTY(CLI_INSTALL_LIBRARY_DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 SETIFEMPTY(CLI_INSTALL_ARCHIVE_DESTINATION ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 SETIFEMPTY(CLI_INSTALL_RUNTIME_DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-
+option(BUILD_dwiAtlas "Build dwiAtlas or not.  Requires boost." OFF)
 #-------------------------------------------------------------------------
 # Augment compiler flags
 #-------------------------------------------------------------------------
