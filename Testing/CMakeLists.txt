@@ -9,8 +9,11 @@ set(IDWITest_ALLOWED_PIXEL_VALUE_DIFF    0.0000000001)
 
 
 # Add test of the homemade "round()" function
-add_executable(TestHomemadeRoundFunction TestHomemadeRoundFunction.cxx)
-target_link_libraries(TestHomemadeRoundFunction ${ITK_LIBRARIES})
+if( NOT DTIProcess_BUILD_SLICER_EXTENSION )
+  add_executable(TestHomemadeRoundFunction TestHomemadeRoundFunction.cxx)
+  target_link_libraries(TestHomemadeRoundFunction ${ITK_LIBRARIES})
+  list(APPEND TESTS TestHomemadeRoundFunction)
+endif()
 add_test(NAME TestHomemadeRoundFunction COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:TestHomemadeRoundFunction> )
 
 set(SOURCE_DIRECTORY ${DTIProcess_SOURCE_DIR}/Data/ )
@@ -27,8 +30,11 @@ file(MAKE_DIRECTORY  ${${CLP}_tmp_dir} )
 
 set(input ${${CLP}_source_dir}/Input/dwi.nrrd )
 
-add_executable(${CLP}Test ImageCompareTest.cxx)
-target_link_libraries(${CLP}Test ${CLP}Lib)
+if( NOT DTIProcess_BUILD_SLICER_EXTENSION )
+  add_executable(${CLP}Test ImageCompareTest.cxx)
+  target_link_libraries(${CLP}Test ${CLP}Lib)
+  list(APPEND TESTS ${CLP}Test)
+endif()
 set(trash ${${CLP}_tmp_dir}/dti_trash.nrrd )
 
 #B0
@@ -138,9 +144,11 @@ file(MAKE_DIRECTORY  ${${CLP}_tmp_dir} )
 set(input1 ${${CLP}_source_dir}/Input/dti.nrrd )
 set(input2 ${${CLP}_source_dir}/Input/dti2.nrrd )
 
-add_executable(${CLP}Test ImageCompareTest.cxx)
-target_link_libraries(${CLP}Test ${CLP}Lib)
-
+if( NOT DTIProcess_BUILD_SLICER_EXTENSION )
+  add_executable(${CLP}Test ImageCompareTest.cxx)
+  target_link_libraries(${CLP}Test ${CLP}Lib)
+  list(APPEND TESTS ${CLP}Test)
+endif()
 
 set(output ${${CLP}_tmp_dir}/dti_avg.nrrd )
 set(baseline ${${CLP}_source_dir}/Baseline/dti_average.nrrd )
@@ -167,8 +175,11 @@ file(MAKE_DIRECTORY  ${${CLP}_tmp_dir} )
 
 set(input ${${CLP}_source_dir}/Input/dti.nrrd )
 
-add_executable(${CLP}Test ImageCompareTest.cxx)
-target_link_libraries(${CLP}Test ${CLP}Lib)
+if( NOT DTIProcess_BUILD_SLICER_EXTENSION )
+  add_executable(${CLP}Test ImageCompareTest.cxx)
+  target_link_libraries(${CLP}Test ${CLP}Lib)
+  list(APPEND TESTS ${CLP}Test)
+endif()
 
 #FA
 set(output ${${CLP}_tmp_dir}/fa.nrrd )
@@ -221,4 +232,10 @@ add_test(NAME ${CLP}RDTest COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}
     --RD_output ${output}
     --dti_image ${input}
   )
+
+if(DTIProcess_EXTENSION)
+  foreach( VAR ${TESTS} )
+    install( TARGETS ${VAR} DESTINATION ${INSTALL_RUNTIME_DESTINATION} )
+  endforeach()
+endif()
 

@@ -7,21 +7,6 @@ string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 #unset( USE_SYSTEM_VTK CACHE )
 #unset( USE_SYSTEM_SlicerExecutionModel CACHE )
 
-
-## A simple macro to set variables ONLY if it has not been set
-## This is needed when stand-alone packages are combined into
-## a larger package, and the desired behavior is that all the
-## binary results end up in the combined directory.
-if(NOT SETIFEMPTY)
-macro(SETIFEMPTY)
-  set(KEY ${ARGV0})
-  set(VALUE ${ARGV1})
-  if(NOT ${KEY})
-    set(${KEY} ${VALUE})
-  endif(NOT ${KEY})
-endmacro(SETIFEMPTY KEY VALUE)
-endif(NOT SETIFEMPTY)
-###
 SETIFEMPTY(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 SETIFEMPTY(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 SETIFEMPTY(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
@@ -146,9 +131,6 @@ option(BUILD_PolyDataTransform "Build PolyDataTransform" ON)
 option(BUILD_PolyDataMerge "Build PolyDataMerge" ON)
 option(BUILD_CropDTI "Build CropDTI" ON)
 if( BUILD_PolyDataTransform OR BUILD_PolyDataMerge OR BUILD_CropDTI )
-  if(WIN32)
-    set(fileextension .exe)
-  endif()
   set(${PRIMARY_PROJECT_NAME}_DEPENDENCIES niral_utilities)
   if( BUILD_PolyDataMerge )
     install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/niral_utilities-install/bin/polydatamerge${fileextension} DESTINATION ${INSTALL_RUNTIME_DESTINATION} )
@@ -182,19 +164,8 @@ if( dependencies_size GREATER 0 )
   SlicerMacroCheckExternalProjectDependency(${PRIMARY_PROJECT_NAME})
 endif()
 
-
-if( DTIProcess_BUILD_SLICER_EXTENSION )
-  find_package(Slicer REQUIRED)
-  include(${Slicer_USE_FILE})
-endif()
-
 IF(BUILD_TESTING)
   include(CTest)
   ADD_SUBDIRECTORY(Testing)
 ENDIF(BUILD_TESTING)
 
-
-if( DTIProcess_BUILD_SLICER_EXTENSION )
-  set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
-  include(${Slicer_EXTENSION_CPACK})
-endif()

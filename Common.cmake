@@ -21,6 +21,10 @@ set(PRIMARY_PROJECT_NAME DTIProcess)
 #-----------------------------------------------------------------------------
 set(verbose FALSE)
 #-----------------------------------------------------------------------------
+if(WIN32)
+  set(fileextension .exe)
+endif()
+#-----------------------------------------------------------------------------
 
 include(CMakeDependentOption)
 
@@ -94,8 +98,9 @@ set(EXTENSION_ICONURL "http://www.nitrc.org/project/screenshot.php?group_id=312&
 set(EXTENSION_SCREENSHOTURLS "http://www.slicer.org/slicerWiki/images/thumb/b/b8/DTIEstim-B0-crop.png/193px-DTIEstim-B0-crop.png http://www.slicer.org/slicerWiki/images/thumb/9/90/FiberTrack-fibers.png/138px-FiberTrack-fibers.png")
 set(EXTENSION_STATUS "Beta")
 set(EXTENSION_DEPENDS "NA") # Specified as a space separated list or 'NA' if any
-set(EXTENSION_BUILD_SUBDIRECTORY DTIProcess-build)
-
+set(EXTENSION_BUILD_SUBDIRECTORY .)
+set(EXTENSION_README_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
+set(EXTENSION_LICENSE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/License.txt)
 
 option( BUILD_TESTING   "Build the testing tree" ON )
 
@@ -227,7 +232,6 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   Subversion_SVN_EXECUTABLE:FILEPATH
   GIT_EXECUTABLE:FILEPATH
   USE_GIT_PROTOCOL:BOOL
-  DTIProcess_BUILD_SLICER_EXTENSION:BOOL
   Slicer_DIR:PATH
   VTK_VERSION_MAJOR:STRING
   )

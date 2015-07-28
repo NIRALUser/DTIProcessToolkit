@@ -17,9 +17,12 @@ CMAKE_DEPENDENT_OPTION(
 
 option(EXECUTABLES_ONLY "Build the tools and the tools' libraries statically" ON)
 #-----------------------------------------------------------------------------
+SETIFEMPTY(INSTALL_RUNTIME_DESTINATION bin)
+SETIFEMPTY(INSTALL_LIBRARY_DESTINATION lib)
+set( DTIProcess_INSTALL_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/DTIProcess-install )
+#-----------------------------------------------------------------------------
 # Extension configuration
 #-----------------------------------------------------------------------------
-
 ########Depending if it is an extension or a Superbuild
 if( DTIProcess_BUILD_SLICER_EXTENSION )
   unsetForSlicer(NAMES CMAKE_MODULE_PATH CMAKE_C_COMPILER CMAKE_CXX_COMPILER DCMTK_DIR ITK_DIR SlicerExecutionModel_DIR VTK_DIR QT_QMAKE_EXECUTABLE ITK_VERSION_MAJOR CMAKE_CXX_FLAGS CMAKE_C_FLAGS Teem_DIR)
@@ -30,6 +33,14 @@ if( DTIProcess_BUILD_SLICER_EXTENSION )
   #VTK_VERSION_MAJOR is define but not a CACHE variable
   set( VTK_VERSION_MAJOR ${VTK_VERSION_MAJOR} CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6).")
   set( USE_SYSTEM_SlicerExecutionModel ON CACHE BOOL "Build using an externally defined version of SlicerExecutionModel" FORCE )
+  # For tests purposes
+  set(EXTENSION_CLIS CropDTI dtiaverage dtiestim dtiprocess fiberprocess fiberstats polydatamerge polydatatransform)
+  set(TESTS dtiaverageTest dtiestimTest dtiprocessTest TestHomemadeRoundFunction)
+  # Creation of imported targets for the tests
+  foreach(VAR ${EXTENSION_CLIS} ${TESTS} )
+    add_executable(${VAR} IMPORTED)
+    set_property(TARGET ${VAR} PROPERTY IMPORTED_LOCATION ${DTIProcess_INSTALL_DIRECTORY}/${INSTALL_RUNTIME_DESTINATION}/${VAR}${fileextension})
+  endforeach()
 endif()
 
 option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
@@ -130,24 +141,21 @@ endif()
 #------------------------------------------------------------------------------
 # Configure and build
 #------------------------------------------------------------------------------
-  set(proj ${PRIMARY_PROJECT_NAME})
-  ExternalProject_Add(${proj}
+set(proj ${PRIMARY_PROJECT_NAME})
+ExternalProject_Add(${proj}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     BINARY_DIR ${proj}-build
     DEPENDS ${${PRIMARY_PROJECT_NAME}_DEPENDENCIES}
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
-      -DMIDAS_PACKAGE_EMAIL:STRING=${MIDAS_PACKAGE_EMAIL}
-      -DMIDAS_PACKAGE_API_KEY:STRING=${MIDAS_PACKAGE_API_KEY}
-      -DEXTENSION_NAME:STRING=${EXTENSION_NAME}
       -DDTIProcess_SUPERBUILD:BOOL=OFF
-      -DINSTALL_RUNTIME_DESTINATION:PATH=${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION}
-      -DINSTALL_LIBRARY_DESTINATION:PATH=${SlicerExecutionModel_DEFAULT_CLI_INSTALL_LIBRARY_DESTINATION}
+      -DDTIProcess_EXTENSION:BOOL=ON #install the tests if it is built as an extension
+      -DINSTALL_RUNTIME_DESTINATION:PATH=${INSTALL_RUNTIME_DESTINATION}
+      -DINSTALL_LIBRARY_DESTINATION:PATH=${INSTALL_LIBRARY_DESTINATION}
       ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
       ${COMMON_EXTERNAL_PROJECT_ARGS}
       -DEXECUTABLES_ONLY:BOOL=${EXECUTABLES_ONLY}
-      -DEXTENSION_SUPERBUILD_BINARY_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}
       -DUSE_SYSTEM_ITK:BOOL=TRUE
       -DUSE_SYSTEM_VTK:BOOL=TRUE
       -DUSE_SYSTEM_SlicerExecutionModel:BOOL=TRUE
@@ -155,7 +163,7 @@ endif()
       -DBUILD_PolyDataMerge:BOOL=${BUILD_PolyDataMerge}
       -DBUILD_CropDTI:BOOL=${BUILD_CropDTI}
       -DBUILD_dwiAtlas:BOOL=${BUILD_dwiAtlas}
-    INSTALL_COMMAND ""
+      -DCMAKE_INSTALL_PREFIX:PATH=${DTIProcess_INSTALL_DIRECTORY}
   )
 
 ## Force rebuilding of the main subproject every time building from super structure
@@ -168,3 +176,16 @@ ExternalProject_Add_Step(${proj} forcebuild
   )
 
 #-----------------------------------------------------------------------------
+
+if( DTIProcess_BUILD_SLICER_EXTENSION )
+  IF(BUILD_TESTING)
+    include(CTest)
+    ADD_SUBDIRECTORY(Testing)
+  ENDIF(BUILD_TESTING)
+  include(${Slicer_USE_FILE})
+  foreach( VAR ${EXTENSION_CLIS})
+    install( PROGRAMS ${DTIProcess_INSTALL_DIRECTORY}/${INSTALL_RUNTIME_DESTINATION}/${VAR}${fileextension} DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION} )
+  endforeach()
+  set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
+  include(${Slicer_EXTENSION_CPACK})
+endif()
