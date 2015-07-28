@@ -142,10 +142,11 @@ endif()
 # Configure and build
 #------------------------------------------------------------------------------
 set(proj ${PRIMARY_PROJECT_NAME})
+set(proj_build ${proj}-build)
 ExternalProject_Add(${proj}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    BINARY_DIR ${proj}-build
+    BINARY_DIR ${proj_build}
     DEPENDS ${${PRIMARY_PROJECT_NAME}_DEPENDENCIES}
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
@@ -186,6 +187,7 @@ if( DTIProcess_BUILD_SLICER_EXTENSION )
   foreach( VAR ${EXTENSION_CLIS})
     install( PROGRAMS ${DTIProcess_INSTALL_DIRECTORY}/${INSTALL_RUNTIME_DESTINATION}/${VAR}${fileextension} DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION} )
   endforeach()
+  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/ImportDTIProcessExtensionExecutables.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/ImportDTIProcessExtensionExecutables.cmake)
   set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
   include(${Slicer_EXTENSION_CPACK})
 endif()
