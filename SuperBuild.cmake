@@ -33,14 +33,6 @@ if( DTIProcess_BUILD_SLICER_EXTENSION )
   #VTK_VERSION_MAJOR is define but not a CACHE variable
   set( VTK_VERSION_MAJOR ${VTK_VERSION_MAJOR} CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6).")
   set( USE_SYSTEM_SlicerExecutionModel ON CACHE BOOL "Build using an externally defined version of SlicerExecutionModel" FORCE )
-  # For tests purposes
-  set(EXTENSION_CLIS CropDTI dtiaverage dtiestim dtiprocess fiberprocess fiberstats polydatamerge polydatatransform)
-  set(TESTS dtiaverageTest dtiestimTest dtiprocessTest TestHomemadeRoundFunction)
-  # Creation of imported targets for the tests
-  foreach(VAR ${EXTENSION_CLIS} ${TESTS} )
-    add_executable(${VAR} IMPORTED)
-    set_property(TARGET ${VAR} PROPERTY IMPORTED_LOCATION ${DTIProcess_INSTALL_DIRECTORY}/${INSTALL_RUNTIME_DESTINATION}/${VAR}${fileextension})
-  endforeach()
 endif()
 
 option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
@@ -179,13 +171,27 @@ ExternalProject_Add_Step(${proj} forcebuild
 #-----------------------------------------------------------------------------
 
 if( DTIProcess_BUILD_SLICER_EXTENSION )
+  set(EXTENSION_CLIS CropDTI dtiaverage dtiestim dtiprocess fiberprocess fiberstats polydatamerge polydatatransform)
+  set(TESTS dtiaverageTest dtiestimTest dtiprocessTest TestHomemadeRoundFunction)
+  # Manual creation of imported targets for the tests
+  # It is not possible to import the targets directly using "include(DTIProcess-targets.cmake)" because
+  # that file is only created at compilation time and we need to know where the targets will be at configuration time.
+  foreach(VAR ${EXTENSION_CLIS} ${TESTS} )
+    add_executable(${VAR} IMPORTED)
+    set_property(TARGET ${VAR} PROPERTY IMPORTED_LOCATION ${DTIProcess_INSTALL_DIRECTORY}/${INSTALL_RUNTIME_DESTINATION}/${VAR}${fileextension})
+  endforeach()
   IF(BUILD_TESTING)
     include(CTest)
     ADD_SUBDIRECTORY(Testing)
   ENDIF(BUILD_TESTING)
+  # Packaging
   include(${Slicer_USE_FILE})
   foreach( VAR ${EXTENSION_CLIS})
-    install( PROGRAMS ${DTIProcess_INSTALL_DIRECTORY}/${INSTALL_RUNTIME_DESTINATION}/${VAR}${fileextension} DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION} )
+    # We have imported the inner-build targets manually.
+    # It is not possible to install imported target (CMake limitation), so instead we install
+    # the corresponding executable.
+    get_property(${VAR}PATH TARGET ${VAR} PROPERTY IMPORTED_LOCATION )
+    install( PROGRAMS ${${VAR}PATH} DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION} )
   endforeach()
   configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/ImportDTIProcessExtensionExecutables.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/ImportDTIProcessExtensionExecutables.cmake)
   set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
