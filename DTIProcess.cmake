@@ -1,11 +1,3 @@
-#-----------------------------------------------------------------------------
-set(MODULE_NAME ${EXTENSION_NAME}) # Do not use 'project()'
-set(MODULE_TITLE ${MODULE_NAME})
-
-string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
-#unset( USE_SYSTEM_ITK CACHE )
-#unset( USE_SYSTEM_VTK CACHE )
-#unset( USE_SYSTEM_SlicerExecutionModel CACHE )
 
 SETIFEMPTY(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 SETIFEMPTY(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
