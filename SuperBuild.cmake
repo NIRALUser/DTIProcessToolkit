@@ -33,6 +33,7 @@ if( DTIProcess_BUILD_SLICER_EXTENSION )
   #VTK_VERSION_MAJOR is define but not a CACHE variable
   set( VTK_VERSION_MAJOR ${VTK_VERSION_MAJOR} CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6).")
   set( USE_SYSTEM_SlicerExecutionModel ON CACHE BOOL "Build using an externally defined version of SlicerExecutionModel" FORCE )
+  set( BUILD_CropDTI OFF CACHE BOOL "Build CropDTI" FORCE) # CropDTI is not a CLI
 endif()
 
 option(USE_SYSTEM_ITK "Build using an externally defined version of ITK" OFF)
@@ -171,7 +172,7 @@ ExternalProject_Add_Step(${proj} forcebuild
 #-----------------------------------------------------------------------------
 
 if( DTIProcess_BUILD_SLICER_EXTENSION )
-  set(EXTENSION_CLIS CropDTI dtiaverage dtiestim dtiprocess fiberprocess fiberstats polydatamerge polydatatransform)
+  set(EXTENSION_CLIS dtiaverage dtiestim dtiprocess fiberprocess fiberstats polydatamerge polydatatransform)
   set(TESTS dtiaverageTest dtiestimTest dtiprocessTest TestHomemadeRoundFunction)
   # Manual creation of imported targets for the tests
   # It is not possible to import the targets directly using "include(DTIProcess-targets.cmake)" because
