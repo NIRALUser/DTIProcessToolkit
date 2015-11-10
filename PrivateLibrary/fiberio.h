@@ -5,6 +5,6 @@
 
 GroupType::Pointer readFiberFile(const std::string & filename);
 
-void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup, bool saveProperties = true);
+void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup, bool saveProperties = true ,  std::string encoding = "binary" );
 
 #endif
