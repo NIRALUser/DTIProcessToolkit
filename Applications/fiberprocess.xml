@@ -35,7 +35,15 @@
       <longflag alias="tensor_volume">inputDTIVolume</longflag>
       <flag>T</flag>
       <label>Tensor Volume</label>
-      <description>Interpolate tensor values from the given field</description>
+      <description>Interpolate tensor values from the given field. T1T2File and TensorVolume cannot be passed at the same time</description>
+      <channel>input</channel>
+    </image>
+    <image type="scalar">
+      <name>T1T2File</name>
+      <longflag alias="scalarImage">T1T2file</longflag>
+      <flag>S</flag>
+      <label> T1w/T2w Scalar File</label>
+      <description> (to-do) T1T2File and TensorVolume cannot be passed at the same time.<description>
       <channel>input</channel>
     </image>
     <image type="vector">

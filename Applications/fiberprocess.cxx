@@ -23,6 +23,7 @@ PURPOSE.  See the above copyright notices for more information.
 #include <itkImageFileWriter.h>
 #include <itkTensorLinearInterpolateImageFunction.h>
 #include <itkVectorLinearInterpolateImageFunction.h>
+#include <itkLinearInterpolateImageFunction.h>
 #include <itkVersion.h>
 
 // #include "FiberCalculator.h"
@@ -60,6 +61,8 @@ int main(int argc, char* argv[])
     }
 
   typedef itk::VectorLinearInterpolateImageFunction<DeformationImageType, double> DeformationInterpolateType;
+
+  // Deformation Field Input
   DeformationInterpolateType::Pointer definterp(ITK_NULLPTR);
   if( deformationfield )
     {
@@ -116,11 +119,26 @@ int main(int argc, char* argv[])
     }
 
   // Setup tensor file if available
-  typedef itk::ImageFileReader<TensorImageType>                              TensorImageReader;
+  // to-do: T1w/T2w scalar/ typedef LinearInterpolationFunction
+  typedef itk::ImageFileReader<TensorImageType> TensorImageReader;
+  typedef itk::ImageFileReader<RealImageType> RealImageReader;
   typedef itk::TensorLinearInterpolateImageFunction<TensorImageType, double> TensorInterpolateType;
+  typedef itk::LinearInterpolateImageFunction<RealImageType, double> ScalarInterpolateType; 
+  
   TensorImageReader::Pointer     tensorreader = ITK_NULLPTR;
   TensorInterpolateType::Pointer tensorinterp = ITK_NULLPTR;
+  RealImageReader::Pointer scalarreader = ITK_NULLPTR;
+  ScalarInterpolateType::Pointer scalarinterp = ITK_NULLPTR;
 
+  // check for invalid syntax
+  if( tensorVolume != "" && T1T2File != "")
+    {
+    // is there a better way to throw error?  
+    std::cerr << "Error: tensorVolume and T1T2File should not be given at the same time!\n" << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  // Tensor Volume input
   if( tensorVolume != "" )
     {
     tensorreader = TensorImageReader::New();
@@ -138,6 +156,27 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
       }
     }
+
+  // T1T2 Image input
+  if( T1T2File != "")
+    {
+    scalarreader = RealImageReader::New();
+    scalarinterp = ScalarInterpolateType::New();
+    scalarreader->SetFilename(T1T2File);
+    try
+    {
+      scalarreader->Update();
+      scalarinterp->SetInputImage(scalarreader->GetOutput());
+    }
+    catch( itk::ExceptionObject exp )
+      {
+      std::cerr << exp << std::endl;
+      return EXIT_FAILURE;
+      }
+    }
+
+
+  }
 
   if( VERBOSE )
     {
@@ -268,6 +307,7 @@ int main(int argc, char* argv[])
       itk::DiffusionTensor3D<double> tensor;
       if( tensorVolume != "" && fiberOutput != "" && !noDataChange )
         {
+	  
         tensorreader->GetOutput()->TransformPhysicalPointToContinuousIndex(pt_trans, tensor_ci);
         tensor = tensorinterp->EvaluateAtContinuousIndex(tensor_ci).GetDataPointer() ;
 
