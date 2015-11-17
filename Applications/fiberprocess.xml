@@ -39,13 +39,19 @@
       <channel>input</channel>
     </image>
     <image type="scalar">
-      <name>T1T2File</name>
-      <longflag alias="scalarImage">T1T2file</longflag>
+      <name>ScalarImage</name>
+      <longflag alias="scalarImage">ScalarImage</longflag>
       <flag>S</flag>
-      <label> T1w/T2w Scalar File</label>
-      <description> (to-do) T1T2File and TensorVolume cannot be passed at the same time.<description>
+      <label> Scalar Image File</label>
+      <description> Samples the provided scalar image at fiber locations (with/without deformation as specified) and stores the values with the output fiber. Scalar Image and TensorVolume cannot be passed at the same time.</description>
       <channel>input</channel>
     </image>
+   <string>
+     <name>ScalarName</name>
+      <longflag alias="scalarName">scalarName</longflag>
+     <default>scalar</default>
+     <description> Name for pointData field in output fiber file that will contain the values sampled from the scalar image</description>
+   </string>
     <image type="vector">
       <name>hField</name>
       <longflag alias="h_field">hFieldVolume</longflag>

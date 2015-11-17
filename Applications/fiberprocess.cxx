@@ -119,7 +119,6 @@ int main(int argc, char* argv[])
     }
 
   // Setup tensor file if available
-  // to-do: T1w/T2w scalar/ typedef LinearInterpolationFunction
   typedef itk::ImageFileReader<TensorImageType> TensorImageReader;
   typedef itk::ImageFileReader<RealImageType> RealImageReader;
   typedef itk::TensorLinearInterpolateImageFunction<TensorImageType, double> TensorInterpolateType;
@@ -131,7 +130,7 @@ int main(int argc, char* argv[])
   ScalarInterpolateType::Pointer scalarinterp = ITK_NULLPTR;
 
   // check for invalid syntax
-  if( tensorVolume != "" && T1T2File != "")
+  if( tensorVolume != "" && ScalarImage != "")
     {
     // is there a better way to throw error?  
     std::cerr << "Error: tensorVolume and T1T2File should not be given at the same time!\n" << std::endl;
@@ -157,12 +156,12 @@ int main(int argc, char* argv[])
       }
     }
 
-  // T1T2 Image input
-  if( T1T2File != "")
+  // Scalar Image input
+  if( ScalarImage != "")
     {
     scalarreader = RealImageReader::New();
     scalarinterp = ScalarInterpolateType::New();
-    scalarreader->SetFilename(T1T2File);
+    scalarreader->SetFileName(T1T2File);
     try
     {
       scalarreader->Update();
@@ -174,9 +173,6 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
       }
     }
-
-
-  }
 
   if( VERBOSE )
     {
@@ -204,7 +200,9 @@ int main(int argc, char* argv[])
     labelimage->SetRegions(tensorreader->GetOutput()->GetLargestPossibleRegion() );
     labelimage->Allocate();
     labelimage->FillBuffer(0);
-    }
+   }
+
+
   // For each fiber
   for( it = children->begin(); it != children->end(); it++ )
     {
@@ -215,7 +213,7 @@ int main(int argc, char* argv[])
     DTIPointListType::iterator pit;
 
     typedef DeformationInterpolateType::ContinuousIndexType ContinuousIndexType;
-    ContinuousIndexType tensor_ci, def_ci;
+    ContinuousIndexType tensor_ci, scalar_ci, def_ci;
 
     // For each point along the fiber
     for( pit = pointlist.begin(); pit != pointlist.end(); ++pit )
@@ -328,6 +326,17 @@ int main(int argc, char* argv[])
 	
 	}
 
+      // TODO: attribute scalar data if provided
+      double scalarImageValue = 0.0;
+      
+      if( ScalarImage != "" && fiberOutput != "" )
+        {
+	  
+        scalarreader->GetOutput()->TransformPhysicalPointToContinuousIndex(pt_trans, scalar_ci);
+        scalarImageValue = (double) scalarinterp->EvaluateAtContinuousIndex(scalar_ci) ;
+        newpoint.AddField(ScalarName.c_str(),scalarImageValue);
+	}
+
       typedef itk::DiffusionTensor3D<double>::EigenValuesArrayType EigenValuesType;
       EigenValuesType eigenvalues;
       tensor.ComputeEigenValues(eigenvalues);
@@ -367,10 +376,17 @@ int main(int argc, char* argv[])
     {
     std::cout << "Output: " << fiberOutput << std::endl;
     }
-
+  
   if( fiberOutput != "" )
     {
-      writeFiberFile(fiberOutput, newgroup, saveProperties);
+      if (ScalarImage != "") 
+        {
+        writeFiberFile(fiberOutput, newgroup, saveProperties, ScalarName);
+        } 
+      else
+        {
+	writeFiberFile(fiberOutput, newgroup, saveProperties);
+        }
     }
 
   if( voxelize != "" )
