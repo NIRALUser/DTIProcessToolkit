@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
   if( tensorVolume != "" && ScalarImage != "")
     {
     // is there a better way to throw error?  
-    std::cerr << "Error: tensorVolume and T1T2File should not be given at the same time!\n" << std::endl;
+    std::cerr << "Error: tensorVolume and ScalarImage should not be given at the same time!\n" << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
     {
     scalarreader = RealImageReader::New();
     scalarinterp = ScalarInterpolateType::New();
-    scalarreader->SetFileName(T1T2File);
+    scalarreader->SetFileName(ScalarImage);
     try
     {
       scalarreader->Update();
