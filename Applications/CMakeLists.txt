@@ -22,6 +22,25 @@ ADD_EXECUTABLE(morph morph.cxx)
 TARGET_LINK_LIBRARIES(morph ${DTIProcess_ITK_LIBRARIES})
 export(TARGETS morph APPEND FILE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exports.cmake)
 
+# When built as a Slicer extension, this will ensure that the CLI executables
+# can resolve the path of the ITK/VTK/... libraries provided by Slicer.
+#
+# It is usually done in UseSlicer.cmake included after calling
+# find_package(Slicer)/include(${Slicer_USE_FILE}). But since in this project
+# these calls are only done in SuperBuild.cmake, we explicily set the executable
+# and library link flags here.
+#
+# Note: These flags are currently used independently of the value of
+#       DTIProcess_BUILD_SLICER_EXTENSION. If this is a problem, the approach
+#       should be revisited so that the parameter DTIProcess_BUILD_SLICER_EXTENSION
+#       is propagated from the top-level down to this project.
+if(APPLE)
+  set(SlicerExecutionModel_DEFAULT_CLI_EXECUTABLE_LINK_FLAGS
+    "${SlicerExecutionModel_DEFAULT_CLI_EXECUTABLE_LINK_FLAGS} -Wl,-rpath,@loader_path/../../../../../")
+  set(SlicerExecutionModel_DEFAULT_CLI_LIBRARY_LINK_FLAGS
+    "${SlicerExecutionModel_DEFAULT_CLI_LIBRARY_LINK_FLAGS} -Wl,-rpath,@loader_path/../../../../../")
+endif()
+
 macro(SEM_BUILD_EXECUTABLE)
   set(options )
   set( oneValueArgs NAME )
