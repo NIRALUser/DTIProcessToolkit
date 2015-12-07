@@ -137,7 +137,8 @@ endif()
 set(proj ${PRIMARY_PROJECT_NAME})
 set(proj_build ${proj}-build)
 
-set(CMAKE_ARGS
+IF(APPLE)
+SET(CMAKE_ARGS 
       -DDTIProcess_SUPERBUILD:BOOL=OFF
       -DDTIProcess_EXTENSION:BOOL=ON #install the tests if it is built as an extension
       -DINSTALL_RUNTIME_DESTINATION:PATH=${INSTALL_RUNTIME_DESTINATION}
@@ -153,12 +154,6 @@ set(CMAKE_ARGS
       -DBUILD_CropDTI:BOOL=${BUILD_CropDTI}
       -DBUILD_dwiAtlas:BOOL=${BUILD_dwiAtlas}
       -DCMAKE_INSTALL_PREFIX:PATH=${DTIProcess_INSTALL_DIRECTORY}
-  )
-
-IF(APPLE)
-SET(CMAKE_ARGS 
-  ${CMAKE_ARGS} 
-  -DCMAKE_OSX_SYSROOT:PATH=${CMAKE_OSX_SYSROOT}
   )
 ENDIF(APPLE)
 
