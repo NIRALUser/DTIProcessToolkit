@@ -4,7 +4,7 @@ Program:   NeuroLib (DTI command line tools)
 Language:  C++
 Date:      $Date: 2009/08/03 17:36:42 $
 Version:   $Revision: 1.8 $
-Author:    Casey Goodlett (gcasey@sci.utah.edu), Martin Styner Francois Budin, Hans Johnson
+Author:    Casey Goodlett (gcasey@sci.utah.edu), Martin Styner Francois Budin, Hans Johnson, Haiwei Chen
 
 
 This software is distributed WITHOUT ANY WARRANTY; without even
@@ -246,7 +246,7 @@ int main(int argc, char* argv[])
             pt_trans[i] += warp[i];
             }
 //          deformationfield->TransformContinuousIndexToPhysicalPoint( def_ci , pt_trans ) ;
-//          std::cout<<p << " "<< p_world_orig<<" "<<pt_trans<<std::endl;
+	  //std::cout<<p << " world origin: "<< p_world_orig<<"; warp:"<<pt_trans<<std::endl;
           }
         }
 //            std::cout<<"plop6"<<std::endl;
