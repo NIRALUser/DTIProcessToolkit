@@ -27,7 +27,9 @@ inline double SQ2(double x)
 
 };
 
-void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup, bool saveProperties, std::string scalarPropertyName)
+
+
+void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup, bool saveProperties , std::string scalarPropertyName, std::string encoding )
 {
   // Make sure origins are updated
   fibergroup->ComputeObjectToWorldTransform();
@@ -158,6 +160,14 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup,
 #else
       fiberwriter->SetInputData(polydata);
 #endif
+      if( encoding == "binary" )
+      {
+        fiberwriter->SetFileTypeToBinary();
+      }
+      else
+      {
+        fiberwriter->SetFileTypeToASCII() ;
+      }
       fiberwriter->Update();
       }
     // XML
@@ -170,6 +180,18 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup,
 #else
       fiberwriter->SetInputData(polydata);
 #endif
+      if( encoding == "binary" )
+      {
+        fiberwriter->SetDataModeToBinary() ;
+      }
+      else if( encoding == "appended" )
+      {
+        fiberwriter->SetDataModeToAppended() ;
+      }
+      else
+      {
+        fiberwriter->SetDataModeToAscii() ;
+      }
       fiberwriter->Update();
       }
     else

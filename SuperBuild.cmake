@@ -136,13 +136,9 @@ endif()
 #------------------------------------------------------------------------------
 set(proj ${PRIMARY_PROJECT_NAME})
 set(proj_build ${proj}-build)
-ExternalProject_Add(${proj}
-    DOWNLOAD_COMMAND ""
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    BINARY_DIR ${proj_build}
-    DEPENDS ${${PRIMARY_PROJECT_NAME}_DEPENDENCIES}
-    CMAKE_GENERATOR ${gen}
-    CMAKE_ARGS
+
+IF(APPLE)
+SET(CMAKE_ARGS 
       -DDTIProcess_SUPERBUILD:BOOL=OFF
       -DDTIProcess_EXTENSION:BOOL=ON #install the tests if it is built as an extension
       -DINSTALL_RUNTIME_DESTINATION:PATH=${INSTALL_RUNTIME_DESTINATION}
@@ -158,6 +154,17 @@ ExternalProject_Add(${proj}
       -DBUILD_CropDTI:BOOL=${BUILD_CropDTI}
       -DBUILD_dwiAtlas:BOOL=${BUILD_dwiAtlas}
       -DCMAKE_INSTALL_PREFIX:PATH=${DTIProcess_INSTALL_DIRECTORY}
+  )
+ENDIF(APPLE)
+
+ExternalProject_Add(${proj}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    BINARY_DIR ${proj_build}
+    DEPENDS ${${PRIMARY_PROJECT_NAME}_DEPENDENCIES}
+    CMAKE_GENERATOR ${gen}
+    CMAKE_ARGS
+      ${CMAKE_ARGS}
   )
 
 ## Force rebuilding of the main subproject every time building from super structure
