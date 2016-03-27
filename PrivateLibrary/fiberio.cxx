@@ -116,14 +116,18 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup,
         scalarAD->InsertNextValue(sopt->GetField("ad"));
         scalarRD->InsertNextValue(sopt->GetField("rd"));
 
+#if VTK_MAJOR_VERSION >= 7 && VTK_MINOR_VERSION >=1
+        tensorsdata->InsertNextTypedTuple(vtktensor);
+#else
         tensorsdata->InsertNextTupleValue(vtktensor);
+#endif
 
         }
       polydata->InsertNextCell(VTK_POLY_LINE, nPointsOnFiber, ids->GetPointer(currentId) );
       }
 
     polydata->GetPointData()->SetTensors(tensorsdata);
-    if (saveProperties) 
+    if (saveProperties)
       {
 	polydata->GetPointData()->AddArray(scalarFA);
 	polydata->GetPointData()->AddArray(scalarMD);
@@ -252,7 +256,7 @@ GroupType::Pointer readFiberFile(const std::string & filename)
       for( int j = 0; j < points->GetNumberOfPoints(); ++j )
 	{
 	  ++pindex;
-	  
+
 	  double * coordinates = points->GetPoint(j);
 	  DTIPointType          pt;
 	  // Convert from RAS to LPS for vtk
@@ -262,7 +266,7 @@ GroupType::Pointer readFiberFile(const std::string & filename)
 	  double * vtktensor;
 	  float                 floattensor[6];
 	  ITKTensorType         itktensor;
-	  
+
 	  if (fibtensordata) {
 	    vtktensor = fibtensordata->GetTuple9(pindex);
 	    floattensor[0] = itktensor[0] = vtktensor[0];
@@ -280,32 +284,32 @@ GroupType::Pointer readFiberFile(const std::string & filename)
 	    floattensor[4] = itktensor[4] = vtktensor[5] = 0.0;
 	    floattensor[5] = itktensor[5] = vtktensor[8] = 1.0;
 	  }
-	  
+
 	  pt.SetTensorMatrix(floattensor);
-	  
+
 	  LambdaArrayType lambdas;
-	  
+
 	  // Need to do do eigenanalysis of the tensor
 	  itktensor.ComputeEigenValues(lambdas);
-	  
+
 	  // FIXME: We should not be repeating this code here.  The code
 	  // for all these computations should be re-factored into a
 	  // common library.
-	  
+
 	  float md = (lambdas[0] + lambdas[1] + lambdas[2]) / 3;
 	  float fa = sqrt(1.5) * sqrt( (lambdas[0] - md) * (lambdas[0] - md)
 				       + (lambdas[1] - md) * (lambdas[1] - md)
 				       + (lambdas[2] - md) * (lambdas[2] - md) )
 	    / sqrt(lambdas[0] * lambdas[0] + lambdas[1] * lambdas[1] + lambdas[2] * lambdas[2]);
-	  
+
 	  float logavg = (log(lambdas[0]) + log(lambdas[1]) + log(lambdas[2]) ) / 3;
-	  
+
 	  float ga =  sqrt( SQ2(log(lambdas[0]) - logavg) \
 			    + SQ2(log(lambdas[1]) - logavg)	\
 			    + SQ2(log(lambdas[2]) - logavg) );
-	  
+
 	  float rd = (lambdas[1] + lambdas[0])/2;
-	  
+
 	  pt.AddField("fa", fa);
 	  pt.AddField("ga", ga);
 	  pt.AddField("md", md);
@@ -313,7 +317,7 @@ GroupType::Pointer readFiberFile(const std::string & filename)
 	  pt.AddField("l2", lambdas[1]);
 	  pt.AddField("l3", lambdas[0]);
 	  pt.AddField("rd", rd);
-	  
+
 	  pointsToAdd.push_back(pt);
         }
 
