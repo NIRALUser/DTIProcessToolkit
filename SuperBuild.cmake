@@ -137,7 +137,7 @@ endif()
 set(proj ${PRIMARY_PROJECT_NAME})
 set(proj_build ${proj}-build)
 
-IF(APPLE)
+
 SET(CMAKE_ARGS 
       -DDTIProcess_SUPERBUILD:BOOL=OFF
       -DDTIProcess_EXTENSION:BOOL=ON #install the tests if it is built as an extension
@@ -155,7 +155,7 @@ SET(CMAKE_ARGS
       -DBUILD_dwiAtlas:BOOL=${BUILD_dwiAtlas}
       -DCMAKE_INSTALL_PREFIX:PATH=${DTIProcess_INSTALL_DIRECTORY}
   )
-ENDIF(APPLE)
+
 
 ExternalProject_Add(${proj}
     DOWNLOAD_COMMAND ""
