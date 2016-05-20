@@ -68,7 +68,7 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
     -DUSE_SYSTEM_SlicerExecutionModel:BOOL=ON
     -DUSE_SYSTEM_ITK:BOOL=ON
     -DUSE_SYSTEM_VTK:BOOL=ON
-    -DITK_VERSION_MAJOR:STRING=${ITK_VERSION_MAJOR}
+    -DITK_VERSION_MAJOR:STRING=${ITK_VERSION_MAJOR}    
     )
 
   ### --- End Project specific additions
@@ -90,6 +90,9 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       ${COMMON_EXTERNAL_PROJECT_ARGS}
       ${${proj}_CMAKE_OPTIONS}
       -DCMAKE_INSTALL_PREFIX:PATH=${EXTERNAL_BINARY_DIRECTORY}/${proj}-install
+      -DINSTALL_RUNTIME_DESTINATION=bin
+      -DINSTALL_LIBRARY_DESTINATION=lib
+      -DINSTALL_ARCHIVE_DESTINATION=lib
 ## We really do want to install in order to limit # of include paths INSTALL_COMMAND ""
     DEPENDS
       ${${proj}_DEPENDENCIES}
