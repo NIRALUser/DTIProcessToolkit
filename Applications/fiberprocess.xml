@@ -11,8 +11,13 @@
     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
     PURPOSE.  See the above copyright notices for more information.
   </license>
+<<<<<<< HEAD
   <contributor>Casey Goodlett, Haiwei Chen</contributor>
   <version>1.0.1</version>
+=======
+  <contributor>Casey Goodlett</contributor>
+  <version>1.1.0</version>
+>>>>>>> 58ddd8113c9f679e9381b1d98c0db39549513de9
   <parameters advanced="false">
     <label>I/O</label>
     <geometry type="fiberbundle">
