@@ -27,7 +27,7 @@ inline double SQ2(double x)
 
 };
 
-void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup, bool saveProperties , std::string encoding )
+void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup, bool saveProperties, std::string encoding, std::string scalarPropertyName = "")
 {
   // Make sure origins are updated
   fibergroup->ComputeObjectToWorldTransform();
@@ -60,6 +60,7 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup,
     vtkFloatArray *scalarMD = vtkFloatArray::New();
     vtkFloatArray *scalarRD = vtkFloatArray::New();
     vtkFloatArray *scalarAD = vtkFloatArray::New();
+    vtkFloatArray *scalarValue = vtkFloatArray::New();
     scalarFA->SetNumberOfComponents(1);
     scalarFA->SetName("FA");
     scalarMD->SetNumberOfComponents(1);
@@ -68,6 +69,13 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup,
     scalarAD->SetName("AD");
     scalarRD->SetNumberOfComponents(1);
     scalarRD->SetName("RD");
+    scalarValue->SetNumberOfComponents(1);
+    if (scalarPropertyName != "")
+      {
+	scalarValue->SetName(scalarPropertyName.c_str());
+      }
+
+  
 
     std::auto_ptr<ChildrenListType> children(fibergroup->GetChildren(0) );
     typedef ChildrenListType::const_iterator IteratorType;
@@ -122,6 +130,11 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup,
         tensorsdata->InsertNextTupleValue(vtktensor);
 #endif
 
+	if (scalarPropertyName != "")
+	  {
+	    scalarValue->InsertNextValue(sopt->GetField(scalarPropertyName.c_str()));
+	  }
+
         }
       polydata->InsertNextCell(VTK_POLY_LINE, nPointsOnFiber, ids->GetPointer(currentId) );
       }
@@ -133,6 +146,10 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup,
 	polydata->GetPointData()->AddArray(scalarMD);
 	polydata->GetPointData()->AddArray(scalarAD);
 	polydata->GetPointData()->AddArray(scalarRD);
+      }
+    if (scalarPropertyName != "")
+      {
+	polydata->GetPointData()->AddArray(scalarValue);
       }
 
     // Legacy

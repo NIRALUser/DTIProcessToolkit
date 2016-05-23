@@ -4,7 +4,7 @@ Program:   NeuroLib (DTI command line tools)
 Language:  C++
 Date:      $Date: 2009/08/03 17:36:42 $
 Version:   $Revision: 1.8 $
-Author:    Casey Goodlett (gcasey@sci.utah.edu), Martin Styner Francois Budin, Hans Johnson
+Author:    Casey Goodlett (gcasey@sci.utah.edu), Martin Styner Francois Budin, Hans Johnson, Haiwei Chen
 
 
 This software is distributed WITHOUT ANY WARRANTY; without even
@@ -23,6 +23,7 @@ PURPOSE.  See the above copyright notices for more information.
 #include <itkImageFileWriter.h>
 #include <itkTensorLinearInterpolateImageFunction.h>
 #include <itkVectorLinearInterpolateImageFunction.h>
+#include <itkLinearInterpolateImageFunction.h>
 #include <itkVersion.h>
 
 // #include "FiberCalculator.h"
@@ -60,6 +61,8 @@ int main(int argc, char* argv[])
     }
 
   typedef itk::VectorLinearInterpolateImageFunction<DeformationImageType, double> DeformationInterpolateType;
+
+  // Deformation Field Input
   DeformationInterpolateType::Pointer definterp(ITK_NULLPTR);
   if( deformationfield )
     {
@@ -116,11 +119,25 @@ int main(int argc, char* argv[])
     }
 
   // Setup tensor file if available
-  typedef itk::ImageFileReader<TensorImageType>                              TensorImageReader;
+  typedef itk::ImageFileReader<TensorImageType> TensorImageReader;
+  typedef itk::ImageFileReader<RealImageType> RealImageReader;
   typedef itk::TensorLinearInterpolateImageFunction<TensorImageType, double> TensorInterpolateType;
+  typedef itk::LinearInterpolateImageFunction<RealImageType, double> ScalarInterpolateType; 
+  
   TensorImageReader::Pointer     tensorreader = ITK_NULLPTR;
   TensorInterpolateType::Pointer tensorinterp = ITK_NULLPTR;
+  RealImageReader::Pointer scalarreader = ITK_NULLPTR;
+  ScalarInterpolateType::Pointer scalarinterp = ITK_NULLPTR;
 
+  // check for invalid syntax
+  if( tensorVolume != "" && ScalarImage != "")
+    {
+    // is there a better way to throw error?  
+    std::cerr << "Error: tensorVolume and ScalarImage should not be given at the same time!\n" << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  // Tensor Volume input
   if( tensorVolume != "" )
     {
     tensorreader = TensorImageReader::New();
@@ -132,6 +149,24 @@ int main(int argc, char* argv[])
       tensorreader->Update();
       tensorinterp->SetInputImage(tensorreader->GetOutput() );
       }
+    catch( itk::ExceptionObject exp )
+      {
+      std::cerr << exp << std::endl;
+      return EXIT_FAILURE;
+      }
+    }
+
+  // Scalar Image input
+  if( ScalarImage != "")
+    {
+    scalarreader = RealImageReader::New();
+    scalarinterp = ScalarInterpolateType::New();
+    scalarreader->SetFileName(ScalarImage);
+    try
+    {
+      scalarreader->Update();
+      scalarinterp->SetInputImage(scalarreader->GetOutput());
+    }
     catch( itk::ExceptionObject exp )
       {
       std::cerr << exp << std::endl;
@@ -165,7 +200,9 @@ int main(int argc, char* argv[])
     labelimage->SetRegions(tensorreader->GetOutput()->GetLargestPossibleRegion() );
     labelimage->Allocate();
     labelimage->FillBuffer(0);
-    }
+   }
+
+
   // For each fiber
   for( it = children->begin(); it != children->end(); it++ )
     {
@@ -176,7 +213,7 @@ int main(int argc, char* argv[])
     DTIPointListType::iterator pit;
 
     typedef DeformationInterpolateType::ContinuousIndexType ContinuousIndexType;
-    ContinuousIndexType tensor_ci, def_ci;
+    ContinuousIndexType tensor_ci, scalar_ci, def_ci;
 
     // For each point along the fiber
     for( pit = pointlist.begin(); pit != pointlist.end(); ++pit )
@@ -209,7 +246,7 @@ int main(int argc, char* argv[])
             pt_trans[i] += warp[i];
             }
 //          deformationfield->TransformContinuousIndexToPhysicalPoint( def_ci , pt_trans ) ;
-//          std::cout<<p << " "<< p_world_orig<<" "<<pt_trans<<std::endl;
+	  //std::cout<<p << " world origin: "<< p_world_orig<<"; warp:"<<pt_trans<<std::endl;
           }
         }
 //            std::cout<<"plop6"<<std::endl;
@@ -268,6 +305,7 @@ int main(int argc, char* argv[])
       itk::DiffusionTensor3D<double> tensor;
       if( tensorVolume != "" && fiberOutput != "" && !noDataChange )
         {
+	  
         tensorreader->GetOutput()->TransformPhysicalPointToContinuousIndex(pt_trans, tensor_ci);
         tensor = tensorinterp->EvaluateAtContinuousIndex(tensor_ci).GetDataPointer() ;
 
@@ -286,6 +324,17 @@ int main(int argc, char* argv[])
 	      tensor[i] = pit->GetTensorMatrix()[i];
 	    }
 	
+	}
+
+      // TODO: attribute scalar data if provided
+      double scalarImageValue = 0.0;
+      
+      if( ScalarImage != "" && fiberOutput != "" )
+        {
+	  
+        scalarreader->GetOutput()->TransformPhysicalPointToContinuousIndex(pt_trans, scalar_ci);
+        scalarImageValue = (double) scalarinterp->EvaluateAtContinuousIndex(scalar_ci) ;
+        newpoint.AddField(ScalarName.c_str(),scalarImageValue);
 	}
 
       typedef itk::DiffusionTensor3D<double>::EigenValuesArrayType EigenValuesType;
@@ -327,10 +376,17 @@ int main(int argc, char* argv[])
     {
     std::cout << "Output: " << fiberOutput << std::endl;
     }
-
+  
   if( fiberOutput != "" )
     {
-      writeFiberFile(fiberOutput, newgroup, saveProperties);
+      if (ScalarImage != "") 
+        {
+        writeFiberFile(fiberOutput, newgroup, saveProperties, ScalarName);
+        } 
+      else
+        {
+	writeFiberFile(fiberOutput, newgroup, saveProperties);
+        }
     }
 
   if( voxelize != "" )

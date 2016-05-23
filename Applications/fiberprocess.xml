@@ -11,7 +11,7 @@
     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
     PURPOSE.  See the above copyright notices for more information.
   </license>
-  <contributor>Casey Goodlett</contributor>
+  <contributor>Casey Goodlett, Haiwei Chen</contributor>
   <version>1.1.0</version>
   <parameters advanced="false">
     <label>I/O</label>
@@ -35,9 +35,23 @@
       <longflag alias="tensor_volume">inputDTIVolume</longflag>
       <flag>T</flag>
       <label>Tensor Volume</label>
-      <description>Interpolate tensor values from the given field</description>
+      <description>Interpolate tensor values from the given field. T1T2File and TensorVolume cannot be passed at the same time</description>
       <channel>input</channel>
     </image>
+    <image type="scalar">
+      <name>ScalarImage</name>
+      <longflag alias="scalarImage">ScalarImage</longflag>
+      <flag>S</flag>
+      <label> Scalar Image File</label>
+      <description> Samples the provided scalar image at fiber locations (with/without deformation as specified) and stores the values with the output fiber. Scalar Image and TensorVolume cannot be passed at the same time.</description>
+      <channel>input</channel>
+    </image>
+   <string>
+     <name>ScalarName</name>
+      <longflag alias="scalarName">scalarName</longflag>
+     <default>scalar</default>
+     <description> Name for pointData field in output fiber file that will contain the values sampled from the scalar image</description>
+   </string>
     <image type="vector">
       <name>hField</name>
       <longflag alias="h_field">hFieldVolume</longflag>
