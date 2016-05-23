@@ -8,7 +8,7 @@
 get_filename_component(DTIProcess_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 set(DTIProcess_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@") 
 
-set(DTIProcess_LIBRARIES )
+set(DTIProcess_LIBRARIES 
   cephes
   dtiaverage
   dtiestim
