@@ -27,7 +27,7 @@ inline double SQ2(double x)
 
 };
 
-void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup, bool saveProperties, std::string encoding, std::string scalarPropertyName = "")
+void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup, bool saveProperties, std::string encoding, std::string scalarPropertyName)
 {
   // Make sure origins are updated
   fibergroup->ComputeObjectToWorldTransform();
