@@ -99,6 +99,7 @@ if(NOT VTK_FOUND)
     find_package(VTK COMPONENTS
       vtkIOLegacy
       vtkIOXML
+      vtkCommonDataModel
       REQUIRED)
     include(${VTK_USE_FILE})
 endif(NOT VTK_FOUND)
