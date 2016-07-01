@@ -19,6 +19,7 @@
 
 #include <itkImageToImageFilter.h>
 #include <itkDiffusionTensor3D.h>
+#include <itkGradientRecursiveGaussianImageFilter.h>
 
 namespace itk
 {

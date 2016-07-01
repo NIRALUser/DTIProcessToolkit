@@ -1,4 +1,4 @@
-#include <itkGradientRecursiveGaussianImageFilter.h>
+//#include <itkGradientRecursiveGaussianImageFilter.h>
 #include <itkNthElementImageAdaptor.h>
 
 // const double eps = 1e-16;
