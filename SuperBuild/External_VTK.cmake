@@ -26,26 +26,26 @@ set(proj        VTK) #This local name
 
 
 #Setting VTK_VERSION_MAJOR to its default value if it has not been set before
-set(VTK_VERSION_MAJOR 5 CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6).")
-# Set the possible values of VTK major version for cmake-gui
-set_property(CACHE VTK_VERSION_MAJOR PROPERTY STRINGS "5" "6")
-if(NOT "${VTK_VERSION_MAJOR}" STREQUAL "5" AND NOT "${VTK_VERSION_MAJOR}" STREQUAL "6")
-  set(VTK_VERSION_MAJOR 5 CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6)." FORCE)
-  message(WARNING "Setting VTK_VERSION_MAJOR to '5' as an valid value was specified.")
-endif()
+# set(VTK_VERSION_MAJOR 5 CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6).")
+# # Set the possible values of VTK major version for cmake-gui
+# set_property(CACHE VTK_VERSION_MAJOR PROPERTY STRINGS "5" "6")
+# if(NOT "${VTK_VERSION_MAJOR}" STREQUAL "5" AND NOT "${VTK_VERSION_MAJOR}" STREQUAL "6")
+#   set(VTK_VERSION_MAJOR 5 CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6)." FORCE)
+#   message(WARNING "Setting VTK_VERSION_MAJOR to '5' as an valid value was specified.")
+# endif()
 
-set(USE_VTKv5 ON)
-set(USE_VTKv6 OFF)
-if(${VTK_VERSION_MAJOR} STREQUAL "6")
-  set(USE_VTKv5 OFF)
-  set(USE_VTKv6 ON)
-endif()
+# set(USE_VTKv5 ON)
+# set(USE_VTKv6 OFF)
+# if(${VTK_VERSION_MAJOR} STREQUAL "6")
+#   set(USE_VTKv5 OFF)
+#   set(USE_VTKv6 ON)
+# endif()
 
-if(USE_VTKv6)
-  set(${extProjName}_REQUIRED_VERSION "6.1")  #If a required version is necessary, then set this, else leave blank
-else()
-  set(${extProjName}_REQUIRED_VERSION "5.10")  #If a required version is necessary, then set this, else leave blank
-endif()
+# if(USE_VTKv6)
+#   set(${extProjName}_REQUIRED_VERSION "6.1")  #If a required version is necessary, then set this, else leave blank
+# else()
+#   set(${extProjName}_REQUIRED_VERSION "5.10")  #If a required version is necessary, then set this, else leave blank
+# endif()
 
 # Sanity checks
 #if(DEFINED ${extProjName}_DIR AND NOT EXISTS ${${extProjName}_DIR})
@@ -96,13 +96,13 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
 
   set(VTK_QT_ARGS)
   if(${PRIMARY_PROJECT_NAME}_USE_QT)
-    if(USE_VTKv6)
+    # if(USE_VTKv6)
       set(VTK_QT_ARGS
         -DModule_vtkGUISupportQt:BOOL=ON
         )
-    else()
-      set(VTK_QT_ARGS)
-    endif()
+    # else()
+    #   set(VTK_QT_ARGS)
+    # endif()
     if(NOT APPLE)
       list(APPEND VTK_QT_ARGS
         #-DDESIRED_QT_VERSION:STRING=4 # Unused
@@ -190,13 +190,13 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       ${VTK_MAC_ARGS}
     )
   ### --- End Project specific additions
-if(USE_VTKv6)
-  set(${proj}_GIT_TAG "v6.1.0")
+  # if(USE_VTKv6)
+  set(${proj}_GIT_TAG "v7.0.0")
   set(${proj}_REPOSITORY ${git_protocol}://vtk.org/VTK.git)
-else()
-  set(${proj}_REPOSITORY ${git_protocol}://github.com/BRAINSia/VTK.git)
-  set(${proj}_GIT_TAG "FixClangFailure_VTK5.10_release")
-endif()
+  # else()
+  #   set(${proj}_REPOSITORY ${git_protocol}://github.com/BRAINSia/VTK.git)
+  #   set(${proj}_GIT_TAG "FixClangFailure_VTK5.10_release")
+  # endif()
   ExternalProject_Add(${proj}
     GIT_REPOSITORY ${${proj}_REPOSITORY}
     GIT_TAG ${${proj}_GIT_TAG}
@@ -219,26 +219,28 @@ endif()
     )
 
 
-  set(VTKPatchScript ${CMAKE_CURRENT_LIST_DIR}/External_VTK_patch.cmake)
-  ExternalProject_Add_Step(${proj} VTKPatch
-    COMMENT "get rid of obsolete C/CXX flags"
-    DEPENDEES download
-    DEPENDERS configure
-    COMMAND ${CMAKE_COMMAND}
-    -DVTKSource=<SOURCE_DIR>
-    -DUSE_VTKv6=${USE_VTKv6}
-    -P ${VTKPatchScript}
-    )
+  # set(VTKPatchScript ${CMAKE_CURRENT_LIST_DIR}/External_VTK_patch.cmake)
+  # ExternalProject_Add_Step(${proj} VTKPatch
+  #   COMMENT "get rid of obsolete C/CXX flags"
+  #   DEPENDEES download
+  #   DEPENDERS configure
+  #   COMMAND ${CMAKE_COMMAND}
+  #   -DVTKSource=<SOURCE_DIR>
+  #   -DUSE_VTKv6=${USE_VTKv6}
+  #   -P ${VTKPatchScript}
+  #   )
 
-if(USE_VTKv6)
-  set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/cmake/vtk-6.1)
-else()
-  set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/vtk-5.10)
-endif()
+# if(USE_VTKv6)
+#   set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/cmake/vtk-6.1)
+# else()
+#   set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/vtk-5.10)
+# endif()
+
+set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/cmake/vtk-7.0)
 
 else()
   if(${USE_SYSTEM_${extProjName}})
-    message("USING the system ${extProjName}, set ${extProjName}_DIR=${${extProjName}_DIR}, USE_VTKv6=${USE_VTKv6}, VTK_VERSION_MAJOR=${VTK_VERSION_MAJOR}")
+    message("USING the system ${extProjName}, set ${extProjName}_DIR=${${extProjName}_DIR}")
     find_package(${extProjName} REQUIRED)
   endif()
   # The project is provided using ${extProjName}_DIR, nevertheless since other
