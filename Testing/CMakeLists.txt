@@ -17,6 +17,7 @@ endif()
 add_test(NAME TestHomemadeRoundFunction COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:TestHomemadeRoundFunction> )
 
 set(SOURCE_DIRECTORY ${DTIProcess_SOURCE_DIR}/Data/ )
+set(DTIProcess_BINARY_DIR ${PROJECT_BINARY_DIR})
 set(TEMP_DIR ${DTIProcess_BINARY_DIR}/Testing/Temporary )
 
 ######################################

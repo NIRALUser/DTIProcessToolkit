@@ -157,27 +157,6 @@ SET(CMAKE_ARGS
   )
 
 
-ExternalProject_Add(${proj}
-    DOWNLOAD_COMMAND ""
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    BINARY_DIR ${proj_build}
-    DEPENDS ${${PRIMARY_PROJECT_NAME}_DEPENDENCIES}
-    CMAKE_GENERATOR ${gen}
-    CMAKE_ARGS
-      ${CMAKE_ARGS}
-  )
-
-## Force rebuilding of the main subproject every time building from super structure
-ExternalProject_Add_Step(${proj} forcebuild
-    COMMAND ${CMAKE_COMMAND} -E remove
-    ${CMAKE_CURRENT_BUILD_DIR}/${proj}-prefix/src/${proj}-stamp/${proj}-build
-    DEPENDEES configure
-    DEPENDERS build
-    ALWAYS 1
-  )
-
-#-----------------------------------------------------------------------------
-
 if( DTIProcess_BUILD_SLICER_EXTENSION )
   set(EXTENSION_CLIS dtiaverage dtiestim dtiprocess fiberprocess fiberstats polydatamerge polydatatransform)
   set(TESTS dtiaverageTest dtiestimTest dtiprocessTest TestHomemadeRoundFunction)
@@ -205,3 +184,25 @@ if( DTIProcess_BUILD_SLICER_EXTENSION )
   set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
   include(${Slicer_EXTENSION_CPACK})
 endif()
+
+ExternalProject_Add(${proj}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    BINARY_DIR ${proj_build}
+    DEPENDS ${${PRIMARY_PROJECT_NAME}_DEPENDENCIES}
+    CMAKE_GENERATOR ${gen}
+    CMAKE_ARGS
+      ${CMAKE_ARGS}
+  )
+
+## Force rebuilding of the main subproject every time building from super structure
+ExternalProject_Add_Step(${proj} forcebuild
+    COMMAND ${CMAKE_COMMAND} -E remove
+    ${CMAKE_CURRENT_BUILD_DIR}/${proj}-prefix/src/${proj}-stamp/${proj}-build
+    DEPENDEES configure
+    DEPENDERS build
+    ALWAYS 1
+  )
+
+#-----------------------------------------------------------------------------
+

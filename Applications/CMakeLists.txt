@@ -1,26 +1,26 @@
 ADD_EXECUTABLE(nrrdvtk nrrdvtk.cxx)
 TARGET_LINK_LIBRARIES(nrrdvtk ${DTIProcess_ITK_LIBRARIES})
-export(TARGETS nrrdvtk FILE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exports.cmake)
+export(TARGETS nrrdvtk FILE ${CMAKE_BINARY_DIR}/${PRIMARY_PROJECT_NAME}-exports.cmake)
 
 ADD_EXECUTABLE(dwiprocess dwiprocess.cxx)
 TARGET_LINK_LIBRARIES(dwiprocess ${DTIProcess_ITK_LIBRARIES})
-export(TARGETS dwiprocess APPEND FILE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exports.cmake)
+export(TARGETS dwiprocess APPEND FILE ${CMAKE_BINARY_DIR}/${PRIMARY_PROJECT_NAME}-exports.cmake)
 
 ADD_EXECUTABLE(labeltable labeltable.cxx)
 TARGET_LINK_LIBRARIES(labeltable ${DTIProcess_ITK_LIBRARIES})
-export(TARGETS labeltable APPEND FILE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exports.cmake)
+export(TARGETS labeltable APPEND FILE ${CMAKE_BINARY_DIR}/${PRIMARY_PROJECT_NAME}-exports.cmake)
 
 ADD_EXECUTABLE(hfieldtodeformation  hfieldtodeformation.cxx)
 TARGET_LINK_LIBRARIES(hfieldtodeformation TensorOperations DTIIO ${DTIProcess_ITK_LIBRARIES})
-export(TARGETS hfieldtodeformation APPEND FILE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exports.cmake)
+export(TARGETS hfieldtodeformation APPEND FILE ${CMAKE_BINARY_DIR}/${PRIMARY_PROJECT_NAME}-exports.cmake)
 
 ADD_EXECUTABLE(tio tio.cxx)
 TARGET_LINK_LIBRARIES(tio ${DTIProcess_ITK_LIBRARIES})
-export(TARGETS tio APPEND FILE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exports.cmake)
+export(TARGETS tio APPEND FILE ${CMAKE_BINARY_DIR}/${PRIMARY_PROJECT_NAME}-exports.cmake)
 
 ADD_EXECUTABLE(morph morph.cxx)
 TARGET_LINK_LIBRARIES(morph ${DTIProcess_ITK_LIBRARIES})
-export(TARGETS morph APPEND FILE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exports.cmake)
+export(TARGETS morph APPEND FILE ${CMAKE_BINARY_DIR}/${PRIMARY_PROJECT_NAME}-exports.cmake)
 
 # When built as a Slicer extension, this will ensure that the CLI executables
 # can resolve the path of the ITK/VTK/... libraries provided by Slicer.
@@ -74,7 +74,7 @@ macro(SEM_BUILD_EXECUTABLE)
     INSTALL_LIBRARY_DESTINATION ${INSTALL_LIBRARY_DESTINATION}
     INSTALL_ARCHIVE_DESTINATION ${INSTALL_ARCHIVE_DESTINATION}
     )
-  export(TARGETS ${LOCAL_NAME} APPEND FILE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exports.cmake)
+  export(TARGETS ${LOCAL_NAME} APPEND FILE ${CMAKE_BINARY_DIR}/${PRIMARY_PROJECT_NAME}-exports.cmake)
 endmacro()
 
 ##dtiprocess

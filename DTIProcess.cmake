@@ -106,9 +106,9 @@ include(${VTK_USE_FILE})
 
 
 INCLUDE_DIRECTORIES(
-${DTIProcess_SOURCE_DIR}/Library
-${DTIProcess_SOURCE_DIR}/PrivateLibrary
-${DTIProcess_SOURCE_DIR}
+${PROJECT_SOURCE_DIR}/Library
+${PROJECT_SOURCE_DIR}/PrivateLibrary
+${PROJECT_SOURCE_DIR}
 )
 
 
