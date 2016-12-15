@@ -43,7 +43,7 @@ endif()
 #-----------------------------------------------------------------------------
 # Enable and setup External project global properties
 #-----------------------------------------------------------------------------
-include(ExternalProject) 
+include(ExternalProject)
 include(SlicerMacroEmptyExternalProject)
 include(SlicerMacroCheckExternalProjectDependency)
 
@@ -211,6 +211,7 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
   CMAKE_C_FLAGS_RELEASE:STRING
   CMAKE_C_FLAGS_DEBUG:STRING
   CMAKE_C_FLAGS:STRING
+  CMAKE_CXX_STANDARD:STRING
   CMAKE_SHARED_LINKER_FLAGS:STRING
   CMAKE_EXE_LINKER_FLAGS:STRING
   CMAKE_MODULE_LINKER_FLAGS:STRING
