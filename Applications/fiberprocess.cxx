@@ -267,15 +267,20 @@ int main(int argc, char* argv[])
           std::cout << "Ignoring" << std::endl;
           // return EXIT_FAILURE;
           }
-        if( voxelizeCountFibers )
-          {
-          labelimage->SetPixel(ind, labelimage->GetPixel(ind) + 1);
-          }
         else
           {
-          labelimage->SetPixel(ind, voxelLabel);
+            if( voxelizeCountFibers )
+            {
+            labelimage->SetPixel(ind, labelimage->GetPixel(ind) + 1);
+            }
+            else
+            {
+            labelimage->SetPixel(ind, voxelLabel);
+            }
           }
+
         }
+        
 
       DTIPointType newpoint;
       if( noDataChange == true )
