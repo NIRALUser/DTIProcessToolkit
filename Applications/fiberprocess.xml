@@ -12,7 +12,7 @@
     PURPOSE.  See the above copyright notices for more information.
   </license>
   <contributor>Casey Goodlett, Haiwei Chen</contributor>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <parameters advanced="false">
     <label>I/O</label>
     <geometry type="fiberbundle">
