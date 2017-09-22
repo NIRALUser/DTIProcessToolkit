@@ -113,7 +113,7 @@ TensorLinearInterpolateImageFunction<TInputImage, TCoordRep>
       }
 
     // get neighbor value only if overlap is not zero
-    if( overlap )
+    if( overlap && this->IsInsideBuffer(neighIndex))
       {
       const PixelType input = this->GetInputImage()->GetPixel( neighIndex );
       for( unsigned int k = 0; k < Dimension; k++ )
