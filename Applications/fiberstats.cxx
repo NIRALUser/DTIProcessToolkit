@@ -29,6 +29,10 @@
 #include "pomacros.h"
 #include "fiberstatsCLP.h"
 
+#if ITK_VERSION_MAJOR >= 5
+#include <itkLexicographicCompare.h>
+#endif
+
 int main(int argc, char* argv[])
 {
   PARSE_ARGS;
@@ -42,7 +46,11 @@ int main(int argc, char* argv[])
   const double* spacing = group->GetSpacing();
 
   typedef itk::Index<3>                              IndexType;
+#if ITK_VERSION_MAJOR >= 5
+  typedef itk::Functor::LexicographicCompare<itk::Index<3>, itk::Index<3> > IndexCompare;
+#else
   typedef itk::Functor::IndexLexicographicCompare<3> IndexCompare;
+#endif
   typedef std::set<IndexType, IndexCompare>          VoxelSet;
   typedef std::list<float>                           MeasureSample;
   typedef std::map<std::string, MeasureSample>       SampleMap;
