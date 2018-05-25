@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
   }
 
   //int weightedSum =  std::accumulate(visitvoxels.begin(), visitvoxels.end(), 0.0);
-  std::cout << "Density Volume (mm^3): " << weightedSum * voxelsize / FiberLengthsVector.size()  << std::endl;
+  std::cout << "Density Volume (mm^3): " << weightedSum * voxelsize  << std::endl;
   std::cout << "Measure statistics: " << bundlestats.size() << std::endl;
   for( SampleMap::const_iterator smit = bundlestats.begin();
        smit != bundlestats.end(); ++smit )
