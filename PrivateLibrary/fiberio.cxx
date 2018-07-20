@@ -124,7 +124,8 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup,
         scalarAD->InsertNextValue(sopt->GetField("ad"));
         scalarRD->InsertNextValue(sopt->GetField("rd"));
 
-#if VTK_MAJOR_VERSION >= 7 && VTK_MINOR_VERSION >=1
+
+#if VTK_MAJOR_VERSION > 7 || ( VTK_MAJOR_VERSION == 7 && VTK_MINOR_VERSION >=1 )
         tensorsdata->InsertNextTypedTuple(vtktensor);
 #else
         tensorsdata->InsertNextTupleValue(vtktensor);

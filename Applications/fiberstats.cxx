@@ -29,6 +29,10 @@
 #include "pomacros.h"
 #include "fiberstatsCLP.h"
 
+#if ITK_VERSION_MAJOR >= 5
+#include <itkLexicographicCompare.h>
+#endif
+
 int main(int argc, char* argv[])
 {
   PARSE_ARGS;
@@ -42,21 +46,30 @@ int main(int argc, char* argv[])
   const double* spacing = group->GetSpacing();
 
   typedef itk::Index<3>                              IndexType;
+#if ITK_VERSION_MAJOR >= 5
+  typedef itk::Functor::LexicographicCompare<itk::Index<3>, itk::Index<3> > IndexCompare;
+#else
   typedef itk::Functor::IndexLexicographicCompare<3> IndexCompare;
+#endif
   typedef std::set<IndexType, IndexCompare>          VoxelSet;
   typedef std::list<float>                           MeasureSample;
   typedef std::map<std::string, MeasureSample>       SampleMap;
+  typedef std::map<IndexType, int, IndexCompare>         VoxelMap;
+  typedef VoxelMap::value_type    VoxelMapValue;
 
   VoxelSet  seenvoxels;
+  VoxelMap  visitvoxels;
   SampleMap bundlestats;
   bundlestats["fa"] = MeasureSample();
   bundlestats["md"] = MeasureSample();
-  bundlestats["fro"] = MeasureSample();
+  bundlestats["l1"] = MeasureSample();
+  bundlestats["rd"] = MeasureSample();
 
   // For each fiber
   std::vector<double> FiberLengthsVector;
   ChildrenListType*          children = group->GetChildren(0);
   ChildrenListType::iterator it;
+
   for( it = children->begin(); it != children->end(); it++ )
     {
     DTIPointListType pointlist =
@@ -86,6 +99,13 @@ int main(int argc, char* argv[])
       i[2] = static_cast<long int>(vnl_math_rnd_halfinttoeven(p[2]) );
 
       seenvoxels.insert(i);
+      int curValue = visitvoxels[i];
+      if (curValue == 0)
+      { 
+	visitvoxels[i] = 1;
+      } else {
+	visitvoxels[i] = curValue + 1;
+      }
 
       typedef DTIPointType::FieldListType FieldList;
       const FieldList & fl = pit->GetFields();
@@ -100,6 +120,7 @@ int main(int argc, char* argv[])
 
       } // end point loop
     FiberLengthsVector.push_back(FiberLength);// Added by Adrien Kaiser 04-03-2013
+
     }   // end fiber loop
 
   // Added by Adrien Kaiser 04-03-2013: compute average fiber length and quantiles
@@ -134,26 +155,41 @@ int main(int argc, char* argv[])
   //
 
   double voxelsize = spacing[0] * spacing[1] * spacing[2];
-  std::cout << "Volume (mm^3): " << seenvoxels.size() * voxelsize << std::endl;
-  // std::cout << "Measure statistics" << std::endl;
-/*  for( SampleMap::const_iterator smit = bundlestats.begin();
+  std::cout << "Volume (mm^3): " << seenvoxels.size() * voxelsize  << std::endl;
+
+  float weightedSum = 0.0;
+  for ( VoxelMap::const_iterator voxelIter = visitvoxels.begin(); voxelIter != visitvoxels.end(); ++voxelIter)
+  {
+    weightedSum += voxelIter->second;
+  }
+
+  //int weightedSum =  std::accumulate(visitvoxels.begin(), visitvoxels.end(), 0.0);
+  std::cout << "Density Volume (mm^3): " << weightedSum * voxelsize  << std::endl;
+  std::cout << "Measure statistics: " << bundlestats.size() << std::endl;
+  for( SampleMap::const_iterator smit = bundlestats.begin();
        smit != bundlestats.end(); ++smit )
-    {
+  {
     const std::string statname = smit->first;
 
-    double mean = std::accumulate(smit->second.begin(), smit->second.end(), 0.0) / smit->second.size();
-    std::cout << statname << " mean: " << mean << std::endl;
-    double var = 0.0; // = std::accumulate(smit->second.begin(), smit->second.end(), 0.0,
-    //                                 (_1 - mean)*(_1 - mean)) / (smit->second.size() - 1);
-    for( MeasureSample::const_iterator it2 = smit->second.begin();
-         it2 != smit->second.end(); it2++ )
-      {
-      double minusMean( (*it2) - mean);
-      var += (minusMean * minusMean) / (smit->second.size() - 1);
-      }
-    std::cout << statname << " std: " << std::sqrt(var) << std::endl;
+    if (smit->second.size() > 0) 
+    {
+      double mean = std::accumulate(smit->second.begin(), smit->second.end(), 0.0) / smit->second.size();
+      std::cout << statname << " mean: " << mean << std::endl;
+      // double var = 0.0; // = std::accumulate(smit->second.begin(), smit->second.end(), 0.0,
+      //                                 (_1 - mean)*(_1 - mean)) / (smit->second.size() - 1);
+      // for( MeasureSample::const_iterator it2 = smit->second.begin();
+      // 	   it2 != smit->second.end(); it2++ )
+      // 	{
+      // 	double minusMean( (*it2) - mean);
+      // 	var += (minusMean * minusMean) / (smit->second.size() - 1);
+      // 	}
+      // std::cout << statname << " std: " << std::sqrt(var) << std::endl;
+    } else {
+      std::cout << statname << " has no measures " << std::endl;
     }
-*/
+      
+   }
+
   delete children;
   return EXIT_SUCCESS;
 }
