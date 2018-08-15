@@ -1,3 +1,5 @@
+set(PRIMARY_PROJECT_NAME DTIProcess)
+
 #-----------------------------------------------------------------------------
 # Superbuild option(s)
 #-----------------------------------------------------------------------------
@@ -57,6 +59,15 @@ set( ${PRIMARY_PROJECT_NAME}_BUILD_FFTW_SUPPORT ON )
 set(${PRIMARY_PROJECT_NAME}_DEPENDENCIES ${ITK_EXTERNAL_NAME} SlicerExecutionModel VTK )
 if( BUILD_dwiAtlas )
   list(APPEND ${PRIMARY_PROJECT_NAME}_DEPENDENCIES Boost)
+endif()
+
+
+option(BUILD_PolyDataTransform "Build PolyDataTransform from niral_utilities" ON)
+option(BUILD_PolyDataMerge "Build PolyDataMerge from niral_utilities" ON)
+option(BUILD_CropDTI "Build CropDTI from niral_utilities" ON)
+
+if( BUILD_PolyDataTransform OR BUILD_PolyDataMerge OR BUILD_CropDTI )
+  set(${PRIMARY_PROJECT_NAME}_DEPENDENCIES  ${${PRIMARY_PROJECT_NAME}_DEPENDENCIES} niral_utilities)
 endif()
 
 CMAKE_DEPENDENT_OPTION( ITK_LEGACY_REMOVE "Remove ITK legacy" ON "NOT BUILD_dwiAtlas" OFF)
@@ -134,12 +145,10 @@ endif()
 #------------------------------------------------------------------------------
 # Configure and build
 #------------------------------------------------------------------------------
-set(proj ${PRIMARY_PROJECT_NAME})
-set(proj_build ${proj}-build)
-
 
 SET(CMAKE_ARGS 
       -DDTIProcess_SUPERBUILD:BOOL=OFF
+      -DDTIProcess_BUILD_SLICER_EXTENSION:BOOL=${DTIProcess_BUILD_SLICER_EXTENSION}
       -DDTIProcess_EXTENSION:BOOL=ON #install the tests if it is built as an extension
       -DINSTALL_RUNTIME_DESTINATION:PATH=${INSTALL_RUNTIME_DESTINATION}
       -DINSTALL_LIBRARY_DESTINATION:PATH=${INSTALL_LIBRARY_DESTINATION}
@@ -149,60 +158,29 @@ SET(CMAKE_ARGS
       -DUSE_SYSTEM_ITK:BOOL=TRUE
       -DUSE_SYSTEM_VTK:BOOL=TRUE
       -DUSE_SYSTEM_SlicerExecutionModel:BOOL=TRUE
-      -DBUILD_PolyDataTransform:BOOL=${BUILD_PolyDataTransform}
-      -DBUILD_PolyDataMerge:BOOL=${BUILD_PolyDataMerge}
-      -DBUILD_CropDTI:BOOL=${BUILD_CropDTI}
       -DBUILD_dwiAtlas:BOOL=${BUILD_dwiAtlas}
       -DCMAKE_INSTALL_PREFIX:PATH=${DTIProcess_INSTALL_DIRECTORY}
+      -DCMAKE_PREFIX:PATH=${niral_utilities_DIR}
   )
 
-
-if( DTIProcess_BUILD_SLICER_EXTENSION )
-  set(EXTENSION_CLIS dtiaverage dtiestim dtiprocess fiberprocess fiberstats polydatamerge polydatatransform)
-  set(TESTS dtiaverageTest dtiestimTest dtiprocessTest TestHomemadeRoundFunction)
-  # Manual creation of imported targets for the tests
-  # It is not possible to import the targets directly using "include(DTIProcess-targets.cmake)" because
-  # that file is only created at compilation time and we need to know where the targets will be at configuration time.
-  foreach(VAR ${EXTENSION_CLIS} ${TESTS} )
-    add_executable(${VAR} IMPORTED)
-    set_property(TARGET ${VAR} PROPERTY IMPORTED_LOCATION ${DTIProcess_INSTALL_DIRECTORY}/${INSTALL_RUNTIME_DESTINATION}/${VAR}${fileextension})
-  endforeach()
-  IF(BUILD_TESTING)
-    include(CTest)
-    ADD_SUBDIRECTORY(Testing)
-  ENDIF(BUILD_TESTING)
-  # Packaging
-  include(${Slicer_USE_FILE})
-  foreach( VAR ${EXTENSION_CLIS})
-    # We have imported the inner-build targets manually.
-    # It is not possible to install imported target (CMake limitation), so instead we install
-    # the corresponding executable.
-    get_property(${VAR}PATH TARGET ${VAR} PROPERTY IMPORTED_LOCATION )
-    install( PROGRAMS ${${VAR}PATH} DESTINATION ${SlicerExecutionModel_DEFAULT_CLI_INSTALL_RUNTIME_DESTINATION} )
-  endforeach()
-  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/ImportDTIProcessExtensionExecutables.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/ImportDTIProcessExtensionExecutables.cmake)
-  set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
-  include(${Slicer_EXTENSION_CPACK})
-endif()
-
+set(proj DTIProcess-inner)
 ExternalProject_Add(${proj}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    BINARY_DIR ${proj_build}
+    BINARY_DIR ${proj}-build
     DEPENDS ${${PRIMARY_PROJECT_NAME}_DEPENDENCIES}
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
       ${CMAKE_ARGS}
   )
 
-## Force rebuilding of the main subproject every time building from super structure
-ExternalProject_Add_Step(${proj} forcebuild
-    COMMAND ${CMAKE_COMMAND} -E remove
-    ${CMAKE_CURRENT_BUILD_DIR}/${proj}-prefix/src/${proj}-stamp/${proj}-build
-    DEPENDEES configure
-    DEPENDERS build
-    ALWAYS 1
-  )
+if( DTIProcess_BUILD_SLICER_EXTENSION )
+  find_package(Slicer REQUIRED)
+  include(${Slicer_USE_FILE})
+  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/ImportDTIProcessExtensionExecutables.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/ImportDTIProcessExtensionExecutables.cmake)
+  set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR}/DTIProcess-inner-build;${EXTENSION_NAME};ALL;/")
+  include(${Slicer_EXTENSION_CPACK})
+endif()
 
 #-----------------------------------------------------------------------------
 

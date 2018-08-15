@@ -1,10 +1,24 @@
 
-SETIFEMPTY(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
-SETIFEMPTY(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
-SETIFEMPTY(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+
+
+if( DTIProcess_BUILD_SLICER_EXTENSION )
+  unsetForSlicer( NAMES QT_QMAKE_EXECUTABLE SlicerExecutionModel_DIR ITK_DIR VTK_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS ITK_LIBRARIES )
+  find_package(Slicer REQUIRED)
+  include(${Slicer_USE_FILE})
+  resetForSlicer( NAMES CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
+  
+  SET(INSTALL_RUNTIME_DESTINATION ${Slicer_INSTALL_CLIMODULES_BIN_DIR})
+  SET(INSTALL_LIBRARY_DESTINATION ${Slicer_INSTALL_CLIMODULES_LIB_DIR})
+  SET(INSTALL_ARCHIVE_DESTINATION ${Slicer_INSTALL_CLIMODULES_LIB_DIR})
+  
+endif()
+
 SETIFEMPTY(INSTALL_RUNTIME_DESTINATION bin)
 SETIFEMPTY(INSTALL_LIBRARY_DESTINATION bin)
 SETIFEMPTY(INSTALL_ARCHIVE_DESTINATION lib/static)
+SETIFEMPTY(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+SETIFEMPTY(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+SETIFEMPTY(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 option(BUILD_TESTING "Build the testing tree" ON)
 option(EXECUTABLES_ONLY "Build only executables (CLI)" OFF)
@@ -14,6 +28,22 @@ if( ${EXECUTABLES_ONLY} )
   set( STATIC_LIB "STATIC" )
 else()
   set( STATIC_LIB "SHARED" )
+endif()
+
+
+find_package(niral_utilities)
+if(niral_utilities_FOUND)
+
+  foreach(niral_utilities_lib ${niral_utilities_LIBRARIES})
+
+    get_target_property(niral_utilities_location ${niral_utilities_lib} LOCATION)
+
+    install(PROGRAMS ${niral_utilities_location} 
+      DESTINATION ${INSTALL_RUNTIME_DESTINATION}
+      COMPONENT RUNTIME)
+    
+  endforeach()
+  
 endif()
 
 ##  In many cases sub-projects depending on SlicerExectuion Model
@@ -94,8 +124,6 @@ include(${ITK_USE_FILE})
 set(DTIProcess_ITK_LIBRARIES ${ITK_LIBRARIES})
 
 
-
-
 find_package(VTK COMPONENTS
   vtkIOLegacy
   vtkIOXML
@@ -119,23 +147,6 @@ ADD_SUBDIRECTORY(cephes)
 ADD_SUBDIRECTORY(PrivateLibrary)
 ADD_SUBDIRECTORY(Applications)
 
-
-option(BUILD_PolyDataTransform "Build PolyDataTransform" ON)
-option(BUILD_PolyDataMerge "Build PolyDataMerge" ON)
-option(BUILD_CropDTI "Build CropDTI" ON)
-if( BUILD_PolyDataTransform OR BUILD_PolyDataMerge OR BUILD_CropDTI )
-  set(${PRIMARY_PROJECT_NAME}_DEPENDENCIES niral_utilities)
-  if( BUILD_PolyDataMerge )
-    install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/niral_utilities-install/bin/polydatamerge${fileextension} DESTINATION ${INSTALL_RUNTIME_DESTINATION} )
-  endif()
-  if( BUILD_PolyDataTransform )
-    install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/niral_utilities-install/bin/polydatatransform${fileextension} DESTINATION ${INSTALL_RUNTIME_DESTINATION} )
-  endif()
-  if( BUILD_CropDTI )
-    install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/niral_utilities-install/bin/CropDTI${fileextension} DESTINATION ${INSTALL_RUNTIME_DESTINATION} )
-  endif()
-endif()
-
 #-----------------------------------------------------------------------------
 # Add external project CMake args
 #-----------------------------------------------------------------------------
@@ -154,18 +165,15 @@ set( USE_SYSTEM_ITK ON)
 set( USE_SYSTEM_VTK ON)
 set( USE_SYSTEM_SlicerExecutionModel ON)
 
+
 set(extProjName ${PRIMARY_PROJECT_NAME})
 set(proj        ${PRIMARY_PROJECT_NAME})
-List( LENGTH ${PRIMARY_PROJECT_NAME}_DEPENDENCIES dependencies_size )
-if( dependencies_size GREATER 0 )
-  SlicerMacroCheckExternalProjectDependency(${PRIMARY_PROJECT_NAME})
+
+if( DTIProcess_BUILD_SLICER_EXTENSION )
+  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/ImportDTIProcessExtensionExecutables.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/ImportDTIProcessExtensionExecutables.cmake)
+  set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
+  include(${Slicer_EXTENSION_CPACK})
 endif()
-
-IF(BUILD_TESTING)
-  include(CTest)
-  ADD_SUBDIRECTORY(Testing)
-ENDIF(BUILD_TESTING)
-
 
 if(WIN32 AND NOT CYGWIN)
   set(DEF_INSTALL_CMAKE_DIR CMake)
@@ -180,3 +188,8 @@ configure_file(CMake/DTIProcessConfig.cmake.in
 install(FILES
   "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/DTIProcessConfig.cmake"  
   DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+
+if( DTIAtlasFiberAnalyzer_BUILD_SLICER_EXTENSION )
+  set(CPACK_INSTALL_CMAKE_PROJECTS "${CPACK_INSTALL_CMAKE_PROJECTS};${CMAKE_BINARY_DIR};${EXTENSION_NAME};ALL;/")
+  include(${Slicer_EXTENSION_CPACK})
+endif()
