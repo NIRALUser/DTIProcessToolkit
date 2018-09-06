@@ -127,12 +127,10 @@ int main(int argc, char* argv[])
   typedef double doublePrecision;
   std::string sourceFileName;
   // Check if source is specified
-  bool sourceSet = false;
   int  numberOfArgs = argc;
   int  outFilePos = 3;
   if( argc >= 6 && !strcmp( argv[3], "-s") )
     {
-    sourceSet = true;
     numberOfArgs -= 2;
     sourceFileName.assign( argv[4] );
     outFilePos = 5;
