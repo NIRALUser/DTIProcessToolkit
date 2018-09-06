@@ -36,7 +36,11 @@ if(niral_utilities_FOUND)
 
   foreach(niral_utilities_lib ${niral_utilities_LIBRARIES})
 
-    get_target_property(niral_utilities_location ${niral_utilities_lib} LOCATION)
+    get_target_property(niral_utilities_location ${niral_utilities_lib} LOCATION_RELEASE)
+    if(NOT EXISTS ${niral_utilities_location})
+      message(STATUS "skipping niral_utilities_lib install rule: [${niral_utilities_location}] does not exist")
+      continue()
+    endif()
 
     install(PROGRAMS ${niral_utilities_location} 
       DESTINATION ${INSTALL_RUNTIME_DESTINATION}
