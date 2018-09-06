@@ -34,7 +34,6 @@ if(NOT DEFINED KWStyle_EXE AND NOT ${USE_SYSTEM_KWStyle})
     CVS_MODULE KWStyle
     SOURCE_DIR ${proj}
     BINARY_DIR ${proj}-build
-    "${cmakeversion_external_update}"
     CMAKE_ARGS
       -Wno-dev
       --no-warn-unused-cli

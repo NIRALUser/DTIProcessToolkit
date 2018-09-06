@@ -65,7 +65,6 @@ if(NOT DEFINED ${extProjName}_DIR OR NOT DEFINED ATLAS_NAME)
     URL_MD5 036e9ade22e76bc030ce6d594374b14c
     SOURCE_DIR ${proj}
     BINARY_DIR ${proj}-build
-    "${cmakeversion_external_update}"
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
       -Wno-dev
