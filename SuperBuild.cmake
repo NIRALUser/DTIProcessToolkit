@@ -3,19 +3,6 @@ set(PRIMARY_PROJECT_NAME DTIProcess)
 #-----------------------------------------------------------------------------
 # Superbuild option(s)
 #-----------------------------------------------------------------------------
-option(BUILD_STYLE_UTILS "Build uncrustify, cppcheck, & KWStyle" OFF)
-CMAKE_DEPENDENT_OPTION(
-  USE_SYSTEM_Uncrustify "Use system Uncrustify program" OFF
-  "BUILD_STYLE_UTILS" OFF
-  )
-CMAKE_DEPENDENT_OPTION(
-  USE_SYSTEM_KWStyle "Use system KWStyle program" OFF
-  "BUILD_STYLE_UTILS" OFF
-  )
-CMAKE_DEPENDENT_OPTION(
-  USE_SYSTEM_Cppcheck "Use system Cppcheck program" OFF
-  "BUILD_STYLE_UTILS" OFF
-  )
 
 option(EXECUTABLES_ONLY "Build the tools and the tools' libraries statically" ON)
 #-----------------------------------------------------------------------------
@@ -76,13 +63,6 @@ endif()
 
 CMAKE_DEPENDENT_OPTION( ITK_LEGACY_REMOVE "Remove ITK legacy" ON "NOT BUILD_dwiAtlas" OFF)
 CMAKE_DEPENDENT_OPTION( ITKV3_COMPATIBILITY "Build ITKv4 with ITKv3 compatibility" OFF "NOT BUILD_dwiAtlas" ON)
-
-if(BUILD_STYLE_UTILS)
-  list(APPEND ${PRIMARY_PROJECT_NAME}_DEPENDENCIES Cppcheck KWStyle Uncrustify)
-endif()
-
-
-
 
 if(${PRIMARY_PROJECT_NAME}_USE_QT)
   list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS

@@ -55,7 +55,6 @@ int main(int argc, char* argv[])
   typedef std::list<float>                           MeasureSample;
   typedef std::map<std::string, MeasureSample>       SampleMap;
   typedef std::map<IndexType, int, IndexCompare>         VoxelMap;
-  typedef VoxelMap::value_type    VoxelMapValue;
 
   VoxelSet  seenvoxels;
   VoxelMap  visitvoxels;

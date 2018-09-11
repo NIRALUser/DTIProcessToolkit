@@ -1,10 +1,29 @@
-# With CMake 2.8.9 or later, the UPDATE_COMMAND is required for updates to occur.
-# For earlier versions, we nullify the update state to prevent updates and
-# undesirable rebuild.
-if(CMAKE_VERSION VERSION_LESS 2.8.9)
-  set(cmakeversion_external_update UPDATE_COMMAND "")
+#-----------------------------------------------------------------------------
+set(PRIMARY_PROJECT_NAME DTIProcess)
+
+#-----------------------------------------------------------------------------
+# Standalone vs Slicer extension option
+#-----------------------------------------------------------------------------
+
+# This option should be named after the project name, it corresponds to the
+# option set to ON when the project is build by the Slicer Extension build
+# system.
+
+set(_default OFF)
+set(_reason "${PRIMARY_PROJECT_NAME}_BUILD_SLICER_EXTENSION is ON")
+if(NOT DEFINED ${PRIMARY_PROJECT_NAME}_BUILD_SLICER_EXTENSION AND DEFINED Slicer_DIR)
+  set(_default ON)
+  set(_reason "Slicer_DIR is SET")
+endif()
+
+option(${PRIMARY_PROJECT_NAME}_BUILD_SLICER_EXTENSION "Build as a Slicer Extension" ${_default})
+
+set(_msg "Checking if building as a Slicer extension")
+message(STATUS ${_msg})
+if(${PRIMARY_PROJECT_NAME}_BUILD_SLICER_EXTENSION)
+  message(STATUS "${_msg} - yes (${_reason})")
 else()
-  set(cmakeversion_external_update LOG_UPDATE 1)
+  message(STATUS "${_msg} - no (${PRIMARY_PROJECT_NAME}_BUILD_SLICER_EXTENSION is OFF)")
 endif()
 
 #-----------------------------------------------------------------------------
@@ -16,8 +35,6 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
   )
 
-#-----------------------------------------------------------------------------
-set(PRIMARY_PROJECT_NAME DTIProcess)
 #-----------------------------------------------------------------------------
 set(verbose FALSE)
 #-----------------------------------------------------------------------------
@@ -114,11 +131,7 @@ include(SlicerExtensionsConfigureMacros)
 #-----------------------------------------------------------------------------
 # CMake Function(s) and Macro(s)
 #-----------------------------------------------------------------------------
-if(CMAKE_VERSION VERSION_LESS 2.8.3)
-  include(Pre283CMakeParseArguments)
-else()
-  include(CMakeParseArguments)
-endif()
+include(CMakeParseArguments)
 
 #-----------------------------------------------------------------------------
 if(NOT COMMAND SETIFEMPTY)
@@ -159,6 +172,36 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
   if(NOT "${CMAKE_C_FLAGS}" MATCHES "-fPIC")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
   endif()
+endif()
+
+# Since C++11 support should NOT be enabled when building against Slicer 4.8, we
+# use the following workaround to find out which version of Slicer is used.
+# Indeed, simply calling "find_package(Slicer ...)" here would have undesirable side
+# effects. For more details, see use of "unsetForSlicer()" in SuperBuild.cmake
+if(NOT DEFINED HAS_STD_CPP11_FLAG)
+  set(_msg "Forcing HAS_STD_CPP11_FLAG to OFF")
+  message(STATUS "${_msg}")
+  if(DEFINED Slicer_DIR)
+    set(_config "${Slicer_DIR}/SlicerConfig.cmake")
+    if(NOT EXISTS ${_config})
+      message(FATAL_ERROR "Slicer_DIR [${Slicer_DIR}] is specified but doesn't contain SlicerConfig.cmake")
+    endif()
+    file(READ "${Slicer_DIR}/SlicerConfig.cmake" _config_content)
+    string(REGEX REPLACE "Slicer_REQUIRED_QT_VERSION \"([0-9\\.]+)\"" "\\1" _match ${_config_content})
+    if(_match STREQUAL "")
+      message(FATAL_ERROR "Failed to extract Slicer_REQUIRED_QT_VERSION")
+    endif()
+    set(Slicer_REQUIRED_QT_VERSION "${CMAKE_MATCH_1}")
+    if(Slicer_REQUIRED_QT_VERSION VERSION_LESS 5)
+      set(HAS_STD_CPP11_FLAG 0)
+      set(_status "yes (Slicer built using Qt4 requires C++98)")
+    else()
+      set(_status "no (Slicer built using Qt5 supports C++11)")
+    endif()
+  else()
+    set(_status "no (Standalone build of DTIProcess supports C++11)")
+  endif()
+  message(STATUS "${_msg} - ${_status}")
 endif()
 
 include(CheckCXXCompilerFlag)

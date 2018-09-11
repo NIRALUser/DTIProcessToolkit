@@ -41,7 +41,6 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
   #  URL http://sourceforge.net/projects/boost/files/boost/1.49.0/boost_1_49_0.tar.gz
   #  URL_MD5 e0defc8c818e4f1c5bbb29d0292b76ca
     SOURCE_DIR Boost
-    "${cmakeversion_external_update}"
     CONFIGURE_COMMAND ${CMAKE_COMMAND}
     -DBUILD_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/Boost
     -DBOOST_INSTALL_DIR:PATH=${Boost_Install_Dir}
