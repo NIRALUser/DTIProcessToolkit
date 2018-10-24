@@ -289,4 +289,5 @@ list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
 option(BUILD_PolyDataTransform "Build PolyDataTransform" ON)
 option(BUILD_PolyDataMerge "Build PolyDataMerge" ON)
 option(BUILD_CropDTI "Build CropDTI" ON)
+option(COMPILE_IMAGEMATH "Build ImageMath from niral_utilities" OFF)
 

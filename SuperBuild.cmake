@@ -1,4 +1,4 @@
-set(PRIMARY_PROJECT_NAME DTIProcess)
+git@github.com:NIRALUser/DTIProcessToolkit.gitset(PRIMARY_PROJECT_NAME DTIProcess)
 
 #-----------------------------------------------------------------------------
 # Superbuild option(s)
@@ -23,6 +23,7 @@ if( DTIProcess_BUILD_SLICER_EXTENSION )
   set( VTK_VERSION_MAJOR ${VTK_VERSION_MAJOR} CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6).")
   set( USE_SYSTEM_SlicerExecutionModel ON CACHE BOOL "Build using an externally defined version of SlicerExecutionModel" FORCE )
   set( BUILD_CropDTI OFF CACHE BOOL "Build CropDTI" FORCE) # CropDTI is not a CLI
+  set(COMPILE_IMAGEMATH ON)
 
   SET(INSTALL_RUNTIME_DESTINATION ${Slicer_INSTALL_CLIMODULES_BIN_DIR})
   SET(INSTALL_LIBRARY_DESTINATION ${Slicer_INSTALL_CLIMODULES_LIB_DIR})
