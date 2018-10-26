@@ -1,4 +1,4 @@
-git@github.com:NIRALUser/DTIProcessToolkit.gitset(PRIMARY_PROJECT_NAME DTIProcess)
+set(PRIMARY_PROJECT_NAME DTIProcess)
 
 #-----------------------------------------------------------------------------
 # Superbuild option(s)
