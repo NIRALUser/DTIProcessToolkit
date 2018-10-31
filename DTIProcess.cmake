@@ -41,11 +41,20 @@ if(niral_utilities_FOUND)
       message(STATUS "skipping niral_utilities_lib install rule: [${niral_utilities_location}] does not exist")
       continue()
     endif()
-
-    install(PROGRAMS ${niral_utilities_location} 
-      DESTINATION ${INSTALL_RUNTIME_DESTINATION}
-      COMPONENT RUNTIME)
     
+    if(EXISTS "${niral_utilities_location}.xml")
+      install(PROGRAMS ${niral_utilities_location} 
+        DESTINATION ${INSTALL_RUNTIME_DESTINATION}
+        COMPONENT RUNTIME)
+
+      install(FILES ${niral_utilities_location}.xml
+        DESTINATION ${INSTALL_RUNTIME_DESTINATION}
+        COMPONENT RUNTIME)
+    else()
+      install(PROGRAMS ${niral_utilities_location} 
+        DESTINATION ${INSTALL_RUNTIME_DESTINATION}/../ExternalBin
+        COMPONENT RUNTIME)      
+    endif()
   endforeach()
   
 endif()

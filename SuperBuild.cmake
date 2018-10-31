@@ -22,7 +22,7 @@ if( DTIProcess_BUILD_SLICER_EXTENSION )
   #VTK_VERSION_MAJOR is define but not a CACHE variable
   set( VTK_VERSION_MAJOR ${VTK_VERSION_MAJOR} CACHE STRING "Choose the expected VTK major version to build Slicer (5 or 6).")
   set( USE_SYSTEM_SlicerExecutionModel ON CACHE BOOL "Build using an externally defined version of SlicerExecutionModel" FORCE )
-  set( BUILD_CropDTI OFF CACHE BOOL "Build CropDTI" FORCE) # CropDTI is not a CLI
+  set( BUILD_CropDTI ON CACHE BOOL "Build CropDTI" FORCE) # CropDTI is not a CLI
   set(COMPILE_IMAGEMATH ON)
 
   SET(INSTALL_RUNTIME_DESTINATION ${Slicer_INSTALL_CLIMODULES_BIN_DIR})
