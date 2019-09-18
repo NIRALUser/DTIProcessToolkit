@@ -382,15 +382,24 @@ int main(int argc, char* argv[])
     std::cout << "Output: " << fiberOutput << std::endl;
     }
   
+  if( VERBOSE )
+    {
+    if (ScalarImage != "") 
+      {
+      std::cout << "ScalarName: " << ScalarName << std::endl;
+      std::cout << "ScalarImage: " << ScalarImage<< std::endl;
+      }
+    }
+
   if( fiberOutput != "" )
     {
       if (ScalarImage != "") 
         {
-        writeFiberFile(fiberOutput, newgroup, saveProperties, ScalarName);
+          writeFiberFile(fiberOutput, newgroup, saveProperties, "binary", ScalarName);
         } 
       else
         {
-	writeFiberFile(fiberOutput, newgroup, saveProperties);
+          writeFiberFile(fiberOutput, newgroup, saveProperties);
         }
     }
 
