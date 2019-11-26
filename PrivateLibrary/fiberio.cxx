@@ -70,9 +70,11 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup,
     scalarRD->SetNumberOfComponents(1);
     scalarRD->SetName("RD");
     scalarValue->SetNumberOfComponents(1);
+    //std::cout<<"writing "<< scalarPropertyName << std::endl;
     if (scalarPropertyName != "")
       {
-	scalarValue->SetName(scalarPropertyName.c_str());
+        //std::cout << scalarPropertyName << std::endl;
+        scalarValue->SetName(scalarPropertyName.c_str());
       }
 
   
@@ -259,6 +261,13 @@ GroupType::Pointer readFiberFile(const std::string & filename)
 
     // Iterate over VTK data
     const int nfib = fibdata->GetNumberOfCells();
+
+    if (nfib == 0)
+    {
+      // bad data, no cells
+      throw itk::ExceptionObject("No cells/fibers in the fiber file");
+    }
+
     int       pindex = -1;
     for( int i = 0; i < nfib; ++i )
       {
