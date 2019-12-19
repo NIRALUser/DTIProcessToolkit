@@ -30,6 +30,10 @@ else()
   set( STATIC_LIB "SHARED" )
 endif()
 
+find_package(DCMTK REQUIRED)
+if(NOT DCMTK_FOUND)
+  message(FATAL_ERROR "DCMTK Not Found")
+endif()
 
 find_package(niral_utilities)
 if(niral_utilities_FOUND)
