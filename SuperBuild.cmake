@@ -76,9 +76,6 @@ set(extProjName ${PRIMARY_PROJECT_NAME})
 set(proj        ${PRIMARY_PROJECT_NAME})
 
 List( LENGTH ${PRIMARY_PROJECT_NAME}_DEPENDENCIES dependencies_size )
-if( dependencies_size GREATER 0 )
-  SlicerMacroCheckExternalProjectDependency(${PRIMARY_PROJECT_NAME})
-endif()
 #-----------------------------------------------------------------------------
 # Set CMake OSX variable to pass down the external project
 #-----------------------------------------------------------------------------
