@@ -44,33 +44,11 @@ SlicerMacroCheckExternalProjectDependency(${proj})
 
 if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" ) )
   #message(STATUS "${__indent}Adding project ${proj}")
-  if( ${PROJECT_NAME}_BUILD_TIFF_SUPPORT )
-    list(APPEND ${proj}_DEPENDENCIES TIFF)
-  endif()
-  if( ${PROJECT_NAME}_BUILD_JPEG_SUPPORT )
-    list(APPEND ${proj}_DEPENDENCIES JPEG)
-  endif()
   if( ${PROJECT_NAME}_BUILD_ZLIB_SUPPORT )
     list(APPEND ${proj}_DEPENDENCIES zlib)
   endif()
   SlicerMacroCheckExternalProjectDependency(${proj})
 
-  if( ${PROJECT_NAME}_BUILD_TIFF_SUPPORT )
-    set(${proj}_TIFF_ARGS
-      -DDCMTK_WITH_TIFF:BOOL=ON  # see CTK github issue #25
-      -DTIFF_DIR:PATH=${TIFF_DIR}
-       )
-  else()
-    set(${proj}_TIFF_ARGS
-      -DDCMTK_WITH_TIFF:BOOL=OFF
-       )
-  endif()
-  if( ${PROJECT_NAME}_BUILD_JPEG_SUPPORT )
-    set(${proj}_JPEG_ARGS
-      -DDCMTK_WITH_JPEG:BOOL=ON  # see CTK github issue #25
-      -DJPEG_DIR:FILEPATH=${JPEG_DIR}
-      )
-  endif()
   if( ${PROJECT_NAME}_BUILD_ZLIB_SUPPORT )
     set(${proj}_ZLIB_ARGS
       -DDCMTK_WITH_ZLIB:BOOL=ON
@@ -109,8 +87,8 @@ if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" 
       -DDCMTK_FORCE_FPIC_ON_UNIX:BOOL=ON
       -DDCMTK_OVERWRITE_WIN32_COMPILER_FLAGS:BOOL=OFF
       -DDCMTK_WITH_WRAP:BOOL=OFF   # CTK does not build on Mac with this option turned ON due to library dependencies missing
-      ${${proj}_TIFF_ARGS}
-      ${${proj}_JPEG_ARGS}
+      -DDCMTK_WITH_TIFF:BOOL=OFF
+      -DDCMTK_WITH_JPEG:BOOL=OFF  # see CTK github issue #25
       ${${proj}_ZLIB_ARGS}
   )
   ### --- End Project specific additions
