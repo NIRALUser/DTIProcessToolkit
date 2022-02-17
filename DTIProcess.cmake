@@ -4,9 +4,9 @@ if( DTIProcess_BUILD_SLICER_EXTENSION )
   include(${Slicer_USE_FILE})
   resetForSlicer( NAMES CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
   
-  SET(INSTALL_RUNTIME_DESTINATION ${Slicer_INSTALL_CLIMODULES_BIN_DIR})
-  SET(INSTALL_LIBRARY_DESTINATION ${Slicer_INSTALL_CLIMODULES_LIB_DIR})
-  SET(INSTALL_ARCHIVE_DESTINATION ${Slicer_INSTALL_CLIMODULES_LIB_DIR})
+  set(INSTALL_RUNTIME_DESTINATION ${Slicer_INSTALL_CLIMODULES_BIN_DIR})
+  set(INSTALL_LIBRARY_DESTINATION ${Slicer_INSTALL_CLIMODULES_LIB_DIR})
+  set(INSTALL_ARCHIVE_DESTINATION ${Slicer_INSTALL_CLIMODULES_LIB_DIR})
   
 endif()
 
@@ -146,7 +146,7 @@ find_package(VTK 9 COMPONENTS
   CommonDataModel
   REQUIRED)
 
-INCLUDE_DIRECTORIES(
+include_directories(
 ${PROJECT_SOURCE_DIR}/Library
 ${PROJECT_SOURCE_DIR}/PrivateLibrary
 ${PROJECT_SOURCE_DIR}
@@ -154,11 +154,11 @@ ${PROJECT_SOURCE_DIR}
 
 
 ## Replace bessel(FORTRAN) with cephes(C)
-SET(BESSEL_LIB cephes)
-ADD_SUBDIRECTORY(cephes)
+set(BESSEL_LIB cephes)
+add_subdirectory(cephes)
 
-ADD_SUBDIRECTORY(PrivateLibrary)
-ADD_SUBDIRECTORY(Applications)
+add_subdirectory(PrivateLibrary)
+add_subdirectory(Applications)
 
 #-----------------------------------------------------------------------------
 # Add external project CMake args
