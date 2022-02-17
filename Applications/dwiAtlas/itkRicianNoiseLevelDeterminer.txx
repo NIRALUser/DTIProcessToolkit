@@ -20,7 +20,7 @@
 #include "itkRicianNoiseLevelDeterminer.h"
 
 #include "itkConstNeighborhoodIterator.h"
-#include "vnl/vnl_math.h"
+#include "itkMath.h"
 
 namespace itk
 {
