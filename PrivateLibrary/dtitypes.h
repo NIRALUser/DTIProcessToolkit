@@ -54,7 +54,11 @@ enum EigenValueIndex { Lambda1 = 0, Lambda2, Lambda3 };
 
 typedef itk::DTITubeSpatialObject<3> DTITubeType;
 typedef DTITubeType::TubePointType   DTIPointType;
+#if ITK_VERSION_MAJOR < 5
 typedef DTITubeType::PointListType   DTIPointListType;
+#else
+typedef DTITubeType::DTITubePointListType   DTIPointListType;
+#endif
 
 typedef itk::GroupSpatialObject<3>  GroupType;
 typedef GroupType::ChildrenListType ChildrenListType;
