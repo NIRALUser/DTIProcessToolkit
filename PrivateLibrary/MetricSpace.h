@@ -11,7 +11,7 @@
 #ifndef __MetricSpace_h
 #define __MetricSpace_h
 
-#include <math.h>
+#include <cmath>
 
 template <class PointType, class DistanceType = double>
 class MetricSpace

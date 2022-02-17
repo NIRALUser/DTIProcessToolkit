@@ -8,8 +8,8 @@
 // Legendre code from GNU Scientific Library
 // #include <gsl/gsl_sf_legendre.h>
 
-#include <string.h>
-#include <math.h>
+#include <cstring>
+#include <cmath>
 #include <vector>
 #include <set>
 
