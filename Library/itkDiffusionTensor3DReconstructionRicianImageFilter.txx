@@ -46,7 +46,7 @@ DiffusionTensor3DReconstructionRicianImageFilter<TReferenceImagePixelType,
   m_NumberOfBaselineImages = 1;
   m_Threshold = NumericTraits<ReferencePixelType>::min();
   m_GradientImageTypeEnumeration = Else;
-  m_GradientDirectionContainer = ITK_NULLPTR;
+  m_GradientDirectionContainer = nullptr;
   m_TensorBasis.set_identity();
   m_BValue = 1.0;
 }
@@ -119,7 +119,7 @@ void DiffusionTensor3DReconstructionRicianImageFilter<TReferenceImagePixelType,
     {
     typedef ImageRegionConstIterator<GradientImagesType> GradientIteratorType;
     typedef typename GradientImagesType::PixelType       GradientVectorType;
-    typename GradientImagesType::Pointer gradientImagePointer = ITK_NULLPTR;
+    typename GradientImagesType::Pointer gradientImagePointer = nullptr;
 
     // Would have liked a dynamic_cast here, but seems SGI doesn't like it
     // The enum will ensure that an inappropriate cast is not done
@@ -132,7 +132,7 @@ void DiffusionTensor3DReconstructionRicianImageFilter<TReferenceImagePixelType,
     // add by Ran
     typedef ImageRegionConstIterator<TensorImageType> TensorIteratorType;
     // typedef typename TensorImageType::PixelType         TensorVectorType;
-    typename TensorImageType::Pointer initialTensorImagePointer = ITK_NULLPTR;
+    typename TensorImageType::Pointer initialTensorImagePointer = nullptr;
     initialTensorImagePointer = static_cast<TensorImageType *>(
         this->ProcessObject::GetInput(1) );
     TensorIteratorType tit(initialTensorImagePointer, outputRegionForThread );

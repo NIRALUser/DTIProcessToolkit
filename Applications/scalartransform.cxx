@@ -57,7 +57,7 @@ InterpolatorType::Pointer createInterpolater(InterpolationType interp)
     default:
       throw itk::ExceptionObject("Invalid interpolation type");
     }
-  return ITK_NULLPTR;
+  return nullptr;
 }
 
 int main(int argc, char* argv[])
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
     (interpolation == "linear" ? Linear :
      (interpolation == "nearestneightbor" ? NearestNeighbor :
       Cubic) );
-  IntImageType::Pointer     result = ITK_NULLPTR;
+  IntImageType::Pointer     result = nullptr;
   InterpolatorType::Pointer interp = createInterpolater(interpType);
   if( transformation != "" )
     {

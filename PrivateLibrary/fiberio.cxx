@@ -233,7 +233,7 @@ GroupType::Pointer readFiberFile(const std::string & filename)
     // Build up the principal data structure for fiber tracts
     GroupType::Pointer fibergroup = GroupType::New();
 
-    vtkSmartPointer<vtkPolyData> fibdata(ITK_NULLPTR);
+    vtkSmartPointer<vtkPolyData> fibdata(nullptr);
 
     // Legacy
     if( filename.rfind(".vtk") != std::string::npos )

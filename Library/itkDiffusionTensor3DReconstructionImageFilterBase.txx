@@ -39,7 +39,7 @@ DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
   this->SetNumberOfRequiredInputs( 1 );
   m_NumberOfGradientDirections = 0;
   m_Threshold = NumericTraits<GradientPixelType>::min();
-  m_GradientDirectionContainer = ITK_NULLPTR;
+  m_GradientDirectionContainer = nullptr;
   m_BValue = 1.0;
   m_EstimateBaseline = false;
   TensorPixelType tensor(0.0) ;
@@ -66,7 +66,7 @@ void DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType,
     }
   else
     {
-    this->ProcessObject::SetNthOutput(1, ITK_NULLPTR);
+    this->ProcessObject::SetNthOutput(1, nullptr);
     this->ProcessObject::SetNumberOfRequiredOutputs(1);
     }
 
@@ -114,7 +114,7 @@ void DiffusionTensor3DReconstructionImageFilterBase<TGradientImagePixelType, TTe
 
   typedef ImageRegionConstIterator<GradientImagesType> GradientIteratorType;
   typedef typename GradientImagesType::PixelType       GradientVectorType;
-  typename GradientImagesType::ConstPointer gradientImagePointer = ITK_NULLPTR;
+  typename GradientImagesType::ConstPointer gradientImagePointer = nullptr;
 
   gradientImagePointer =  this->GetInput();
 

@@ -67,10 +67,10 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
   this->dwiFiles.clear();
   this->deformationFiles.clear();
 
-  this->dwireader = ITK_NULLPTR;
-  this->deformation = ITK_NULLPTR;
-  this->gradientContainers = ITK_NULLPTR;
-  this->jacobian = ITK_NULLPTR;
+  this->dwireader = nullptr;
+  this->deformation = nullptr;
+  this->gradientContainers = nullptr;
+  this->jacobian = nullptr;
 
   this->m_NumberOfThreads = -1;
 
@@ -1278,7 +1278,7 @@ const typename DWIAtlasBuilder<MyRealType, DWIPixelType>::InputStringObjectType
   {
   if( this->GetNumberOfInputs() < 1 )
     {
-    return ITK_NULLPTR;
+    return nullptr;
     }
   return static_cast<const InputStringObjectType *>
          (this->ProcessObject::GetInput(0) );
