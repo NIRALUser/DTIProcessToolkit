@@ -164,7 +164,7 @@ public:
   typedef SimpleDataObjectDecorator<std::string *> InputStringObjectType;
 
   /** Determine the image dimension. */
-  itkStaticConstMacro(ImageDimension, unsigned int, DIM );
+  static constexpr unsigned int ImageDimension = DIM;
 
   /** Set/Get the input of this process object.  */
   /* We have text files as input here for data that needs to be loaded */

@@ -32,7 +32,7 @@ namespace itk
 // template <typename T>
 // struct GetDimension
 // {
-//   itkStaticConstMacro(Dimension, int, T::Dimension);
+//   static constexpr int Dimension = T::Dimension;
 // };
 
 /** \class TensorInterpolateImageFunction
