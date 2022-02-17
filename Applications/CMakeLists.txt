@@ -109,6 +109,6 @@ endif()
 if(BUILD_dwiAtlas)
   ADD_SUBDIRECTORY(dwiAtlas)
   ADD_DEPENDENCIES(dwiAtlas dwiprocess DTIIO)
-endif(BUILD_dwiAtlas)
+endif()
 
 
