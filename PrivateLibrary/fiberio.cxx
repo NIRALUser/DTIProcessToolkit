@@ -89,8 +89,8 @@ void writeFiberFile(const std::string & filename, GroupType::Pointer fibergroup,
       vtkIdType                     currentId = ids->GetNumberOfIds();
       for( unsigned int k = 0; k < nPointsOnFiber; k++ )
         {
-        itk::Point<double, 3>  v(tube->GetPoint(k)->GetPosition() );
-        itk::Vector<double, 3> spacing(tube->GetSpacing() );
+        itk::Point<double, 3>  v(tube->GetPoint(k)->GetPositionInObjectSpace() );
+        itk::Vector<double, 3> spacing(tube->GetObjectToWorldTransform()->GetInputSpaceDimension() );
         itk::Vector<double, 3> origin(tube->GetObjectToWorldTransform()->GetOffset() );
 
         // convert origin from LPS -> RAS
@@ -287,8 +287,8 @@ GroupType::Pointer readFiberFile(const std::string & filename)
 	  double * coordinates = points->GetPoint(j);
 	  DTIPointType          pt;
 	  // Convert from RAS to LPS for vtk
-	  pt.SetPosition(-coordinates[0], -coordinates[1], coordinates[2]);
-	  pt.SetRadius(0.5);
+	  pt.SetPositionInObjectSpace(-coordinates[0], -coordinates[1], coordinates[2]);
+	  pt.SetRadiusInObjectSpace(0.5);
 	  pt.SetColor(0.0, 1.0, 0.0);
 	  double * vtktensor;
 	  float                 floattensor[6];
@@ -349,7 +349,7 @@ GroupType::Pointer readFiberFile(const std::string & filename)
         }
 
       dtiTube->SetPoints(pointsToAdd);
-      fibergroup->AddSpatialObject(dtiTube);
+      fibergroup->AddChild(dtiTube);
       }
     return fibergroup;
     } // end process .vtk .vtp

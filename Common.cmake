@@ -61,6 +61,7 @@ endif()
 # Enable and setup External project global properties
 #-----------------------------------------------------------------------------
 include(ExternalProject)
+include(ExternalProjectDependency)
 
 if(CMAKE_EXTRA_GENERATOR)
   set(gen "${CMAKE_EXTRA_GENERATOR} - ${CMAKE_GENERATOR}")

@@ -38,7 +38,7 @@ option(USE_SYSTEM_VTK "Build using an externally defined version of VTK" OFF)
 # ${PRIMARY_PROJECT_NAME} dependency list
 #------------------------------------------------------------------------------
 #Compilation options for ITK if USE_SYSTEM_ITK is set to OFF (Superbuild)
-set(ITK_EXTERNAL_NAME ITKv4)
+set(ITK_EXTERNAL_NAME ITK)
 #set(${PRIMARY_PROJECT_NAME}_BUILD_DICOM_SUPPORT ON)
 set( USE_ITK_Module_MGHIO ON )
 set( ${PRIMARY_PROJECT_NAME}_BUILD_ZLIB_SUPPORT ON )
@@ -59,7 +59,7 @@ if( BUILD_PolyDataTransform OR BUILD_PolyDataMerge OR BUILD_CropDTI )
 endif()
 
 CMAKE_DEPENDENT_OPTION( ITK_LEGACY_REMOVE "Remove ITK legacy" ON "NOT BUILD_dwiAtlas" OFF)
-CMAKE_DEPENDENT_OPTION( ITKV3_COMPATIBILITY "Build ITKv4 with ITKv3 compatibility" OFF "NOT BUILD_dwiAtlas" ON)
+CMAKE_DEPENDENT_OPTION( ITKV3_COMPATIBILITY "Build ITK with ITKv3 compatibility" OFF "NOT BUILD_dwiAtlas" ON)
 
 if(${PRIMARY_PROJECT_NAME}_USE_QT)
   list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS
@@ -121,10 +121,24 @@ if(verbose)
 endif()
 
 #------------------------------------------------------------------------------
+# Process external projects, aggregate variable marked as superbuild and set <proj>_EP_ARGS variable.
+#------------------------------------------------------------------------------
+
+ExternalProject_Include_Dependencies(${PRIMARY_PROJECT_NAME} DEPENDS_VAR ${PRIMARY_PROJECT_NAME}_DEPENDENCIES)
+
+
+#------------------------------------------------------------------------------
 # Configure and build
 #------------------------------------------------------------------------------
 
-SET(CMAKE_ARGS 
+set(proj DTIProcess-inner)
+ExternalProject_Add(${proj}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    BINARY_DIR ${proj}-build
+    DEPENDS ${${PRIMARY_PROJECT_NAME}_DEPENDENCIES}
+    CMAKE_GENERATOR ${gen}
+    CMAKE_ARGS
       -DDTIProcess_SUPERBUILD:BOOL=OFF
       -DDTIProcess_BUILD_SLICER_EXTENSION:BOOL=${DTIProcess_BUILD_SLICER_EXTENSION}
       -DDTIProcess_EXTENSION:BOOL=ON #install the tests if it is built as an extension
@@ -139,17 +153,9 @@ SET(CMAKE_ARGS
       -DBUILD_dwiAtlas:BOOL=${BUILD_dwiAtlas}
       -DCMAKE_INSTALL_PREFIX:PATH=${DTIProcess_INSTALL_DIRECTORY}
       -DCMAKE_PREFIX:PATH=${niral_utilities_DIR}
-  )
-
-set(proj DTIProcess-inner)
-ExternalProject_Add(${proj}
-    DOWNLOAD_COMMAND ""
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    BINARY_DIR ${proj}-build
-    DEPENDS ${${PRIMARY_PROJECT_NAME}_DEPENDENCIES}
-    CMAKE_GENERATOR ${gen}
-    CMAKE_ARGS
-      ${CMAKE_ARGS}
+      -DITK_DIR:PATH=${ITK_DIR}
+      -DVTK_DIR:PATH=${VTK_DIR}
+      -DSlicerExecutionModel_DIR:PATH=${SlicerExecutionModel_DIR}
   )
 
 if( DTIProcess_BUILD_SLICER_EXTENSION )

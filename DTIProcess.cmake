@@ -1,6 +1,3 @@
-
-
-
 if( DTIProcess_BUILD_SLICER_EXTENSION )
   unsetForSlicer( NAMES QT_QMAKE_EXECUTABLE SlicerExecutionModel_DIR ITK_DIR VTK_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS ITK_LIBRARIES )
   find_package(Slicer REQUIRED)
@@ -91,6 +88,8 @@ set( LIST_ITK_COMPONENTS
   ITKIOTransformMatlab
   ITKImageCompare
   ITKTestKernel
+### For backwards compatibility with WarpImageFilter and VectorInterpolators
+  ITKDeprecated
 )
 
 # IO modules: we only load the IO modules that are available with ITK. Because the toolds compiled in this project read and write DWI and DTI,
@@ -141,14 +140,11 @@ include(${ITK_USE_FILE})
 set(DTIProcess_ITK_LIBRARIES ${ITK_LIBRARIES})
 
 
-find_package(VTK COMPONENTS
-  vtkIOLegacy
-  vtkIOXML
-  vtkCommonDataModel
+find_package(VTK 9 COMPONENTS
+  IOLegacy
+  IOXML
+  CommonDataModel
   REQUIRED)
-include(${VTK_USE_FILE})
-
-
 
 INCLUDE_DIRECTORIES(
 ${PROJECT_SOURCE_DIR}/Library

@@ -42,12 +42,14 @@ int main(int argc, char* argv[])
 
   verboseMessage("Getting spacing");
 
+#if ITK_VERSION_MAJOR < 5 // TODO Need to figure out how to compute spacing in ITKv5 from spatial objects
   // Get Spacing and offset from group
   const double* spacing = group->GetSpacing();
+#endif
 
   typedef itk::Index<3>                              IndexType;
 #if ITK_VERSION_MAJOR >= 5
-  typedef itk::Functor::LexicographicCompare<itk::Index<3>, itk::Index<3> > IndexCompare;
+  typedef itk::Functor::LexicographicCompare IndexCompare;
 #else
   typedef itk::Functor::IndexLexicographicCompare<3> IndexCompare;
 #endif
@@ -77,11 +79,11 @@ int main(int argc, char* argv[])
     // For each point along the fiber
     double FiberLength=0;// Added by Adrien Kaiser 04-03-2013
     typedef DTIPointType::PointType PointType;
-    PointType Previousp = pointlist.begin()->GetPosition();// Added by Adrien Kaiser 04-03-2013
+    PointType Previousp = pointlist.begin()->GetPositionInObjectSpace();// Added by Adrien Kaiser 04-03-2013
     for( DTIPointListType::iterator pit = pointlist.begin();
          pit != pointlist.end(); ++pit )
       {
-      PointType p = pit->GetPosition();
+      PointType p = pit->GetPositionInObjectSpace();
 
       // Added by Adrien Kaiser 04-03-2013: Compute length between 2 points
       if(pit != pointlist.begin()) // no previous for the first one
@@ -93,9 +95,9 @@ int main(int argc, char* argv[])
       //
 
       IndexType i;
-      i[0] = static_cast<long int>(vnl_math_rnd_halfinttoeven(p[0]) );
-      i[1] = static_cast<long int>(vnl_math_rnd_halfinttoeven(p[1]) );
-      i[2] = static_cast<long int>(vnl_math_rnd_halfinttoeven(p[2]) );
+      i[0] = static_cast<long int>(itk::Math::rnd_halfinttoeven(p[0]) );
+      i[1] = static_cast<long int>(itk::Math::rnd_halfinttoeven(p[1]) );
+      i[2] = static_cast<long int>(itk::Math::rnd_halfinttoeven(p[2]) );
 
       seenvoxels.insert(i);
       int curValue = visitvoxels[i];
@@ -153,6 +155,7 @@ int main(int argc, char* argv[])
   std::cout<<"Average 75 Percentile Fiber Length: "<<Average75PercFiberLength<<std::endl;
   //
 
+#if ITK_VERSION_MAJOR < 5 // TODO Need to figure out how to compute spacing in ITKv5 from spatial objects
   double voxelsize = spacing[0] * spacing[1] * spacing[2];
   std::cout << "Volume (mm^3): " << seenvoxels.size() * voxelsize  << std::endl;
 
@@ -165,6 +168,8 @@ int main(int argc, char* argv[])
   //int weightedSum =  std::accumulate(visitvoxels.begin(), visitvoxels.end(), 0.0);
   std::cout << "Density Volume (mm^3): " << weightedSum * voxelsize  << std::endl;
   std::cout << "Measure statistics: " << bundlestats.size() << std::endl;
+#endif
+
   for( SampleMap::const_iterator smit = bundlestats.begin();
        smit != bundlestats.end(); ++smit )
   {
@@ -188,7 +193,6 @@ int main(int argc, char* argv[])
     }
       
    }
-
   delete children;
   return EXIT_SUCCESS;
 }
