@@ -44,7 +44,7 @@ public:
 
   /** Create a valid output. */
   using Superclass::MakeOutput;
-  virtual DataObject::Pointer MakeOutput(DataObjectPointerArraySizeType idx) ITK_OVERRIDE;
+  virtual DataObject::Pointer MakeOutput(DataObjectPointerArraySizeType idx) override;
 
   /** Some Image related typedefs. */
   typedef   TInputImage                           InputImageType;
@@ -72,12 +72,12 @@ public:
   OutputDTITubeSpatialObjectType * GetOutput();
 
   /** Prepare the output */
-  void GenerateOutputInformation() ITK_OVERRIDE;
+  void GenerateOutputInformation() override;
 
 protected:
   ImageToDTITubeSpatialObjectFilter();
   ~ImageToDTITubeSpatialObjectFilter();
-  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void PrintSelf(std::ostream& os, Indent indent) const override;
 
 private:
   ImageToDTITubeSpatialObjectFilter(const ImageToDTITubeSpatialObjectFilter &); // purposely not implemented

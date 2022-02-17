@@ -53,7 +53,7 @@ public:
   typedef typename Superclass::ParametersType ParametersType;
   typedef typename Superclass::DerivativeType DerivativeType;
 
-  virtual typename Superclass::MeasureType GetValue(const ParametersType & D) const ITK_OVERRIDE
+  virtual typename Superclass::MeasureType GetValue(const ParametersType & D) const override
   {
     const double       s2 = m_Sigma * m_Sigma;
     const unsigned int ns = m_Signal.size();
@@ -133,7 +133,7 @@ public:
     return -sumloglhood;
   }
 
-  virtual void GetDerivative(const ParametersType & D, DerivativeType & gradient) const ITK_OVERRIDE
+  virtual void GetDerivative(const ParametersType & D, DerivativeType & gradient) const override
   {
 //    std::cout << "D: "<< D << std::endl;
 //    std::cout << "f(D): "<< this->GetValue(D) << std::endl;
@@ -183,7 +183,7 @@ public:
 //     std::cout << "g: " << gradient << std::endl;
   }
 
-  virtual unsigned int GetNumberOfParameters() const ITK_OVERRIDE
+  virtual unsigned int GetNumberOfParameters() const override
   {
     return 6;
   }
@@ -377,7 +377,7 @@ protected:
   ~DiffusionTensor3DReconstructionRicianImageFilter()
   {
   };
-  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void PrintSelf(std::ostream& os, Indent indent) const override;
 
   void ComputeTensorBasis();
 
@@ -386,10 +386,10 @@ protected:
   double ComputeGuessValue( const TensorType &_tensor, typename
                             NumericTraits<ReferencePixelType>::AccumulateType cleanValue, int index );
 
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void BeforeThreadedGenerateData() override;
 
   virtual void ThreadedGenerateData( const
-                                     OutputImageRegionType &outputRegionForThread, ThreadIdType) ITK_OVERRIDE;
+                                     OutputImageRegionType &outputRegionForThread, ThreadIdType) override;
 
   /** enum to indicate if the gradient image is specified as a single multi-
    * component image or as several separate images */

@@ -83,7 +83,7 @@ protected:
   };
 
   virtual vnl_vector<TTensorPrecision>
-  EstimateTensor(const vnl_vector<TTensorPrecision>& S) const ITK_OVERRIDE;
+  EstimateTensor(const vnl_vector<TTensorPrecision>& S) const override;
 
   double m_Step;
 };

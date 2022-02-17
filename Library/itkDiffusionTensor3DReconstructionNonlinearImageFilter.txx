@@ -36,7 +36,7 @@ public:
   }
 
   void f(const vnl_vector<double> & x,
-         vnl_vector<double> & fx) ITK_OVERRIDE
+         vnl_vector<double> & fx) override
   {
     vnl_vector<double> predictedsignal(n_);
     predictedsignal = (*m_Design_Matrix) * x;

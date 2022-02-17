@@ -57,7 +57,7 @@ protected:
   };
 public:
 
-  void Execute(itk::Object *caller, const itk::EventObject & event) ITK_OVERRIDE
+  void Execute(itk::Object *caller, const itk::EventObject & event) override
   {
     Execute( (const itk::Object *)caller, event);
   }
@@ -67,7 +67,7 @@ public:
     m_MaxProgress = mP;
   }
 
-  void Execute(const itk::Object *, const itk::EventObject & event) ITK_OVERRIDE
+  void Execute(const itk::Object *, const itk::EventObject & event) override
   {
     if( itk::StartEvent().CheckEvent( &event ) )
       {
@@ -292,20 +292,20 @@ protected:
                                  unsigned int interpolationType, unsigned int averagingType,
                                  unsigned int & nrOfBaselineOutliers );
 
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  virtual void GenerateOutputInformation() override;
 
   // threaded version to generate data
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, ThreadIdType threadId ) ITK_OVERRIDE;
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, ThreadIdType threadId ) override;
 
-  void AfterThreadedGenerateData() ITK_OVERRIDE;
+  void AfterThreadedGenerateData() override;
 
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void BeforeThreadedGenerateData() override;
 
   SizeType    m_Size;
   SpacingType m_Spacing;
   PointType   m_Origin;
 
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  virtual void PrintSelf(std::ostream& os, Indent indent) const override;
 
 private:
 

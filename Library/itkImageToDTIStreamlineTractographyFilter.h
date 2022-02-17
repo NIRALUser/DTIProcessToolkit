@@ -87,7 +87,7 @@ public:
 
   virtual const TROIImage * GetROIImage() const;
 
-  virtual void Update() ITK_OVERRIDE
+  virtual void Update() override
   {
     this->GenerateData();
   }
@@ -99,9 +99,9 @@ public:
 
 protected:
 
-  virtual void GenerateData() ITK_OVERRIDE;
+  virtual void GenerateData() override;
 
-  virtual void GenerateOutputInformation() ITK_OVERRIDE
+  virtual void GenerateOutputInformation() override
   {
   };                                           // do nothing
 
