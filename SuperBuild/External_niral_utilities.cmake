@@ -22,7 +22,7 @@ if(NOT DEFINED niral_utilities_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${pr
 
   ExternalProject_SetIfNotDefined(
     ${CMAKE_PROJECT_NAME}_${proj}_GIT_TAG
-    "release" # 
+    "90e8e9479f43c2713cb3e565c0d9f2be39d49ef1" #  2022-02-25
     QUIET
     )
 
