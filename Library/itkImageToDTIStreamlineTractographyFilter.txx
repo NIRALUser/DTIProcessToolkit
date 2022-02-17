@@ -127,8 +127,13 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage, TROIImage, TOutputSpatialOb
                 (newpoints.begin() + fiba->GetNumberOfPoints() ) );
       fib->SetPoints(newpoints);
 
+#if ITK_VERSION_MAJOR < 5
       // Need to set spacing
       fib->SetSpacing(this->GetROIImage()->GetSpacing().GetDataPointer() );
+#else
+      std::cerr << "WARNING:  spacing measurements disabled for spatial objects in ITKv5" << std::endl;
+      //HACK TODO Need to figure out what to do about spacing in ITK v5  Asking Stephen Aylward for advice
+#endif
 
       // Iterate over fiber and test if passed through target
       // region.  If m_TargetLabel is zero accept all fibers.
@@ -338,7 +343,12 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage, TROIImage, TOutputSpatialOb
   m_ROIInterpolator->SetInputImage(this->GetROIImage() );
 
   // TODO: this should not be here
+#if ITK_VERSION_MAJOR < 5
   m_TubeGroup->SetSpacing(this->GetTensorImage()->GetSpacing().GetDataPointer() );
+#else
+  std::cerr << "WARNING:  spacing measurements disabled for spatial objects in ITKv5" << std::endl;
+  //HACK TODO Need to figure out what to do about spacing in ITK v5  Asking Stephen Aylward for advice
+#endif
   m_TubeGroup->GetObjectToParentTransform()->SetOffset(this->GetTensorImage()->GetOrigin().GetDataPointer() );
 
 }

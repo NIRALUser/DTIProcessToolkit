@@ -91,16 +91,27 @@ int main(int argc, char* argv[])
     {
     newgroup->SetObjectToWorldTransform( group->GetObjectToWorldTransform() );
     newgroup->ComputeObjectToParentTransform();
+#if ITK_VERSION_MAJOR < 5
     for( unsigned int i = 0; i < 3; i++ )
       {
       spacing[i] = (group->GetSpacing() )[i];
       }
+#else
+    std::cerr << "WARNING:  spacing measurements disabled for spatial objects in ITKv5" << std::endl;
+    //HACK TODO Need to figure out what to do about spacing in ITK v5  Asking Stephen Aylward for advice
+#endif
     }
   else
     {
     spacing[0] = spacing[1] = spacing[2] = 1;
     }
+#if ITK_VERSION_MAJOR < 5
   newgroup->SetSpacing(spacing);
+#else
+    std::cerr << "WARNING:  spacing measurements disabled for spatial objects in ITKv5" << std::endl;
+    //HACK TODO Need to figure out what to do about spacing in ITK v5  Asking Stephen Aylward for advice
+#endif
+
 
   itk::Vector<double, 3> sooffset;
   for( unsigned int i = 0; i < 3; i++ )
@@ -368,7 +379,7 @@ int main(int argc, char* argv[])
 #if ITK_VERSION_MAJOR < 5
     newtube->SetSpacing(spacing);
 #else
-      std::cerr << "WARNING:  spacing measurements disabled in for spatial objects in ITKv5" << std::endl;
+      std::cerr << "WARNING:  spacing measurements disabled for spatial objects in ITKv5" << std::endl;
      //HACK TODO Need to figure out what to do about spacing in ITK v5  Asking Stephen Aylward for advice
 #endif
     newtube->SetId(id++);
