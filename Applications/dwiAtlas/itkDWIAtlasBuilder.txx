@@ -670,7 +670,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
       std::string t;
       itk::ExposeMetaData<std::string>(dict, *it, t);
       readbvalue = true;
-      bvalue = atof(t.c_str() );
+      bvalue = std::stod(t.c_str() );
       }
     else if( it->find("DWMRI_gradient") != std::string::npos )
       {
@@ -685,7 +685,7 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
 
       unsigned int ind;
       std::string  temp = it->substr(it->find_last_of('_') + 1);
-      ind = atoi(temp.c_str() );
+      ind = std::stoi(temp.c_str() );
 
       if( g.magnitude() == 0 )
         {
@@ -700,10 +700,10 @@ DWIAtlasBuilder<MyRealType, DWIPixelType>
       std::string numrepstr;
 
       itk::ExposeMetaData<std::string>(dict, *it, numrepstr);
-      unsigned int numreps = atoi(value.c_str() );
+      unsigned int numreps = std::stoi(value.c_str() );
 
       std::string  indtorepstr = it->substr(it->find_last_of('_') + 1);
-      unsigned int indtorep =  atoi(indtorepstr.c_str() );
+      unsigned int indtorep =  std::stoi(indtorepstr.c_str() );
 
       MyGradientType g = gradientContainer.GetElement(indtorep);
       for( unsigned int i = indtorep + 1; i < indtorep + numreps - 1; i++ )

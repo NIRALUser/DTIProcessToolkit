@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     }
 
   const std::string  type = argv[1];
-  const unsigned int radius = atoi(argv[2]);
+  const unsigned int radius = std::stoi(argv[2]);
   const std::string  input = argv[3];
   const std::string  output = argv[4];
 

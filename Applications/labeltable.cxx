@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
   labelchanger->SetInput(reader->GetOutput() );
   for( int i = 3; i  < argc;  i += 2 )
     {
-    labelchanger->SetChange(atoi(argv[i]), atoi(argv[i + 1]) );
+    labelchanger->SetChange(atoi(argv[i]), std::stoi(argv[i + 1]) );
     }
 
   ImageFileWriterType::Pointer writer = ImageFileWriterType::New();

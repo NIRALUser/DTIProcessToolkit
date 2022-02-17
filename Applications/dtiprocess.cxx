@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
 
       unsigned int ind;
       std::string  temp = it->substr(it->find_last_of('_') + 1);
-      ind = atoi(temp.c_str() );
+      ind = std::stoi(temp.c_str() );
 
       gradientContainer->InsertElement(ind, g);
       }
@@ -117,10 +117,10 @@ int main(int argc, char* argv[])
       std::string numrepstr;
 
       itk::ExposeMetaData<std::string>(dict, *it, numrepstr);
-      unsigned int numreps = atoi(numrepstr.c_str() );
+      unsigned int numreps = std::stoi(numrepstr.c_str() );
 
       std::string  indtorepstr = it->substr(it->find_last_of('_') + 1);
-      unsigned int indtorep =  atoi(indtorepstr.c_str() );
+      unsigned int indtorep =  std::stoi(indtorepstr.c_str() );
 
       GradientType g = gradientContainer->GetElement(indtorep);
       for( unsigned int i = indtorep + 1; i < indtorep + numreps; i++ )
