@@ -115,7 +115,7 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage, TROIImage, TOutputSpatialOb
 
       // TODO ::: CHECK MEMORY ALLOCATION
       fib = DTITubeSpatialObjectType::New();
-      typedef DTITubeSpatialObjectType::PointListType PointListType;
+      typedef DTITubeSpatialObjectType::DTITubePointListType PointListType;
 
       // new points is sum of two half minus one for the repeated
       // start point
@@ -127,8 +127,13 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage, TROIImage, TOutputSpatialOb
                 (newpoints.begin() + fiba->GetNumberOfPoints() ) );
       fib->SetPoints(newpoints);
 
+#if ITK_VERSION_MAJOR < 5
       // Need to set spacing
       fib->SetSpacing(this->GetROIImage()->GetSpacing().GetDataPointer() );
+#else
+      std::cerr << "WARNING:  spacing measurements disabled for spatial objects in ITKv5" << std::endl;
+      //HACK TODO Need to figure out what to do about spacing in ITK v5  Asking Stephen Aylward for advice
+#endif
 
       // Iterate over fiber and test if passed through target
       // region.  If m_TargetLabel is zero accept all fibers.
@@ -139,9 +144,9 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage, TROIImage, TOutputSpatialOb
            it != newpoints.end(); ++it )
         {
         ContinuousIndex<double, 3> cind;
-        cind[0] = it->GetPosition()[0];
-        cind[1] = it->GetPosition()[1];
-        cind[2] = it->GetPosition()[2];
+        cind[0] = it->GetPositionInObjectSpace()[0];
+        cind[1] = it->GetPositionInObjectSpace()[1];
+        cind[2] = it->GetPositionInObjectSpace()[2];
         PointType ptest;
         this->GetTensorImage()->TransformContinuousIndexToPhysicalPoint(cind, ptest);
 
@@ -153,7 +158,7 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage, TROIImage, TOutputSpatialOb
       // If whole brain we need to see source and target
       if( (sawtarget && !m_WholeBrain) || (sawtarget && sawsource) )
         {
-        m_TubeGroup->AddSpatialObject(fib);
+        m_TubeGroup->AddChild(fib);
         }
       } // end if in source region
 
@@ -178,8 +183,6 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage, TROIImage, TOutputSpatialOb
 
   bool stoppingcond = false;
 
-  EigenVectorType nextvec;
-
   DTITubeSpatialObjectPointType tubept;
   ContinuousIndex<double, 3>    nextpointind;
 
@@ -187,9 +190,9 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage, TROIImage, TOutputSpatialOb
   // Since this point came from an ROI label it ought to be guaranteed
   // to be in the image buffer.
   assert(m_TensorInterpolator->IsInsideBuffer(pt) );
-  tubept.SetPosition(nextpointind[0], nextpointind[1], nextpointind[2]);
+  tubept.SetPositionInObjectSpace(nextpointind[0], nextpointind[1], nextpointind[2]);
   TensorType t = m_TensorInterpolator->Evaluate(pt);
-  tubept.SetRadius(0.5);
+  tubept.SetRadiusInObjectSpace(0.5);
   tubept.SetTensorMatrix(t);
   tubept.AddField("fa", t.GetFractionalAnisotropy() );
   tubept.AddField("md", t.GetTrace() / 3.0);
@@ -198,13 +201,14 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage, TROIImage, TOutputSpatialOb
                               + 2 * t[4] * t[4] + t[5] * t[5]) );
   pointlist.push_back(tubept);
 
+  EigenVectorType nextvec;
   do
     {
     PointType nextpt;
     try
       {
       nextpt = this->IntegrateOneStep(pt, vec, m_StepSize);
-      nextvec = nextpt - pt;
+      nextvec.SetVnlVector( (nextpt - pt).GetVnlVector() );
       }
     catch( itk::ExceptionObject e )
       {
@@ -226,7 +230,7 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage, TROIImage, TOutputSpatialOb
       {
       this->GetTensorImage()->TransformPhysicalPointToContinuousIndex(nextpt, nextpointind);
 
-      tubept.SetPosition(nextpointind[0], nextpointind[1], nextpointind[2]);
+      tubept.SetPositionInObjectSpace(nextpointind[0], nextpointind[1], nextpointind[2]);
       tubept.SetTensorMatrix(nextt);
       tubept.SetField("fa", nextt.GetFractionalAnisotropy() );
       tubept.SetField("md", nextt.GetTrace() / 3.0);
@@ -339,7 +343,12 @@ ImageToDTIStreamlineTractographyFilter<TTensorImage, TROIImage, TOutputSpatialOb
   m_ROIInterpolator->SetInputImage(this->GetROIImage() );
 
   // TODO: this should not be here
+#if ITK_VERSION_MAJOR < 5
   m_TubeGroup->SetSpacing(this->GetTensorImage()->GetSpacing().GetDataPointer() );
+#else
+  std::cerr << "WARNING:  spacing measurements disabled for spatial objects in ITKv5" << std::endl;
+  //HACK TODO Need to figure out what to do about spacing in ITK v5  Asking Stephen Aylward for advice
+#endif
   m_TubeGroup->GetObjectToParentTransform()->SetOffset(this->GetTensorImage()->GetOrigin().GetDataPointer() );
 
 }

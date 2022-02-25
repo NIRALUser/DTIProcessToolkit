@@ -1,15 +1,12 @@
-
-
-
 if( DTIProcess_BUILD_SLICER_EXTENSION )
   unsetForSlicer( NAMES QT_QMAKE_EXECUTABLE SlicerExecutionModel_DIR ITK_DIR VTK_DIR CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS ITK_LIBRARIES )
   find_package(Slicer REQUIRED)
   include(${Slicer_USE_FILE})
   resetForSlicer( NAMES CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_CXX_FLAGS CMAKE_C_FLAGS )
   
-  SET(INSTALL_RUNTIME_DESTINATION ${Slicer_INSTALL_CLIMODULES_BIN_DIR})
-  SET(INSTALL_LIBRARY_DESTINATION ${Slicer_INSTALL_CLIMODULES_LIB_DIR})
-  SET(INSTALL_ARCHIVE_DESTINATION ${Slicer_INSTALL_CLIMODULES_LIB_DIR})
+  set(INSTALL_RUNTIME_DESTINATION ${Slicer_INSTALL_CLIMODULES_BIN_DIR})
+  set(INSTALL_LIBRARY_DESTINATION ${Slicer_INSTALL_CLIMODULES_LIB_DIR})
+  set(INSTALL_ARCHIVE_DESTINATION ${Slicer_INSTALL_CLIMODULES_LIB_DIR})
   
 endif()
 
@@ -91,6 +88,8 @@ set( LIST_ITK_COMPONENTS
   ITKIOTransformMatlab
   ITKImageCompare
   ITKTestKernel
+### For backwards compatibility with WarpImageFilter and VectorInterpolators
+  ITKDeprecated
 )
 
 # IO modules: we only load the IO modules that are available with ITK. Because the toolds compiled in this project read and write DWI and DTI,
@@ -141,16 +140,13 @@ include(${ITK_USE_FILE})
 set(DTIProcess_ITK_LIBRARIES ${ITK_LIBRARIES})
 
 
-find_package(VTK COMPONENTS
-  vtkIOLegacy
-  vtkIOXML
-  vtkCommonDataModel
+find_package(VTK 9 COMPONENTS
+  IOLegacy
+  IOXML
+  CommonDataModel
   REQUIRED)
-include(${VTK_USE_FILE})
 
-
-
-INCLUDE_DIRECTORIES(
+include_directories(
 ${PROJECT_SOURCE_DIR}/Library
 ${PROJECT_SOURCE_DIR}/PrivateLibrary
 ${PROJECT_SOURCE_DIR}
@@ -158,11 +154,11 @@ ${PROJECT_SOURCE_DIR}
 
 
 ## Replace bessel(FORTRAN) with cephes(C)
-SET(BESSEL_LIB cephes)
-ADD_SUBDIRECTORY(cephes)
+set(BESSEL_LIB cephes)
+add_subdirectory(cephes)
 
-ADD_SUBDIRECTORY(PrivateLibrary)
-ADD_SUBDIRECTORY(Applications)
+add_subdirectory(PrivateLibrary)
+add_subdirectory(Applications)
 
 #-----------------------------------------------------------------------------
 # Add external project CMake args

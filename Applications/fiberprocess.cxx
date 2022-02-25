@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
   // Reader fiber bundle
   GroupType::Pointer group = readFiberFile(fiberFile);
 
-  DeformationImageType::Pointer deformationfield(ITK_NULLPTR);
+  DeformationImageType::Pointer deformationfield(nullptr);
   if( hField != "" )
     {
     deformationfield = readDeformationField(hField, HField);
@@ -57,13 +57,13 @@ int main(int argc, char* argv[])
     }
   else
     {
-    deformationfield = ITK_NULLPTR;
+    deformationfield = nullptr;
     }
 
   typedef itk::VectorLinearInterpolateImageFunction<DeformationImageType, double> DeformationInterpolateType;
 
   // Deformation Field Input
-  DeformationInterpolateType::Pointer definterp(ITK_NULLPTR);
+  DeformationInterpolateType::Pointer definterp(nullptr);
   if( deformationfield )
     {
     definterp = DeformationInterpolateType::New();
@@ -91,16 +91,27 @@ int main(int argc, char* argv[])
     {
     newgroup->SetObjectToWorldTransform( group->GetObjectToWorldTransform() );
     newgroup->ComputeObjectToParentTransform();
+#if ITK_VERSION_MAJOR < 5
     for( unsigned int i = 0; i < 3; i++ )
       {
       spacing[i] = (group->GetSpacing() )[i];
       }
+#else
+    std::cerr << "WARNING:  spacing measurements disabled for spatial objects in ITKv5" << std::endl;
+    //HACK TODO Need to figure out what to do about spacing in ITK v5  Asking Stephen Aylward for advice
+#endif
     }
   else
     {
     spacing[0] = spacing[1] = spacing[2] = 1;
     }
+#if ITK_VERSION_MAJOR < 5
   newgroup->SetSpacing(spacing);
+#else
+    std::cerr << "WARNING:  spacing measurements disabled for spatial objects in ITKv5" << std::endl;
+    //HACK TODO Need to figure out what to do about spacing in ITK v5  Asking Stephen Aylward for advice
+#endif
+
 
   itk::Vector<double, 3> sooffset;
   for( unsigned int i = 0; i < 3; i++ )
@@ -124,10 +135,10 @@ int main(int argc, char* argv[])
   typedef itk::TensorLinearInterpolateImageFunction<TensorImageType, double> TensorInterpolateType;
   typedef itk::LinearInterpolateImageFunction<RealImageType, double> ScalarInterpolateType; 
   
-  TensorImageReader::Pointer     tensorreader = ITK_NULLPTR;
-  TensorInterpolateType::Pointer tensorinterp = ITK_NULLPTR;
-  RealImageReader::Pointer scalarreader = ITK_NULLPTR;
-  ScalarInterpolateType::Pointer scalarinterp = ITK_NULLPTR;
+  TensorImageReader::Pointer     tensorreader = nullptr;
+  TensorInterpolateType::Pointer tensorinterp = nullptr;
+  RealImageReader::Pointer scalarreader = nullptr;
+  ScalarInterpolateType::Pointer scalarinterp = nullptr;
 
   // check for invalid syntax
   if( tensorVolume != "" && ScalarImage != "")
@@ -221,7 +232,7 @@ int main(int argc, char* argv[])
       typedef DTIPointType::PointType PointType;
 
       // p is not really a point its a continuous index
-      const PointType               p = pit->GetPosition();
+      const PointType               p = pit->GetPositionInObjectSpace();
       DTITubeType::TransformPointer transform = ( (*it).GetPointer() )->GetObjectToWorldTransform();
       const PointType               p_world_orig = transform->TransformPoint( p );
 
@@ -257,9 +268,9 @@ int main(int argc, char* argv[])
         ContinuousIndexType cind;
         itk::Index<3>       ind;
         labelimage->TransformPhysicalPointToContinuousIndex(pt_trans, cind);
-        ind[0] = static_cast<long int>(vnl_math_rnd_halfinttoeven(cind[0]) );
-        ind[1] = static_cast<long int>(vnl_math_rnd_halfinttoeven(cind[1]) );
-        ind[2] = static_cast<long int>(vnl_math_rnd_halfinttoeven(cind[2]) );
+        ind[0] = static_cast<long int>(itk::Math::rnd_halfinttoeven(cind[0]) );
+        ind[1] = static_cast<long int>(itk::Math::rnd_halfinttoeven(cind[1]) );
+        ind[2] = static_cast<long int>(itk::Math::rnd_halfinttoeven(cind[2]) );
 
         if( !labelimage->GetLargestPossibleRegion().IsInside(ind) )
           {
@@ -291,13 +302,13 @@ int main(int argc, char* argv[])
       if( noWarp )
         {
 //        std::cout<<"no warp"<<std::endl;
-        newpoint.SetPosition(p);
+        newpoint.SetPositionInObjectSpace(p);
         }
       else
         {
         // set the point to world coordinate system and set the spacing to 1
 //        std::cout<<"warp"<<std::endl;
-        newpoint.SetPosition(pt_trans);
+        newpoint.SetPositionInObjectSpace(pt_trans);
         }
 
       // newpoint.SetRadius(.4);
@@ -346,7 +357,7 @@ int main(int argc, char* argv[])
       EigenValuesType eigenvalues;
       tensor.ComputeEigenValues(eigenvalues);
       
-      newpoint.SetRadius(0.5);
+      newpoint.SetRadiusInObjectSpace(0.5);
       newpoint.SetTensorMatrix(sotensor);
       newpoint.AddField(itk::DTITubeSpatialObjectPoint<3>::FA, tensor.GetFractionalAnisotropy() );
       newpoint.AddField("fa", tensor.GetFractionalAnisotropy() );
@@ -365,10 +376,15 @@ int main(int argc, char* argv[])
 
       newpoints.push_back(newpoint);
       }
+#if ITK_VERSION_MAJOR < 5
     newtube->SetSpacing(spacing);
+#else
+      std::cerr << "WARNING:  spacing measurements disabled for spatial objects in ITKv5" << std::endl;
+     //HACK TODO Need to figure out what to do about spacing in ITK v5  Asking Stephen Aylward for advice
+#endif
     newtube->SetId(id++);
     newtube->SetPoints(newpoints);
-    newgroup->AddSpatialObject(newtube);
+    newgroup->AddChild(newtube);
     }
 //  std::cout<<"plop2"<<std::endl;
 

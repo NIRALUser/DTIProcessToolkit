@@ -82,7 +82,7 @@ public:
   itkSetObjectMacro( Transform, TransformType );
 
   /** Get the transform. */
-  itkGetObjectMacro( Transform, TransformType );
+  itkGetConstObjectMacro( Transform, TransformType );
 
   /** Set the size of the output image. */
   itkSetMacro( OutputRegion, OutputImageRegionType );

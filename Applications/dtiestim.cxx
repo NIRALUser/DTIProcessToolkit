@@ -184,11 +184,10 @@ int main(int argc, char* argv[])
     // measurement frame
     vnl_matrix<double> mf(3, 3);
     // imaging frame
-    vnl_matrix<double>                imgf(3, 3);
     std::vector<std::vector<double> > nrrdmf;
     itk::ExposeMetaData<std::vector<std::vector<double> > >(dict, NRRD_MEASUREMENT_KEY, nrrdmf);
 
-    imgf = dwi->GetDirection().GetVnlMatrix();
+    const vnl_matrix<double> imgf = dwi->GetDirection().GetVnlMatrix().as_matrix();
     if( VERBOSE )
       {
       std::cout << "Image frame: " << std::endl;
@@ -237,7 +236,7 @@ int main(int argc, char* argv[])
       std::string t;
       itk::ExposeMetaData<std::string>(dict, *it, t);
       readbvalue = true;
-      b0 = atof(t.c_str() );
+      b0 = std::stod(t.c_str() );
       }
     else if( it->find("DWMRI_gradient") != std::string::npos )
       {
@@ -252,7 +251,7 @@ int main(int argc, char* argv[])
 
       unsigned int ind;
       std::string  temp = it->substr(it->find_last_of('_') + 1);
-      ind = atoi(temp.c_str() );
+      ind = std::stoi(temp.c_str() );
 
       gradientContainer->InsertElement(ind, g);
       }
@@ -265,10 +264,10 @@ int main(int argc, char* argv[])
       std::string numrepstr;
 
       itk::ExposeMetaData<std::string>(dict, *it, numrepstr);
-      unsigned int numreps = atoi(numrepstr.c_str() );
+      unsigned int numreps = std::stoi(numrepstr.c_str() );
 
       std::string  indtorepstr = it->substr(it->find_last_of('_') + 1);
-      unsigned int indtorep =  atoi(indtorepstr.c_str() );
+      unsigned int indtorep =  std::stoi(indtorepstr.c_str() );
 
       GradientType g = gradientContainer->GetElement(indtorep);
       for( unsigned int i = indtorep + 1; i < indtorep + numreps; i++ )

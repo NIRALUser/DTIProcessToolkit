@@ -19,7 +19,7 @@
 
 #include "itkTensorLinearInterpolateImageFunction.h"
 
-#include "vnl/vnl_math.h"
+#include "itkMath.h"
 
 namespace itk
 {
@@ -74,7 +74,7 @@ TensorLinearInterpolateImageFunction<TInputImage, TCoordRep>
 
   for( dim = 0; dim < ImageDimension; dim++ )
     {
-    baseIndex[dim] = (long) vcl_floor(index[dim] );
+    baseIndex[dim] = (long) itk::Math::floor(index[dim] );
     distance[dim] = index[dim] - double( baseIndex[dim] );
     }
 

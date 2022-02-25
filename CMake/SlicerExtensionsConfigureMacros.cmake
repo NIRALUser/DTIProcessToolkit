@@ -131,7 +131,7 @@ macro( unsetForSlicer )
   set(options VERBOSE )
   set(oneValueArgs )
   set(multiValueArgs NAMES )
-  CMAKE_PARSE_ARGUMENTS(TMP
+  cmake_parse_arguments(TMP
     "${options}"
     "${oneValueArgs}"
     "${multiValueArgs}"
@@ -156,7 +156,7 @@ macro( resetForSlicer )
   set(options VERBOSE )
   set(oneValueArgs )
   set(multiValueArgs NAMES )
-  CMAKE_PARSE_ARGUMENTS(TMP
+  cmake_parse_arguments(TMP
     "${options}"
     "${oneValueArgs}"
     "${multiValueArgs}"
@@ -180,7 +180,7 @@ macro( unsetAllForSlicerBut )
   set(options VERBOSE )
   set(oneValueArgs )
   set(multiValueArgs NAMES )
-  CMAKE_PARSE_ARGUMENTS(TMP
+  cmake_parse_arguments(TMP
     "${options}"
     "${oneValueArgs}"
     "${multiValueArgs}"

@@ -1,101 +1,124 @@
-if( NOT EXTERNAL_SOURCE_DIRECTORY )
-  set( EXTERNAL_SOURCE_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/ExternalSources )
-endif()
 
-# Make sure this file is included only once by creating globally unique varibles
-# based on the name of this included file.
-get_filename_component(CMAKE_CURRENT_LIST_FILENAME ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
-if(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED)
-  return()
-endif()
-set(${CMAKE_CURRENT_LIST_FILENAME}_FILE_INCLUDED 1)
+set(proj VTK)
 
-## External_${extProjName}.cmake files can be recurisvely included,
-## and cmake variables are global, so when including sub projects it
-## is important make the extProjName and proj variables
-## appear to stay constant in one of these files.
-## Store global variables before overwriting (then restore at end of this file.)
-ProjectDependancyPush(CACHED_extProjName ${extProjName})
-ProjectDependancyPush(CACHED_proj ${proj})
-
-# Make sure that the ExtProjName/IntProjName variables are unique globally
-# even if other External_${ExtProjName}.cmake files are sourced by
-# SlicerMacroCheckExternalProjectDependency
-set(extProjName VTK) #The find_package known name
-set(proj        VTK) #This local name
-
-# Sanity checks
-#if(DEFINED ${extProjName}_DIR AND NOT EXISTS ${${extProjName}_DIR})
-#  message(FATAL_ERROR "${extProjName}_DIR variable is defined but corresponds to non-existing directory (${${extProjName}_DIR})")
-#endif()
+set(VTK_VERSION_MAJOR 9)
 
 # Set dependency list
-set(${proj}_DEPENDENCIES "")
+set(${proj}_DEPENDENCIES "zlib")
 
 # Include dependent projects if any
-SlicerMacroCheckExternalProjectDependency(${proj})
+ExternalProject_Include_Dependencies(${proj} PROJECT_VAR proj DEPENDS_VAR ${proj}_DEPENDENCIES)
 
-if(NOT ( DEFINED "USE_SYSTEM_${extProjName}" AND "${USE_SYSTEM_${extProjName}}" ) )
-  # Set CMake OSX variable to pass down the external project
-  set(CMAKE_OSX_EXTERNAL_PROJECT_ARGS)
-  if(APPLE)
-    list(APPEND CMAKE_OSX_EXTERNAL_PROJECT_ARGS
-      -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-      -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-      -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-      )
-  endif()
-
-  set(${proj}_CMAKE_OPTIONS
-      -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/${proj}-install
-      -DBUILD_EXAMPLES:BOOL=OFF
-      -DBUILD_TESTING:BOOL=OFF
-      -DBUILD_SHARED_LIBS:BOOL=OFF
-      -DVTK_USE_PARALLEL:BOOL=ON      
-      -DVTK_INSTALL_LIB_DIR:PATH=${${PROJECT_NAME}_INSTALL_LIB_DIR}
-      ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
-    )
-  ### --- End Project specific additions
-
-  set(${proj}_GIT_TAG "v8.1.1")
-  set(${proj}_REPOSITORY ${git_protocol}://github.com/Kitware/VTK.git)
-
-  ExternalProject_Add(${proj}
-    GIT_REPOSITORY ${${proj}_REPOSITORY}
-    GIT_TAG ${${proj}_GIT_TAG}
-    SOURCE_DIR ${EXTERNAL_SOURCE_DIRECTORY}/${proj}
-    BINARY_DIR ${proj}-build
-    BUILD_COMMAND ${VTK_BUILD_STEP}
-    LOG_CONFIGURE 0  # Wrap configure in script to ignore log output from dashboards
-    LOG_BUILD     0  # Wrap build in script to to ignore log output from dashboards
-    LOG_TEST      0  # Wrap test in script to to ignore log output from dashboards
-    LOG_INSTALL   0  # Wrap install in script to to ignore log output from dashboards
-    ${cmakeversion_external_update} "${cmakeversion_external_update_value}"
-    CMAKE_GENERATOR ${gen}
-    CMAKE_ARGS
-      ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
-      ${COMMON_EXTERNAL_PROJECT_ARGS}
-      ${${proj}_CMAKE_OPTIONS}
-## We really do want to install in order to limit # of include paths INSTALL_COMMAND ""
-    DEPENDS
-      ${${proj}_DEPENDENCIES}
-    )
-
-
-  set(${extProjName}_DIR ${CMAKE_BINARY_DIR}/${proj}-install/lib/cmake/vtk-8.1)
-  
-
-else()
-  if(${USE_SYSTEM_${extProjName}})
-    find_package(${extProjName} ${${extProjName}_REQUIRED_VERSION} REQUIRED)
-    message("USING the system ${extProjName}, set ${extProjName}_DIR=${${extProjName}_DIR}")
-  endif()
-  # The project is provided using ${extProjName}_DIR, nevertheless since other
-  # project may depend on ${extProjName}, let's add an 'empty' one
-  SlicerMacroEmptyExternalProject(${proj} "${${proj}_DEPENDENCIES}")
+if(${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
+  unset(VTK_DIR CACHE)
+  unset(VTK_SOURCE_DIR CACHE)
+  find_package(VTK REQUIRED NO_MODULE)
 endif()
 
-list(APPEND ${CMAKE_PROJECT_NAME}_SUPERBUILD_EP_VARS ${extProjName}_DIR:PATH)
+# Sanity checks
+if(DEFINED VTK_DIR AND NOT EXISTS ${VTK_DIR})
+  message(FATAL_ERROR "VTK_DIR variable is defined but corresponds to non-existing directory")
+endif()
 
-ProjectDependancyPop(CACHED_extProjName extProjName)
-ProjectDependancyPop(CACHED_proj proj)
+if(DEFINED VTK_SOURCE_DIR AND NOT EXISTS ${VTK_SOURCE_DIR})
+  message(FATAL_ERROR "VTK_SOURCE_DIR variable is defined but corresponds to non-existing directory")
+endif()
+
+# For MinGW for case of compilation failure cause of 'too many sections' error
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+  if(MINGW)
+	set(ep_common_cxx_flags "${ep_common_cxx_flags} -Wa,-mbig-obj")
+  elseif(MSVC)
+	set(ep_common_cxx_flags "${ep_common_cxx_flags} /bigobj")
+  endif()
+endif()
+
+if((NOT DEFINED VTK_DIR OR NOT DEFINED VTK_SOURCE_DIR) AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
+
+  ExternalProject_SetIfNotDefined(
+    ${proj}_GIT_REPOSITORY
+    "${git_protocol}://github.com/slicer/VTK.git"
+    QUIET
+    )
+  ExternalProject_SetIfNotDefined(
+    ${proj}_GIT_TAG
+    "98d686bb509f46543ebe04fdd5d120fdab87893b") # slicer-v9.0.20201111-733234c785-v3
+
+
+## Use ../VTK/Utilities/Maintenance/WhatModulesVTK.py ../VTK ./
+## to identify necessary modules for VTK
+
+  ExternalProject_Add(${proj}
+    ${${proj}_EP_ARGS}
+    SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
+    BINARY_DIR ${CMAKE_BINARY_DIR}/${proj}-build
+    GIT_REPOSITORY "${${proj}_GIT_REPOSITORY}"
+    GIT_TAG ${${proj}_GIT_TAG}
+    CMAKE_ARGS -Wno-dev --no-warn-unused-cli
+    CMAKE_CACHE_ARGS
+      ${COMMON_EXTERNAL_PROJECT_ARGS}
+      -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+      -DCMAKE_CXX_FLAGS:STRING=${ep_common_cxx_flags}
+      -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
+      -DCMAKE_C_FLAGS:STRING=${ep_common_c_flags}
+      -DCMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD}
+      -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=${CMAKE_CXX_STANDARD_REQUIRED}
+      -DCMAKE_CXX_EXTENSIONS:BOOL=${CMAKE_CXX_EXTENSIONS}
+      -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/${proj}-install
+      -DCMAKE_INCLUDE_DIRECTORIES_BEFORE:BOOL=OFF
+      -DBUILD_TESTING:BOOL=OFF
+      -DBUILD_EXAMPLES:BOOL=OFF
+      -DBUILD_SHARED_LIBS:BOOL=OFF
+      -DVTK_USE_PARALLEL:BOOL=ON
+      -DVTK_DEBUG_LEAKS:BOOL=${VTK_DEBUG_LEAKS}
+      -DVTK_LEGACY_REMOVE:BOOL=ON
+      -DVTK_WRAP_TCL:BOOL=OFF
+      -DVTK_WRAP_PYTHON:BOOL=OFF
+      -DVTK_USE_GUISUPPORT:BOOL=OFF
+      -DVTK_USE_QT:BOOL=OFF
+      -DVTK_BUILD_ALL_MODULES_FOR_TESTS:BOOL=OFF
+      -DVTK_Group_Rendering:BOOL=OFF
+      -DVTK_Group_StandAlone:BOOL=OFF
+      -DModule_vtkCommonCore:BOOL=ON
+      -DModule_vtkCommonDataModel:BOOL=ON
+      -DModule_vtkCommonExecutionModel:BOOL=ON
+      -DModule_vtkCommonMath:BOOL=ON
+      -DModule_vtkCommonMisc:BOOL=ON
+      -DModule_vtkCommonSystem:BOOL=ON
+      -DModule_vtkCommonTransforms:BOOL=ON
+      -DModule_vtkIOCore:BOOL=ON
+      -DModule_vtkIOGeometry:BOOL=ON
+      -DModule_vtkIOLegacy:BOOL=ON
+      -DModule_vtkIOXML:BOOL=ON
+      -DModule_vtkIOXMLParser:BOOL=ON
+      INSTALL_COMMAND ""
+    )
+  ### --- End Project specific additions
+  set(${proj}_DIR ${CMAKE_CURRENT_BINARY_DIR}/${proj}-build)
+
+  set(VTK_SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj})
+
+  set(PNG_INCLUDE_DIR ${VTK_SOURCE_DIR}/Utilities/vtkpng)
+
+  set(PNG_LIBRARY_DIR ${VTK_DIR}/bin)
+  if(CMAKE_CONFIGURATION_TYPES)
+    set(PNG_LIBRARY_DIR ${PNG_LIBRARY_DIR}/${CMAKE_CFG_INTDIR})
+  endif()
+  if(WIN32)
+    set(PNG_LIBRARY ${PNG_LIBRARY_DIR}/vtkpng.lib)
+  elseif(APPLE)
+    set(PNG_LIBRARY ${PNG_LIBRARY_DIR}/libvtkpng.dylib)
+  else()
+    set(PNG_LIBRARY ${PNG_LIBRARY_DIR}/libvtkpng.so)
+  endif()
+
+else()
+  ExternalProject_Add_Empty(${proj} DEPENDS ${${proj}_DEPENDENCIES})
+endif()
+
+mark_as_superbuild(VTK_SOURCE_DIR:PATH)
+
+mark_as_superbuild(
+  VARS ${proj}_DIR:PATH VTK_VERSION_MAJOR:STRING
+  LABELS "FIND_PACKAGE"
+  )

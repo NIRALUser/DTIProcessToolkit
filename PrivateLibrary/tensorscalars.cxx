@@ -271,12 +271,12 @@ GradientImageType::Pointer createPrincipalEigenvector(TensorImageType::Pointer t
     // measurement frame
     vnl_matrix<double> mf(3, 3);
     // imaging frame
-    vnl_matrix<double> imgf(3, 3);
+
 
     std::vector<std::vector<double> > nrrdmf;
     itk::ExposeMetaData<std::vector<std::vector<double> > >(dict, NRRD_MEASUREMENT_KEY, nrrdmf);
 
-    imgf = timg->GetDirection().GetVnlMatrix();
+    const vnl_matrix<double> imgf = timg->GetDirection().GetVnlMatrix().as_matrix();
     for( unsigned int i = 0; i < 3; ++i )
       {
       for( unsigned int j = 0; j < 3; ++j )

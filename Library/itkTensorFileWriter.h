@@ -70,12 +70,12 @@ public:
   itkSetMacro(FileName, std::string);
 
   /** Print internal ivars */
-  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE
+  void PrintSelf(std::ostream& os, Indent indent) const override
   {
     this->Superclass::PrintSelf( os, indent );
   }
 
-  virtual void GenerateData() ITK_OVERRIDE;
+  virtual void GenerateData() override;
 
 protected:
   TensorFileWriter()

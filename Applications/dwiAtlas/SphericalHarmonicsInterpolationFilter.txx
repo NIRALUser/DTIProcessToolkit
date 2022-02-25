@@ -358,7 +358,7 @@ SphericalHarmonicsInterpolationFilter<TInputImage, TOutputImage>
       iss >> g[0] >> g[1] >> g[2];
       unsigned int ind;
       std::string  temp = it->substr(it->find_last_of('_') + 1);
-      ind = atoi(temp.c_str() );
+      ind = std::stoi(temp.c_str() );
       // ind is the current gradient vector index
       gradientContainer->InsertElement(ind, g);
       }
